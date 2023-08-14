@@ -1,0 +1,14 @@
+.mimer-image-container {
+    height: auto;
+    position: relative;
+}
+
+.mimer-image-container.appear-dimmed {
+    height: 10rem;
+    overflow: hidden;
+}
+
+.mimer-image-container img {
+    display: block;
+    object-fit: cover;
+}

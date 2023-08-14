@@ -1,0 +1,323 @@
+.mimer-editor {
+    position: relative;
+    height: 100%;
+
+    font-family: var(--font-family-serif);
+    font-weight: var(--font-normal);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    letter-spacing: var(--letter-spacing);
+    background-color: var(--bg-base-100);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.mimer-drag-container {
+    overflow-x: scroll;
+    height: 100%;
+}
+
+.mimer-drag-container .editor-drop-marker {
+    display: block;
+    position: absolute;
+
+    overflow-x: scroll;
+    display: flex;
+    flex-direction: column;
+
+    height: 2px;
+    margin-top: -1px;
+    left: 5rem;
+    right: 2.8rem;
+    background: var(--bg-primary);
+    border-radius: 2px;
+    opacity: 0;
+    box-shadow: 0px 0px 1px 1px var(--bg-primary);
+    transition: opacity 0.1s;
+}
+
+.mimer-drag-container .editor-drop-marker.active {
+    opacity: 1;
+}
+
+
+.mimer-editor div[role="textbox"] {
+    height: 100%;
+    min-height: 200px;
+    overflow-x: scroll;
+}
+
+
+/**
+ * Parent elements and droppables
+ */
+.mimer-editor .droppable-block {
+    position: relative;
+}
+
+.mimer-editor .parent {
+    color: var(--fg-base);
+    padding: 0.4rem 1.6rem 0.4rem 4.2rem;
+}
+
+.mimer-editor.mimer-drag-over .parent.block {
+    pointer-events: none;
+}
+
+.mimer-editor .droppable-block:first-child .parent {
+    padding-top: 1.6rem;
+}
+
+.mimer-editor .droppable-block:last-child .parent {
+    padding-bottom: 1.6rem;
+}
+
+.mimer-editor .droppable-block {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.mimer-editor.drag-over .droppable-block>div {
+    pointer-events: none;
+}
+
+/* Special rule to make bold leafs in bold elements even bolder */
+.mimer-editor .parent .font-bold .bold {
+    font-weight: var(--font-bolder);
+}
+
+/**
+ * Resusable element transitions
+ */
+.mimer-editor .parent .appear-transitions {
+    transition:
+        padding 0.4s,
+        height 0.6s,
+        opacity 0.6s ease-in;
+}
+
+.mimer-editor .parent .appear-dimmed {
+    opacity: 0.3;
+}
+
+
+/**
+ * Theme base color classes
+ */
+.mimer .fg-base {
+    color: var(--fg-base);
+}
+
+.mimer .fg-weak {
+    color: var(--fg-base);
+    opacity: 0.7;
+}
+
+.mimer .bg-base,
+.mimer.bg-base {
+    background-color: var(--bg-base);
+    color: var(--fg-base);
+}
+
+.mimer .bg-base-hover:hover {
+    background-color: var(--bg-base-hover);
+}
+
+.mimer .bg-base-focus {
+    background-color: var(--bg-base-hover);
+}
+
+.mimer .bg-base-10,
+.mimer.bg-base-10 {
+    background-color: var(--bg-base-10);
+    color: var(--fg-base);
+}
+
+.mimer .bg-base-20,
+.mimer.bg-base-20 {
+    background-color: var(--bg-base-20);
+    color: var(--fg-base);
+}
+
+.mimer .bg-base-30,
+.mimer.bg-base-30 {
+    background-color: var(--bg-base-30);
+    color: var(--fg-base);
+}
+
+.mimer .s-base {
+    box-shadow: var(--s-base);
+}
+
+.mimer .s-base-10 {
+    box-shadow: var(--s-base-10);
+}
+
+.mimer .s-base-20 {
+    box-shadow: var(--s-base-20);
+}
+
+.mimer .s-base-30 {
+    box-shadow: var(--s-base-30);
+}
+
+
+.mimer .primary {
+    background-color: var(--bg-primary);
+    color: var(--fg-primary);
+}
+
+.mimer .bg-primary {
+    background-color: var(--bg-primary);
+}
+
+.mimer .fg-primary {
+    color: var(--bg-primary);
+}
+
+.mimer .primary-hover:hover {
+    background-color: var(--bg-primary-hover);
+    color: var(--fg-primary-hover);
+}
+
+.mimer .primary-weak {
+    background-color: var(--bg-primary);
+    color: var(--fg-primary);
+    opacity: 0.7;
+}
+
+
+.mimer .fg-link {
+    color: var(--fg-link)
+}
+
+.mimer .fg-error {
+    color: var(--fg-error)
+}
+
+/**
+ * General resuable defaults
+ */
+.mimer .r-base {
+    border-radius: var(--r-base);
+    overflow: hidden;
+}
+
+.mimer .r-less {
+    border-radius: calc(var(--r-base) / 1.5);
+    overflow: hidden;
+}
+
+.mimer .r-none {
+    border-radius: 0;
+}
+
+.mimer .b-base {
+    border: 1px solid var(--b-base);
+}
+
+.mimer .b-weak {
+    border: 1px solid var(--b-weak);
+}
+
+.mimer .no-border {
+    border: none;
+}
+
+.mimer .weak {
+    opacity: 0.9;
+}
+
+.mimer .weaker {
+    opacity: 0.7;
+}
+
+.mimer .text-ui {
+    font-family: var(--font-family-ui)
+}
+
+.mimer .text-sans-serif {
+    font-family: var(--font-family-sans-serif);
+}
+
+.mimer .text-xs {
+    font-size: 0.8rem;
+}
+
+.mimer .text-sm {
+    font-size: 0.9rem;
+}
+
+.mimer .text-md {
+    font-size: 1.1rem;
+}
+
+.mimer .text-lg {
+    font-size: 1.35rem;
+}
+
+.mimer .text-xl {
+    font-size: 1.8rem;
+}
+
+.mimer .text-xl2 {
+    font-size: 2.2rem;
+}
+
+.mimer .font-light {
+    font-weight: var(--font-weight-light);
+}
+
+.mimer .font-normal {
+    font-weight: var(--font-weight-normal);
+}
+
+.mimer .font-bold,
+.mimer .bold {
+    font-weight: var(--font-weight-bold);
+}
+
+.mimer .font-semibold {
+    font-weight: var(--font-weight-semibold);
+}
+
+.mimer .font-bolder {
+    font-weight: var(--font-weight-bolder);
+}
+
+.mimer .italic {
+    font-style: italic;
+}
+
+.mimer .not-italic {
+    font-style: normal;
+}
+
+.mimer .underline {
+    text-decoration-line: underline;
+}
+
+.mimer .line-through {
+    text-decoration-line: line-through;
+}
+
+.mimer .no-underline {
+    text-decoration-line: none;
+}
+
+.mimer input {
+    font-family: var(--font-family-ui);
+    font-size: 1.1rem;
+    line-height: var(--line-height);
+    font-weight: var(--font-weight-normal);
+    color: var(--fg-base);
+}
+
+.mimer input[type="text"] {
+    padding: 2px 8px;
+    border: 1px solid var(--b-base);
+    border-radius: calc(var(--r-base) / 1.5);
+    background-color: var(--bg-base-30);
+}

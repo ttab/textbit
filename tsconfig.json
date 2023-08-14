@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "types": [
+      "node",
+      "jest"
+    ],
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+    "target": "es2016", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "jsx": "react-jsx", /* Specify what JSX code is generated. */
+    "jsxImportSource": "", /* Specify module specifier used to import the JSX factory functions when using 'jsx: react-jsx*'. */
+    "module": "esnext", /* Specify what module code is generated. */
+    "moduleResolution": "node", /* Specify how TypeScript looks up a file from a given module specifier. */
+    "typeRoots": [], /* Specify multiple folders that act like './node_modules/@types'. */
+    "declaration": true, /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
+    "emitDeclarationOnly": true, /* Only output d.ts files and not JavaScript files. */
+    "sourceMap": true, /* Create source map files for emitted JavaScript files. */
+    "outDir": "./dist", /* Specify an output folder for all emitted files. */
+    "declarationDir": "types", /* Specify the output directory for generated declaration files. */
+    "allowSyntheticDefaultImports": true, /* Allow 'import x from y' when a module doesn't have a default export. */
+    "esModuleInterop": true, /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+    "forceConsistentCasingInFileNames": true, /* Ensure that casing is correct in imports. */
+    "strict": true, /* Enable all strict type-checking options. */
+    "skipLibCheck": true /* Skip type checking all .d.ts files. */
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "local"
+  ]
+}
