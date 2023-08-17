@@ -122,7 +122,7 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
                                     // FIXME: Should not allow transforming blocks (only text class element)
                                     Transforms.setNodes(
                                         editor,
-                                        { name: action.name },
+                                        { type: action.name },
                                         { match: n => SlateElement.isElement(n) && SlateEditor.isBlock(editor, n) }
                                     )
                                 }
@@ -140,7 +140,7 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
                                     Range.isCollapsed(editor.selection) &&
                                     SlateElement.isElement(node)
                                 ) {
-                                    const renderer = Registry.elementRenderers.find(r => r.name === node.name)
+                                    const renderer = Registry.elementRenderers.find(r => r.type === node.type)
                                     return [
                                         {
                                             ...editor.selection,

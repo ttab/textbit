@@ -231,7 +231,7 @@ const inputHandler: InputEventFunction = (editor, text) => {
             [{
                 id: uuid.v4(),
                 class: 'void',
-                name: 'loader',
+                type: 'core/loader',
                 properties: {},
                 children: [{ text: '' }]
             }],
@@ -266,11 +266,11 @@ const inputHandler: InputEventFunction = (editor, text) => {
     return false
 }
 
-const createOembedNode = (props: any): any => {
+const createOembedNode = (props: any): Element => {
     return {
         id: uuid.v4(),
         class: 'block',
-        name: 'oembed',
+        type: 'core/oembed',
         properties: {
             type: props.type,
             provider_name: props.provider_name,
@@ -287,16 +287,17 @@ const createOembedNode = (props: any): any => {
         },
         children: [
             {
-                name: 'oembed--embed',
+                type: 'core/oembed/embed',
                 children: [{ text: '' }]
             },
             {
-                name: 'oembed--title',
+                type: 'core/oembed/title',
                 children: [{ text: props.title }]
             }
         ]
     }
 }
+
 const fetchOembed = (url: string): Promise<{ [key: string]: string } | null> => {
     const fetchUrl = matchUrl(url)
 
@@ -364,9 +365,9 @@ const normalize: NormalizeFunction = (editor, entry) => {
     }
 
     // Remove excess titles (only one allowed)
-    const titles = node.children.filter((child: any) => child?.name === 'oembed--title')
+    const titles = node.children.filter((child: any) => child?.type === 'core/oembed/title')
     if (Array.isArray(titles) && titles.length > 1) {
-        return convertLastSibling(editor, node, path, 'oembed--title', 'paragraph')
+        return convertLastSibling(editor, node, path, 'core/oembed/title', 'core/paragraph')
     }
 
     const title = Node.string(titles[0])
@@ -388,7 +389,7 @@ const normalize: NormalizeFunction = (editor, entry) => {
 
 export const OembedVideo: MimerPlugin = {
     class: 'block',
-    name: 'oembed',
+    name: 'core/oembed',
     events: [
         {
             on: 'drop',
@@ -406,12 +407,12 @@ export const OembedVideo: MimerPlugin = {
             render
         },
         {
-            name: 'embed',
+            type: 'embed',
             class: 'void',
             render: renderVideo
         },
         {
-            name: 'title',
+            type: 'title',
             render: renderTitle
         }
     ]

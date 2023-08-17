@@ -110,13 +110,13 @@ const EditLink: ToolFunction = (editor, entry) => {
 
 const deleteLink = (editor: Editor) => {
     Transforms.unwrapNodes(editor, {
-        match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.name === 'link',
+        match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'core/link',
     })
 }
 
 export const Link: MimerPlugin = {
     class: 'inline',
-    name: 'link',
+    name: 'core/link',
     components: [{
         render
     }],
@@ -137,7 +137,7 @@ export const Link: MimerPlugin = {
             // If we already have a link, focus on it's input
             const nodeEntries = Array.from(Editor.nodes(editor, {
                 at: Editor.unhangRange(editor, selection),
-                match: n => !Editor.isEditor(n) && MimerElement.isInline(n) && MimerElement.hasName(n, 'link')
+                match: n => !Editor.isEditor(n) && MimerElement.isInline(n) && MimerElement.isOfType(n, 'core/link')
             }))
 
             if (nodeEntries.length) {
@@ -152,7 +152,7 @@ export const Link: MimerPlugin = {
 
             const link = {
                 class: 'inline',
-                name: 'link',
+                type: 'core/link',
                 id,
                 properties: {
                     url: '',

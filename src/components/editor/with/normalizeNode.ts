@@ -8,7 +8,7 @@ export const withNormalizeNode = (editor: Editor, normalizers: Normalizer[]) => 
         const [node] = entry
 
         if (Element.isElement(node)) {
-            const normalizer = normalizers.find(n => n.name === node.name)
+            const normalizer = normalizers.find(n => n.name === node.type)
 
             if (normalizer && !!normalizer.normalize) {
                 return normalizer.normalize(editor, entry)

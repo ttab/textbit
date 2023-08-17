@@ -5,7 +5,7 @@ import { MimerPlugin } from '../../../../../types'
 
 export const Leadin: MimerPlugin = {
     class: 'text',
-    name: 'leadin',
+    name: 'core/leadin',
     placeholder: 'Leadin',
     components: [{
         render: ({ children }) => {
@@ -20,7 +20,7 @@ export const Leadin: MimerPlugin = {
             tool: <MdOutlineShortText />,
             hotkey: 'mod+2',
             handler: (editor) => {
-                convertToText(editor, 'leadin')
+                convertToText(editor, 'core/leadin')
             }
         }
     ],

@@ -5,7 +5,7 @@ import { MimerPlugin } from '../../../../../types'
 
 export const Dateline: MimerPlugin = {
     class: 'text',
-    name: 'dateline',
+    name: 'core/dateline',
     placeholder: 'Dateline',
     components: [{
         render: ({ children }) => {
@@ -20,7 +20,7 @@ export const Dateline: MimerPlugin = {
             tool: <MdRadar />,
             hotkey: 'mod+3',
             handler: (editor) => {
-                convertToText(editor, 'dateline')
+                convertToText(editor, 'core/dateline')
             }
         }
     ],

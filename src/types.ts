@@ -54,7 +54,7 @@ export type EventHandler = {
 export interface MimerRenderElementProps { parent: Element, children: JSX.Element[] }
 export type RenderFunction = (props: MimerRenderElementProps) => JSX.Element | undefined
 export type Renderer = {
-    name: string
+    type: string
     placeholder?: string
     class?: string
     render: RenderFunction
@@ -97,7 +97,7 @@ export type MimerPlugin = {
         match?: DropMatchFunction | FileInputMatchFunction
     }>
     components?: Array<{
-        name?: string
+        type?: string
         class?: string
         render: RenderFunction
     }>
@@ -111,7 +111,7 @@ declare module 'slate' {
         Element: BaseElement & {
             id?: string
             class?: string
-            name: string
+            type: string
             hotKey?: string
             properties?: {
                 [key: string]: string | number

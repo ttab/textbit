@@ -6,7 +6,7 @@ import { Descendant } from 'slate'
 
 const initialValue: Descendant[] = [
     {
-        name: 'title',
+        type: 'core/title',
         id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
         class: 'text',
         children: [
@@ -14,7 +14,7 @@ const initialValue: Descendant[] = [
         ]
     },
     {
-        name: 'leadin',
+        type: 'core/leadin',
         id: '538345e5-bacc-48f9-9ed2-b219892b51dc',
         class: 'text',
         children: [
@@ -22,7 +22,7 @@ const initialValue: Descendant[] = [
         ]
     },
     {
-        name: 'dateline',
+        type: 'core/dateline',
         id: '538345e5-cadd-4558-9ed2-a219892b51dc',
         class: 'text',
         children: [
@@ -30,7 +30,7 @@ const initialValue: Descendant[] = [
         ]
     },
     {
-        name: 'paragraph',
+        type: 'core/paragraph',
         id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
         class: 'text',
         children: [
@@ -42,18 +42,18 @@ const initialValue: Descendant[] = [
         ],
     },
     {
-        name: 'blockquote',
+        type: 'core/blockquote',
         class: 'textblock',
         id: '538345e5-bacc-48f9-8ef1-1214443a32da',
         children: [
             {
-                name: 'blockquote--body',
+                type: 'core/blockquote/body',
                 children: [
                     { text: 'Just a regular paragraph that contains some nonsensical writing' }
                 ]
             },
             {
-                name: 'blockquote--caption',
+                type: 'core/blockquote/caption',
                 children: [
                     { text: 'Mr Smith' }
                 ]
@@ -61,7 +61,7 @@ const initialValue: Descendant[] = [
         ]
     },
     {
-        name: 'paragraph',
+        type: 'core/paragraph',
         class: 'text',
         id: '538345e5-bacc-48f9-8ef1-1215892b61ed',
         children: [
@@ -69,7 +69,7 @@ const initialValue: Descendant[] = [
         ],
     },
     {
-        name: 'paragraph',
+        type: 'core/paragraph',
         id: '538343b5-badd-48f9-8ef0-1219891b60ef',
         class: 'text',
         children: [

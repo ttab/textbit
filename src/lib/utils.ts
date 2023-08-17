@@ -40,7 +40,7 @@ const isInline = (n: Node): boolean => {
 export function convertLastSibling(editor: Editor, node: Node, path: Path, fromType: string, toTextType: string): void {
     const siblingNodes: Array<any> = []
     for (const [child, childPath] of Node.elements(node)) {
-        if (child.name === fromType) {
+        if (child.type === fromType) {
             siblingNodes.push([child, childPath])
         }
     }
@@ -55,7 +55,7 @@ export function convertLastSibling(editor: Editor, node: Node, path: Path, fromT
         Transforms.insertNodes(
             editor,
             {
-                name: toTextType, children: [{
+                type: toTextType, children: [{
                     text: Node.string(siblingNodes[n][0] as Node)
                 }]
             } as Node,
@@ -86,11 +86,11 @@ export function convertLastSibling(editor: Editor, node: Node, path: Path, fromT
  * @todo Store selection and restore it after transforms
  * 
  * @param editor Editor
- * @param name string
+ * @param type string
  * @param nodes Node[]
  */
-export function convertToText(editor: Editor, name: string, nodes?: NodeEntry<Node>[]) {
-    const plugin = Registry.plugins.find(p => p.name === name)
+export function convertToText(editor: Editor, type: string, nodes?: NodeEntry<Node>[]) {
+    const plugin = Registry.plugins.find(p => p.name === type)
     const className = plugin?.class
     const targetNodes = nodes || getSelectedNodeEntries(editor)
 
@@ -116,8 +116,8 @@ export function convertToText(editor: Editor, name: string, nodes?: NodeEntry<No
             if (isText(node)) {
                 Transforms.setNodes(
                     editor,
-                    { name },
-                    { match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n) && n.name !== name }
+                    { type: type },
+                    { match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n) && n.type !== type }
                 )
                 continue
             }
@@ -131,7 +131,7 @@ export function convertToText(editor: Editor, name: string, nodes?: NodeEntry<No
                         strings.push({
                             id: uuid.v4(),
                             class: className,
-                            name: name,
+                            type: type,
                             children: [{
                                 text: val[0].text
                             }]

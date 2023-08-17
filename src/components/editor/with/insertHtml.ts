@@ -13,7 +13,7 @@ export const withInsertHtml = (editor: Editor) => {
 
             const paragraphs = paragraphedText.split("\n").map((s) => {
                 return {
-                    name: 'paragraph',
+                    type: 'core/paragraph',
                     id: uuid.v4(),
                     class: 'text',
                     children: [
