@@ -370,21 +370,24 @@ const normalize: NormalizeFunction = (editor, entry) => {
         return convertLastSibling(editor, node, path, 'core/oembed/title', 'core/paragraph')
     }
 
-    const title = Node.string(titles[0])
-    if (title !== node?.properties?.title) {
-        Transforms.setNodes(
-            editor,
-            {
-                properties: {
-                    ...node.properties,
-                    title: title
-                }
-            },
-            {
-                at: path
-            }
-        )
-    }
+    // Syncronizing editable child "title" to property. Not necessary anymore but
+    // saving this as an example for now/the future, while thinking about this more...
+    //
+    // const title = Node.string(titles[0])
+    // if (title !== node?.properties?.title) {
+    //     Transforms.setNodes(
+    //         editor,
+    //         {
+    //             properties: {
+    //                 ...node.properties,
+    //                 title: title
+    //             }
+    //         },
+    //         {
+    //             at: path
+    //         }
+    //     )
+    // }
 }
 
 export const OembedVideo: MimerPlugin = {

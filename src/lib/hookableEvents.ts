@@ -60,13 +60,14 @@ export async function insertNode(
         throw new Error('Editor is not a history editor. Unexpected weirdness is going on!')
     }
 
+    // FIXME: Creating a loader should be a utility/helper function
     HistoryEditor.withoutSaving(editor, () => {
         Transforms.insertNodes(
             editor,
             [{
                 id: uuid.v4(),
                 class: 'void',
-                name: 'loader',
+                type: 'core/loader',
                 properties: {},
                 children: [{ text: '' }]
             }],
