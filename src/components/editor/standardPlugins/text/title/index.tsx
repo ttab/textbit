@@ -6,7 +6,7 @@ import { convertToText } from '../../../../../lib/utils'
 
 export const Title: MimerPlugin = {
     class: 'text',
-    name: 'core/title',
+    name: 'core/heading-1',
     placeholder: 'Title',
     components: [{
         render: ({ children }) => {
@@ -21,7 +21,7 @@ export const Title: MimerPlugin = {
             tool: <MdTitle />,
             hotkey: 'mod+1',
             handler: (editor) => {
-                convertToText(editor, 'core/title')
+                convertToText(editor, 'core/heading-1')
             }
         }
     ],

@@ -6,7 +6,7 @@ import { Descendant } from 'slate'
 
 const initialValue: Descendant[] = [
     {
-        type: 'core/title',
+        type: 'core/heading-1',
         id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
         class: 'text',
         children: [
@@ -14,7 +14,7 @@ const initialValue: Descendant[] = [
         ]
     },
     {
-        type: 'core/leadin',
+        type: 'core/preamble',
         id: '538345e5-bacc-48f9-9ed2-b219892b51dc',
         class: 'text',
         children: [
