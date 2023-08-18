@@ -16,6 +16,7 @@ An editor component based on Slate for embedding into react applications. See [S
 This will product both an ESM and CJS modules in as well as a typescript definition (_index.d.ts_) file in `dist/`.
 
 ## Structure
+
 ### Main directory structure
 
 `src/`
@@ -203,9 +204,9 @@ type EventMatchFunction = (event: React.DragEvent | React.ChangeEvent) => boolea
 
 Array of JSX components that can be rendered in the editable area. The *type* property is used to match a Slate custom element type to know which element should be rendered.
 
-The default component for the plugin should not have a specified type. The type is then inherited from the plugin name.
+The default component for the plugin must not have a specified type. The type is in that case inherited from the plugin name.
 
-If the plugin (i.e the default component) have sub components they should be typed. The type will be appended to the default component type. Example:
+If the default component have sub components they should have a type specified. The type will be appended to the default component type. Example:
 
 ```javascript
 OembedVideo: MimerPlugin = {
@@ -228,7 +229,7 @@ OembedVideo: MimerPlugin = {
 }
 ```
 
-The above will result in three component types. The default component will be typed as *core/oembed* and correspond to a custom element also typed the same. The two other will internally be typed as *core/oembed/embed* and *core/oembed/title*.
+The above will result in three component types. The default component will be typed as `core/oembed` and correspond to a custom element also typed the same. The two other will internally be typed as `core/oembed/embed` and `core/oembed/title`.
 
 ## Plugin classes
 
@@ -280,6 +281,95 @@ So far the only plugin type not rendered in the editable area. Used for quote ha
 
 Example `src/components/editor/standardPlugins/generic/quotes.tsx`
 
+## Elements
+
+Element and Text interfaces have both been extended from Slate original BaseElement and BaseText interfaces.
+
+```javascript
+declare module 'slate' {
+    interface CustomTypes {
+        Editor: ReactEditor
+        Element: BaseElement & {
+            id?: string
+            class?: string
+            type: string
+            hotKey?: string
+            properties?: {
+                [key: string]: string | number
+            }
+            attributes?: {
+                [key: string]: string | number
+            }
+        }
+        Text: BaseText & {
+            text: string
+            formats?: string[]
+            placeholder?: string
+        }
+    }
+}
+```
+
+An example `core/image` Element node based would then look like below.
+
+```javascript
+{
+    id: '11E7342C-772C-4027-81B5-1972DF8B0BA0',
+    class: 'block',
+    type: 'core/image',
+    properties: {
+        type: 'image/jpg',
+        src: 'https:/...',
+        size: '512023',
+        width: '2048',
+        height: '1365'
+    },
+    children: [
+        {
+            type: 'core/image/image',
+            children: [{ text: '' }]
+        },
+        {
+            type: 'core/image/altText',
+            children: [{ text: object.src }]
+        },
+        {
+            type: 'core/image/text',
+            children: [{ text: '' }]
+        }
+    ]
+}
+```
+
+An example `core/heading-1` Text node would in turn look like below.
+
+```javascript
+{
+    type: 'core/heading-1',
+    id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
+    class: 'text',
+    children: [
+        { text: 'Better music?' }
+    ]
+}
+```
+
+A more full example of paragraph Text node with bold and italic leafs.
+
+```javascript
+{
+    type: 'core/paragraph',
+    id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
+    class: 'text',
+    children: [
+        { text: 'An example paragraph that contains text that is a wee bit ' },
+        { text: 'stronger', formats: ['bold'] },
+        { text: ' than normal but also text that is somewhat ' },
+        { text: 'emphasized', formats: ['italic'] },
+        { text: ' compared to the normal styled text found elsewhere in the document.' },
+    ],
+}
+```
 
 ## Typescript
 All types are defined in `src/types.ts`
