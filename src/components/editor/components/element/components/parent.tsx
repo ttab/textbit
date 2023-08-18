@@ -25,7 +25,7 @@ export const ParentElement = ({ element, attributes, children, renderer }: Rende
     return (
         <Droppable element={element}>
             <div
-                className={`parent ${element.class} ${element.name}`}
+                className={`parent ${element.class} ${element.type}`}
                 data-id={element.id}
                 {...attributes}
             >

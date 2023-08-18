@@ -36,25 +36,24 @@ export type Action = {
 /** Event handlers */
 export type InputEventFunction = (editor: Editor, text: string) => void | boolean
 
-export type FileInputMatchFunction = (event: React.ChangeEvent<HTMLInputElement>) => boolean
 export type FileInputEventFunction = (editor: Editor, event: React.ChangeEvent<HTMLInputElement>, objects?: any[]) => Promise<any[]>
+export type DropEventFunction = (editor: Editor, event: React.DragEvent<Element>, objects?: any[]) => Promise<any[]>
 
-export type DropMatchFunction = (event: React.DragEvent) => boolean
-export type DropEventFunction = (editor: Editor, event: React.DragEvent, objects?: any[]) => Promise<any[]>
+export type EventMatchFunction = (event: React.DragEvent | React.ChangeEvent) => boolean
 
 export type EventHandler = {
     name: string
     class: string
     on: string
     handler: InputEventFunction | DropEventFunction | FileInputEventFunction,
-    match?: DropMatchFunction | FileInputMatchFunction
+    match?: EventMatchFunction
 }
 
 /** Renderers */
 export interface MimerRenderElementProps { parent: Element, children: JSX.Element[] }
 export type RenderFunction = (props: MimerRenderElementProps) => JSX.Element | undefined
 export type Renderer = {
-    name: string
+    type: string
     placeholder?: string
     class?: string
     render: RenderFunction
@@ -94,10 +93,10 @@ export type MimerPlugin = {
     events?: Array<{
         on: MimerEventTypes,
         handler: InputEventFunction | DropEventFunction | FileInputEventFunction,
-        match?: DropMatchFunction | FileInputMatchFunction
+        match?: EventMatchFunction
     }>
     components?: Array<{
-        name?: string
+        type?: string
         class?: string
         render: RenderFunction
     }>
@@ -111,7 +110,7 @@ declare module 'slate' {
         Element: BaseElement & {
             id?: string
             class?: string
-            name: string
+            type: string
             hotKey?: string
             properties?: {
                 [key: string]: string | number

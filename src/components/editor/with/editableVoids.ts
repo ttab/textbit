@@ -7,21 +7,22 @@ const types: string[] = []
 export const withEditableVoids = (editor: Editor, nodes: Descendant[], Registry: MimerRegistry) => {
     const { isVoid } = editor
 
-    // All void block renderers
-    const blocks: string[] = Registry.elementRenderers.filter(r => r.class === 'void').map(({ name: type }) => type)
+    // All registered void block renderers
+    const blocks: string[] = Registry.elementRenderers.filter(r => r.class === 'void').map(({ type }) => type)
 
-    // All unknown elements in document are considered to be voids/not editable
+    // If an element type exist in the document but does not have a registered renderer
+    // the elementis considered to be av oid / not editable element.
     types.length = 0
     extractAllTypesFromDocument(nodes)
-    const registeredTypes: string[] = [...Registry.elementRenderers, ...Registry.leafRenderers].map(({ name: type }) => { return type })
+    const registeredTypes: string[] = [...Registry.elementRenderers, ...Registry.leafRenderers].map(({ type }) => { return type })
     const unknownTypesInDocument = types.filter(t => !registeredTypes.includes(t))
 
     editor.isVoid = (element: Element) => {
-        if (unknownTypesInDocument.includes(element.name)) {
+        if (unknownTypesInDocument.includes(element.type)) {
             return true
         }
 
-        if (blocks.includes(element.name)) {
+        if (blocks.includes(element.type)) {
             return true
         }
 
@@ -33,12 +34,12 @@ export const withEditableVoids = (editor: Editor, nodes: Descendant[], Registry:
 
 const extractAllTypesFromDocument = (nodes: Descendant[]) => {
     nodes.forEach(n => {
-        if (!Element.isElement(n) || !n.name) {
+        if (!Element.isElement(n) || !n.type) {
             return
         }
 
-        if (!types.includes(n.name)) {
-            types.push(n.name)
+        if (!types.includes(n.type)) {
+            types.push(n.type)
         }
 
         if (n.children.length) {

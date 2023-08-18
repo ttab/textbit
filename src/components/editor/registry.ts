@@ -51,48 +51,54 @@ const registerHooks = (hooks: Hook[]) => {
     })
 }
 
-const registerRenderers = (plugins: MimerPlugin[]) => {
+/**
+ * Register element (node) type render functions. Loops over components and register
+ * their render functions for specific node types. If no type is specified (default
+ * component for the plugin) the node type is derived from the plugin name.
+ */
+const registerRenderers = (plugins: MimerPlugin[]): [Renderer[], Renderer[]] => {
     const leafRenderers: Renderer[] = []
     const elementRenderers: Renderer[] = []
 
     // Register leaf renderers
     plugins
-        .filter(el => el.class === 'leaf')
-        .forEach(el => {
-            // If no leaf renderer exist create a default one that returns
-            // undefined and thus will fallback to default leaf renderer
-            if (!Array.isArray(el.components) || !el.components.length) {
+        .filter(plugin => plugin.class === 'leaf')
+        .forEach(plugin => {
+            // If no leaf renderer exists create a default one that returns
+            // undefined and thus will fallback to default leaf renderer.
+            // FIXME: This could make bold/italic/etc work even when not registered.
+            if (!Array.isArray(plugin.components) || !plugin.components.length) {
                 leafRenderers.push({
-                    name: el.name,
-                    class: el.class,
+                    type: plugin.name,
+                    class: plugin.class,
                     render: () => undefined
                 })
             }
 
             // Register all normal leaf renderers, always "leaf" as class!
-            (el.components || []).forEach(r => {
-                const isParent = !r.name || r.name === el.name
+            (plugin.components || []).forEach(component => {
+                const isParent = !component.type || component.type === plugin.name
                 Registry.leafRenderers.push({
-                    name: isParent ? el.name : `${el.name}--${r.name}`,
-                    class: el.class,
-                    render: r.render
+                    type: isParent ? plugin.name : `${plugin.name}/${component.type}`,
+                    class: plugin.class,
+                    render: component.render
                 })
             })
         })
 
     // Register element renderers
     plugins
-        .filter(el => {
-            return el.class !== 'leaf' && Array.isArray(el.components) && el.components.length
+        .filter(plugin => {
+            return plugin.class !== 'leaf' && Array.isArray(plugin.components) && plugin.components.length
         })
-        .forEach(el => {
-            (el.components || []).forEach(r => {
-                const isParent = !r.name
+        .forEach(plugin => {
+            (plugin.components || []).forEach(component => {
+                const isParent = !component.type
                 elementRenderers.push({
-                    name: isParent ? el.name : `${el.name}--${r.name}`,
-                    placeholder: el.placeholder || '',
-                    class: r.class ? r.class : el.class,
-                    render: r.render
+                    type: isParent ? plugin.name : `${plugin.name}/${component.type}`,
+                    placeholder: plugin.placeholder || '',
+                    class: component.class ? component.class : plugin.class,
+                    render: component.render
                 })
             })
         })
@@ -103,15 +109,17 @@ const registerRenderers = (plugins: MimerPlugin[]) => {
 const registerNormalizers = (plugins: MimerPlugin[]) => {
     const normalizers: Normalizer[] = []
 
-    plugins
-        .filter(el => typeof el.normalize === 'function')
-        .forEach(el => {
-            normalizers.push({
-                name: el.name,
-                class: el.class,
-                normalize: el.normalize as NormalizeFunction
-            })
+    plugins.forEach(plugin => {
+        if (!plugin.normalize) {
+            return
+        }
+
+        normalizers.push({
+            name: plugin.name,
+            class: plugin.class,
+            normalize: plugin.normalize
         })
+    })
 
     return normalizers
 }
@@ -120,12 +128,12 @@ const registerActions = (plugins: MimerPlugin[]) => {
     const actions: Action[] = []
 
     plugins
-        .filter(el => Array.isArray(el.actions) && el.actions.length)
-        .forEach((el: MimerPlugin) => {
-            actions.push(...(el.actions || []).map(action => {
+        .filter(plugin => Array.isArray(plugin.actions) && plugin.actions.length)
+        .forEach((plugin) => {
+            actions.push(...(plugin.actions || []).map(action => {
                 return {
-                    name: el.name,
-                    class: el.class,
+                    name: plugin.name,
+                    class: plugin.class,
                     hotkey: action.hotkey || '',
                     isHotkey: action.hotkey ? isHotKey(action.hotkey) : () => false,
                     title: action?.title || '',
@@ -142,12 +150,12 @@ const registerEventHandlers = (plugins: MimerPlugin[]) => {
     const eventHandlers: EventHandler[] = []
 
     plugins
-        .filter(el => Array.isArray(el.events) && el.events.length)
-        .forEach((el: MimerPlugin) => {
-            eventHandlers.push(...(el.events || []).map(({ on, handler, match = undefined }) => {
+        .filter(plugin => Array.isArray(plugin.events) && plugin.events.length)
+        .forEach((plugin) => {
+            eventHandlers.push(...(plugin.events || []).map(({ on, handler, match = undefined }) => {
                 return {
-                    name: el.name,
-                    class: el.class,
+                    name: plugin.name,
+                    class: plugin.class,
                     on,
                     handler,
                     match

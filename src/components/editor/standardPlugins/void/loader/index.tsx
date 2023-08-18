@@ -34,6 +34,6 @@ const render: RenderFunction = ({ children }) => {
 
 export const Loader: MimerPlugin = {
     class: 'void',
-    name: 'loader',
+    name: 'core/loader',
     components: [{ render }]
 }

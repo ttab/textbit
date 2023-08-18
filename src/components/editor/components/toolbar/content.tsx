@@ -198,7 +198,7 @@ const isBlockActive = (editor: Editor, format: string, blockType = 'type'): bool
             match: el => {
                 return !Editor.isEditor(el) &&
                     SlateElement.isElement(el) &&
-                    el.name === format
+                    el.type === format
             }
         })
     )

@@ -17,7 +17,7 @@ import { Renderer } from '../../../../types'
  */
 export const Element = (props: RenderElementProps, renderers: Renderer[]) => {
     const { element } = props
-    const renderer = renderers.find(el => el.name === element.name)
+    const renderer = renderers.find(renderer => renderer.type === element.type)
 
     if (!renderer) {
         return UnknownElement(props)

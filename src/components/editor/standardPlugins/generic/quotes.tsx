@@ -87,7 +87,7 @@ const macroHandler: InputEventFunction = (editor, text) => {
 
 export const Quotes: MimerPlugin = {
     class: 'generic',
-    name: 'navigation',
+    name: 'quotes',
     events: [{
         on: 'input',
         handler: macroHandler

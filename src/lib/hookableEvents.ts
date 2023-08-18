@@ -49,9 +49,9 @@ export async function triggerFileInputEvent(
 }
 
 
-export async function insertNode(
+async function insertNode(
     editor: Editor,
-    event: React.DragEvent | React.ChangeEvent<HTMLInputElement>,
+    event: React.DragEvent<Element> | React.ChangeEvent<HTMLInputElement>,
     fileList: FileList,
     position: number,
     eventHandler: EventHandler
@@ -60,13 +60,14 @@ export async function insertNode(
         throw new Error('Editor is not a history editor. Unexpected weirdness is going on!')
     }
 
+    // FIXME: Creating a loader should be a utility/helper function
     HistoryEditor.withoutSaving(editor, () => {
         Transforms.insertNodes(
             editor,
             [{
                 id: uuid.v4(),
                 class: 'void',
-                name: 'loader',
+                type: 'core/loader',
                 properties: {},
                 children: [{ text: '' }]
             }],
@@ -111,7 +112,6 @@ export async function insertNode(
         }
     }
     finally {
-        // @ts-ignore withoutSaving editor should be of type HistoryEditor. It is...
         HistoryEditor.withoutSaving(editor, () => {
             Transforms.removeNodes(editor, { at: [position + 1] })
         })

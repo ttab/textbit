@@ -5,7 +5,7 @@ import { Renderer } from "../../../../../types"
 
 type RenderChildElementProps = {
     renderer: Renderer
-    parent: Node
+    parent: Element
 } & RenderElementProps
 
 /**
@@ -17,7 +17,7 @@ type RenderChildElementProps = {
 export const ChildElement = ({ attributes, children, element, renderer, parent }: RenderChildElementProps) => {
     return (
         <div
-            className={`child ${renderer.name}`}
+            className={`child ${renderer.type}`}
             data-id={element.id}
             {...attributes}
         >

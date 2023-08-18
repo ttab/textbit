@@ -28,7 +28,7 @@ export const withInsertBreak = (editor: Editor) => {
             return Transforms.insertNodes(editor, {
                 id: uuid.v4(),
                 class: 'text',
-                name: 'paragraph',
+                type: 'core/paragraph',
                 children: [{ text: "" }]
             })
         }

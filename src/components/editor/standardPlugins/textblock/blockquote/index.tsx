@@ -30,14 +30,14 @@ const actionHandler: ActionFunction = (editor) => {
     const node = [{
         id: uuid.v4(),
         class: 'textblock',
-        name: 'blockquote',
+        type: 'core/blockquote',
         children: [
             {
-                name: 'blockquote--body',
+                type: 'core/blockquote/body',
                 children: [{ text: text || '' }]
             },
             {
-                name: 'blockquote--caption',
+                type: 'core/blockquote/caption',
                 children: [{ text: '' }]
             }
         ]
@@ -56,18 +56,18 @@ const actionHandler: ActionFunction = (editor) => {
 
 export const Blockquote: MimerPlugin = {
     class: 'text',
-    name: 'blockquote',
+    name: 'core/blockquote',
     normalize: (editor, entry) => {
         const [node, path] = entry
         if (!Element.isElement(node)) {
             return
         }
 
-        convertLastSibling(editor, node, path, 'blockquote--caption', 'paragraph')
+        convertLastSibling(editor, node, path, 'core/blockquote/caption', 'core/paragraph')
 
         const bodyNodes: Array<any> = []
         for (const [child, childPath] of Node.elements(node)) {
-            if (child.name === 'blockquote--body') {
+            if (child.type === 'core/blockquote/body') {
                 bodyNodes.push([child, childPath])
             }
         }
@@ -93,11 +93,11 @@ export const Blockquote: MimerPlugin = {
             render
         },
         {
-            name: 'body',
+            type: 'body',
             render: renderBody
         },
         {
-            name: 'caption',
+            type: 'caption',
             render: renderCaption
         }
     ]

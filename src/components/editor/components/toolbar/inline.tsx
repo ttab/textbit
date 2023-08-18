@@ -126,7 +126,7 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
     const inlineEl = inlineNode && inlineNode.length ? inlineNode[0] : null
     const leafActions = actions.filter((action: Action) => action.tool && action.class === 'leaf')
     const inlineActions = actions.filter((action: Action) => action.tool && action.class === 'inline')
-    const inlineNodeAction = actions.find((action: Action) => action.tool && SlateElement.isElement(inlineEl) && action.name === inlineEl?.name)
+    const inlineNodeAction = actions.find((action: Action) => action.tool && SlateElement.isElement(inlineEl) && action.name === inlineEl?.type)
 
     return <Portal>
         <div
@@ -141,7 +141,7 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
                 {(!isCollapsed || inlineNode) &&
                     <>
                         {/* First group contains normal leafs, but only if it is not collapsed */}
-                        {!isCollapsed && leafActions.length &&
+                        {!isCollapsed && leafActions.length > 0 &&
                             <ToolGroup>
                                 {leafActions.map(action =>
                                     <ToolButton
@@ -153,7 +153,7 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
                         }
 
                         {/* Second group with normal inline tools if no inline nodes are selected */}
-                        {!isCollapsed && !inlineNode && inlineActions.length &&
+                        {!isCollapsed && !inlineNode && inlineActions.length > 0 &&
                             <ToolGroup>
                                 {inlineActions.map(action =>
                                     <ToolButton

@@ -60,7 +60,7 @@ import { uploadImages } from './images'
 
 const initialValue: Descendant[] = [
     {
-        name: 'title',
+        type: 'core/heading-1',
         id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
         class: 'text',
         children: [
@@ -68,7 +68,7 @@ const initialValue: Descendant[] = [
         ]
     },
     {
-        name: 'leadin',
+        type: 'core/preamble',
         id: '538345e5-bacc-48f9-9ed2-b219892b51dc',
         class: 'text',
         children: [
@@ -114,9 +114,125 @@ function App() {
 }
 ```
 
-## Plugin types
+## Plugins
 
-Elephant-slate introduces a concept of plugins of different types. Some relate to Slate node types (leaf, etc) and some are composites or not nodes at all. These all accomodate different ways of handling content in various ways.
+Plugins does not really exist yet. These are hard coded into the src and can be found in `src/components/editor/standardPlugins` sub directories depending on the type of plugin it is (see below for type of plugins).
+
+
+### How to define a "plugin"
+
+Plugins are defined using the interface below. (See `src/types.ts` for all the types.)
+
+```javascript
+type MimerPlugin = {
+    class: MimerPluginClass
+    name: string
+    placeholder?: string
+    normalize?: NormalizeFunction
+    actions?: Array<{
+        tool?: JSX.Element | Array<JSX.Element | ToolFunction>
+        hotkey?: string
+        title?: string
+        handler: ActionFunction
+    }>
+    events?: Array<{
+        on: MimerEventTypes,
+        handler: InputEventFunction | DropEventFunction | FileInputEventFunction,
+        match?: EventMatchFunction
+    }>
+    components?: Array<{
+        type?: string
+        class?: string
+        render: RenderFunction
+    }>
+    style?: React.CSSProperties
+}
+```
+
+**class** 
+
+Plugin class (see below for more details on the plugin classes).
+
+```javascript
+type MimerPluginClass = 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic'
+```
+
+**name**
+
+Name of plugin. Used to derive default component type names. I.e a plugin named *core/title* having a slate rendered component with no specifed type will inherit the plugin name as the component type.
+
+**placeholder**
+
+Optional placeholder text for empty text in the editor. Used to visualize the text type on empty lines. Only useful for text plugins.
+
+**normalize**
+
+Optional function for adding normalization. See [https://docs.slatejs.org/concepts/11-normalizing](Slate Normalizing) for details.
+
+```javascript
+type NormalizeFunction = (editor: Editor, entry: NodeEntry) => void
+type Normalizer = {
+    name: string
+    class?: string
+    normalize: NormalizeFunction
+}
+```
+
+**actions**
+
+An array of action functions. Can optionally specify tools (JSX component rendered in a various toolbars depending on specified plugin class), OS independend hotkey (keyboard shortcut) definition defined as `mod+i` for either `CTRL+i` or `CMD+í` and a title/text helper.
+
+If the handler returns true the editor defaults to Slate default actions if exists. Right now used for e.g bold, italic.
+
+**events**
+
+List of event handlers.
+
+Supported events
+```javascript
+type MimerEventTypes = 'input' | 'drop' | 'fileinput'
+```
+
+The *match* function gives the ability to investigate whether a plugin wants to react to an event. If this returns `true` the handler is called and no more plugins will be asked.
+
+```javascript
+type EventMatchFunction = (event: React.DragEvent | React.ChangeEvent) => boolean
+```
+
+**components**
+
+Array of JSX components that can be rendered in the editable area. The *type* property is used to match a Slate custom element type to know which element should be rendered.
+
+The default component for the plugin should not have a specified type. The type is then inherited from the plugin name.
+
+If the plugin (i.e the default component) have sub components they should be typed. The type will be appended to the default component type. Example:
+
+```javascript
+OembedVideo: MimerPlugin = {
+    class: 'block',
+    name: 'core/oembed',
+    components: [
+        {
+            render
+        },
+        {
+            type: 'embed',
+            class: 'void',
+            render: renderVideo
+        },
+        {
+            type: 'title',
+            render: renderTitle
+        }
+    ]
+}
+```
+
+The above will result in three component types. The default component will be typed as *core/oembed* and correspond to a custom element also typed the same. The two other will internally be typed as *core/oembed/embed* and *core/oembed/title*.
+
+## Plugin classes
+
+Elephant-slate introduces a concept of plugins of different classes. Some relate to Slate node types (leaf, etc) and some are composites or not nodes at all. These all accomodate different ways of handling content in various ways.
 
 ### Leaf
 

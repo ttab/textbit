@@ -33,7 +33,7 @@ const normalize: NormalizeFunction = (editor, entry) => {
 
 export const Paragraph: MimerPlugin = {
     class: 'text',
-    name: 'paragraph',
+    name: 'core/paragraph',
     components: [{
         render
     }],
@@ -44,7 +44,7 @@ export const Paragraph: MimerPlugin = {
             tool: <BsTextParagraph />,
             hotkey: 'mod+0',
             handler: (editor) => {
-                convertToText(editor, 'paragraph')
+                convertToText(editor, 'core/paragraph')
             }
         }
     ],

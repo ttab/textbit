@@ -1,10 +1,10 @@
 import { Element, Node } from "slate"
-import { Blockquote } from "./textblock/blockquote"
 import { Paragraph } from './text/paragraph'
 import { Title } from './text/title'
 import { Dateline } from './text/dateline'
 import { Leadin } from './text/leadin'
 import { Bold, Italic, Underline } from "./leaf/leaf"
+import { Blockquote } from "./textblock/blockquote"
 import { Navigation } from "./generic/navigation"
 import { OembedVideo } from "./block/oembed"
 import { Image } from "./block/image"
@@ -32,8 +32,8 @@ const isInline = (node: Node) => {
     return Element.isElement(node) && node.class === 'inline'
 }
 
-const hasName = (node: Node, name: string) => {
-    return Element.isElement(node) && node?.name === name
+const isOfType = (node: Node, type: string) => {
+    return Element.isElement(node) && node?.type === type
 }
 
 const hasId = (node: Node, id: string) => {
@@ -47,7 +47,7 @@ export const MimerElement = {
     isText,
     isVoid,
     isInline,
-    hasName,
+    isOfType,
     hasId
 }
 

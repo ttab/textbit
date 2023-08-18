@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react' // Necessary for esbuild
+import React, { ChangeEvent } from 'react' // (React is ecessary for esbuild)
 import { useEffect, useRef } from 'react'
 import { Node, Transforms, Element } from 'slate'
 import * as uuid from 'uuid'
@@ -15,7 +15,8 @@ import { triggerFileInputEvent } from '../../../../../lib/hookableEvents'
 //     properties: {
 //         src: string
 //         type: string
-//         title?: string
+//         altText: string
+//         text?: string
 //         size: number
 //         width: number
 //         height: number
@@ -59,7 +60,19 @@ const renderImage: RenderFunction = ({ children, attributes, parent }) => {
     )
 }
 
-const renderTitle: RenderFunction = ({ children, parent }) => {
+const renderAltText: RenderFunction = ({ children, parent }) => {
+    return <div draggable={true} className="text-sans-serif" style={{
+        padding: '0.4rem 0.8rem',
+        fontSize: '1rem',
+        textAlign: 'center',
+        opacity: '0.85',
+        fontWeight: '400'
+    }}>
+        <figcaption>{children}</figcaption>
+    </div>
+}
+
+const renderText: RenderFunction = ({ children, parent }) => {
     return <div draggable={true} className="text-sans-serif" style={{
         padding: '0.4rem 0.8rem',
         fontSize: '1rem',
@@ -136,23 +149,26 @@ const fileHandler: FileInputEventFunction = (editor, event, objects) => {
             return {
                 id: uuid.v4(),
                 class: 'block',
-                name: 'image',
+                type: 'core/image',
                 properties: {
                     type: object.type,
                     src: object.src,
-                    title: object.title,
                     size: object.size,
                     width: object.width,
                     height: object.height
                 },
                 children: [
                     {
-                        name: 'image--image',
+                        type: 'core/image/image',
                         children: [{ text: '' }]
                     },
                     {
-                        name: 'image--title',
-                        children: [{ text: name }]
+                        type: 'core/image/altText',
+                        children: [{ text: object.src }]
+                    },
+                    {
+                        type: 'core/image/text',
+                        children: [{ text: '' }]
                     }
                 ]
             }
@@ -161,30 +177,34 @@ const fileHandler: FileInputEventFunction = (editor, event, objects) => {
 }
 
 
-const dropHandler: DropEventFunction = (editor, event, objects) => {
+const dropHandler: DropEventFunction = (editor, event, objects): Promise<Element[]> => {
+
     if (Array.isArray(objects)) {
-        return Promise.resolve(
-            objects.map(object => {
+        Promise.resolve(
+            objects.map((object): Element => {
                 return {
                     id: uuid.v4(),
                     class: 'block',
-                    name: 'image',
+                    type: 'core/image',
                     properties: {
                         type: object.type,
                         src: object.src,
-                        title: object.title,
                         size: object.size,
                         width: object.width,
                         height: object.height
                     },
                     children: [
                         {
-                            name: 'image--image',
+                            type: 'core/image/image',
                             children: [{ text: '' }]
                         },
                         {
-                            name: 'image--title',
-                            children: [{ text: name }]
+                            type: 'core/image/altText',
+                            children: [{ text: object.src }]
+                        },
+                        {
+                            type: 'core/image/text',
+                            children: [{ text: '' }]
                         }
                     ]
                 }
@@ -209,16 +229,21 @@ const dropHandler: DropEventFunction = (editor, event, objects) => {
 
         reader.addEventListener("load", () => {
 
+            if (typeof reader.result !== 'string') {
+                reject(`Error when image dropped, resulted in ${typeof reader.result}`)
+                return
+            }
+
             const tmpImage = new window.Image()
-            tmpImage.src = reader.result as string
+            tmpImage.src = reader.result
             tmpImage.onload = function () {
                 resolve([{
                     id: uuid.v4(),
                     class: 'block',
-                    name: 'image',
+                    type: 'core/image',
                     properties: {
                         type: type,
-                        src: reader.result,
+                        src: tmpImage.src,
                         title: name,
                         size: size,
                         width: tmpImage.width,
@@ -226,12 +251,16 @@ const dropHandler: DropEventFunction = (editor, event, objects) => {
                     },
                     children: [
                         {
-                            name: 'image--image',
+                            type: 'core/image/image',
                             children: [{ text: '' }]
                         },
                         {
-                            name: 'image--title',
+                            type: 'core/image/altText',
                             children: [{ text: name }]
+                        },
+                        {
+                            type: 'core/image/text',
+                            children: [{ text: '' }]
                         }
                     ]
                 }])
@@ -258,25 +287,9 @@ const normalize: NormalizeFunction = (editor, entry) => {
     }
 
     // Remove excess titles (only one allowed)
-    const titles = node.children.filter((child: any) => child?.name === 'image--title')
+    const titles = node.children.filter((child: any) => child?.name === 'core/image/title')
     if (Array.isArray(titles) && titles.length > 1) {
-        return convertLastSibling(editor, node, path, 'image--title', 'paragraph')
-    }
-
-    const title = Node.string(titles[0])
-    if (title !== node?.properties?.title) {
-        Transforms.setNodes(
-            editor,
-            {
-                properties: {
-                    ...node.properties,
-                    title: title
-                }
-            },
-            {
-                at: path
-            }
-        )
+        return convertLastSibling(editor, node, path, 'core/image/title', 'core/paragraph')
     }
 }
 
@@ -305,7 +318,7 @@ const actionHandler: ActionFunction = (editor) => {
 
 export const Image: MimerPlugin = {
     class: 'block',
-    name: 'image',
+    name: 'core/image',
     events: [
         {
             on: 'drop',
@@ -331,13 +344,17 @@ export const Image: MimerPlugin = {
             render
         },
         {
-            name: 'image',
+            type: 'image',
             class: 'void',
             render: renderImage
         },
         {
-            name: 'title',
-            render: renderTitle
+            type: 'altText',
+            render: renderAltText
+        },
+        {
+            type: 'text',
+            render: renderText
         }
     ]
 }

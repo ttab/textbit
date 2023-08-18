@@ -17,7 +17,7 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
     const editor = useSlateStatic()
 
     const dataId = element?.id || ''
-    const draggable = ['block', 'void'].includes(element.class || '') ? 'true' : 'false'
+    const draggable = ['block', 'void'].includes(element?.class || '') ? 'true' : 'false'
 
 
     return <div
