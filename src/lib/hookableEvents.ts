@@ -49,9 +49,9 @@ export async function triggerFileInputEvent(
 }
 
 
-export async function insertNode(
+async function insertNode(
     editor: Editor,
-    event: React.DragEvent | React.ChangeEvent<HTMLInputElement>,
+    event: React.DragEvent<Element> | React.ChangeEvent<HTMLInputElement>,
     fileList: FileList,
     position: number,
     eventHandler: EventHandler
@@ -112,7 +112,6 @@ export async function insertNode(
         }
     }
     finally {
-        // @ts-ignore withoutSaving editor should be of type HistoryEditor. It is...
         HistoryEditor.withoutSaving(editor, () => {
             Transforms.removeNodes(editor, { at: [position + 1] })
         })

@@ -205,6 +205,10 @@ const inputHandler: InputEventFunction = (editor, text) => {
         return
     }
 
+    if (!HistoryEditor.isHistoryEditor(editor)) {
+        return
+    }
+
     const range = Editor.unhangRange(editor, editor.selection)
     let at = (range && range.anchor.path[0] > 0) ? range.anchor.path[0] : 0
     const node = Node.get(editor, [at])
@@ -213,10 +217,8 @@ const inputHandler: InputEventFunction = (editor, text) => {
         return
     }
 
-    const nodeClass = node.class
-
     HistoryEditor.withoutSaving(editor, () => {
-        if (nodeClass === 'text' && Editor.string(editor, [at]) === '') {
+        if (node?.class === 'text' && Editor.string(editor, [at]) === '') {
             // This highest level node is a text node and is empty, remove it
             Transforms.removeNodes(editor, { at: [at] })
         }

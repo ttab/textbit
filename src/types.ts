@@ -36,18 +36,17 @@ export type Action = {
 /** Event handlers */
 export type InputEventFunction = (editor: Editor, text: string) => void | boolean
 
-export type FileInputMatchFunction = (event: React.ChangeEvent<HTMLInputElement>) => boolean
 export type FileInputEventFunction = (editor: Editor, event: React.ChangeEvent<HTMLInputElement>, objects?: any[]) => Promise<any[]>
+export type DropEventFunction = (editor: Editor, event: React.DragEvent<Element>, objects?: any[]) => Promise<any[]>
 
-export type DropMatchFunction = (event: React.DragEvent) => boolean
-export type DropEventFunction = (editor: Editor, event: React.DragEvent, objects?: any[]) => Promise<any[]>
+export type EventMatchFunction = (event: React.DragEvent | React.ChangeEvent) => boolean
 
 export type EventHandler = {
     name: string
     class: string
     on: string
     handler: InputEventFunction | DropEventFunction | FileInputEventFunction,
-    match?: DropMatchFunction | FileInputMatchFunction
+    match?: EventMatchFunction
 }
 
 /** Renderers */
@@ -94,7 +93,7 @@ export type MimerPlugin = {
     events?: Array<{
         on: MimerEventTypes,
         handler: InputEventFunction | DropEventFunction | FileInputEventFunction,
-        match?: DropMatchFunction | FileInputMatchFunction
+        match?: EventMatchFunction
     }>
     components?: Array<{
         type?: string
