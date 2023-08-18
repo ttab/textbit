@@ -159,7 +159,7 @@ type MimerPluginClass = 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'vo
 
 **name**
 
-Name of plugin. Used to derive default component type names. I.e a plugin named *core/title* having a slate rendered component with no specifed type will inherit the plugin name as the component type.
+Name of plugin. Used to derive default component type names. I.e a plugin named *core/heading-1* having a slate rendered component with no specifed type will inherit the plugin name as the component type.
 
 **placeholder**
 
@@ -167,7 +167,7 @@ Optional placeholder text for empty text in the editor. Used to visualize the te
 
 **normalize**
 
-Optional function for adding normalization. See [https://docs.slatejs.org/concepts/11-normalizing](Slate Normalizing) for details.
+Optional function for adding normalization. See [Slate Normalizing](https://docs.slatejs.org/concepts/11-normalizing) for details.
 
 ```javascript
 type NormalizeFunction = (editor: Editor, entry: NodeEntry) => void
