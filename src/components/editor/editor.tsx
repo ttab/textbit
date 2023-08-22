@@ -1,6 +1,6 @@
 import React from 'react' // Necessary for esbuild
 import { useEffect, useMemo, useState, useCallback } from 'react'
-import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, NodeEntry } from "slate"
+import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node } from "slate"
 import { withHistory } from "slate-history"
 import { ReactEditor, Editable, Slate, withReact } from "slate-react"
 import * as uuid from 'uuid'
@@ -124,7 +124,7 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
  * 3. selection is on this node
  * 4. selection is collapsed (it does not span more nodes)
  */
-function handleDecoration(editor: ReactEditor, node: NodeEntry, path: Path) {
+function handleDecoration(editor: ReactEditor, node: Node, path: Path) {
     if (
         editor.selection != null &&
         !SlateEditor.isEditor(node) &&
