@@ -1,6 +1,6 @@
 import React from 'react' // Necessary for esbuild
 import { useEffect, useMemo, useState, useCallback } from 'react'
-import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range } from "slate"
+import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, NodeEntry } from "slate"
 import { withHistory } from "slate-history"
 import { ReactEditor, Editable, Slate, withReact } from "slate-react"
 import * as uuid from 'uuid'
@@ -36,6 +36,7 @@ import { ContentToolbar } from './components/toolbar/content'
 import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
+import { Api } from './api'
 
 interface EditorProps {
     onChange?: (value: Descendant[]) => void
@@ -43,7 +44,8 @@ interface EditorProps {
     hooks?: Hook[]
 }
 
-StandardPlugins.forEach(Registry.addPlugin)
+
+StandardPlugins.forEach(Registry.addPlugin, Api)
 
 
 export default function Editor({ value, onChange, hooks }: EditorProps) {
@@ -103,54 +105,8 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
                         // style={{ minHeight: expandHeight ? '100%' : 'auto' }}
                         renderElement={props => renderElement(props, Registry.elementRenderers)}
                         renderLeaf={props => renderLeaf(props)}
-                        onKeyDown={event => {
-                            for (const action of Registry.actions) {
-                                if (!action.isHotkey(event)) {
-                                    continue
-                                }
-
-                                event.preventDefault()
-
-                                if (action.handler && true !== action.handler(editor)) {
-                                    break
-                                }
-
-                                if (action.class === 'leaf') {
-                                    toggleLeaf(editor, action.name)
-                                }
-                                else if (action.class === 'text') {
-                                    // FIXME: Should not allow transforming blocks (only text class element)
-                                    Transforms.setNodes(
-                                        editor,
-                                        { type: action.name },
-                                        { match: n => SlateElement.isElement(n) && SlateEditor.isBlock(editor, n) }
-                                    )
-                                }
-                                break
-                            }
-                        }}
-                        decorate={([node, path]) => {
-                            // Display decoration when node is not the editor,
-                            // when node is empty, and selection current and collapsed
-                            if (editor.selection != null) {
-                                if (
-                                    !SlateEditor.isEditor(node) &&
-                                    SlateEditor.string(editor, [path[0]]) === "" &&
-                                    Range.includes(editor.selection, path) &&
-                                    Range.isCollapsed(editor.selection) &&
-                                    SlateElement.isElement(node)
-                                ) {
-                                    const renderer = Registry.elementRenderers.find(r => r.type === node.type)
-                                    return [
-                                        {
-                                            ...editor.selection,
-                                            placeholder: renderer?.placeholder || '',
-                                        }
-                                    ]
-                                }
-                            }
-                            return []
-                        }}
+                        onKeyDown={event => handleOnKeyDown(event, editor)}
+                        decorate={([node, path]) => handleDecoration(editor, node, path)}
                     />
 
                 </Slate>
@@ -159,4 +115,66 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
             <Footer stats={{ words: stats[0], characters: stats[1] }} />
         </div>
     )
+}
+
+/*
+ * Display decoration when node is
+ * 1. not the editor
+ * 2. node is empty
+ * 3. selection is on this node
+ * 4. selection is collapsed (it does not span more nodes)
+ */
+function handleDecoration(editor: ReactEditor, node: NodeEntry, path: Path) {
+    if (
+        editor.selection != null &&
+        !SlateEditor.isEditor(node) &&
+        SlateEditor.string(editor, [path[0]]) === "" &&
+        Range.includes(editor.selection, path) &&
+        Range.isCollapsed(editor.selection) &&
+        SlateElement.isElement(node)
+    ) {
+        const renderer = Registry.elementRenderers.find(r => r.type === node.type)
+        return [
+            {
+                ...editor.selection,
+                placeholder: renderer?.placeholder || '',
+            }
+        ]
+    }
+
+    return []
+}
+
+/*
+ * Match key events to registered actions keyboard shortcuts. Then either
+ * 1. call their action handler
+ * 2. toggle leafs on or off
+ * 3. transform text nodes to another type
+ */
+function handleOnKeyDown(event: React.KeyboardEvent<HTMLDivElement>, editor: ReactEditor) {
+    for (const action of Registry.actions) {
+        if (!action.isHotkey(event)) {
+            continue
+        }
+
+        event.preventDefault()
+
+        // Call action handler, give access to editor and api
+        if (action.handler && true !== action.handler(editor)) {
+            break
+        }
+
+        if (action.class === 'leaf') {
+            toggleLeaf(editor, action.name)
+        }
+        else if (action.class === 'text') {
+            // FIXME: Should not allow transforming blocks (only text class element)
+            Transforms.setNodes(
+                editor,
+                { type: action.name },
+                { match: n => SlateElement.isElement(n) && SlateEditor.isBlock(editor, n) }
+            )
+        }
+        break
+    }
 }
