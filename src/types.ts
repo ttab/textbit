@@ -1,4 +1,5 @@
-import { Editor, BaseElement, BaseText, Node, NodeEntry, Descendant } from "slate";
+import { Editor, BaseElement, BaseText, Node, NodeEntry, Descendant, BaseEditor } from "slate";
+import { HistoryEditor } from "slate-history";
 import { ReactEditor } from "slate-react";
 
 /**
@@ -103,10 +104,15 @@ export type MimerPlugin = {
     style?: React.CSSProperties
 }
 
+/** Api structure */
+export type MimerApiEditor = {
+    dialog: (msg: string) => void
+}
+
 /** Slate module extends */
 declare module 'slate' {
     interface CustomTypes {
-        Editor: ReactEditor
+        Editor: BaseEditor & ReactEditor & HistoryEditor
         Element: BaseElement & {
             id?: string
             class?: string
