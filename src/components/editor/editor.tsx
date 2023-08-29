@@ -36,7 +36,6 @@ import { ContentToolbar } from './components/toolbar/content'
 import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
-import { Api } from './api'
 
 interface EditorProps {
     onChange?: (value: Descendant[]) => void
