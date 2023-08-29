@@ -19,6 +19,14 @@ export function modifier(modifier: string) {
             case 'alt':
             case 'option':
                 return '⌥'
+            case 'up':
+                return '↑'
+            case 'down':
+                return '↓'
+            case 'right':
+                return '→'
+            case 'left':
+                return '←'
             default:
                 return mod
         }
