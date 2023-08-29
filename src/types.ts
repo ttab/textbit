@@ -104,10 +104,6 @@ export type MimerPlugin = {
     style?: React.CSSProperties
 }
 
-/** Api structure */
-export type MimerApiEditor = {
-    dialog: (msg: string) => void
-}
 
 /** Slate module extends */
 declare module 'slate' {
