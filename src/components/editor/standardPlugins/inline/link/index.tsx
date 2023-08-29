@@ -3,7 +3,11 @@ import { Editor, Transforms, Range, Element as SlateElement } from 'slate'
 import { ReactEditor } from 'slate-react'
 import { MimerElement } from '../..'
 
-import { MimerPlugin, RenderFunction, ToolFunction } from '../../../../../types'
+import {
+    MimerPlugin,
+    RenderElementFunction,
+    ToolFunction
+} from '../../../../../types'
 
 import { MdEdit, MdLink, MdLinkOff } from 'react-icons/md'
 import * as uuid from 'uuid'
@@ -18,7 +22,7 @@ import isUrl from 'is-url'
  * 5.   Add InlineChromiumBugfix as is in https://github.com/ianstormtaylor/slate/blob/main/site/examples/inlines.tsx
  */
 
-const render: RenderFunction = ({ attributes, children, element }) => {
+const render: RenderElementFunction = ({ attributes, children, element }) => {
     const url: string = element.properties?.url as string || ''
 
     return (

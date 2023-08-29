@@ -1,6 +1,10 @@
-import { Editor, BaseElement, BaseText, Node, NodeEntry, Descendant, BaseEditor } from "slate";
+import { Editor, BaseElement, BaseText, Node, NodeEntry, BaseEditor } from "slate";
 import { HistoryEditor } from "slate-history";
-import { ReactEditor } from "slate-react";
+import {
+    ReactEditor,
+    RenderElementProps as SlateRenderElementProps,
+    RenderLeafProps as SlateRenderLeafProps
+} from "slate-react";
 
 /**
  * leaf        Leafs inside text or text block elements. Bold, italic, link, etc.
@@ -51,13 +55,22 @@ export type EventHandler = {
 }
 
 /** Renderers */
-export interface MimerRenderElementProps { parent: Element, children: JSX.Element[] }
-export type RenderFunction = (props: MimerRenderElementProps) => JSX.Element | undefined
+export interface MimerRenderElementProps extends SlateRenderElementProps {
+    rootNode?: Node,
+    children: JSX.Element[]
+}
+
+export interface MimerRenderLeafProps extends SlateRenderLeafProps {
+    children: JSX.Element[]
+}
+
+export type RenderElementFunction = (props: MimerRenderElementProps) => JSX.Element
+export type RenderLeafFunction = (props: MimerRenderLeafProps) => JSX.Element
 export type Renderer = {
     type: string
     placeholder?: string
     class?: string
-    render: RenderFunction
+    render: RenderElementFunction | RenderLeafFunction
 }
 
 /** Normalizers */
@@ -99,7 +112,7 @@ export type MimerPlugin = {
     components?: Array<{
         type?: string
         class?: string
-        render: RenderFunction
+        render: RenderElementFunction | RenderLeafFunction
     }>
     style?: React.CSSProperties
 }

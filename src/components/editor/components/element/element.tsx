@@ -1,43 +1,37 @@
 import { Node } from 'slate'
 import { RenderElementProps, ReactEditor, useSlateStatic } from 'slate-react'
-import { ChildElement } from './components/child'
-import { ParentElement } from './components/parent'
-import { InlineElement } from './components/inline'
-import { UnknownElement } from './components/unknown'
+import { ChildElementComponent } from './components/child'
+import { ParentElementComponent } from './components/parent'
+import { InlineElementComponent } from './components/inline'
+import { UnknownElementComponent } from './components/unknown'
 import { Renderer } from '../../../../types'
 
 /**
- * Render an element
- * 
- * @todo Create type/interface (instead of any[]) for Elements/Element here.
- * 
- * @param props RenderElementProps
- * @param renderers any[]
- * @returns JSX.Element
+ * Render a custom Slate element
  */
-export const Element = (props: RenderElementProps, renderers: Renderer[]) => {
+export const ElementComponent = (props: RenderElementProps, renderers: Renderer[]): JSX.Element => {
     const { element } = props
     const renderer = renderers.find(renderer => renderer.type === element.type)
 
     if (!renderer) {
-        return UnknownElement(props)
+        return UnknownElementComponent(props)
     }
 
-    // Find parent node and pass it with props only if it is a child
+    // Get the path for this element
     const editor = useSlateStatic()
     const path = ReactEditor.findPath(editor, element)
 
-    // Top parent elements
+    // No parents found in path, render a root element
     if (path.length === 1) {
-        return ParentElement({ ...props, renderer })
+        return ParentElementComponent({ ...props, renderer })
     }
 
-    // Inline child elements
+    // Render an inline child element
     if (renderer.class === 'inline') {
-        return InlineElement({ ...props, renderer, })
+        return InlineElementComponent({ ...props, renderer, })
     }
 
-    // Child elements
-    const parentNode = Node.get(editor, [path[0]])
-    return ChildElement({ ...props, renderer, parent: parentNode })
+    // Render a child element and pass it the rootNode for reference
+    const rootNode = Node.get(editor, [path[0]])
+    return ChildElementComponent({ ...props, renderer, rootNode })
 }

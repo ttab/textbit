@@ -8,7 +8,7 @@ import { DragstateContext } from '../../dragndrop'
 import { handleDrop } from '../../../../../lib/hookableEvents'
 
 type DroppableProps = {
-    element: Element
+    element?: Element
 }
 
 export const Droppable = ({ children, element }: PropsWithChildren & DroppableProps) => {

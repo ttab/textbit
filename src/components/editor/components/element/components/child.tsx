@@ -1,11 +1,11 @@
 import React from 'react' // Necessary for esbuild
 import { Node } from "slate"
 import { RenderElementProps } from "slate-react"
-import { Renderer } from "../../../../../types"
+import { RenderElementFunction, Renderer } from "../../../../../types"
 
 type RenderChildElementProps = {
     renderer: Renderer
-    parent: Element
+    rootNode: Node
 } & RenderElementProps
 
 /**
@@ -14,7 +14,9 @@ type RenderChildElementProps = {
  * @param props RenderChildElementProps
  * @returns JSX.Element
  */
-export const ChildElement = ({ attributes, children, element, renderer, parent }: RenderChildElementProps) => {
+export const ChildElementComponent = ({ attributes, children, element, renderer, rootNode }: RenderChildElementProps) => {
+    const render = renderer.render as RenderElementFunction
+
     return (
         <div
             className={`child ${renderer.type}`}
@@ -22,7 +24,7 @@ export const ChildElement = ({ attributes, children, element, renderer, parent }
             {...attributes}
         >
             <div>
-                {renderer.render({ element, attributes, children, parent })}
+                {render({ element, attributes, children, rootNode })}
             </div>
         </div>
     )

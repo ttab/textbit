@@ -4,9 +4,9 @@ import { BsTextParagraph } from 'react-icons/bs'
 import * as uuid from 'uuid'
 
 import { convertToText } from '../../../../../lib/utils'
-import { MimerPlugin, RenderFunction, NormalizeFunction } from '../../../../../types'
+import { MimerPlugin, RenderLeafFunction, NormalizeFunction } from '../../../../../types'
 
-const render: RenderFunction = ({ children }) => {
+const render: RenderLeafFunction = ({ children }) => {
     return <>
         {children}
     </>

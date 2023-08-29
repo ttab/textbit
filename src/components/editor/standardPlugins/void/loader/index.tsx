@@ -1,9 +1,9 @@
 import React from 'react' // Necessary for esbuild
-import { MimerPlugin, RenderFunction } from '../../../../../types'
+import { MimerPlugin, RenderElementFunction } from '../../../../../types'
 
 import './style.css'
 
-const render: RenderFunction = ({ children }) => {
+const render: RenderElementFunction = ({ children }) => {
     const style = {
         minHeight: '10rem'
     }

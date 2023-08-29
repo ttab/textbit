@@ -3,23 +3,23 @@ import { Transforms, Node, Element } from 'slate'
 import { BsChatQuote } from 'react-icons/bs'
 import * as uuid from 'uuid'
 
-import { ActionFunction, MimerPlugin, RenderFunction } from '../../../../../types'
+import { ActionFunction, MimerPlugin, RenderElementFunction } from '../../../../../types'
 import { convertLastSibling, getElementPosition as getElementPosition, getSelectedText, insertAt } from '../../../../../lib/utils'
 import './style.css'
 
-const render: RenderFunction = ({ children }) => {
+const render: RenderElementFunction = ({ children }) => {
     return <div className="fg-weak">
         {children}
     </div>
 }
 
-const renderBody: RenderFunction = ({ children }) => {
+const renderBody: RenderElementFunction = ({ children }) => {
     return <div className="text-xl text-sans-serif font-light">
         {children}
     </div>
 }
 
-const renderCaption: RenderFunction = ({ children }) => {
+const renderCaption: RenderElementFunction = ({ children }) => {
     return <div className="text-sm italic">
         {children}
     </div>

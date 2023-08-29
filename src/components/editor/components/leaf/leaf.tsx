@@ -11,7 +11,7 @@ import { RenderLeafProps } from 'slate-react'
  * @param registeredLeafs any[]
  * @returns JSX.Element
  */
-export const Leaf = (props: RenderLeafProps): JSX.Element => {
+export const LeafComponent = (props: RenderLeafProps): JSX.Element => {
     const { leaf, attributes, children } = props
 
     if (!leaf) {

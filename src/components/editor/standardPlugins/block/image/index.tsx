@@ -1,9 +1,9 @@
 import React, { ChangeEvent } from 'react' // (React is ecessary for esbuild)
 import { useEffect, useRef } from 'react'
-import { Node, Transforms, Element } from 'slate'
+import { Transforms, Element } from 'slate'
 import * as uuid from 'uuid'
 
-import { ActionFunction, DropEventFunction, DropMatchFunction, FileInputEventFunction, FileInputMatchFunction, MimerPlugin, NormalizeFunction, RenderFunction } from '../../../../../types'
+import { ActionFunction, DropEventFunction, EventMatchFunction, FileInputEventFunction, MimerPlugin, NormalizeFunction, RenderElementFunction, RenderFunction } from '../../../../../types'
 import { convertLastSibling } from '../../../../../lib/utils'
 import './index.css'
 import { BsImage } from 'react-icons/bs'
@@ -25,7 +25,7 @@ import { triggerFileInputEvent } from '../../../../../lib/hookableEvents'
 //
 // type ImageElement = Element & ImageProperties
 
-const render: RenderFunction = ({ children }) => {
+const render: RenderElementFunction = ({ children }) => {
     const style = {
         minHeight: '10rem',
         margin: '0'
@@ -36,8 +36,8 @@ const render: RenderFunction = ({ children }) => {
     </figure>
 }
 
-const renderImage: RenderFunction = ({ children, attributes, parent }) => {
-    const { properties = {} } = parent
+const renderImage: RenderElementFunction = ({ children, attributes, rootNode }) => {
+    const { properties = {} } = Element.isElement(rootNode) ? rootNode : {}
     const src: string = properties?.src as string || ''
     const h = properties?.height ?? 1
     const w = properties?.width ?? 1
@@ -60,7 +60,7 @@ const renderImage: RenderFunction = ({ children, attributes, parent }) => {
     )
 }
 
-const renderAltText: RenderFunction = ({ children, parent }) => {
+const renderAltText: RenderElementFunction = ({ children }) => {
     return <div draggable={true} className="text-sans-serif" style={{
         padding: '0.4rem 0.8rem',
         fontSize: '1rem',
@@ -72,7 +72,7 @@ const renderAltText: RenderFunction = ({ children, parent }) => {
     </div>
 }
 
-const renderText: RenderFunction = ({ children, parent }) => {
+const renderText: RenderElementFunction = ({ children }) => {
     return <div draggable={true} className="text-sans-serif" style={{
         padding: '0.4rem 0.8rem',
         fontSize: '1rem',
@@ -84,7 +84,7 @@ const renderText: RenderFunction = ({ children, parent }) => {
     </div>
 }
 
-const dropMatcher: DropMatchFunction = (event) => {
+const dropMatcher: EventMatchFunction = (event) => {
     // Does not support urls right now
     if (typeof event === 'string') {
         return false
@@ -114,7 +114,7 @@ const dropMatcher: DropMatchFunction = (event) => {
     return true
 }
 
-const fileMatcher: FileInputMatchFunction = (event) => {
+const fileMatcher: EventMatchFunction = (event) => {
     const files = event.target?.files
     if (!files || !files.length) {
         return false

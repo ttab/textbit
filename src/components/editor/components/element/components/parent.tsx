@@ -1,6 +1,6 @@
 import React from 'react' // Necessary for esbuild
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
-import { Renderer } from '../../../../../types'
+import { RenderElementFunction, Renderer } from '../../../../../types'
 import { Droppable } from './droppable'
 
 type RenderParentElementProps = {
@@ -13,9 +13,10 @@ type RenderParentElementProps = {
  * @param props RenderParentElementProps
  * @returns JSX.Element
  */
-export const ParentElement = ({ element, attributes, children, renderer }: RenderParentElementProps) => {
+export const ParentElementComponent = ({ element, attributes, children, renderer }: RenderParentElementProps) => {
     const selected = useSelected()
     const focused = useFocused()
+    const render = renderer.render as RenderElementFunction
 
     const style = {
         boxShadow: `${renderer.class === 'block' && selected && focused ? '0 0 0 3px rgb(117 138 242)' : 'none'}`,
@@ -30,7 +31,7 @@ export const ParentElement = ({ element, attributes, children, renderer }: Rende
                 {...attributes}
             >
                 <div className="editor-block" style={style} >
-                    {renderer.render({ element, attributes, children })}
+                    {render({ element, attributes, children })}
                 </div>
             </div>
         </Droppable>

@@ -1,10 +1,17 @@
 import React from 'react' // Necessary for esbuild
 import { useState, useEffect } from 'react'
-import { Editor, Element, Node, Transforms } from 'slate'
+import { Editor, Element, Node, Range, Transforms } from 'slate'
 import { HistoryEditor } from 'slate-history'
 import * as uuid from 'uuid'
 
-import { DropEventFunction, DropMatchFunction, InputEventFunction, MimerPlugin, NormalizeFunction, RenderFunction } from '../../../../../types'
+import {
+    DropEventFunction,
+    EventMatchFunction,
+    InputEventFunction,
+    MimerPlugin,
+    NormalizeFunction,
+    RenderElementFunction
+} from '../../../../../types'
 import { convertLastSibling } from '../../../../../lib/utils'
 
 // FIXME: Should expose its own type
@@ -16,7 +23,7 @@ import { convertLastSibling } from '../../../../../lib/utils'
 // }
 // type OembedElement = Element & OembedVideoProperties
 
-const render: RenderFunction = ({ children }) => {
+const render: RenderElementFunction = ({ children }) => {
     const style = {
         minHeight: '10rem'
     }
@@ -26,8 +33,8 @@ const render: RenderFunction = ({ children }) => {
     </div>
 }
 
-const renderVideo: RenderFunction = ({ children, attributes, parent }) => {
-    const { properties = {} } = parent
+const renderVideo: RenderElementFunction = ({ children, attributes, rootNode }) => {
+    const { properties = {} } = Element.isElement(rootNode) ? rootNode : {}
     const src = properties?.src || ''
     const html = properties?.html || ''
     const h = properties?.height as number ?? 1
@@ -89,7 +96,7 @@ const renderVideo: RenderFunction = ({ children, attributes, parent }) => {
     )
 }
 
-const renderTitle: RenderFunction = ({ children, parent }) => {
+const renderTitle: RenderElementFunction = ({ children }) => {
     return <div className="text-sans-serif" style={{
         padding: '0.4rem 0.8rem',
         fontSize: '1rem',
@@ -162,7 +169,7 @@ const matchUrl = (url: string): string | null => {
     return fetchUrl || null
 }
 
-const dropMatcher: DropMatchFunction = (event) => {
+const dropMatcher: EventMatchFunction = (event) => {
     if (typeof event === 'string' || !event.dataTransfer.types.includes('text/uri-list')) {
         return false
     }
@@ -206,6 +213,10 @@ const inputHandler: InputEventFunction = (editor, text) => {
     }
 
     if (!HistoryEditor.isHistoryEditor(editor)) {
+        return
+    }
+
+    if (!Range.isRange(editor.selection)) {
         return
     }
 

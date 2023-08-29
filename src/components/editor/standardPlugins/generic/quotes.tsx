@@ -1,4 +1,4 @@
-import { Editor, Transforms } from 'slate'
+import { Editor, Range, Transforms } from 'slate'
 import { MimerPlugin, InputEventFunction } from '../../../../types'
 
 const AllQuotes = {
@@ -22,6 +22,10 @@ const macroHandler: InputEventFunction = (editor, text) => {
     // Range here is for the leaf if in a bold word. This is useless as
     // it needs to be the range in the whole block
     // FIXME: Walk the tree to get the real full text offset
+    if (!Range.isRange(editor.selection)) {
+        return
+    }
+
     const range = Editor.unhangRange(editor, editor.selection)
     const anchor = range.anchor
     const offset = anchor.offset

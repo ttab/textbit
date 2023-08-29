@@ -2,7 +2,7 @@ import React from 'react' // Necessary for esbuild
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node } from "slate"
 import { withHistory } from "slate-history"
-import { ReactEditor, Editable, Slate, withReact } from "slate-react"
+import { Editable, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
 import * as uuid from 'uuid'
 
 import '@fontsource/inter/variable.css'
@@ -25,8 +25,8 @@ import { Footer } from './components/footer/footer'
 
 import { StandardPlugins } from './standardPlugins'
 import { Registry } from './registry'
-import { Element } from './components/element/element'
-import { Leaf } from './components/leaf/leaf'
+import { ElementComponent } from './components/element/element'
+import { LeafComponent } from './components/leaf/leaf'
 import { toggleLeaf } from './standardPlugins/leaf/leaf'
 import { withInsertText } from './with/insertText'
 import { withNormalizeNode } from './with/normalizeNode'
@@ -43,8 +43,7 @@ interface EditorProps {
     hooks?: Hook[]
 }
 
-
-StandardPlugins.forEach(Registry.addPlugin, Api)
+StandardPlugins.forEach(Registry.addPlugin)
 
 
 export default function Editor({ value, onChange, hooks }: EditorProps) {
@@ -62,7 +61,7 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
         // StandardPlugins.forEach(Registry.addPlugin)
     }, [])
 
-    const editor = useMemo<ReactEditor>(() => {
+    const editor = useMemo<SlateEditor>(() => {
         const editor = createEditor()
         withReact(editor)
         withHistory(editor)
@@ -81,8 +80,14 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
         setStats(calculateStats(editor))
     }, [])
 
-    const renderElement = useCallback(Element, [])
-    const renderLeaf = useCallback(Leaf, [])
+
+    const renderSlateElement = useCallback((props: RenderElementProps) => {
+        return ElementComponent(props, Registry.elementRenderers)
+    }, [])
+
+    const renderLeafComponent = useCallback((props: RenderLeafProps) => {
+        return LeafComponent(props)
+    }, [])
 
     return (
         <div className="mimer mimer-editor bg-base-10 fg-base">
@@ -102,8 +107,8 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
 
                     <Editable
                         // style={{ minHeight: expandHeight ? '100%' : 'auto' }}
-                        renderElement={props => renderElement(props, Registry.elementRenderers)}
-                        renderLeaf={props => renderLeaf(props)}
+                        renderElement={renderSlateElement}
+                        renderLeaf={renderLeafComponent}
                         onKeyDown={event => handleOnKeyDown(event, editor)}
                         decorate={([node, path]) => handleDecoration(editor, node, path)}
                     />
@@ -123,7 +128,7 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
  * 3. selection is on this node
  * 4. selection is collapsed (it does not span more nodes)
  */
-function handleDecoration(editor: ReactEditor, node: Node, path: Path) {
+function handleDecoration(editor: SlateEditor, node: Node, path: Path) {
     if (
         editor.selection != null &&
         !SlateEditor.isEditor(node) &&
@@ -150,7 +155,7 @@ function handleDecoration(editor: ReactEditor, node: Node, path: Path) {
  * 2. toggle leafs on or off
  * 3. transform text nodes to another type
  */
-function handleOnKeyDown(event: React.KeyboardEvent<HTMLDivElement>, editor: ReactEditor) {
+function handleOnKeyDown(event: React.KeyboardEvent<HTMLDivElement>, editor: SlateEditor) {
     for (const action of Registry.actions) {
         if (!action.isHotkey(event)) {
             continue

@@ -8,9 +8,11 @@ import { Droppable } from "./droppable"
  * @param props RenderElementProps
  * @returns JSX.Element
  */
-export const UnknownElement = ({ element, attributes, children }: RenderElementProps) => {
+export const UnknownElementComponent = ({ element, attributes, children }: RenderElementProps) => {
     return (
-        <Droppable dataId={element?.id || ''}>
+        // TODO: Investigate if this dataId should be there (as data-id - or at all)?
+        // <Droppable dataId={element?.id || ''}>
+        <Droppable>
             <div
                 contentEditable={false}
                 className="parent unknown"

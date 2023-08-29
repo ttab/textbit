@@ -1,7 +1,8 @@
 import { RenderElementProps } from "slate-react"
+import { RenderElementFunction, Renderer } from "../../../../../types"
 
 type RenderInlineElementProps = {
-    renderer: any
+    renderer: Renderer
 } & RenderElementProps
 
 /**
@@ -10,6 +11,7 @@ type RenderInlineElementProps = {
  * @param props RenderInlineElementProps
  * @returns JSX.Element
  */
-export const InlineElement = ({ element, attributes, children, renderer }: RenderInlineElementProps) => {
-    return renderer.render({ element, attributes, children })
+export const InlineElementComponent = ({ element, attributes, children, renderer }: RenderInlineElementProps) => {
+    const render = renderer.render as RenderElementFunction
+    return render({ element, attributes, children })
 }
