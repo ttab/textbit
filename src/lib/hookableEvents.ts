@@ -81,24 +81,21 @@ async function insertNode(
     try {
         const handler = (eventHandler.handler as DropEventFunction)
         const hooks = Registry.hooks.filter(hook => hook.on === 'receive' && hook.for.includes(eventHandler.name))
+        let objects = undefined
 
         if (hooks.length > 1) {
             console.warn('Drop does not support multiple hooks')
         }
         else if (hooks.length === 1) {
-            const objects = await hooks[0].handler(fileList)
-            const nodes = await handler(editor, event, objects)
+            objects = await hooks[0].handler(fileList)
+        }
 
-            Transforms.insertNodes(
-                editor, nodes, { at: [position], select: false }
-            )
-        }
-        else {
-            const nodes = await handler(editor, event)
-            Transforms.insertNodes(
-                editor, nodes, { at: [position], select: false }
-            )
-        }
+        // FIXME: These events and event types need fixing/refactoring/rethinking
+        // @ts-ignore
+        const nodes = await handler(editor, event, objects)
+        Transforms.insertNodes(
+            editor, nodes, { at: [position], select: false }
+        )
     }
     catch (error: any) {
         if (typeof error === 'string') {

@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import { Transforms, Element } from 'slate'
 import * as uuid from 'uuid'
 
-import { ActionFunction, DropEventFunction, EventMatchFunction, FileInputEventFunction, MimerPlugin, NormalizeFunction, RenderElementFunction, RenderFunction } from '../../../../../types'
+import { ActionFunction, DropEventFunction, EventMatchFunction, FileInputEventFunction, MimerPlugin, NormalizeFunction, RenderElementFunction } from '../../../../../types'
 import { convertLastSibling } from '../../../../../lib/utils'
 import './index.css'
 import { BsImage } from 'react-icons/bs'
@@ -85,12 +85,12 @@ const renderText: RenderElementFunction = ({ children }) => {
 }
 
 const dropMatcher: EventMatchFunction = (event) => {
-    // Does not support urls right now
-    if (typeof event === 'string') {
+    if (event.type !== 'drop') {
         return false
     }
 
-    const files = event.nativeEvent?.dataTransfer?.files
+    const nativeEvent = event.nativeEvent as DragEvent
+    const files = nativeEvent.dataTransfer?.files
     if (!files || !files.length) {
         return false
     }
@@ -115,7 +115,12 @@ const dropMatcher: EventMatchFunction = (event) => {
 }
 
 const fileMatcher: EventMatchFunction = (event) => {
-    const files = event.target?.files
+    if (event.type !== 'drop') {
+        return false
+    }
+
+    const nativeEvent = event.nativeEvent as DragEvent
+    const files = nativeEvent.dataTransfer?.files
     if (!files || !files.length) {
         return false
     }
@@ -180,7 +185,7 @@ const fileHandler: FileInputEventFunction = (editor, event, objects) => {
 const dropHandler: DropEventFunction = (editor, event, objects): Promise<Element[]> => {
 
     if (Array.isArray(objects)) {
-        Promise.resolve(
+        return Promise.resolve(
             objects.map((object): Element => {
                 return {
                     id: uuid.v4(),

@@ -170,11 +170,16 @@ const matchUrl = (url: string): string | null => {
 }
 
 const dropMatcher: EventMatchFunction = (event) => {
-    if (typeof event === 'string' || !event.dataTransfer.types.includes('text/uri-list')) {
+    if (event.type !== 'drop') {
         return false
     }
 
-    const data = event.dataTransfer.getData('text/uri-list')
+    const nativeEvent = event.nativeEvent as DragEvent
+    if (nativeEvent?.dataTransfer?.types.includes('text/uri-list')) {
+        return false
+    }
+
+    const data = nativeEvent?.dataTransfer?.getData('text/uri-list')
     const uriList = Array.isArray(data) ? data : [data]
 
     for (const uri of uriList) {

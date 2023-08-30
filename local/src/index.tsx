@@ -96,8 +96,8 @@ function App() {
                     setValue(value)
                 }}
                 hooks={[{
-                    on: 'drop',   // Event type
-                    for: ['image'], // Handling plugin
+                    on: 'receive',   // Event type
+                    for: ['core/image'], // Handling plugin
                     handler: (e) => {
                         return new Promise((resolve, reject) => {
                             // Upload and fetch data
