@@ -10,7 +10,9 @@
     "jsxImportSource": "", /* Specify module specifier used to import the JSX factory functions when using 'jsx: react-jsx*'. */
     "module": "esnext", /* Specify what module code is generated. */
     "moduleResolution": "node", /* Specify how TypeScript looks up a file from a given module specifier. */
-    "typeRoots": [], /* Specify multiple folders that act like './node_modules/@types'. */
+    "typeRoots": [
+      "node_modules/@types"
+    ], /* Specify multiple folders that act like './node_modules/@types'. */
     "declaration": true, /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
     "emitDeclarationOnly": true, /* Only output d.ts files and not JavaScript files. */
     "sourceMap": true, /* Create source map files for emitted JavaScript files. */

@@ -65,7 +65,7 @@ export interface MimerRenderLeafProps extends SlateRenderLeafProps {
 }
 
 export type RenderElementFunction = (props: MimerRenderElementProps) => JSX.Element
-export type RenderLeafFunction = (props: MimerRenderLeafProps) => JSX.Element
+export type RenderLeafFunction = (props: MimerRenderLeafProps) => JSX.Element | undefined
 export type Renderer = {
     type: string
     placeholder?: string
