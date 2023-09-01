@@ -117,27 +117,32 @@ export type MimerPlugin = {
     style?: React.CSSProperties
 }
 
+export interface MimerElement extends BaseElement {
+    id?: string
+    class?: string
+    type: string
+    hotKey?: string
+    properties?: {
+        [key: string]: string | number
+    }
+    attributes?: {
+        [key: string]: string | number
+    }
+}
+
+export interface MimerText extends BaseText {
+    text: string
+    formats?: string[]
+    placeholder?: string
+}
+
+export type MimerDescendant = MimerElement | MimerText
 
 /** Slate module extends */
 declare module 'slate' {
     interface CustomTypes {
         Editor: BaseEditor & ReactEditor & HistoryEditor
-        Element: BaseElement & {
-            id?: string
-            class?: string
-            type: string
-            hotKey?: string
-            properties?: {
-                [key: string]: string | number
-            }
-            attributes?: {
-                [key: string]: string | number
-            }
-        }
-        Text: BaseText & {
-            text: string
-            formats?: string[]
-            placeholder?: string
-        }
+        Element: MimerElement
+        Text: MimerText
     }
 }
