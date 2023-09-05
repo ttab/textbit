@@ -1,5 +1,4 @@
 import { Descendant, Editor, Element } from 'slate'
-import { MimerPlugin, Renderer } from '../../../types'
 import { MimerRegistry } from '../registry'
 
 const types: string[] = []
@@ -7,22 +6,24 @@ const types: string[] = []
 export const withEditableVoids = (editor: Editor, nodes: Descendant[], Registry: MimerRegistry) => {
     const { isVoid } = editor
 
-    // All registered void block renderers
-    const blocks: string[] = Registry.elementRenderers.filter(r => r.class === 'void').map(({ type }) => type)
+    const allComponents: string[] = []
+    const voidComponents: string[] = []
 
-    // If an element type exist in the document but does not have a registered renderer
-    // the elementis considered to be av oid / not editable element.
-    types.length = 0
-    extractAllTypesFromDocument(nodes)
-    const registeredTypes: string[] = [...Registry.elementRenderers, ...Registry.leafRenderers].map(({ type }) => { return type })
-    const unknownTypesInDocument = types.filter(t => !registeredTypes.includes(t))
+    Registry.elementComponents.forEach(elemComponent => {
+        allComponents.push(elemComponent.type)
+
+        if (elemComponent.class === 'void') {
+            voidComponents.push(elemComponent.type)
+        }
+    })
 
     editor.isVoid = (element: Element) => {
-        if (unknownTypesInDocument.includes(element.type)) {
+        if (voidComponents.includes(element.type)) {
             return true
         }
 
-        if (blocks.includes(element.type)) {
+        if (!allComponents.includes(element.type)) {
+            // Element types without registered component is considered a void element
             return true
         }
 
@@ -30,20 +31,4 @@ export const withEditableVoids = (editor: Editor, nodes: Descendant[], Registry:
     }
 
     return editor
-}
-
-const extractAllTypesFromDocument = (nodes: Descendant[]) => {
-    nodes.forEach(n => {
-        if (!Element.isElement(n) || !n.type) {
-            return
-        }
-
-        if (!types.includes(n.type)) {
-            types.push(n.type)
-        }
-
-        if (n.children.length) {
-            extractAllTypesFromDocument(n.children)
-        }
-    })
 }

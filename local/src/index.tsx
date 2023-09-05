@@ -5,61 +5,61 @@ import { ThemeSwitcher } from './themeSwitcher'
 import { Descendant } from 'slate'
 
 const initialValue: Descendant[] = [
-    {
-        type: 'core/heading-1',
-        id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
-        class: 'text',
-        children: [
-            { text: 'Better music?' }
-        ]
-    },
-    {
-        type: 'core/preamble',
-        id: '538345e5-bacc-48f9-9ed2-b219892b51dc',
-        class: 'text',
-        children: [
-            { text: 'It is one of those days when better music makes all the difference in the world. At least to me, my inner and imaginary friend.' }
-        ]
-    },
-    {
-        type: 'core/dateline',
-        id: '538345e5-cadd-4558-9ed2-a219892b51dc',
-        class: 'text',
-        children: [
-            { text: 'Kalmar' }
-        ]
-    },
-    {
-        type: 'core/paragraph',
-        id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
-        class: 'text',
-        children: [
-            { text: 'An example paragraph that contains text that is a wee bit ' },
-            { text: 'stronger', formats: ['bold'] },
-            { text: ' than normal but also text that is somewhat ' },
-            { text: 'emphasized', formats: ['italic'] },
-            { text: ' compared to the normal styled text found elsewhere in the document.' },
-        ],
-    },
-    {
-        type: 'core/blockquote',
-        class: 'textblock',
-        id: '538345e5-bacc-48f9-8ef1-1214443a32da',
-        children: [
-            {
-                type: 'core/blockquote/body',
-                children: [
-                    { text: 'Just a regular paragraph that contains some nonsensical writing' }
-                ]
-            },
-            {
-                type: 'core/blockquote/caption',
-                children: [
-                    { text: 'Mr Smith' }
-                ]
-            }
-        ]
-    },
+    // {
+    //     type: 'core/heading-1',
+    //     id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
+    //     class: 'text',
+    //     children: [
+    //         { text: 'Better music?' }
+    //     ]
+    // },
+    // {
+    //     type: 'core/preamble',
+    //     id: '538345e5-bacc-48f9-9ed2-b219892b51dc',
+    //     class: 'text',
+    //     children: [
+    //         { text: 'It is one of those days when better music makes all the difference in the world. At least to me, my inner and imaginary friend.' }
+    //     ]
+    // },
+    // {
+    //     type: 'core/dateline',
+    //     id: '538345e5-cadd-4558-9ed2-a219892b51dc',
+    //     class: 'text',
+    //     children: [
+    //         { text: 'Kalmar' }
+    //     ]
+    // },
+    // {
+    //     type: 'core/paragraph',
+    //     id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
+    //     class: 'text',
+    //     children: [
+    //         { text: 'An example paragraph that contains text that is a wee bit ' },
+    //         { text: 'stronger', formats: ['bold'] },
+    //         { text: ' than normal but also text that is somewhat ' },
+    //         { text: 'emphasized', formats: ['italic'] },
+    //         { text: ' compared to the normal styled text found elsewhere in the document.' },
+    //     ],
+    // },
+    // {
+    //     type: 'core/blockquote',
+    //     class: 'textblock',
+    //     id: '538345e5-bacc-48f9-8ef1-1214443a32da',
+    //     children: [
+    //         {
+    //             type: 'core/blockquote/body',
+    //             children: [
+    //                 { text: 'Just a regular paragraph that contains some nonsensical writing' }
+    //             ]
+    //         },
+    //         {
+    //             type: 'core/blockquote/caption',
+    //             children: [
+    //                 { text: 'Mr Smith' }
+    //             ]
+    //         }
+    //     ]
+    // },
     {
         type: 'core/paragraph',
         class: 'text',
@@ -68,18 +68,18 @@ const initialValue: Descendant[] = [
             { text: 'This, here now is just a regular paragraph that contains some nonsensical writing written by me.' },
         ],
     },
-    {
-        type: 'core/paragraph',
-        id: '538343b5-badd-48f9-8ef0-1219891b60ef',
-        class: 'text',
-        children: [
-            { text: 'An example paragraph that contains text that is a wee bit ' },
-            { text: 'stronger', formats: ['bold'] },
-            { text: ' than normal but also text that is somewhat ' },
-            { text: 'emphasized', formats: ['italic'] },
-            { text: ' compared to the normal styled text found elsewhere in the document.' },
-        ],
-    }
+    // {
+    //     type: 'core/paragraph',
+    //     id: '538343b5-badd-48f9-8ef0-1219891b60ef',
+    //     class: 'text',
+    //     children: [
+    //         { text: 'An example paragraph that contains text that is a wee bit ' },
+    //         { text: 'stronger', formats: ['bold'] },
+    //         { text: ' than normal but also text that is somewhat ' },
+    //         { text: 'emphasized', formats: ['italic'] },
+    //         { text: ' compared to the normal styled text found elsewhere in the document.' },
+    //     ],
+    // }
 ]
 
 function App() {

@@ -1,16 +1,16 @@
 import { Element, Node } from "slate"
 import { Paragraph } from './text/paragraph'
 import { Title } from './text/title'
-import { Dateline } from './text/dateline'
-import { Leadin } from './text/leadin'
-import { Bold, Italic, Underline } from "./leaf/leaf"
+// import { Dateline } from './text/dateline'
+// import { Leadin } from './text/leadin'
+// import { Bold, Italic, Underline } from "./leaf/leaf"
 import { Blockquote } from "./textblock/blockquote"
-import { Navigation } from "./generic/navigation"
-import { OembedVideo } from "./block/oembed"
-import { Image } from "./block/image"
-import { Quotes } from "./generic/quotes"
-import { Loader } from "./void/loader"
-import { Link } from './inline/link'
+// import { Navigation } from "./generic/navigation"
+// import { OembedVideo } from "./block/oembed"
+// import { Image } from "./block/image"
+// import { Quotes } from "./generic/quotes"
+// import { Loader } from "./void/loader"
+// import { Link } from './inline/link'
 
 const isBlock = (node: Node) => {
     return Element.isElement(node) && node.class === 'block'
@@ -54,16 +54,16 @@ export const MimerElement = {
 export const StandardPlugins = [
     Paragraph,
     Title,
-    Leadin,
-    Dateline,
-    Blockquote,
-    Bold,
-    Italic,
-    Underline,
-    Navigation,
-    OembedVideo,
-    Quotes,
-    Image,
-    Loader,
-    Link
+    // Leadin,
+    // Dateline,
+    // Blockquote,
+    // Bold,
+    // Italic,
+    // Underline,
+    // Navigation,
+    // OembedVideo,
+    // Quotes,
+    // Image,
+    // Loader,
+    // Link
 ]

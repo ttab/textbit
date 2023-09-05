@@ -1,10 +1,11 @@
 import React from 'react' // Necessary for esbuild
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
-import { RenderElementFunction, Renderer } from '../../../../../types'
+import { MimerComponent } from '../../../types'
 import { Droppable } from './droppable'
+import { MimerRegistryComponent } from '../../../registry'
 
 type RenderParentElementProps = {
-    renderer: Renderer
+    component: MimerRegistryComponent
 } & RenderElementProps
 
 /**
@@ -13,13 +14,12 @@ type RenderParentElementProps = {
  * @param props RenderParentElementProps
  * @returns JSX.Element
  */
-export const ParentElementComponent = ({ element, attributes, children, renderer }: RenderParentElementProps) => {
+export const ParentElementComponent = ({ element, attributes, children, component }: RenderParentElementProps) => {
     const selected = useSelected()
     const focused = useFocused()
-    const render = renderer.render as RenderElementFunction
 
     const style = {
-        boxShadow: `${renderer.class === 'block' && selected && focused ? '0 0 0 3px rgb(117 138 242)' : 'none'}`,
+        boxShadow: `${component.class === 'block' && selected && focused ? '0 0 0 3px rgb(117 138 242)' : 'none'}`,
         overflow: 'hidden'
     }
 
@@ -31,7 +31,7 @@ export const ParentElementComponent = ({ element, attributes, children, renderer
                 {...attributes}
             >
                 <div className="editor-block" style={style} >
-                    {render({ element, attributes, children })}
+                    {component.component.render({ element, attributes, children })}
                 </div>
             </div>
         </Droppable>

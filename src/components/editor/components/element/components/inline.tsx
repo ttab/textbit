@@ -1,8 +1,8 @@
 import { RenderElementProps } from "slate-react"
-import { RenderElementFunction, Renderer } from "../../../../../types"
+import { MimerRegistryComponent } from "../../../registry"
 
 type RenderInlineElementProps = {
-    renderer: Renderer
+    component: MimerRegistryComponent
 } & RenderElementProps
 
 /**
@@ -11,7 +11,6 @@ type RenderInlineElementProps = {
  * @param props RenderInlineElementProps
  * @returns JSX.Element
  */
-export const InlineElementComponent = ({ element, attributes, children, renderer }: RenderInlineElementProps) => {
-    const render = renderer.render as RenderElementFunction
-    return render({ element, attributes, children })
+export const InlineElementComponent = ({ element, attributes, children, component }: RenderInlineElementProps) => {
+    return component.component.render({ element, attributes, children })
 }

@@ -1,14 +1,24 @@
 import isHotKey from 'is-hotkey'
 
-import {
-    MimerPlugin,
-    NormalizeFunction,
-    Hook,
-    Renderer,
-    Normalizer,
-    Action,
-    EventHandler
-} from '../../types'
+import { MimerComponent, MimerPlugin, RenderElementFunction, RenderLeafFunction } from './types'
+
+export type MimerRegistryComponent = {
+    type: string
+    class: string
+    component: MimerComponent
+}
+
+export interface MimerRegistry {
+    plugins: MimerPlugin[]
+    leafComponents: Map<string, MimerRegistryComponent>
+    elementComponents: Map<string, MimerRegistryComponent>
+    normalizers: Normalizer[]
+    actions: Action[]
+    events: EventHandler[]
+    hooks: Hook[]
+    addPlugin: (plugins: MimerPlugin) => void,
+    registerHooks: (plugins: Hook[]) => void
+}
 
 
 /**
@@ -18,15 +28,30 @@ import {
  * @param plugin 
  */
 const addPlugin = (plugin: MimerPlugin) => {
-    const plugins = [...Registry.plugins.filter(p => p.name !== plugin.name), plugin]
-    const [leafRenderers, elementRenderers] = registerRenderers(plugins)
+    // 1. Create new list of plugins, override old instance of a plugin if already registered, preserve order
+    const plugins = [...Registry.plugins]
+    const idx = plugins.findIndex((existingPlugin => existingPlugin.name === plugin.name))
+    if (idx !== -1) {
+        plugins[idx] = plugin
+    }
+    else {
+        plugins.push(plugin)
+    }
+
+    // 2. Create component render functions maps
+    try {
+        [Registry.leafComponents, Registry.elementComponents] = registerPluginRenderers(plugins)
+    }
+    catch (ex: any) {
+        console.log(`Failed registering plugin <${plugin.name}>: ${ex?.message || 'unknown reason'}`)
+        return
+    }
+
+
+
     const actions = registerActions(plugins)
     const normalizers = registerNormalizers(plugins)
     const eventHandlers = registerEventHandlers(plugins)
-
-    // 1. Add renderers
-    Registry.leafRenderers = leafRenderers
-    Registry.elementRenderers = elementRenderers
 
     // 2. Add normalizers for these renderers
     Registry.normalizers = normalizers
@@ -52,59 +77,97 @@ const registerHooks = (hooks: Hook[]) => {
 }
 
 /**
- * Register element (node) type render functions. Loops over components and register
- * their render functions for specific node types. If no type is specified (default
- * component for the plugin) the node type is derived from the plugin name.
+ * Register a plugins components render functions for faster access in the rendering functionality.
+ * Type and class of the topmost component can be derived from name and class of the plugin
  */
-const registerRenderers = (plugins: MimerPlugin[]): [Renderer[], Renderer[]] => {
-    const leafRenderers: Renderer[] = []
-    const elementRenderers: Renderer[] = []
+const registerPluginRenderers = (plugins: MimerPlugin[]) => {
+    const leafs: Map<string, MimerRegistryComponent> = new Map()
+    const elems: Map<string, MimerRegistryComponent> = new Map()
 
-    // Register leaf renderers
-    plugins
-        .filter(plugin => plugin.class === 'leaf')
-        .forEach(plugin => {
-            // If no leaf renderer exists create a default one that returns
-            // undefined and thus will fallback to default leaf renderer.
-            // FIXME: This could make bold/italic/etc work even when not registered.
-            if (!Array.isArray(plugin.components) || !plugin.components.length) {
-                leafRenderers.push({
-                    type: plugin.name,
-                    class: plugin.class,
-                    render: () => undefined
-                })
-            }
+    plugins.forEach(plugin => {
+        const { component = null } = plugin
+        if (component === null) {
+            return
+        }
 
-            // Register all normal leaf renderers, always "leaf" as class!
-            (plugin.components || []).forEach(component => {
-                const isParent = !component.type || component.type === plugin.name
-                Registry.leafRenderers.push({
-                    type: isParent ? plugin.name : `${plugin.name}/${component.type}`,
-                    class: plugin.class,
-                    render: component.render
-                })
-            })
-        })
+        component.type = component?.type || plugin.name
+        component.class = component?.class || plugin.class
 
-    // Register element renderers
-    plugins
-        .filter(plugin => {
-            return plugin.class !== 'leaf' && Array.isArray(plugin.components) && plugin.components.length
-        })
-        .forEach(plugin => {
-            (plugin.components || []).forEach(component => {
-                const isParent = !component.type
-                elementRenderers.push({
-                    type: isParent ? plugin.name : `${plugin.name}/${component.type}`,
-                    placeholder: plugin.placeholder || '',
-                    class: component.class ? component.class : plugin.class,
-                    render: component.render
-                })
-            })
-        })
+        registerComponentRenderer(
+            (component.class === 'leaf') ? leafs : elems,
+            component.type,
+            component
+        )
+    })
 
-    return [leafRenderers, elementRenderers]
+    return [leafs, elems]
 }
+
+const registerComponentRenderer = (renderers: Map<string, MimerRegistryComponent>, compType: string, component: MimerComponent) => {
+    const { components = [] } = component
+
+    if (renderers.has(compType)) {
+        console.warn(`Already registered component ${compType} render function was replaced by another component render function with the same type!`)
+    }
+
+    if (!component.class) {
+        throw (new Error(`Component ${compType} is missing a class!`))
+    }
+
+    renderers.set(compType, {
+        type: compType,
+        class: component.class,
+        component: component
+    })
+
+    components.forEach(childComponent => {
+        if (!childComponent.class || !childComponent.type) {
+            throw (new Error(`Child component of ${compType} is missing mandatory type and/or class!`))
+        }
+
+        registerComponentRenderer(
+            renderers,
+            `${compType}/${childComponent.type}`, // Aggregated type identifier (e.g. core/image/caption)
+            childComponent
+        )
+    })
+}
+
+
+// const registerRenderers = (plugins: MimerPlugin[]): [MimerRegistryRenderer[], MimerRegistryRenderer[]] => {
+//     const leafRenderers: MimerRegistryRenderer[] = []
+//     const elementRenderers: MimerRegistryRenderer[] = []
+
+
+//     // Register leaf renderers
+//     plugins
+//         .filter(plugin => plugin.class === 'leaf')
+//         .forEach(plugin => {
+//             // If no leaf renderer exists create a default one that returns
+//             // undefined and thus will fallback to default leaf renderer.
+//             // FIXME: This could make bold/italic/etc work even when not registered.
+//             registerLeafRenderer(plugin, leafRenderers)
+//         })
+
+//     // Register element renderers
+//     plugins
+//         .filter(plugin => {
+//             return plugin.class !== 'leaf' && Array.isArray(plugin.components) && plugin.components.length
+//         })
+//         .forEach(plugin => {
+//             (plugin.components || []).forEach(component => {
+//                 const isParent = !component.type
+//                 elementRenderers.push({
+//                     type: isParent ? plugin.name : `${plugin.name}/${component.type}`,
+//                     placeholder: plugin.placeholder || '',
+//                     class: component.class ? component.class : plugin.class,
+//                     render: component.render
+//                 })
+//             })
+//         })
+
+//     return [leafRenderers, elementRenderers]
+// }
 
 const registerNormalizers = (plugins: MimerPlugin[]) => {
     const normalizers: Normalizer[] = []
@@ -167,26 +230,34 @@ const registerEventHandlers = (plugins: MimerPlugin[]) => {
 }
 
 
-export type MimerRegistry = {
-    plugins: MimerPlugin[]
-    leafRenderers: Renderer[]
-    elementRenderers: Renderer[]
-    normalizers: Normalizer[]
-    actions: Action[]
-    events: EventHandler[]
-    hooks: Hook[]
-    addPlugin: (plugins: MimerPlugin) => void,
-    registerHooks: (plugins: Hook[]) => void
-}
-
 export const Registry: MimerRegistry = {
     plugins: <MimerPlugin[]>[],
-    leafRenderers: <Renderer[]>[],
-    elementRenderers: <Renderer[]>[],
+    leafComponents: <Renderer[]>[],
+    elementComponents: <Renderer[]>[],
     normalizers: <Normalizer[]>[],
     actions: <Action[]>[],
     events: <EventHandler[]>[],
     hooks: <Hook[]>[],
     addPlugin,
     registerHooks
+}
+
+function registerLeafRenderer(plugin: MimerPlugin, leafRenderers: MimerRegistryRenderer[]) {
+    if (!Array.isArray(plugin.components) || !plugin.components.length) {
+        leafRenderers.push({
+            type: plugin.name,
+            class: plugin.class,
+            render: () => undefined
+        })
+    }
+
+    // Register all normal leaf renderers, always "leaf" as class!
+    (plugin.components || []).forEach(component => {
+        const isParent = !component.type || component.type === plugin.name
+        Registry.leafComponents.push({
+            type: isParent ? plugin.name : `${plugin.name}/${component.type}`,
+            class: plugin.class,
+            render: component.render
+        })
+    })
 }

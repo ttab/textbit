@@ -3,7 +3,7 @@ import { PropsWithChildren, useRef, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import { useFocused, useSlate } from 'slate-react'
 import { Editor, Range, Element as SlateElement, BaseRange, NodeEntry, Node } from 'slate'
-import { Action } from '../../../../types'
+import { Action } from '../../../../components/editor/types'
 import { toggleLeaf } from '../../standardPlugins/leaf/leaf'
 import { isFromTarget } from '../../../../lib/target'
 import './inline.css'
@@ -200,7 +200,7 @@ const ToolButton = ({ action }: InlineToolProps) => {
         className={`editor-tool r-less bg-base-hover`}
         onMouseDown={(e) => {
             e.preventDefault()
-            if (true === action.handler(editor)) {
+            if (true === action.handler({ editor })) {
                 toggleLeaf(editor, action.name)
             }
         }}

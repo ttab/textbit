@@ -2,7 +2,7 @@ import React, { useRef, useEffect, PropsWithChildren } from 'react'
 import ReactDOM from 'react-dom'
 import { useFocused, useSlate, useSlateSelection } from 'slate-react'
 import { Editor, Element as SlateElement } from 'slate'
-import { Action } from '../../../../types'
+import { Action } from '../../../../components/editor/types'
 
 import { modifier } from '../../../../lib/modifier'
 import { HiDotsVertical } from 'react-icons/hi'
@@ -169,7 +169,7 @@ const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
             onMouseDown={(e) => {
                 e.preventDefault()
                 toggleIsOpen(false)
-                action.handler(editor)
+                action.handler({ editor })
             }}
         >
             {isActive &&
