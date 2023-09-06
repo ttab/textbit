@@ -1,8 +1,8 @@
 import { RenderElementProps } from "slate-react"
-import { MimerRegistryComponent } from "../../../registry"
+import { RegistryComponent } from "../../../registry"
 
 type RenderInlineElementProps = {
-    component: MimerRegistryComponent
+    component: RegistryComponent
 } & RenderElementProps
 
 /**

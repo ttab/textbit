@@ -1,10 +1,10 @@
 import React from 'react' // Necessary for esbuild
 import { Node } from "slate"
 import { RenderElementProps } from "slate-react"
-import { MimerRegistryComponent } from '../../../registry'
+import { RegistryComponent } from '../../../registry'
 
 type RenderChildElementProps = {
-    component: MimerRegistryComponent
+    component: RegistryComponent
     rootNode: Node
 } & RenderElementProps
 

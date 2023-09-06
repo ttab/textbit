@@ -4,12 +4,12 @@ import { ChildElementComponent } from './components/child'
 import { ParentElementComponent } from './components/parent'
 import { InlineElementComponent } from './components/inline'
 import { UnknownElementComponent } from './components/unknown'
-import { MimerRegistryComponent } from '../../registry'
+import { RegistryComponent } from '../../registry'
 
 /**
  * Render a custom Slate element
  */
-export const ElementComponent = (props: RenderElementProps, components: Map<string, MimerRegistryComponent>) => {
+export const ElementComponent = (props: RenderElementProps, components: Map<string, RegistryComponent>) => {
     const { element } = props
     const component = components.get(element.type)
 

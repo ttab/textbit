@@ -2,16 +2,16 @@ import isHotKey from 'is-hotkey'
 
 import { MimerComponent, MimerPlugin, RenderElementFunction, RenderLeafFunction } from './types'
 
-export type MimerRegistryComponent = {
+export type RegistryComponent = {
     type: string
     class: string
     component: MimerComponent
 }
 
-export interface MimerRegistry {
+export interface Registry {
     plugins: MimerPlugin[]
-    leafComponents: Map<string, MimerRegistryComponent>
-    elementComponents: Map<string, MimerRegistryComponent>
+    leafComponents: Map<string, RegistryComponent>
+    elementComponents: Map<string, RegistryComponent>
     normalizers: Normalizer[]
     actions: Action[]
     events: EventHandler[]
@@ -40,7 +40,7 @@ const addPlugin = (plugin: MimerPlugin) => {
 
     // 2. Create component render functions maps
     try {
-        [Registry.leafComponents, Registry.elementComponents] = registerPluginRenderers(plugins)
+        [Registry.leafComponents, Registry.elementComponents] = registerComponents(plugins)
     }
     catch (ex: any) {
         console.log(`Failed registering plugin <${plugin.name}>: ${ex?.message || 'unknown reason'}`)
@@ -80,9 +80,9 @@ const registerHooks = (hooks: Hook[]) => {
  * Register a plugins components render functions for faster access in the rendering functionality.
  * Type and class of the topmost component can be derived from name and class of the plugin
  */
-const registerPluginRenderers = (plugins: MimerPlugin[]) => {
-    const leafs: Map<string, MimerRegistryComponent> = new Map()
-    const elems: Map<string, MimerRegistryComponent> = new Map()
+const registerComponents = (plugins: MimerPlugin[]) => {
+    const leafs: Map<string, RegistryComponent> = new Map()
+    const elems: Map<string, RegistryComponent> = new Map()
 
     plugins.forEach(plugin => {
         const { component = null } = plugin
@@ -93,7 +93,7 @@ const registerPluginRenderers = (plugins: MimerPlugin[]) => {
         component.type = component?.type || plugin.name
         component.class = component?.class || plugin.class
 
-        registerComponentRenderer(
+        registerComponent(
             (component.class === 'leaf') ? leafs : elems,
             component.type,
             component
@@ -103,7 +103,7 @@ const registerPluginRenderers = (plugins: MimerPlugin[]) => {
     return [leafs, elems]
 }
 
-const registerComponentRenderer = (renderers: Map<string, MimerRegistryComponent>, compType: string, component: MimerComponent) => {
+const registerComponent = (renderers: Map<string, RegistryComponent>, compType: string, component: MimerComponent) => {
     const { components = [] } = component
 
     if (renderers.has(compType)) {
@@ -125,7 +125,7 @@ const registerComponentRenderer = (renderers: Map<string, MimerRegistryComponent
             throw (new Error(`Child component of ${compType} is missing mandatory type and/or class!`))
         }
 
-        registerComponentRenderer(
+        registerComponent(
             renderers,
             `${compType}/${childComponent.type}`, // Aggregated type identifier (e.g. core/image/caption)
             childComponent
@@ -230,7 +230,7 @@ const registerEventHandlers = (plugins: MimerPlugin[]) => {
 }
 
 
-export const Registry: MimerRegistry = {
+export const Registry: Registry = {
     plugins: <MimerPlugin[]>[],
     leafComponents: <Renderer[]>[],
     elementComponents: <Renderer[]>[],

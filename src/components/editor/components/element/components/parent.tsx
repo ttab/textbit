@@ -2,10 +2,10 @@ import React from 'react' // Necessary for esbuild
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
 import { MimerComponent } from '../../../types'
 import { Droppable } from './droppable'
-import { MimerRegistryComponent } from '../../../registry'
+import { RegistryComponent } from '../../../registry'
 
 type RenderParentElementProps = {
-    component: MimerRegistryComponent
+    component: RegistryComponent
 } & RenderElementProps
 
 /**
