@@ -134,41 +134,6 @@ const registerComponent = (renderers: Map<string, RegistryComponent>, compType: 
 }
 
 
-// const registerRenderers = (plugins: MimerPlugin[]): [MimerRegistryRenderer[], MimerRegistryRenderer[]] => {
-//     const leafRenderers: MimerRegistryRenderer[] = []
-//     const elementRenderers: MimerRegistryRenderer[] = []
-
-
-//     // Register leaf renderers
-//     plugins
-//         .filter(plugin => plugin.class === 'leaf')
-//         .forEach(plugin => {
-//             // If no leaf renderer exists create a default one that returns
-//             // undefined and thus will fallback to default leaf renderer.
-//             // FIXME: This could make bold/italic/etc work even when not registered.
-//             registerLeafRenderer(plugin, leafRenderers)
-//         })
-
-//     // Register element renderers
-//     plugins
-//         .filter(plugin => {
-//             return plugin.class !== 'leaf' && Array.isArray(plugin.components) && plugin.components.length
-//         })
-//         .forEach(plugin => {
-//             (plugin.components || []).forEach(component => {
-//                 const isParent = !component.type
-//                 elementRenderers.push({
-//                     type: isParent ? plugin.name : `${plugin.name}/${component.type}`,
-//                     placeholder: plugin.placeholder || '',
-//                     class: component.class ? component.class : plugin.class,
-//                     render: component.render
-//                 })
-//             })
-//         })
-
-//     return [leafRenderers, elementRenderers]
-// }
-
 const registerNormalizers = (plugins: MimerPlugin[]) => {
     const normalizers: Normalizer[] = []
 
