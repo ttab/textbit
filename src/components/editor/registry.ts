@@ -1,6 +1,6 @@
 import isHotKey from 'is-hotkey'
 
-import { MimerComponent, MimerPlugin, RenderElementFunction, RenderLeafFunction } from './types'
+import { MimerComponent, MimerPlugin, ConsumeFunction } from './types'
 
 export type RegistryComponent = {
     type: string
@@ -8,16 +8,36 @@ export type RegistryComponent = {
     component: MimerComponent
 }
 
+export type RegistryEvent = {
+    handler: () => Promise<any[]>, // FIXME: How should this handler look, should it be a promise for both plugin/component event handlers?
+    plugin?: MimerPlugin
+    component?: MimerComponent
+}
+
 export interface Registry {
+    // Main registry of plugins
     plugins: MimerPlugin[]
+
+    // Provides faster access in rendering cycles
     leafComponents: Map<string, RegistryComponent>
     elementComponents: Map<string, RegistryComponent>
+
+    // Provides faster access to the right receiver when events fire
+    events: Map<string, RegistryEvent>
+
+
+
     normalizers: Normalizer[]
     actions: Action[]
-    events: EventHandler[]
+    // oldEvents: EventHandler[]
     hooks: Hook[]
-    addPlugin: (plugins: MimerPlugin) => void,
+    addPlugin: (plugins: MimerPlugin) => void
     registerHooks: (plugins: Hook[]) => void
+
+    getConsumers: (plugins: MimerPlugin[], data: any, intent?: string) => [{
+        plugin: MimerPlugin
+        produces: string | null
+    }]
 }
 
 
@@ -40,13 +60,14 @@ const addPlugin = (plugin: MimerPlugin) => {
 
     // 2. Create component render functions maps
     try {
-        [Registry.leafComponents, Registry.elementComponents] = registerComponents(plugins)
+        registerComponents(plugin)
     }
     catch (ex: any) {
         console.log(`Failed registering plugin <${plugin.name}>: ${ex?.message || 'unknown reason'}`)
         return
     }
 
+    // 3. Create event listener maps
 
 
     const actions = registerActions(plugins)
@@ -80,53 +101,46 @@ const registerHooks = (hooks: Hook[]) => {
  * Register a plugins components render functions for faster access in the rendering functionality.
  * Type and class of the topmost component can be derived from name and class of the plugin
  */
-const registerComponents = (plugins: MimerPlugin[]) => {
-    const leafs: Map<string, RegistryComponent> = new Map()
-    const elems: Map<string, RegistryComponent> = new Map()
+const registerComponents = (plugin: MimerPlugin) => {
+    const { component = null } = plugin
+    if (component === null) {
+        return
+    }
 
-    plugins.forEach(plugin => {
-        const { component = null } = plugin
-        if (component === null) {
-            return
-        }
+    component.type = component?.type || plugin.name
+    component.class = component?.class || plugin.class
 
-        component.type = component?.type || plugin.name
-        component.class = component?.class || plugin.class
-
-        registerComponent(
-            (component.class === 'leaf') ? leafs : elems,
-            component.type,
-            component
-        )
-    })
-
-    return [leafs, elems]
+    registerComponent(
+        (component.class === 'leaf') ? Registry.leafComponents : Registry.elementComponents,
+        component.type,
+        component
+    )
 }
 
-const registerComponent = (renderers: Map<string, RegistryComponent>, compType: string, component: MimerComponent) => {
-    const { components = [] } = component
+const registerComponent = (components: Map<string, RegistryComponent>, compType: string, component: MimerComponent) => {
+    const { children = [] } = component
 
-    if (renderers.has(compType)) {
+    if (components.has(compType)) {
         console.warn(`Already registered component ${compType} render function was replaced by another component render function with the same type!`)
     }
 
     if (!component.class) {
-        throw (new Error(`Component ${compType} is missing a class!`))
+        console.warn(`Component ${compType} is missing a class, using "text" as fallback type!`)
     }
 
-    renderers.set(compType, {
+    components.set(compType, {
         type: compType,
-        class: component.class,
+        class: component.class || 'text',
         component: component
     })
 
-    components.forEach(childComponent => {
-        if (!childComponent.class || !childComponent.type) {
-            throw (new Error(`Child component of ${compType} is missing mandatory type and/or class!`))
+    children.forEach(childComponent => {
+        if (!childComponent.type) {
+            throw (new Error(`Child component of ${compType} is missing mandatory type!`))
         }
 
         registerComponent(
-            renderers,
+            components,
             `${compType}/${childComponent.type}`, // Aggregated type identifier (e.g. core/image/caption)
             childComponent
         )
@@ -194,17 +208,43 @@ const registerEventHandlers = (plugins: MimerPlugin[]) => {
     return eventHandlers
 }
 
+/**
+ * Return a list of consumers for the specified indata
+ */
+const getConsumers = (plugins: MimerPlugin[], data: any, intent?: string) => {
+    const consumers: Array<{
+        plugin: MimerPlugin
+        produces: string | null
+    }> = []
+
+    plugins.forEach(plugin => {
+        if (typeof plugin.consumer?.consumes !== 'function' || typeof plugin.consumer?.consume !== 'function') {
+            return
+        }
+
+        const [match, produces = undefined] = plugin.consumer.consumes({ data, intent })
+        if (match) {
+            consumers.push({
+                plugin,
+                produces: produces || null
+            })
+        }
+    })
+
+    return Array.from(consumers)
+}
 
 export const Registry: Registry = {
     plugins: <MimerPlugin[]>[],
-    leafComponents: <Renderer[]>[],
-    elementComponents: <Renderer[]>[],
+    leafComponents: new Map(),
+    elementComponents: new Map(),
     normalizers: <Normalizer[]>[],
     actions: <Action[]>[],
     events: <EventHandler[]>[],
     hooks: <Hook[]>[],
     addPlugin,
-    registerHooks
+    registerHooks,
+    getConsumers
 }
 
 function registerLeafRenderer(plugin: MimerPlugin, leafRenderers: MimerRegistryRenderer[]) {

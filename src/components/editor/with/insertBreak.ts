@@ -29,7 +29,6 @@ export const withInsertBreak = (editor: Editor) => {
         // Handle common case where <enter> should by default create paragraph and not same as current node
         // But only if on the highest level (not in a blockquote sub element for example)
         if (Range.isCollapsed(selection) && matches.length < 2) {
-            debugger
             // New nodes should be paragraph with a newly generated id
             return Transforms.insertNodes(editor, {
                 id: uuid.v4(),

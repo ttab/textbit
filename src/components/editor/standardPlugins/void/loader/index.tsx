@@ -1,5 +1,6 @@
 import React from 'react' // Necessary for esbuild
-import { MimerPlugin, RenderElementFunction } from '../../../../../types'
+
+import { MimerPlugin, RenderElementFunction } from '../../../types'
 
 import './style.css'
 
@@ -35,5 +36,7 @@ const render: RenderElementFunction = ({ children }) => {
 export const Loader: MimerPlugin = {
     class: 'void',
     name: 'core/loader',
-    components: [{ render }]
+    component: {
+        render
+    }
 }

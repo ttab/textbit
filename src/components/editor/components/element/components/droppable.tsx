@@ -5,7 +5,7 @@ import { useSlateStatic } from 'slate-react'
 
 import { Registry } from '../../../registry'
 import { DragstateContext } from '../../dragndrop'
-import { handleDrop } from '../../../../../lib/hookableEvents'
+import { findFileConsumers, handleFileDrop } from '../../../../../lib/hookableEvents'
 
 type DroppableProps = {
     element?: Element
@@ -116,7 +116,7 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
             // const name = droppableRef.current?.dataset?.name || null
             const [position, node] = getDropPosition(editor, e, container, id)
 
-            // Handle internal drag'n drops...
+            // Handle internal drag'n drops
             const nativeDataTransfer = e.nativeEvent.dataTransfer
             if (nativeDataTransfer) {
                 const id = nativeDataTransfer.getData('mimer/droppable-id')
@@ -129,23 +129,63 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
                 }
             }
 
-            // Second, see if any dropHandlers want to handle it
-            // FIXME: Let more than one answer to the drop. Show dialog to user who can choose hemself.
-            const dropHandler = Registry.events.find(dh => dh.on === 'drop' && dh.match && dh.match(e))
-            if (!dropHandler) {
-                return
-            }
+            // const ignoredTypes: string[] = []
+            // const matchedTypes = new Map<string, {
+            //     consumers: any[],
+            //     files: File[]
+            // }>()
 
             e.stopPropagation()
             e.preventDefault()
             ctx?.onDrop(e)
 
-            handleDrop(editor, e, position, dropHandler)
+            let ignoredTypes: string[] = []
+            if (e.dataTransfer.files?.length || 0 > 0) {
+                ignoredTypes = handleOnFileDrop(editor, position, e)
+            }
+            else {
+                // TODO: Implement data drop
+                console.error('Only file drops supported - to be implemented')
+            }
+
+            if (ignoredTypes.length) {
+                console.warn('Ignored files of type ' + ignoredTypes.join(', ').trimEnd())
+                // TODO: Ask user if s/he wants to proceed (if there are matches)?
+            }
         }}>
         <div className="droppable-area">
             {children}
         </div>
     </div >
+}
+
+/**
+ * Ask all plugins if they can consume each of the file in this drop and let them handle the drop,
+ * either individual files or in bulk
+ */
+function handleOnFileDrop(editor: Editor, position: number, e: React.DragEvent<HTMLDivElement>) {
+    const consumerPlugins = new Map()
+    const ignoredFiles: string[] = []
+    const files = e.dataTransfer.files
+
+    findFileConsumers(files, ignoredFiles, consumerPlugins)
+
+    // TODO: Ask user if multiple plugins wants to consume the same files
+    // FIXME: The call below assumes only one plugin wants to handle each file type
+    handleFileDrop(
+        editor,
+        position,
+        Array.from(consumerPlugins.values()).map(entry => {
+            return {
+                consume: entry.plugin.consumer.consume,
+                files: entry.files,
+                bulk: entry.plugin.consumer.bulk
+            }
+        })
+    )
+
+    // FIXME: Returns before async handleFileDrops() has finished
+    return ignoredFiles
 }
 
 function moveNode(editor: Editor, id: string, to: number) {

@@ -7,9 +7,9 @@ import { Title } from './text/title'
 import { Blockquote } from "./textblock/blockquote"
 // import { Navigation } from "./generic/navigation"
 // import { OembedVideo } from "./block/oembed"
-// import { Image } from "./block/image"
+import { Image } from "./block/image"
 // import { Quotes } from "./generic/quotes"
-// import { Loader } from "./void/loader"
+import { Loader } from "./void/loader"
 // import { Link } from './inline/link'
 
 const isBlock = (node: Node) => {
@@ -63,7 +63,7 @@ export const StandardPlugins = [
     // Navigation,
     // OembedVideo,
     // Quotes,
-    // Image,
-    // Loader,
+    Image,
+    Loader,
     // Link
 ]

@@ -3,11 +3,11 @@ import { useEffect, useRef } from 'react'
 import { Transforms, Element } from 'slate'
 import * as uuid from 'uuid'
 
-import { ActionFunction, DropEventFunction, EventMatchFunction, FileInputEventFunction, MimerPlugin, NormalizeFunction, RenderElementFunction } from '../../../../../types'
 import { convertLastSibling } from '../../../../../lib/utils'
 import './index.css'
 import { BsImage } from 'react-icons/bs'
 import { triggerFileInputEvent } from '../../../../../lib/hookableEvents'
+import { ConsumeFunction, ConsumesFunction, MimerPlugin, RenderElementProps } from '../../../types'
 
 // FIXME: Should expose its own type
 //
@@ -25,7 +25,7 @@ import { triggerFileInputEvent } from '../../../../../lib/hookableEvents'
 //
 // type ImageElement = Element & ImageProperties
 
-const render: RenderElementFunction = ({ children }) => {
+const render = ({ children }: RenderElementProps) => {
     const style = {
         minHeight: '10rem',
         margin: '0'
@@ -36,7 +36,7 @@ const render: RenderElementFunction = ({ children }) => {
     </figure>
 }
 
-const renderImage: RenderElementFunction = ({ children, attributes, rootNode }) => {
+const renderImage = ({ children, attributes, rootNode }: RenderElementProps) => {
     const { properties = {} } = Element.isElement(rootNode) ? rootNode : {}
     const src: string = properties?.src as string || ''
     const h = properties?.height ?? 1
@@ -60,7 +60,7 @@ const renderImage: RenderElementFunction = ({ children, attributes, rootNode }) 
     )
 }
 
-const renderAltText: RenderElementFunction = ({ children }) => {
+const renderAltText = ({ children }: RenderElementProps) => {
     return <div draggable={true} className="text-sans-serif" style={{
         padding: '0.4rem 0.8rem',
         fontSize: '1rem',
@@ -72,7 +72,7 @@ const renderAltText: RenderElementFunction = ({ children }) => {
     </div>
 }
 
-const renderText: RenderElementFunction = ({ children }) => {
+const renderText = ({ children }: RenderElementProps) => {
     return <div draggable={true} className="text-sans-serif" style={{
         padding: '0.4rem 0.8rem',
         fontSize: '1rem',
@@ -84,202 +84,202 @@ const renderText: RenderElementFunction = ({ children }) => {
     </div>
 }
 
-const dropMatcher: EventMatchFunction = (event) => {
-    if (event.type !== 'drop') {
-        return false
-    }
+// const dropMatcher = (event) => {
+//     if (event.type !== 'drop') {
+//         return false
+//     }
 
-    const nativeEvent = event.nativeEvent as DragEvent
-    const files = nativeEvent.dataTransfer?.files
-    if (!files || !files.length) {
-        return false
-    }
+//     const nativeEvent = event.nativeEvent as DragEvent
+//     const files = nativeEvent.dataTransfer?.files
+//     if (!files || !files.length) {
+//         return false
+//     }
 
-    // FIXME: Must loop
-    const name = files[0].name
-    const size = files[0].size
-    const type = files[0].type
+//     // FIXME: Must loop
+//     const name = files[0].name
+//     const size = files[0].size
+//     const type = files[0].type
 
-    if (!['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(type)) {
-        console.warn(`Image mime type ${type} not supported`)
-        return false
-    }
+//     if (!['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(type)) {
+//         console.warn(`Image mime type ${type} not supported`)
+//         return false
+//     }
 
-    // Hardcoded limit on 30 MB
-    if (size / 1024 / 1024 > 30) {
-        console.warn(`Image is too large, ${size / 1024 / 1024}, max 30 Mb allowed`)
-        return false
-    }
+//     // Hardcoded limit on 30 MB
+//     if (size / 1024 / 1024 > 30) {
+//         console.warn(`Image is too large, ${size / 1024 / 1024}, max 30 Mb allowed`)
+//         return false
+//     }
 
-    return true
-}
+//     return true
+// }
 
-const fileMatcher: EventMatchFunction = (event) => {
-    if (event.type !== 'drop') {
-        return false
-    }
+// const fileMatcher = (event) => {
+//     if (event.type !== 'drop') {
+//         return false
+//     }
 
-    const nativeEvent = event.nativeEvent as DragEvent
-    const files = nativeEvent.dataTransfer?.files
-    if (!files || !files.length) {
-        return false
-    }
+//     const nativeEvent = event.nativeEvent as DragEvent
+//     const files = nativeEvent.dataTransfer?.files
+//     if (!files || !files.length) {
+//         return false
+//     }
 
-    // FIXME: must loop
-    const name = files[0].name
-    const size = files[0].size
-    const type = files[0].type
+//     // FIXME: must loop
+//     const name = files[0].name
+//     const size = files[0].size
+//     const type = files[0].type
 
-    if (!['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(type)) {
-        console.warn(`Image mime type ${type} not supported`)
-        return false
-    }
+//     if (!['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(type)) {
+//         console.warn(`Image mime type ${type} not supported`)
+//         return false
+//     }
 
-    // Hardcoded limit on 30 MB
-    if (size / 1024 / 1024 > 30) {
-        console.warn(`Image is too large, ${size / 1024 / 1024}, max 30 Mb allowed`)
-        return false
-    }
+//     // Hardcoded limit on 30 MB
+//     if (size / 1024 / 1024 > 30) {
+//         console.warn(`Image is too large, ${size / 1024 / 1024}, max 30 Mb allowed`)
+//         return false
+//     }
 
-    return true
-}
+//     return true
+// }
 
-const fileHandler: FileInputEventFunction = (editor, event, objects) => {
-    if (!Array.isArray(objects)) {
-        return Promise.resolve([])
-    }
+// const fileHandler = (editor, event, objects) => {
+//     if (!Array.isArray(objects)) {
+//         return Promise.resolve([])
+//     }
 
-    return Promise.resolve(
-        objects.map(object => {
-            return {
-                id: uuid.v4(),
-                class: 'block',
-                type: 'core/image',
-                properties: {
-                    type: object.type,
-                    src: object.src,
-                    size: object.size,
-                    width: object.width,
-                    height: object.height
-                },
-                children: [
-                    {
-                        type: 'core/image/image',
-                        children: [{ text: '' }]
-                    },
-                    {
-                        type: 'core/image/altText',
-                        children: [{ text: object.src }]
-                    },
-                    {
-                        type: 'core/image/text',
-                        children: [{ text: '' }]
-                    }
-                ]
-            }
-        })
-    )
-}
-
-
-const dropHandler: DropEventFunction = (editor, event, objects): Promise<Element[]> => {
-
-    if (Array.isArray(objects)) {
-        return Promise.resolve(
-            objects.map((object): Element => {
-                return {
-                    id: uuid.v4(),
-                    class: 'block',
-                    type: 'core/image',
-                    properties: {
-                        type: object.type,
-                        src: object.src,
-                        size: object.size,
-                        width: object.width,
-                        height: object.height
-                    },
-                    children: [
-                        {
-                            type: 'core/image/image',
-                            children: [{ text: '' }]
-                        },
-                        {
-                            type: 'core/image/altText',
-                            children: [{ text: object.src }]
-                        },
-                        {
-                            type: 'core/image/text',
-                            children: [{ text: '' }]
-                        }
-                    ]
-                }
-            })
-        )
-    }
-
-    // Store base64 in document, for local testing only
-    const files = event.dataTransfer.files
-
-    const src = event.dataTransfer.getData('text/uri-list')
-    const file = files.length ? files[0] : null
-
-    if (!src && !file) {
-        return Promise.reject('Missing parameters')
-    }
+//     return Promise.resolve(
+//         objects.map(object => {
+//             return {
+//                 id: uuid.v4(),
+//                 class: 'block',
+//                 type: 'core/image',
+//                 properties: {
+//                     type: object.type,
+//                     src: object.src,
+//                     size: object.size,
+//                     width: object.width,
+//                     height: object.height
+//                 },
+//                 children: [
+//                     {
+//                         type: 'core/image/image',
+//                         children: [{ text: '' }]
+//                     },
+//                     {
+//                         type: 'core/image/altText',
+//                         children: [{ text: object.src }]
+//                     },
+//                     {
+//                         type: 'core/image/text',
+//                         children: [{ text: '' }]
+//                     }
+//                 ]
+//             }
+//         })
+//     )
+// }
 
 
-    return new Promise((resolve, reject) => {
-        const { name, size, type } = files[0]
-        const reader = new FileReader();
+// const dropHandler = (editor, event, objects): Promise<Element[]> => {
 
-        reader.addEventListener("load", () => {
+//     if (Array.isArray(objects)) {
+//         return Promise.resolve(
+//             objects.map((object): Element => {
+//                 return {
+//                     id: uuid.v4(),
+//                     class: 'block',
+//                     type: 'core/image',
+//                     properties: {
+//                         type: object.type,
+//                         src: object.src,
+//                         size: object.size,
+//                         width: object.width,
+//                         height: object.height
+//                     },
+//                     children: [
+//                         {
+//                             type: 'core/image/image',
+//                             children: [{ text: '' }]
+//                         },
+//                         {
+//                             type: 'core/image/altText',
+//                             children: [{ text: object.src }]
+//                         },
+//                         {
+//                             type: 'core/image/text',
+//                             children: [{ text: '' }]
+//                         }
+//                     ]
+//                 }
+//             })
+//         )
+//     }
 
-            if (typeof reader.result !== 'string') {
-                reject(`Error when image dropped, resulted in ${typeof reader.result}`)
-                return
-            }
+//     // Store base64 in document, for local testing only
+//     const files = event.dataTransfer.files
 
-            const tmpImage = new window.Image()
-            tmpImage.src = reader.result
-            tmpImage.onload = function () {
-                resolve([{
-                    id: uuid.v4(),
-                    class: 'block',
-                    type: 'core/image',
-                    properties: {
-                        type: type,
-                        src: tmpImage.src,
-                        title: name,
-                        size: size,
-                        width: tmpImage.width,
-                        height: tmpImage.height
-                    },
-                    children: [
-                        {
-                            type: 'core/image/image',
-                            children: [{ text: '' }]
-                        },
-                        {
-                            type: 'core/image/altText',
-                            children: [{ text: name }]
-                        },
-                        {
-                            type: 'core/image/text',
-                            children: [{ text: '' }]
-                        }
-                    ]
-                }])
-            }
-        }, false);
+//     const src = event.dataTransfer.getData('text/uri-list')
+//     const file = files.length ? files[0] : null
 
-        if (file) {
-            reader.readAsDataURL(file);
-        }
-    })
-}
+//     if (!src && !file) {
+//         return Promise.reject('Missing parameters')
+//     }
 
 
-const normalize: NormalizeFunction = (editor, entry) => {
+//     return new Promise((resolve, reject) => {
+//         const { name, size, type } = files[0]
+//         const reader = new FileReader();
+
+//         reader.addEventListener("load", () => {
+
+//             if (typeof reader.result !== 'string') {
+//                 reject(`Error when image dropped, resulted in ${typeof reader.result}`)
+//                 return
+//             }
+
+//             const tmpImage = new window.Image()
+//             tmpImage.src = reader.result
+//             tmpImage.onload = function () {
+//                 resolve([{
+//                     id: uuid.v4(),
+//                     class: 'block',
+//                     type: 'core/image',
+//                     properties: {
+//                         type: type,
+//                         src: tmpImage.src,
+//                         title: name,
+//                         size: size,
+//                         width: tmpImage.width,
+//                         height: tmpImage.height
+//                     },
+//                     children: [
+//                         {
+//                             type: 'core/image/image',
+//                             children: [{ text: '' }]
+//                         },
+//                         {
+//                             type: 'core/image/altText',
+//                             children: [{ text: name }]
+//                         },
+//                         {
+//                             type: 'core/image/text',
+//                             children: [{ text: '' }]
+//                         }
+//                     ]
+//                 }])
+//             }
+//         }, false);
+
+//         if (file) {
+//             reader.readAsDataURL(file);
+//         }
+//     })
+// }
+
+
+const normalize = (editor, entry) => {
     const [node, path] = entry
     if (!Element.isElement(node)) {
         return
@@ -298,7 +298,7 @@ const normalize: NormalizeFunction = (editor, entry) => {
     }
 }
 
-const actionHandler: ActionFunction = (editor) => {
+const actionHandler = ({ editor }) => {
     let fileSelector: HTMLInputElement | undefined = document.createElement('input')
 
     fileSelector.accept = "image/jpg, image/gif, image/png";
@@ -321,21 +321,99 @@ const actionHandler: ActionFunction = (editor) => {
     fileSelector.click()
 }
 
+const consumes: ConsumesFunction = ({ data }) => {
+    if (!(data instanceof File)) {
+        return [false]
+    }
+    const { size, type }: File = data
+
+    if (!['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(type)) {
+        console.warn(`Image mime type ${type} not supported`)
+        return [false]
+    }
+
+    // Hardcoded limit on 30 MB
+    if (size / 1024 / 1024 > 30) {
+        console.warn(`Image is too large, ${size / 1024 / 1024}, max 30 Mb allowed`)
+        return [false]
+    }
+
+    return [true, 'core/image']
+}
+
+/**
+ * Consume a FileList and produce an array of core/image objects
+ */
+const consume: ConsumeFunction = ({ data }) => {
+    if (!Array.isArray(data)) {
+        throw new Error('Expected FileList for consumation, wrong indata')
+    }
+
+    const readers = []
+    for (const f of data) {
+        const { name, type, size } = f
+
+        readers.push(new Promise((resolve, reject) => {
+            const reader = new FileReader()
+
+            reader.addEventListener('load', () => {
+                if (typeof reader.result !== 'string') {
+                    reject(`Error when image dropped, resulted in ${typeof reader.result}`)
+                    return
+                }
+
+                const tmpImage = new window.Image()
+                tmpImage.src = reader.result
+                tmpImage.onload = function () {
+                    window.setTimeout(() => {
+                        resolve({
+                            id: uuid.v4(),
+                            class: 'block',
+                            type: 'core/image',
+                            properties: {
+                                type: type,
+                                src: tmpImage.src,
+                                title: name,
+                                size: size,
+                                width: tmpImage.width,
+                                height: tmpImage.height
+                            },
+                            children: [
+                                {
+                                    type: 'core/image/image',
+                                    children: [{ text: '' }]
+                                },
+                                {
+                                    type: 'core/image/altText',
+                                    children: [{ text: name }]
+                                },
+                                {
+                                    type: 'core/image/text',
+                                    children: [{ text: '' }]
+                                }
+                            ]
+                        })
+                    }, 1000)
+                }
+
+            }, false)
+
+            reader.readAsDataURL(f)
+        }))
+
+    }
+
+    return Promise.all(readers)
+}
+
 export const Image: MimerPlugin = {
     class: 'block',
     name: 'core/image',
-    events: [
-        {
-            on: 'drop',
-            match: dropMatcher,
-            handler: dropHandler
-        },
-        {
-            on: 'fileinput',
-            match: fileMatcher,
-            handler: fileHandler
-        }
-    ],
+    consumer: {
+        bulk: false, // Can be omitted as false is default
+        consumes,
+        consume
+    },
     actions: [
         {
             title: 'Image',
@@ -343,23 +421,23 @@ export const Image: MimerPlugin = {
             handler: actionHandler
         }
     ],
-    normalize,
-    components: [
-        {
-            render
-        },
-        {
-            type: 'image',
-            class: 'void',
-            render: renderImage
-        },
-        {
-            type: 'altText',
-            render: renderAltText
-        },
-        {
-            type: 'text',
-            render: renderText
-        }
-    ]
+    // normalize,
+    component: {
+        render,
+        children: [
+            {
+                type: 'image',
+                class: 'void',
+                render: renderImage
+            },
+            {
+                type: 'altText',
+                render: renderAltText
+            },
+            {
+                type: 'text',
+                render: renderText
+            }
+        ]
+    }
 }

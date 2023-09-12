@@ -40,7 +40,7 @@ export interface MimerComponent {
   type?: string
   placeholder?: string,
   render: RenderElementFunction | RenderLeafFunction
-  components?: MimerComponent[]
+  children?: MimerComponent[]
   constraints?: {
     minElements?: number
     maxElements?: number
@@ -50,9 +50,30 @@ export interface MimerComponent {
   }
 }
 
+export interface ConsumesProps {
+  data: any
+  intent?: string
+}
+
+export interface ConsumerProps {
+  data: any
+}
+
+// Returns [
+//   whether it consumes data or not,
+//   type produced; undefined if first is false, can be null if nothing is produced,
+//   whether it wants to consume items in bulk (true) or individually (default - false/omitted)
+// ]
+export type ConsumesFunction = (props: ConsumesProps) => [boolean, (string | null)?, boolean?]
+export type ConsumeFunction = (props: ConsumerProps) => Promise<any | undefined>
 export interface MimerPlugin {
   class: 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic'
   name: string
+  consumer?: {
+    bulk?: boolean // Default is false (individually)
+    consumes: ConsumesFunction  // Can you consume [data], [true/false, provides `type` as response]
+    consume: ConsumeFunction // Consume [data] please
+  }
   events?: {
     // When a file is dropped in the editable area
     onEditorFileDrop?: () => Promise<any[] | false>
@@ -60,7 +81,7 @@ export interface MimerPlugin {
     onEditorFileInput?: () => Promise<any[] | false>
     // When text is inserted, i.e react on spefic text changes
     onEditorInsertText?: () => false | void
-    // If this plugin want to hook in 
+    // If this plugin want to hook in  FIXME: This should maybe not be an event? (with!)
     onEditorNormalizeNode?: () => false | void
   }
   actions?: Array<{
@@ -72,6 +93,36 @@ export interface MimerPlugin {
   component: MimerComponent
 }
 
+// const CoreImagePlugin: MimerPlugin = {
+//   class: 'block',
+//   name: 'core/image2visual',
+//   consumes: [
+//     [
+//       ({ data }: ConsumesProps) => {
+//         // Is data a React drop event?
+//         if (typeof data !== 'object' || data?.type !== 'drop') {
+//           return [false] // No, we don't handle it
+//         }
+
+//         // Investigate data.nativeEvent.dataTransfer.files for jpg/png etc
+//         // Return false if wrong mime types
+
+//         // Yes we handle it and provides a core/visual as result
+//         return [true, 'core/visual']
+//       },
+//       async ({ data }) => {
+//         try {
+//           const uploadResult = await uploadAndStoreImages(data)
+//           const visualJson = transformDataToVisual(uploadResult)
+//           return visualJson
+//         }
+//         catch (ex) {
+//           throw ex
+//         }
+//       }
+//     ]
+//   ]
+// }
 // const Image: MimerPlugin = {
 //   class: 'block',
 //   name: 'core/image',
