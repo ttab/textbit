@@ -3,7 +3,6 @@ import { PropsWithChildren } from "react"
 import { Descendant, Editor, Element, Transforms } from 'slate'
 import { useSlateStatic } from 'slate-react'
 
-import { RegistryInterface } from '../../../registry'
 import { DragstateContext } from '../../dragndrop'
 import { findFileConsumers, handleFileDrop } from '../../../../../lib/hookableEvents'
 
