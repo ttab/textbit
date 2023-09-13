@@ -1,7 +1,7 @@
 import React from 'react' // Necessary for esbuild
 import { Editor, Transforms, Text } from 'slate'
 import { MdFormatBold, MdFormatItalic, MdFormatUnderlined } from 'react-icons/md'
-import { MimerPlugin } from '../../../../types'
+import { MimerPlugin } from '../../types'
 
 export const toggleLeaf = (editor: Editor, type: string) => {
     const hasMark = textHasMark(editor, type)

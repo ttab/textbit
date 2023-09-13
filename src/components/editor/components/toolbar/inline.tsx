@@ -128,6 +128,10 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
     const inlineActions = actions.filter((action: Action) => action.tool && action.class === 'inline')
     const inlineNodeAction = actions.find((action: Action) => action.tool && SlateElement.isElement(inlineEl) && action.name === inlineEl?.type)
 
+    const showCurrentTool = inlineNodeAction && isCollapsed && Array.isArray(inlineNodeAction.tool)
+    const showInlineTools = !isCollapsed && !inlineNode && inlineActions.length > 0
+    const showLeafTools = !isCollapsed && leafActions.length > 0
+
     return <Portal>
         <div
             ref={ref}
@@ -137,49 +141,52 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
                 e.preventDefault()
             }}
         >
-            <div className="rounded bg-base-30 s-base-10 r-base b-weak" style={{ padding: '4px' }}>
-                {(!isCollapsed || inlineNode) &&
-                    <>
-                        {/* First group contains normal leafs, but only if it is not collapsed */}
-                        {!isCollapsed && leafActions.length > 0 &&
-                            <ToolGroup>
-                                {leafActions.map(action =>
-                                    <ToolButton
-                                        key={`${action.class}-${action.name}`}
-                                        action={action}
-                                    />
-                                )}
-                            </ToolGroup>
-                        }
+            {(showLeafTools || showInlineTools || showCurrentTool) &&
+                <>
+                    <div className="rounded bg-base-30 s-base-10 r-base b-weak" style={{ padding: '4px' }}>
+                        {(!isCollapsed || inlineNode) &&
+                            <>
+                                {/* First group contains normal leafs, but only if it is not collapsed */}
+                                {showLeafTools &&
+                                    <ToolGroup>
+                                        {leafActions.map(action =>
+                                            <ToolButton
+                                                key={`${action.class}-${action.name}`}
+                                                action={action}
+                                            />
+                                        )}
+                                    </ToolGroup>
+                                }
 
-                        {/* Second group with normal inline tools if no inline nodes are selected */}
-                        {!isCollapsed && !inlineNode && inlineActions.length > 0 &&
-                            <ToolGroup>
-                                {inlineActions.map(action =>
-                                    <ToolButton
-                                        key={`${action.class}-${action.name}`}
-                                        action={action}
-                                    />
-                                )}
-                            </ToolGroup>
-                        }
+                                {/* Second group with normal inline tools if no inline nodes are selected */}
+                                {showInlineTools &&
+                                    <ToolGroup>
+                                        {inlineActions.map(action =>
+                                            <ToolButton
+                                                key={`${action.class}-${action.name}`}
+                                                action={action}
+                                            />
+                                        )}
+                                    </ToolGroup>
+                                }
 
-                        {/* When just one inlime tool (second (del) and third tool (edit)) */}
-                        {/*should be shown (if it has multiple tools) */}
-                        {inlineNodeAction && isCollapsed && Array.isArray(inlineNodeAction.tool) &&
-                            <ToolGroup>
-                                <InlineTool
-                                    key={`${inlineNodeAction.class}-${inlineNodeAction.name}`}
-                                    action={inlineNodeAction}
-                                    node={inlineNode}
-                                />
-                            </ToolGroup>
-                        }
+                                {/* When just one inlime tool (second (del) and third tool (edit)) */}
+                                {/*should be shown (if it has multiple tools) */}
+                                {showCurrentTool &&
+                                    <ToolGroup>
+                                        <InlineTool
+                                            key={`${inlineNodeAction.class}-${inlineNodeAction.name}`}
+                                            action={inlineNodeAction}
+                                            node={inlineNode}
+                                        />
+                                    </ToolGroup>
+                                }
 
-                    </>
-                }
-            </div>
-            <div className="editor-inline-menu-arrow"></div>
+                            </>
+                        }
+                    </div>
+                    <div className="editor-inline-menu-arrow"></div>
+                </>}
         </div>
     </Portal>
 }
