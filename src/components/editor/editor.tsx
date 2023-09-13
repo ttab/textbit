@@ -27,7 +27,7 @@ import { StandardPlugins } from './standardPlugins'
 import { Registry } from './registry'
 import { ElementComponent } from './components/element/element'
 import { LeafComponent } from './components/leaf/leaf'
-import { toggleLeaf } from './standardPlugins/leaf/leaf'
+import { toggleLeaf } from '../../lib/toggleLeaf'
 import { withInsertText } from './with/insertText'
 import { withNormalizeNode } from './with/normalizeNode'
 // import { Hook, InputEventFunction } from '../../types'
@@ -102,10 +102,10 @@ export default function Editor({ value, onChange, hooks }: MimerEditorProps) {
                 }}>
 
                     <InlineToolbar
-                        actions={Registry.actions.filter(a => ['leaf', 'inline'].includes(a.class))}
+                        actions={Registry.actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
                     />
                     <ContentToolbar
-                        actions={Registry.actions.filter(a => a.class !== 'leaf')}
+                        actions={Registry.actions.filter(action => action.plugin.class !== 'leaf')}
                     />
 
                     <Editable
@@ -167,19 +167,18 @@ function handleOnKeyDown(event: React.KeyboardEvent<HTMLDivElement>, editor: Sla
 
         event.preventDefault()
 
-        // Call action handler, give access to editor and api
         if (action.handler && true !== action.handler({ editor })) {
             break
         }
 
-        if (action.class === 'leaf') {
-            toggleLeaf(editor, action.name)
+        if (action.plugin.class === 'leaf') {
+            toggleLeaf(editor, action.plugin.name)
         }
-        else if (action.class === 'text') {
+        else if (action.plugin.class === 'text') {
             // FIXME: Should not allow transforming blocks (only text class element)
             Transforms.setNodes(
                 editor,
-                { type: action.name },
+                { type: action.plugin.name },
                 { match: n => SlateElement.isElement(n) && SlateEditor.isBlock(editor, n) }
             )
         }

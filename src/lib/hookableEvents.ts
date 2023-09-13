@@ -2,7 +2,7 @@ import { Editor, Transforms } from "slate"
 import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
 
-import { Registry } from "../components/editor/registry"
+import { RegistryInterface } from "../components/editor/registry"
 import { getNodeById, getSelectedNodeEntries } from "./utils"
 
 export function findFileConsumers(files: FileList, ignoredFiles: string[], consumerPlugins: Map<any, any>) {

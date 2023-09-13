@@ -1,6 +1,6 @@
 import isHotKey from 'is-hotkey'
 
-import { MimerComponent, MimerPlugin, ConsumeFunction } from './types'
+import { MimerActionHandlerProps, MimerComponent, MimerPlugin, ToolFunction } from './types'
 
 export type RegistryComponent = {
     type: string
@@ -14,7 +14,16 @@ export type RegistryEvent = {
     component?: MimerComponent
 }
 
-export interface Registry {
+export type RegistryAction = {
+    plugin: MimerPlugin
+    hotkey: string
+    isHotkey: (action: any) => boolean
+    title: string
+    tool: JSX.Element | Array<JSX.Element | ToolFunction> | null
+    handler: (props: MimerActionHandlerProps) => void | boolean
+}
+
+export interface RegistryInterface {
     // Main registry of plugins
     plugins: MimerPlugin[]
 
@@ -25,21 +34,37 @@ export interface Registry {
     // Provides faster access to the right receiver when events fire
     events: Map<string, RegistryEvent>
 
-
+    // Provides faster access to actions and keyboard shortcuts
+    actions: RegistryAction[],
 
     normalizers: Normalizer[]
-    actions: Action[]
-    // oldEvents: EventHandler[]
     hooks: Hook[]
-    addPlugin: (plugins: MimerPlugin) => void
+    addPlugin: (plugin: MimerPlugin) => void
     registerHooks: (plugins: Hook[]) => void
 
-    getConsumers: (plugins: MimerPlugin[], data: any, intent?: string) => [{
-        plugin: MimerPlugin
-        produces: string | null
-    }]
+    getConsumers: (plugins: MimerPlugin[], data: any, intent?: string) =>
+        Array<{
+            plugin: MimerPlugin
+            produces: string | null
+        }>
+    //     [{
+    //     plugin: MimerPlugin
+    //     produces: string | null
+    // }]
 }
 
+export const Registry: RegistryInterface = {
+    plugins: [],
+    leafComponents: new Map(),
+    elementComponents: new Map(),
+    normalizers: [],
+    actions: [],
+    events: [],
+    hooks: [],
+    addPlugin,
+    registerHooks,
+    getConsumers
+}
 
 /**
  * Add plugin and register all it's functions/handlers.
@@ -47,7 +72,7 @@ export interface Registry {
  * 
  * @param plugin 
  */
-const addPlugin = (plugin: MimerPlugin) => {
+function addPlugin(plugin: MimerPlugin) {
     // 1. Create new list of plugins, override old instance of a plugin if already registered, preserve order
     const plugins = [...Registry.plugins]
     const idx = plugins.findIndex((existingPlugin => existingPlugin.name === plugin.name))
@@ -67,10 +92,10 @@ const addPlugin = (plugin: MimerPlugin) => {
         return
     }
 
-    // 3. Create event listener maps
-
-
+    // 3. Create registers for all the ghings
     const actions = registerActions(plugins)
+
+
     const normalizers = registerNormalizers(plugins)
     const eventHandlers = registerEventHandlers(plugins)
 
@@ -83,7 +108,7 @@ const addPlugin = (plugin: MimerPlugin) => {
     Registry.plugins = plugins
 }
 
-const registerHooks = (hooks: Hook[]) => {
+function registerHooks(hooks: Hook[]) {
     if (!Array.isArray(hooks)) {
         return
     }
@@ -148,6 +173,31 @@ const registerComponent = (components: Map<string, RegistryComponent>, compType:
 }
 
 
+/**
+ * Register actions in an iterable array
+ */
+const registerActions = (plugins: MimerPlugin[]) => {
+    const actions: RegistryAction[] = []
+
+    plugins
+        .filter(plugin => Array.isArray(plugin.actions) && plugin.actions.length)
+        .forEach((plugin) => {
+            actions.push(...(plugin.actions || []).map(action => {
+                return {
+                    plugin,
+                    hotkey: action.hotkey || '',
+                    isHotkey: action.hotkey ? isHotKey(action.hotkey) : () => false,
+                    title: action?.title || '',
+                    tool: action.tool || null,
+                    handler: action.handler
+                }
+            }))
+        })
+
+
+    return actions
+}
+
 const registerNormalizers = (plugins: MimerPlugin[]) => {
     const normalizers: Normalizer[] = []
 
@@ -166,27 +216,6 @@ const registerNormalizers = (plugins: MimerPlugin[]) => {
     return normalizers
 }
 
-const registerActions = (plugins: MimerPlugin[]) => {
-    const actions: Action[] = []
-
-    plugins
-        .filter(plugin => Array.isArray(plugin.actions) && plugin.actions.length)
-        .forEach((plugin) => {
-            actions.push(...(plugin.actions || []).map(action => {
-                return {
-                    name: plugin.name,
-                    class: plugin.class,
-                    hotkey: action.hotkey || '',
-                    isHotkey: action.hotkey ? isHotKey(action.hotkey) : () => false,
-                    title: action?.title || '',
-                    tool: action.tool || null,
-                    handler: action.handler
-                }
-            }))
-        })
-
-    return actions
-}
 
 const registerEventHandlers = (plugins: MimerPlugin[]) => {
     const eventHandlers: EventHandler[] = []
@@ -211,7 +240,7 @@ const registerEventHandlers = (plugins: MimerPlugin[]) => {
 /**
  * Return a list of consumers for the specified indata
  */
-const getConsumers = (plugins: MimerPlugin[], data: any, intent?: string) => {
+function getConsumers(plugins: MimerPlugin[], data: any, intent?: string) {
     const consumers: Array<{
         plugin: MimerPlugin
         produces: string | null
@@ -232,37 +261,4 @@ const getConsumers = (plugins: MimerPlugin[], data: any, intent?: string) => {
     })
 
     return Array.from(consumers)
-}
-
-export const Registry: Registry = {
-    plugins: <MimerPlugin[]>[],
-    leafComponents: new Map(),
-    elementComponents: new Map(),
-    normalizers: <Normalizer[]>[],
-    actions: <Action[]>[],
-    events: <EventHandler[]>[],
-    hooks: <Hook[]>[],
-    addPlugin,
-    registerHooks,
-    getConsumers
-}
-
-function registerLeafRenderer(plugin: MimerPlugin, leafRenderers: MimerRegistryRenderer[]) {
-    if (!Array.isArray(plugin.components) || !plugin.components.length) {
-        leafRenderers.push({
-            type: plugin.name,
-            class: plugin.class,
-            render: () => undefined
-        })
-    }
-
-    // Register all normal leaf renderers, always "leaf" as class!
-    (plugin.components || []).forEach(component => {
-        const isParent = !component.type || component.type === plugin.name
-        Registry.leafComponents.push({
-            type: isParent ? plugin.name : `${plugin.name}/${component.type}`,
-            class: plugin.class,
-            render: component.render
-        })
-    })
 }

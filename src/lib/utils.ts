@@ -1,7 +1,7 @@
 import { Editor, Node, BaseRange, Path, Transforms, Descendant, Element as SlateElement, NodeEntry } from "slate"
 import * as uuid from 'uuid'
 
-import { Registry } from "../components/editor/registry"
+import { RegistryInterface } from "../components/editor/registry"
 
 const isBlock = (n: Node): boolean => {
     return SlateElement.isElement(n) && n.class === 'block'

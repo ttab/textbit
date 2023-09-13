@@ -1,9 +1,9 @@
 import { Descendant, Editor, Element } from 'slate'
-import { Registry } from '../registry'
+import { RegistryInterface } from '../registry'
 
 const types: string[] = []
 
-export const withEditableVoids = (editor: Editor, nodes: Descendant[], Registry: Registry) => {
+export const withEditableVoids = (editor: Editor, nodes: Descendant[], Registry: RegistryInterface) => {
     const { isVoid } = editor
 
     const allComponents: string[] = []

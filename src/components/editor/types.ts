@@ -23,16 +23,6 @@ export interface MimerActionHandlerProps {
 }
 
 export type ToolFunction = (editor: Editor, node: NodeEntry<Node>) => JSX.Element
-export type Action = {
-  name: string
-  class: string
-  hotkey: string
-  isHotkey: any // FIXME: Should this really be here?
-  tool: JSX.Element | Array<JSX.Element | ToolFunction> | null
-  title: string
-  handler: (props: MimerActionHandlerProps) => void | boolean
-}
-
 
 
 export interface MimerComponent {
@@ -90,7 +80,7 @@ export interface MimerPlugin {
     title?: string
     handler: (props: MimerActionHandlerProps) => void | boolean
   }>
-  component: MimerComponent
+  component?: MimerComponent
 }
 
 // const CoreImagePlugin: MimerPlugin = {

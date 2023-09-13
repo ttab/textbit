@@ -3,10 +3,10 @@ import { PropsWithChildren, useRef, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import { useFocused, useSlate } from 'slate-react'
 import { Editor, Range, Element as SlateElement, BaseRange, NodeEntry, Node } from 'slate'
-import { Action } from '../../../../components/editor/types'
-import { toggleLeaf } from '../../standardPlugins/leaf/leaf'
+import { toggleLeaf } from '../../../../lib/toggleLeaf'
 import { isFromTarget } from '../../../../lib/target'
 import './inline.css'
+import { RegistryAction } from '../../registry'
 
 const Portal = ({ children }: PropsWithChildren) => {
     return typeof document === 'object'
@@ -15,15 +15,15 @@ const Portal = ({ children }: PropsWithChildren) => {
 }
 
 type InlineToolbarProps = {
-    actions: Action[]
+    actions: RegistryAction[]
 }
 
 type InlineToolProps = {
-    action: Action
+    action: RegistryAction
 }
 
 type AlternateInlineToolProps = {
-    action: Action,
+    action: RegistryAction,
     node: NodeEntry<Node>
 }
 
@@ -124,11 +124,11 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
     }))
 
     const inlineEl = inlineNode && inlineNode.length ? inlineNode[0] : null
-    const leafActions = actions.filter((action: Action) => action.tool && action.class === 'leaf')
-    const inlineActions = actions.filter((action: Action) => action.tool && action.class === 'inline')
-    const inlineNodeAction = actions.find((action: Action) => action.tool && SlateElement.isElement(inlineEl) && action.name === inlineEl?.type)
+    const leafActions = actions.filter((action: RegistryAction) => action.tool && action.plugin.class === 'leaf')
+    const inlineActions = actions.filter((action: RegistryAction) => action.tool && action.plugin.class === 'inline')
+    const inlineNodeAction = actions.find((action: RegistryAction) => action.tool && SlateElement.isElement(inlineEl) && action.plugin.name === inlineEl?.type)
 
-    const showCurrentTool = inlineNodeAction && isCollapsed && Array.isArray(inlineNodeAction.tool)
+    const showCurrentTool = !!inlineNodeAction && isCollapsed && Array.isArray(inlineNodeAction?.tool)
     const showInlineTools = !isCollapsed && !inlineNode && inlineActions.length > 0
     const showLeafTools = !isCollapsed && leafActions.length > 0
 
@@ -149,9 +149,9 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
                                 {/* First group contains normal leafs, but only if it is not collapsed */}
                                 {showLeafTools &&
                                     <ToolGroup>
-                                        {leafActions.map(action =>
+                                        {leafActions.map((action, idx) =>
                                             <ToolButton
-                                                key={`${action.class}-${action.name}`}
+                                                key={`${action.plugin.class}-${action.plugin.name}--${idx}`}
                                                 action={action}
                                             />
                                         )}
@@ -161,9 +161,9 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
                                 {/* Second group with normal inline tools if no inline nodes are selected */}
                                 {showInlineTools &&
                                     <ToolGroup>
-                                        {inlineActions.map(action =>
+                                        {inlineActions.map((action, idx) =>
                                             <ToolButton
-                                                key={`${action.class}-${action.name}`}
+                                                key={`${action.plugin.class}-${action.plugin.name}-${idx}`}
                                                 action={action}
                                             />
                                         )}
@@ -175,7 +175,7 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
                                 {showCurrentTool &&
                                     <ToolGroup>
                                         <InlineTool
-                                            key={`${inlineNodeAction.class}-${inlineNodeAction.name}`}
+                                            key={`${inlineNodeAction.plugin.class}-${inlineNodeAction.plugin.name}`}
                                             action={inlineNodeAction}
                                             node={inlineNode}
                                         />
@@ -201,14 +201,14 @@ export const ToolGroup = ({ children }: PropsWithChildren) => {
 const ToolButton = ({ action }: InlineToolProps) => {
     const editor = useSlate()
     const marks = Editor.marks(editor)
-    const isActive = marks ? marks.formats?.includes(action.name) : false
+    const isActive = marks ? marks.formats?.includes(action.plugin.name) : false
 
     return <span
         className={`editor-tool r-less bg-base-hover`}
         onMouseDown={(e) => {
             e.preventDefault()
             if (true === action.handler({ editor })) {
-                toggleLeaf(editor, action.name)
+                toggleLeaf(editor, action.plugin.name)
             }
         }}
     >
