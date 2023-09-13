@@ -65,13 +65,8 @@ export interface MimerPlugin {
     consume: ConsumeFunction // Consume [data] please
   }
   events?: {
-    // When a file is dropped in the editable area
-    onEditorFileDrop?: () => Promise<any[] | false>
-    // When a file upload is triggered from a tool
-    onEditorFileInput?: () => Promise<any[] | false>
-    // When text is inserted, i.e react on spefic text changes
     onEditorInsertText?: () => false | void
-    // If this plugin want to hook in  FIXME: This should maybe not be an event? (with!)
+    // FIXME: This should maybe not be an event? (with!)
     onEditorNormalizeNode?: () => false | void
   }
   actions?: Array<{

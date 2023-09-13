@@ -30,7 +30,6 @@ import { LeafComponent } from './components/leaf/leaf'
 import { toggleLeaf } from '../../lib/toggleLeaf'
 import { withInsertText } from './with/insertText'
 import { withNormalizeNode } from './with/normalizeNode'
-// import { Hook, InputEventFunction } from '../../types'
 import { withEditableVoids } from './with/editableVoids'
 import { ContentToolbar } from './components/toolbar/content'
 import { InlineToolbar } from './components/toolbar/inline'
@@ -40,13 +39,12 @@ import { withInsertHtml } from './with/insertHtml'
 interface MimerEditorProps {
     onChange?: (value: Descendant[]) => void
     value: Descendant[]
-    hooks?: Hook[]
 }
 
 // StandardPlugins.forEach(Registry.addPlugin)
 
 
-export default function Editor({ value, onChange, hooks }: MimerEditorProps) {
+export default function Editor({ value, onChange }: MimerEditorProps) {
     const inValue = value || [{
         id: uuid.v4(),
         name: "core/paragraph",
@@ -57,7 +55,6 @@ export default function Editor({ value, onChange, hooks }: MimerEditorProps) {
     }]
 
     useMemo(() => {
-        Registry.registerHooks(hooks || [])
         StandardPlugins.forEach(Registry.addPlugin)
     }, [])
 

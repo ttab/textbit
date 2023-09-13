@@ -85,31 +85,6 @@ function App() {
         <Editor
             value={value}
             onChange={(value) => onChangeImpl(setValue, value)}
-            hooks={[{
-                on: 'receive',
-                for: ['image'],
-                handler: async (files) => {
-                    try {
-                        const response = await uploadImages(files as any)
-                        const images: any[] = []
-                        for (let n = 0; n < response.length; n++) {
-                            images.push({
-                                type: response[n].type,
-                                src: response[n].src,
-                                title: response[n].title,
-                                size: 0,
-                                width: response[n].width,
-                                height: response[n].height
-                            })
-                        }
-                        return images
-                    }
-                    catch (ex: any) {
-                        alert(ex.message)
-                        throw (ex)
-                    }
-                }
-            }]}
         />
     )
 }

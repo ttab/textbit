@@ -95,26 +95,6 @@ function App() {
                 onChange={value => {
                     setValue(value)
                 }}
-                hooks={[{
-                    on: 'receive',   // Event type
-                    for: ['core/image'], // Handling plugin
-                    handler: (e) => {
-                        return new Promise((resolve, reject) => {
-                            // Upload and fetch data
-                            resolve([
-                                {
-                                    type: 'image/png',
-                                    src: 'https://www.evenemang.se/_next/image?url=https%3A%2F%2Fs3.eu-central-1.amazonaws.com%2Fse.evse.image%2F0bdf0999-5003-52ff-9bb3-ab8b73f85252-1280-640.jpg&w=3840&q=75',
-                                    title: 'name',
-                                    size: '1000',
-                                    width: 640,
-                                    height: 1280
-                                }
-                            ])
-                        })
-                    }
-
-                }]}
             />
         </div>
     )

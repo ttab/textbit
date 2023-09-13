@@ -38,19 +38,13 @@ export interface RegistryInterface {
     actions: RegistryAction[],
 
     normalizers: Normalizer[]
-    hooks: Hook[]
     addPlugin: (plugin: MimerPlugin) => void
-    registerHooks: (plugins: Hook[]) => void
 
     getConsumers: (plugins: MimerPlugin[], data: any, intent?: string) =>
         Array<{
             plugin: MimerPlugin
             produces: string | null
         }>
-    //     [{
-    //     plugin: MimerPlugin
-    //     produces: string | null
-    // }]
 }
 
 export const Registry: RegistryInterface = {
@@ -60,9 +54,7 @@ export const Registry: RegistryInterface = {
     normalizers: [],
     actions: [],
     events: [],
-    hooks: [],
     addPlugin,
-    registerHooks,
     getConsumers
 }
 
@@ -108,19 +100,6 @@ function addPlugin(plugin: MimerPlugin) {
     Registry.plugins = plugins
 }
 
-function registerHooks(hooks: Hook[]) {
-    if (!Array.isArray(hooks)) {
-        return
-    }
-
-    Registry.hooks = hooks.map((hook) => {
-        return {
-            on: hook.on,
-            for: Array.isArray(hook.for) ? hook.for : [hook.for],
-            handler: hook.handler
-        }
-    })
-}
 
 /**
  * Register a plugins components render functions for faster access in the rendering functionality.
