@@ -82,16 +82,18 @@ const EditLink: ToolFunction = (editor, entry) => {
                     }
                 }}
                 onBlur={(e) => {
-                    Transforms.setNodes(
-                        editor,
-                        {
-                            properties: {
-                                ...node.properties,
-                                url: url
-                            }
-                        },
-                        { at: path }
-                    )
+                    if (url !== '') {
+                        Transforms.setNodes(
+                            editor,
+                            {
+                                properties: {
+                                    ...node.properties,
+                                    url: url
+                                }
+                            },
+                            { at: path }
+                        )
+                    }
                 }}
             />
         </span>
