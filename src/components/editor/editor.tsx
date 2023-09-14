@@ -80,6 +80,7 @@ export default function Editor({ value, onChange }: MimerEditorProps) {
 
     const renderSlateElement = useCallback((props: RenderElementProps) => {
         return ElementComponent(props, Registry.elementComponents)
+
     }, [])
 
     const renderLeafComponent = useCallback((props: RenderLeafProps) => {

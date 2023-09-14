@@ -15,8 +15,8 @@ export interface RenderLeafProps extends SlateRenderLeafProps {
   children: JSX.Element[]
 }
 
-export type RenderElementFunction = (props: RenderElementProps) => null | undefined | JSX.Element | JSX.Element[]
-export type RenderLeafFunction = (props: RenderLeafProps) => null | undefined | JSX.Element | JSX.Element[]
+export type RenderElementFunction = (props: RenderElementProps) => JSX.Element
+export type RenderLeafFunction = (props: RenderLeafProps) => JSX.Element
 
 export interface MimerActionHandlerProps {
   editor: Editor
