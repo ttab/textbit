@@ -1,5 +1,6 @@
 import { Editor, Range, Transforms } from 'slate'
-import { MimerPlugin, InputEventFunction } from '../../../../types'
+import { MimerPlugin } from '../../types'
+
 
 const AllQuotes = {
     'sv': ['’', '’', '”', '”'],
@@ -13,7 +14,7 @@ const AllQuotes = {
     'fr': ['‹ ', ' ›', '« ', '»']
 }
 
-const macroHandler: InputEventFunction = (editor, text) => {
+const onInsertText = (editor: Editor, text: string) => {
     // Only handle single and double "computer" quotes
     if (text !== '\'' && text !== '"') {
         return
@@ -86,14 +87,13 @@ const macroHandler: InputEventFunction = (editor, text) => {
         at: { path: [at, 0], offset: prev },
     })
 
-    return false // Prevent further handling of this event
+    return true // Prevent further handling of this event
 }
 
 export const Quotes: MimerPlugin = {
     class: 'generic',
     name: 'quotes',
-    events: [{
-        on: 'input',
-        handler: macroHandler
-    }]
+    events: {
+        onInsertText
+    }
 }

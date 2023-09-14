@@ -1,12 +1,21 @@
 import { Editor } from "slate"
-import { InputEventFunction } from "../../../types"
+import { MimerPlugin } from "../types"
 
-export const withInsertText = (editor: Editor, eventHandlers: InputEventFunction[]) => {
+type EventHandlerFunc = (editor: Editor, text: string) => true | void
+
+export const withInsertText = (editor: Editor, plugins: MimerPlugin[]) => {
     const { insertText } = editor
+
+    const eventHandlers: Array<EventHandlerFunc | undefined> = plugins.filter((plugin: MimerPlugin) => {
+        return !!plugin?.events?.onInsertText
+    }).map((plugin) => {
+        return plugin.events?.onInsertText
+    })
 
     editor.insertText = (text) => {
         for (const handler of eventHandlers) {
-            if (false === handler(editor, text)) {
+            // If eventHandler returns true, it has handled it
+            if (handler && true === handler(editor, text)) {
                 return
             }
         }

@@ -41,8 +41,6 @@ interface MimerEditorProps {
     value: Descendant[]
 }
 
-// StandardPlugins.forEach(Registry.addPlugin)
-
 
 export default function Editor({ value, onChange }: MimerEditorProps) {
     const inValue = value || [{
@@ -64,10 +62,9 @@ export default function Editor({ value, onChange }: MimerEditorProps) {
         withHistory(editor)
         withInline(editor)
 
-        // FIXME: Registry events must be correctly initialized
-        // FIXME: Register onEditorInsertText event handlers correctly
-        withInsertText(editor, Registry.events.filter(event => event.on === 'input').map((event) => event.handler))
-        withNormalizeNode(editor, Registry.normalizers)
+        withInsertText(editor, Registry.plugins)
+        withNormalizeNode(editor, Registry.plugins)
+
         withEditableVoids(editor, value, Registry)
         withInsertBreak(editor)
         withInsertHtml(editor)

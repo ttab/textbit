@@ -8,7 +8,7 @@ import { Blockquote } from "./textblock/blockquote"
 // import { Navigation } from "./generic/navigation"
 // import { OembedVideo } from "./block/oembed"
 import { Image } from "./block/image"
-// import { Quotes } from "./generic/quotes"
+import { Quotes } from "./generic/quotes"
 import { Loader } from "./void/loader"
 import { Link } from './inline/link'
 
@@ -62,7 +62,7 @@ export const StandardPlugins = [
     Underline,
     // Navigation,
     // OembedVideo,
-    // Quotes,
+    Quotes,
     Image,
     Loader,
     Link

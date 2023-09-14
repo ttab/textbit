@@ -65,104 +65,14 @@ export interface MimerPlugin {
     consume: ConsumeFunction // Consume [data] please
   }
   events?: {
-    onEditorInsertText?: () => false | void
-    // FIXME: This should maybe not be an event? (with!)
-    onEditorNormalizeNode?: () => false | void
+    onInsertText?: (editor: Editor, text: string) => true | void
+    onNormalizeNode?: (editor: Editor, entry: NodeEntry) => true | void
   }
   actions?: Array<{
     tool?: JSX.Element | Array<JSX.Element | ToolFunction>
     hotkey?: string
     title?: string
-    handler: (props: MimerActionHandlerProps) => void | boolean
+    handler: (props: MimerActionHandlerProps) => boolean
   }>
   component?: MimerComponent
 }
-
-// const CoreImagePlugin: MimerPlugin = {
-//   class: 'block',
-//   name: 'core/image2visual',
-//   consumes: [
-//     [
-//       ({ data }: ConsumesProps) => {
-//         // Is data a React drop event?
-//         if (typeof data !== 'object' || data?.type !== 'drop') {
-//           return [false] // No, we don't handle it
-//         }
-
-//         // Investigate data.nativeEvent.dataTransfer.files for jpg/png etc
-//         // Return false if wrong mime types
-
-//         // Yes we handle it and provides a core/visual as result
-//         return [true, 'core/visual']
-//       },
-//       async ({ data }) => {
-//         try {
-//           const uploadResult = await uploadAndStoreImages(data)
-//           const visualJson = transformDataToVisual(uploadResult)
-//           return visualJson
-//         }
-//         catch (ex) {
-//           throw ex
-//         }
-//       }
-//     ]
-//   ]
-// }
-// const Image: MimerPlugin = {
-//   class: 'block',
-//   name: 'core/image',
-//   events: {
-//     onEditorFileDrop: () => {
-//       return Promise.resolve([])
-//     },
-//     onEditorFileInput: () => {
-//       return Promise.resolve([])
-//     },
-//     onEditorInsertText: () => {
-//       return false
-//     },
-//     onPluginFileDrop: () => { }
-//   },
-//   components: [
-//     {
-//       // type = core/image (derived from plugin name)
-//       // class = block (derived from plugin class - should this only be here?)
-//       render: () => null,
-//       components: [
-//         {
-//           type: 'image',
-//           class: 'void',
-//           render: () => {
-//             return null
-//           },
-//           constraints: {
-//             maxElements: 1,
-//             minElements: 1
-//           },
-//           onFileDrop: () => { }
-//         },
-//         {
-//           type: 'alttext',
-//           // class "text" is default
-//           render: () => null,
-//           constraints: {
-//             maxElements: 1,
-//             minElements: 1,
-//             allowBreak: false,
-//             maxLength: 128
-//           }
-//         },
-//         {
-//           type: 'text',
-//           // class "text" is default
-//           render: () => null,
-//           constraints: {
-//             maxElements: 1,
-//             minElements: 1,
-//             allowBreak: false,
-//             maxLength: 256
-//           }
-//         }
-//       ]
-//     }]
-// }

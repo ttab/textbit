@@ -8,11 +8,11 @@ export type RegistryComponent = {
     component: MimerComponent
 }
 
-export type RegistryEvent = {
-    handler: () => Promise<any[]>, // FIXME: How should this handler look, should it be a promise for both plugin/component event handlers?
-    plugin?: MimerPlugin
-    component?: MimerComponent
-}
+// export type RegistryEvent = {
+//     handler: () => Promise<any[]>, // FIXME: How should this handler look, should it be a promise for both plugin/component event handlers?
+//     plugin?: MimerPlugin
+//     component?: MimerComponent
+// }
 
 export type RegistryAction = {
     plugin: MimerPlugin
@@ -32,12 +32,11 @@ export interface RegistryInterface {
     elementComponents: Map<string, RegistryComponent>
 
     // Provides faster access to the right receiver when events fire
-    events: Map<string, RegistryEvent>
+    // events: Map<string, RegistryEvent>
 
     // Provides faster access to actions and keyboard shortcuts
     actions: RegistryAction[],
 
-    normalizers: Normalizer[]
     addPlugin: (plugin: MimerPlugin) => void
 
     getConsumers: (plugins: MimerPlugin[], data: any, intent?: string) =>
@@ -51,9 +50,7 @@ export const Registry: RegistryInterface = {
     plugins: [],
     leafComponents: new Map(),
     elementComponents: new Map(),
-    normalizers: [],
     actions: [],
-    events: [],
     addPlugin,
     getConsumers
 }
@@ -84,20 +81,8 @@ function addPlugin(plugin: MimerPlugin) {
         return
     }
 
-    // 3. Create registers for all the ghings
-    const actions = registerActions(plugins)
-
-
-    const normalizers = registerNormalizers(plugins)
-    const eventHandlers = registerEventHandlers(plugins)
-
-    // 2. Add normalizers for these renderers
-    Registry.normalizers = normalizers
-
-    // 3. Add events and actions to create nodes for above rendereres and normalizers
-    Registry.events = eventHandlers
-    Registry.actions = actions
     Registry.plugins = plugins
+    Registry.actions = registerActions(plugins)
 }
 
 
@@ -177,44 +162,44 @@ const registerActions = (plugins: MimerPlugin[]) => {
     return actions
 }
 
-const registerNormalizers = (plugins: MimerPlugin[]) => {
-    const normalizers: Normalizer[] = []
+// const registerNormalizers = (plugins: MimerPlugin[]) => {
+//     const normalizers: Normalizer[] = []
 
-    plugins.forEach(plugin => {
-        if (!plugin.normalize) {
-            return
-        }
+//     plugins.forEach(plugin => {
+//         if (!plugin.normalize) {
+//             return
+//         }
 
-        normalizers.push({
-            name: plugin.name,
-            class: plugin.class,
-            normalize: plugin.normalize
-        })
-    })
+//         normalizers.push({
+//             name: plugin.name,
+//             class: plugin.class,
+//             normalize: plugin.normalize
+//         })
+//     })
 
-    return normalizers
-}
+//     return normalizers
+// }
 
 
-const registerEventHandlers = (plugins: MimerPlugin[]) => {
-    const eventHandlers: EventHandler[] = []
+// const registerEventHandlers = (plugins: MimerPlugin[]) => {
+//     const eventHandlers: EventHandler[] = []
 
-    plugins
-        .filter(plugin => Array.isArray(plugin.events) && plugin.events.length)
-        .forEach((plugin) => {
-            eventHandlers.push(...(plugin.events || []).map(({ on, handler, match = undefined }) => {
-                return {
-                    name: plugin.name,
-                    class: plugin.class,
-                    on,
-                    handler,
-                    match
-                }
-            }))
-        })
+//     plugins
+//         .filter(plugin => Array.isArray(plugin.events) && plugin.events.length)
+//         .forEach((plugin) => {
+//             eventHandlers.push(...(plugin.events || []).map(({ on, handler, match = undefined }) => {
+//                 return {
+//                     name: plugin.name,
+//                     class: plugin.class,
+//                     on,
+//                     handler,
+//                     match
+//                 }
+//             }))
+//         })
 
-    return eventHandlers
-}
+//     return eventHandlers
+// }
 
 /**
  * Return a list of consumers for the specified indata
