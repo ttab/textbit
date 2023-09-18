@@ -139,11 +139,11 @@ const actionHandler = ({ editor }: MimerActionHandlerProps): boolean => {
     return true
 }
 
-const consumes: ConsumesFunction = ({ data }) => {
+const consumes: ConsumesFunction = ({ type, data }) => {
     if (!(data instanceof File)) {
         return [false]
     }
-    const { size, type }: File = data
+    const { size } = data
 
     if (!['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(type)) {
         console.warn(`Image mime type ${type} not supported`)
@@ -156,7 +156,7 @@ const consumes: ConsumesFunction = ({ data }) => {
         return [false]
     }
 
-    return [true, 'core/image']
+    return [true, 'core/image', true]
 }
 
 /**
@@ -168,8 +168,8 @@ const consume: ConsumeFunction = ({ data }) => {
     }
 
     const readers = []
-    for (const f of data) {
-        const { name, type, size } = f
+    for (const item of data) {
+        const { name, type, size } = item.data
 
         readers.push(new Promise((resolve, reject) => {
             const reader = new FileReader()
@@ -216,7 +216,7 @@ const consume: ConsumeFunction = ({ data }) => {
 
             }, false)
 
-            reader.readAsDataURL(f)
+            reader.readAsDataURL(item.data)
         }))
 
     }

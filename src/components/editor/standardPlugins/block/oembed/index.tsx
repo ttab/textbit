@@ -1,18 +1,11 @@
 import React from 'react' // Necessary for esbuild
 import { useState, useEffect } from 'react'
-import { Editor, Element, Node, Range, Transforms } from 'slate'
+import { Editor, Element, Node, NodeEntry, Range, Transforms } from 'slate'
 import { HistoryEditor } from 'slate-history'
 import * as uuid from 'uuid'
 
-import {
-    DropEventFunction,
-    EventMatchFunction,
-    InputEventFunction,
-    MimerPlugin,
-    NormalizeFunction,
-    RenderElementFunction
-} from '../../../../../types'
 import { convertLastSibling } from '../../../../../lib/utils'
+import { ConsumeFunction, ConsumesFunction, MimerPlugin, RenderElementProps } from '../../../types'
 
 // FIXME: Should expose its own type
 //
@@ -23,7 +16,7 @@ import { convertLastSibling } from '../../../../../lib/utils'
 // }
 // type OembedElement = Element & OembedVideoProperties
 
-const render: RenderElementFunction = ({ children }) => {
+const render = ({ children }: RenderElementProps) => {
     const style = {
         minHeight: '10rem'
     }
@@ -33,7 +26,7 @@ const render: RenderElementFunction = ({ children }) => {
     </div>
 }
 
-const renderVideo: RenderElementFunction = ({ children, attributes, rootNode }) => {
+const renderVideo = ({ children, attributes, rootNode }: RenderElementProps) => {
     const { properties = {} } = Element.isElement(rootNode) ? rootNode : {}
     const src = properties?.src || ''
     const html = properties?.html || ''
@@ -96,7 +89,7 @@ const renderVideo: RenderElementFunction = ({ children, attributes, rootNode }) 
     )
 }
 
-const renderTitle: RenderElementFunction = ({ children }) => {
+const renderTitle = ({ children }: RenderElementProps) => {
     return <div className="text-sans-serif" style={{
         padding: '0.4rem 0.8rem',
         fontSize: '1rem',
@@ -108,8 +101,12 @@ const renderTitle: RenderElementFunction = ({ children }) => {
     </div>
 }
 
-const matchUrl = (url: string): string | null => {
-    const cleanUrl = url.replace(/^https?:\/\/(www.)?/, '')
+const consumes: ConsumesFunction = ({ source, type, data }) => {
+    if (type !== 'text/uri-list') {
+        return [false]
+    }
+
+    const cleanUrl = data.replace(/^https?:\/\/(www.)?/, '')
     const supported = [
         {
             url: 'open.spotify.com',
@@ -166,54 +163,60 @@ const matchUrl = (url: string): string | null => {
     ]
 
     const fetchUrl = supported.find(s => cleanUrl.startsWith(s.url))?.endpoint || null
-    return fetchUrl || null
+    return [fetchUrl ? true : false, 'core/oembed']
 }
 
-const dropMatcher: EventMatchFunction = (event) => {
-    if (event.type !== 'drop') {
-        return false
-    }
-
-    const nativeEvent = event.nativeEvent as DragEvent
-    if (nativeEvent?.dataTransfer?.types.includes('text/uri-list')) {
-        return false
-    }
-
-    const data = nativeEvent?.dataTransfer?.getData('text/uri-list')
-    const uriList = Array.isArray(data) ? data : [data]
-
-    for (const uri of uriList) {
-        if (!!matchUrl(uri)) {
-            return true
-        }
-    }
-
-    return false
+const consume: ConsumeFunction = ({ data }) => {
+    return Promise.all([])
 }
 
-const dropHandler: DropEventFunction = async (editor, event) => {
-    const data = event.dataTransfer.getData('text/uri-list')
-    const uriList = Array.isArray(data) ? data : [data]
+// const dropMatcher: EventMatchFunction = (event) => {
+//     if (event.type !== 'drop') {
+//         return false
+//     }
 
-    const handleUris = uriList.filter(uri => !!matchUrl(uri))
-    if (!handleUris.length) {
-        return Promise.reject('No urls matching pattern as one of the hardcoded oembed sources')
-    }
+//     const nativeEvent = event.nativeEvent as DragEvent
+//     if (nativeEvent?.dataTransfer?.types.includes('text/uri-list')) {
+//         return false
+//     }
 
-    try {
-        const oembeds = await Promise.all(handleUris.map(uri => fetchOembed(uri)))
-        return oembeds.map((props: any) => {
-            return createOembedNode(props)
-        })
-    }
-    catch (errorMsg) {
-        throw (errorMsg)
-    }
-}
+//     const data = nativeEvent?.dataTransfer?.getData('text/uri-list')
+//     const uriList = Array.isArray(data) ? data : [data]
+
+//     for (const uri of uriList) {
+//         if (!!matchUrl(uri)) {
+//             return true
+//         }
+//     }
+
+//     return false
+// }
+
+// const dropHandler: DropEventFunction = async (editor, event) => {
+//     const data = event.dataTransfer.getData('text/uri-list')
+//     const uriList = Array.isArray(data) ? data : [data]
+
+//     const handleUris = uriList.filter(uri => !!matchUrl(uri))
+//     if (!handleUris.length) {
+//         return Promise.reject('No urls matching pattern as one of the hardcoded oembed sources')
+//     }
+
+//     try {
+//         const oembeds = await Promise.all(handleUris.map(uri => fetchOembed(uri)))
+//         return oembeds.map((props: any) => {
+//             return createOembedNode(props)
+//         })
+//     }
+//     catch (errorMsg) {
+//         throw (errorMsg)
+//     }
+// }
 
 
-const inputHandler: InputEventFunction = (editor, text) => {
-    if (true !== !!matchUrl(text)) {
+const onInsertText = (editor: Editor, text: string) => {
+    const [willConsume] = consumes({ data: text })
+
+    if (!willConsume) {
         return
     }
 
@@ -281,7 +284,7 @@ const inputHandler: InputEventFunction = (editor, text) => {
         }
     })
 
-    return false
+    return true
 }
 
 const createOembedNode = (props: any): Element => {
@@ -370,7 +373,7 @@ const fetchOembed = (url: string): Promise<{ [key: string]: string } | null> => 
     })
 }
 
-const normalize: NormalizeFunction = (editor, entry) => {
+const onNormalizeNode = (editor: Editor, entry: NodeEntry) => {
     const [node, path] = entry
     if (!Element.isElement(node)) {
         return
@@ -411,30 +414,26 @@ const normalize: NormalizeFunction = (editor, entry) => {
 export const OembedVideo: MimerPlugin = {
     class: 'block',
     name: 'core/oembed',
-    events: [
-        {
-            on: 'drop',
-            match: dropMatcher,
-            handler: dropHandler
-        },
-        {
-            on: 'input',
-            handler: inputHandler
-        }
-    ],
-    normalize,
-    components: [
-        {
-            render
-        },
-        {
-            type: 'embed',
-            class: 'void',
-            render: renderVideo
-        },
-        {
-            type: 'title',
-            render: renderTitle
-        }
-    ]
+    consumer: {
+        consumes,
+        consume
+    },
+    events: {
+        onInsertText,
+        onNormalizeNode
+    },
+    component: {
+        render,
+        children: [
+            {
+                type: 'embed',
+                class: 'void',
+                render: renderVideo
+            },
+            {
+                type: 'title',
+                render: renderTitle
+            }
+        ]
+    }
 }

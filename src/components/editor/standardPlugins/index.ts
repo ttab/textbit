@@ -6,7 +6,7 @@ import { Title } from './text/title'
 import { Bold, Italic, Underline } from "./leaf/leaf"
 import { Blockquote } from "./textblock/blockquote"
 // import { Navigation } from "./generic/navigation"
-// import { OembedVideo } from "./block/oembed"
+import { OembedVideo } from "./block/oembed"
 import { Image } from "./block/image"
 import { Quotes } from "./generic/quotes"
 import { Loader } from "./void/loader"
@@ -61,7 +61,7 @@ export const StandardPlugins = [
     Italic,
     Underline,
     // Navigation,
-    // OembedVideo,
+    OembedVideo,
     Quotes,
     Image,
     Loader,

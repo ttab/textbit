@@ -4,7 +4,9 @@ import { Descendant, Editor, Element, Transforms } from 'slate'
 import { useSlateStatic } from 'slate-react'
 
 import { DragstateContext } from '../../dragndrop'
-import { findFileConsumers, handleFileDrop } from '../../../../../lib/hookableEvents'
+// import { findDataConsumers, findFileConsumers, handleDataDrop, handleFileDrop } from '../../../../../lib/hookableEvents'
+import { AggregatedPipe, assemblePipeForDrop, executeAggregatedPipe } from '../../../../../lib/pipes'
+import { Registry } from '../../../registry'
 
 type DroppableProps = {
     element?: Element
@@ -100,8 +102,12 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
             e.preventDefault()
         }}
         onDropCapture={(e) => {
+            if (ctx?.onDrop) {
+                ctx.onDrop(e)
+            }
+
             const container = droppableRef.current
-            if (!container || !ctx?.onDrop) {
+            if (!container) {
                 return
             }
 
@@ -113,44 +119,72 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
             // TODO: Name and node can in the future be used to let plugins say that the
             // node/plugin itself want to handle/hijack the drop - not implemented yet
             // const name = droppableRef.current?.dataset?.name || null
-            const [position, node] = getDropPosition(editor, e, container, id)
+            const [position /*, node */] = getDropPosition(editor, e, container, id)
 
-            // Handle internal drag'n drops
-            const nativeDataTransfer = e.nativeEvent.dataTransfer
-            if (nativeDataTransfer) {
-                const id = nativeDataTransfer.getData('mimer/droppable-id')
-                if (id) {
-                    e.stopPropagation()
-                    e.preventDefault()
-                    ctx?.onDrop(e)
-                    moveNode(editor, id, position)
-                    return
-                }
-            }
+            const aggregatedPipe = assemblePipeForDrop(e.dataTransfer)
+            // debugger
+            executeAggregatedPipe(aggregatedPipe, e, editor, position)
 
-            // const ignoredTypes: string[] = []
-            // const matchedTypes = new Map<string, {
-            //     consumers: any[],
-            //     files: File[]
-            // }>()
+            // // Handle file(s) dropped
+            // if (e.dataTransfer.files.length) {
+            //     e.stopPropagation()
+            //     e.preventDefault()
+            //     const ignoredTypes = handleOnFileDrop(editor, position, e)
 
-            e.stopPropagation()
-            e.preventDefault()
-            ctx?.onDrop(e)
+            //     if (ignoredTypes.length) {
+            //         console.warn('Ignored files of type ' + ignoredTypes.join(', ').trimEnd())
+            //         // TODO: Ask user if s/he wants to proceed (if there are matches)?
+            //     }
+            // }
 
-            let ignoredTypes: string[] = []
-            if (e.dataTransfer.files?.length || 0 > 0) {
-                ignoredTypes = handleOnFileDrop(editor, position, e)
-            }
-            else {
-                // TODO: Implement data drop
-                console.error('Only file drops supported - to be implemented')
-            }
+            // // Handle data dropped
+            // const data = []
+            // for (const dataType of e.dataTransfer.types) {
+            //     const data = e.dataTransfer.getData(dataType)
+            // }
 
-            if (ignoredTypes.length) {
-                console.warn('Ignored files of type ' + ignoredTypes.join(', ').trimEnd())
-                // TODO: Ask user if s/he wants to proceed (if there are matches)?
-            }
+            // if (e.dataTransfer.items.length) {
+            //     e.stopPropagation()
+            //     e.preventDefault()
+
+            //     const id = e.dataTransfer.getData('mimer/droppable-id')
+            //     if (id) {
+            //         // Interal drag'n drop of elements
+            //         moveNode(editor, id, position)
+            //     }
+            //     else {
+            //         handleOnDataDrop(editor, position, e)
+            //     }
+            // }
+
+
+            // const id = e.dataTransfer.getData('mimer/droppable-id')
+
+            // if (id) {
+            //     e.stopPropagation()
+            //     e.preventDefault()
+            //     ctx?.onDrop(e)
+            //     moveNode(editor, id, position)
+            //     return
+            // }
+
+            // e.stopPropagation()
+            // e.preventDefault()
+            // ctx?.onDrop(e)
+
+            // let ignoredTypes: string[] = []
+            // if (e.dataTransfer.files?.length || 0 > 0) {
+            //     ignoredTypes = handleOnFileDrop(editor, position, e)
+            // }
+            // else {
+            //     // TODO: Implement data drop
+            //     console.error('Only file drops supported - to be implemented')
+            // }
+
+            // if (ignoredTypes.length) {
+            //     console.warn('Ignored files of type ' + ignoredTypes.join(', ').trimEnd())
+            //     // TODO: Ask user if s/he wants to proceed (if there are matches)?
+            // }
         }}>
         <div className="droppable-area">
             {children}
@@ -158,53 +192,77 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
     </div >
 }
 
+
+/**
+ * Ask all plugins if they can consume each of the data in this drop and let them handle the drop,
+ * either individually per data item or in bulk
+ */
+// function handleOnDataDrop(editor: Editor, position: number, e: React.DragEvent<HTMLDivElement>) {
+//     const consumerPlugins = new Map()
+//     const ignoredItems: DataTransferItem[] = []
+
+//     findDataConsumers(e.dataTransfer.items, consumerPlugins, ignoredItems)
+
+//     handleDataDrop(
+//         editor,
+//         position,
+//         Array.from(consumerPlugins.values()).map(entry => {
+//             return {
+//                 consume: entry.plugin.consumer.consume,
+//                 items: entry.items,
+//                 bulk: entry.plugin.consumer.bulk
+//             }
+//         })
+//     )
+// }
+
 /**
  * Ask all plugins if they can consume each of the file in this drop and let them handle the drop,
  * either individual files or in bulk
  */
-function handleOnFileDrop(editor: Editor, position: number, e: React.DragEvent<HTMLDivElement>) {
-    const consumerPlugins = new Map()
-    const ignoredFiles: string[] = []
-    const files = e.dataTransfer.files
+// function handleOnFileDrop(editor: Editor, position: number, e: React.DragEvent<HTMLDivElement>) {
+//     const consumerPlugins = new Map()
+//     const ignoredFiles: string[] = []
+//     const files = e.dataTransfer.files
 
-    findFileConsumers(files, ignoredFiles, consumerPlugins)
+//     findFileConsumers(files, consumerPlugins, ignoredFiles)
 
-    // TODO: Ask user if multiple plugins wants to consume the same files
-    // FIXME: The call below assumes only one plugin wants to handle each file type
-    handleFileDrop(
-        editor,
-        position,
-        Array.from(consumerPlugins.values()).map(entry => {
-            return {
-                consume: entry.plugin.consumer.consume,
-                files: entry.files,
-                bulk: entry.plugin.consumer.bulk
-            }
-        })
-    )
+//     // TODO: Ask user if multiple plugins wants to consume the same files
+//     // FIXME: The call below assumes only one plugin wants to handle each file type
+//     handleFileDrop(
+//         editor,
+//         position,
+//         Array.from(consumerPlugins.values()).map(entry => {
+//             return {
+//                 consume: entry.plugin.consumer.consume,
+//                 files: entry.files,
+//                 bulk: entry.plugin.consumer.bulk
+//             }
+//         })
+//     )
 
-    // FIXME: Returns before async handleFileDrops() has finished
-    return ignoredFiles
-}
+//     // FIXME: Returns before async handleFileDrops() has finished
+//     return ignoredFiles
+// }
 
-function moveNode(editor: Editor, id: string, to: number) {
-    let from: number = 0
-    let node: Element | undefined = undefined
+// function moveNode(editor: Editor, id: string, to: number) {
+//     let from: number = 0
+//     let node: Element | undefined = undefined
 
-    for (const child of editor.children as Element[]) {
-        if (child.id === id) {
-            node = child
-            break
-        }
-        from++
-    }
+//     for (const child of editor.children as Element[]) {
+//         if (child.id === id) {
+//             node = child
+//             break
+//         }
+//         from++
+//     }
 
-    if (!node) {
-        return
-    }
+//     if (!node) {
+//         return
+//     }
 
-    Transforms.moveNodes(editor, { at: [from], to: [to] })
-}
+//     Transforms.moveNodes(editor, { at: [from], to: [to] })
+// }
 
 function getDropPosition(editor: Editor, e: React.DragEvent, container: HTMLDivElement, id: string): [number, Descendant | undefined] {
     let position = -1

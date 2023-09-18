@@ -5,40 +5,66 @@ import * as uuid from 'uuid'
 import { Registry } from "../components/editor/registry"
 import { getNodeById, getSelectedNodeEntries } from "./utils"
 
-export function findFileConsumers(files: FileList, ignoredFiles: string[], consumerPlugins: Map<any, any>) {
-    for (const file of Array.from(files)) {
-        const consumers = Registry.getConsumers(Registry.plugins, file, 'drop')
+// export function findDataConsumers(items: DataTransferItemList, consumerPlugins: Map<string, any>, ignoredItems: DataTransferItem[]) {
+//     for (const item of Array.from(items)) {
+//         const consumers = Registry.getConsumers(Registry.plugins, item, 'drop')
 
-        if (!consumers.length) {
-            ignoredFiles.push(file.name)
-            continue
-        }
+//         if (!consumers.length) {
+//             ignoredItems.push(item)
+//             continue
+//         }
 
-        for (const consumer of consumers) {
-            const name = consumer.plugin.name
-            const consumerPlugin = consumerPlugins.get(name) || {
-                plugin: consumer.plugin,
-                produces: consumer.produces,
-                files: [],
-                fileTypes: new Set()
-            }
+//         for (const consumer of consumers) {
+//             const name = consumer.plugin.name
+//             const consumerPlugin = consumerPlugins.get(name) || {
+//                 plugin: consumer.plugin,
+//                 produces: consumer.produces,
+//                 items: []
+//             }
 
-            // TODO: Check "produces" and see if we have components for them,
-            // TODO: otherwise add file to ignoredFiles
-            consumerPlugin.files.push(file)
-            consumerPlugin.fileTypes.add(file.type)
+//             // TODO: Check "produces" and see if we have components for them,
+//             // TODO: otherwise add file to ignoredFiles
+//             consumerPlugin.items.push(item)
 
-            consumerPlugins.set(name, consumerPlugin)
-        }
-    }
-}
+//             consumerPlugins.set(name, consumerPlugin)
+//         }
+//     }
+// }
 
-export async function handleFileDrop(
+// export function findFileConsumers(files: FileList, consumerPlugins: Map<string, any>, ignoredFiles: string[]) {
+//     for (const file of Array.from(files)) {
+//         const consumers = Registry.getConsumers(Registry.plugins, file, 'drop')
+
+//         if (!consumers.length) {
+//             ignoredFiles.push(file.name)
+//             continue
+//         }
+
+//         for (const consumer of consumers) {
+//             const name = consumer.plugin.name
+//             const consumerPlugin = consumerPlugins.get(name) || {
+//                 plugin: consumer.plugin,
+//                 produces: consumer.produces,
+//                 files: [],
+//                 fileTypes: new Set()
+//             }
+
+//             // TODO: Check "produces" and see if we have components for them,
+//             // TODO: otherwise add file to ignoredFiles
+//             consumerPlugin.files.push(file)
+//             consumerPlugin.fileTypes.add(file.type)
+
+//             consumerPlugins.set(name, consumerPlugin)
+//         }
+//     }
+// }
+
+export async function handleDataDrop(
     editor: Editor,
     position: number,
     consumers: Array<{
         consume: Function,
-        files: File[],
+        items: DataTransferItem[],
         bulk: boolean
     }>
 ) {
@@ -46,90 +72,113 @@ export async function handleFileDrop(
         throw new Error('Editor is not a history editor. Unexpected weirdness is going on!')
     }
 
-    for (const { files, bulk } of consumers) {
+    for (const { items, bulk } of consumers) {
         if (bulk) {
             insertLoader(editor, position)
         }
         else {
-            files.forEach(() => insertLoader(editor, position))
-        }
-    }
-
-    try {
-        let offset = 0
-        for (const { consume, files, bulk } of consumers) {
-            const result = await consume({ data: files })
-
-            Transforms.insertNodes(
-                editor, result, { at: [position + offset], select: false }
-            )
-
-            if (bulk) {
-                offset++
-                removeLoader(editor, position + offset)
-            }
-            else {
-                offset += files.length
-                files.forEach(() => {
-                    removeLoader(editor, position + offset)
-                })
-            }
-        }
-    }
-    catch (error: any) {
-        if (typeof error === 'string') {
-            console.error(error)
-        }
-        else if (error.message) {
-            console.error(error.messsage)
-        }
-        else {
-            console.error('Unknown error on drop')
+            items.forEach(() => insertLoader(editor, position))
         }
     }
 }
 
-function insertLoader(editor: Editor, position: number) {
-    const id = uuid.v4()
+// export async function handleFileDrop(
+//     editor: Editor,
+//     position: number,
+//     consumers: Array<{
+//         consume: Function,
+//         files: File[],
+//         bulk: boolean
+//     }>
+// ) {
+//     if (!HistoryEditor.isHistoryEditor(editor)) {
+//         throw new Error('Editor is not a history editor. Unexpected weirdness is going on!')
+//     }
 
-    HistoryEditor.withoutSaving(editor, () => {
-        Transforms.insertNodes(
-            editor,
-            [{
-                id,
-                class: 'void',
-                type: 'core/loader',
-                properties: {},
-                children: [{ text: '' }]
-            }],
-            {
-                at: [position],
-                select: false
-            }
-        )
-    })
+//     for (const { files, bulk } of consumers) {
+//         if (bulk) {
+//             insertLoader(editor, position)
+//         }
+//         else {
+//             files.forEach(() => insertLoader(editor, position))
+//         }
+//     }
 
-    return id
-}
+//     try {
+//         let offset = 0
+//         for (const { consume, files, bulk } of consumers) {
+//             const result = await consume({ data: files })
 
-function removeLoader(editor: Editor, identifier: string | number) {
-    let position: number
+//             Transforms.insertNodes(
+//                 editor, result, { at: [position + offset], select: false }
+//             )
 
-    if (typeof identifier === 'number') {
-        position = identifier
-    }
-    else if (typeof identifier === 'string') {
-        const node = getNodeById(editor, identifier)
-    }
-    else {
-        console.warn('Could not remove loader, identifier was neither number or string')
-        return
-    }
+//             if (bulk) {
+//                 offset++
+//                 removeLoader(editor, position + offset)
+//             }
+//             else {
+//                 offset += files.length
+//                 files.forEach(() => {
+//                     removeLoader(editor, position + offset)
+//                 })
+//             }
+//         }
+//     }
+//     catch (error: any) {
+//         if (typeof error === 'string') {
+//             console.error(error)
+//         }
+//         else if (error.message) {
+//             console.error(error.messsage)
+//         }
+//         else {
+//             console.error('Unknown error on drop')
+//         }
+//     }
+// }
 
-    HistoryEditor.withoutSaving(editor, () => {
-        Transforms.removeNodes(editor, { at: [position] })
-    })
-}
+// function insertLoader(editor: Editor, position: number) {
+//     const id = uuid.v4()
+
+//     HistoryEditor.withoutSaving(editor, () => {
+//         Transforms.insertNodes(
+//             editor,
+//             [{
+//                 id,
+//                 class: 'void',
+//                 type: 'core/loader',
+//                 properties: {},
+//                 children: [{ text: '' }]
+//             }],
+//             {
+//                 at: [position],
+//                 select: false
+//             }
+//         )
+//     })
+
+//     return id
+// }
+
+// function removeLoader(editor: Editor, identifier: string | number) {
+//     let position: number
+
+//     if (typeof identifier === 'number') {
+//         position = identifier
+//     }
+//     else if (typeof identifier === 'string') {
+//         const node = getNodeById(editor, identifier)
+//     }
+//     else {
+//         console.warn('Could not remove loader, identifier was neither number or string')
+//         return
+//     }
+
+//     HistoryEditor.withoutSaving(editor, () => {
+//         Transforms.removeNodes(editor, { at: [position] })
+//     })
+// }
 
 export async function triggerFileInputEvent(editor: Editor, event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files
@@ -149,7 +198,7 @@ export async function triggerFileInputEvent(editor: Editor, event: React.ChangeE
 
     const consumerPlugins = new Map()
     const ignoredFiles: string[] = []
-    findFileConsumers(files, ignoredFiles, consumerPlugins)
+    findFileConsumers(files, consumerPlugins, ignoredFiles)
 
     handleFileDrop(
         editor,

@@ -41,8 +41,9 @@ export interface MimerComponent {
 }
 
 export interface ConsumesProps {
+  source: string
+  type: string
   data: any
-  intent?: string
 }
 
 export interface ConsumerProps {
