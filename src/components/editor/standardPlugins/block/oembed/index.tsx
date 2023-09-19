@@ -1,7 +1,6 @@
 import React from 'react' // Necessary for esbuild
 import { useState, useEffect } from 'react'
-import { Editor, Element, Node, NodeEntry, Range, Transforms } from 'slate'
-import { HistoryEditor } from 'slate-history'
+import { Editor, Element, NodeEntry, Transforms } from 'slate'
 import * as uuid from 'uuid'
 
 import { convertLastSibling } from '../../../../../lib/utils'

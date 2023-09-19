@@ -6,8 +6,8 @@ import * as uuid from 'uuid'
 import { convertLastSibling } from '../../../../../lib/utils'
 import './index.css'
 import { BsImage } from 'react-icons/bs'
-import { triggerFileInputEvent } from '../../../../../lib/hookableEvents'
 import { ConsumeFunction, ConsumesFunction, MimerActionHandlerProps, MimerPlugin, RenderElementProps } from '../../../types'
+import { pipeFromFileInput } from '../../../../../lib/pipes'
 
 // FIXME: Should expose its own type
 //
@@ -125,8 +125,7 @@ const actionHandler = ({ editor }: MimerActionHandlerProps): boolean => {
         const event: ChangeEvent<HTMLInputElement> = e as ChangeEvent<HTMLInputElement>
 
         if (event.target.files?.length) {
-            // Trigger native file input 
-            triggerFileInputEvent(editor, event)
+            pipeFromFileInput(editor, event)
         }
 
         setTimeout(() => {

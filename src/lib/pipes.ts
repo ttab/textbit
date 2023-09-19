@@ -2,8 +2,9 @@ import { Editor, Transforms, Element } from "slate"
 import { Registry } from "../components/editor/registry"
 import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
-import { getNodeById } from "./utils"
+import { getNodeById, getSelectedNodeEntries } from "./utils"
 import { ConsumeFunction, ConsumerInput } from "../components/editor/types"
+import { ChangeEvent } from "react"
 
 export type PipeConsumer = {
   name: string,
@@ -31,14 +32,66 @@ export type AggregatedPipeItem = {
 export type AggregatedPipe = Array<AggregatedPipeItem>
 
 
-export function assemblePipeForDrop(dt: DataTransfer) {
+/**
+ * Create and execute a consumer pipe from a file input change event
+ */
+export function pipeFromFileInput(editor: Editor, e: ChangeEvent<HTMLInputElement>) {
+  const pipe = []
+  const files = e.target.files
+
+  if (!files) {
+    return
+  }
+
+  for (const file of files) {
+    const item = {
+      kind: 'file',
+      type: file.type,
+      name: file.name,
+      source: 'fileinput',
+      input: file,
+      consumer: [],
+      output: undefined
+    }
+    pipe.push(item)
+  }
+
+  initConsumersForPipe(pipe)
+
+  const aggregatedPipe = aggregateConsumersInPipe(pipe)
+
+  let position = 0
+  const entries = getSelectedNodeEntries(editor)
+  if (entries) {
+    const [node, entry] = entries[entries.length - 1]
+    position = entry[0] + 1
+  }
+  else {
+    const nodes = Array.from(Editor.nodes(editor, {
+      at: [0],
+      match: n => {
+        return (!Editor.isEditor(n) && Element.isElement(n))
+      }
+    }))
+    position = nodes.length
+  }
+
+  executeAggregatedPipe(aggregatedPipe, e, editor, position)
+}
+
+/**
+ * Create and execute a consumer pipe from a drop event
+ */
+export function pipeFromDrop(editor: Editor, e: React.DragEvent, position: number) {
+  const dt = e.dataTransfer
   const pipe = initPipeForDrop(dt)
   initConsumersForPipe(pipe)
 
   const aggregatedPipe = aggregateConsumersInPipe(pipe)
 
-  return aggregatedPipe
+  executeAggregatedPipe(aggregatedPipe, e, editor, position)
 }
+
 
 function aggregateConsumersInPipe(origPipe: Pipe) {
   const aggregatedPipe: AggregatedPipe = []
@@ -145,7 +198,7 @@ function initPipeForDrop(dt: DataTransfer) {
  * +---+    +---+---+
  *   ^
  */
-export async function executeAggregatedPipe(aggregatedPipe: AggregatedPipe, e: React.DragEvent<HTMLDivElement>, editor: Editor, position: number) {
+async function executeAggregatedPipe(aggregatedPipe: AggregatedPipe, e: React.DragEvent | React.ChangeEvent, editor: Editor, position: number) {
   if (aggregatedPipe.length) {
     e.preventDefault()
     e.stopPropagation()
