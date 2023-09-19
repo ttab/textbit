@@ -101,7 +101,7 @@ const renderTitle = ({ children }: RenderElementProps) => {
     </div>
 }
 
-const consumes: ConsumesFunction = ({ source, type, data }) => {
+const consumes: ConsumesFunction = ({ source, type, input: data }) => {
     if (type !== 'text/uri-list') {
         return [false]
     }
@@ -166,7 +166,7 @@ const consumes: ConsumesFunction = ({ source, type, data }) => {
     return [fetchUrl ? true : false, 'core/oembed']
 }
 
-const consume: ConsumeFunction = ({ data }) => {
+const consume: ConsumeFunction = ({ input: data }) => {
     return Promise.all([])
 }
 
@@ -214,7 +214,7 @@ const consume: ConsumeFunction = ({ data }) => {
 
 
 const onInsertText = (editor: Editor, text: string) => {
-    const [willConsume] = consumes({ data: text })
+    const [willConsume] = consumes({ input: text })
 
     if (!willConsume) {
         return

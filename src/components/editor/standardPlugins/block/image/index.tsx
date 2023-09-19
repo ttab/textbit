@@ -139,7 +139,7 @@ const actionHandler = ({ editor }: MimerActionHandlerProps): boolean => {
     return true
 }
 
-const consumes: ConsumesFunction = ({ type, data }) => {
+const consumes: ConsumesFunction = ({ type, input: data }) => {
     if (!(data instanceof File)) {
         return [false]
     }
@@ -156,79 +156,74 @@ const consumes: ConsumesFunction = ({ type, data }) => {
         return [false]
     }
 
-    return [true, 'core/image', true]
+    return [true, 'core/image', false]
 }
 
 /**
  * Consume a FileList and produce an array of core/image objects
  */
-const consume: ConsumeFunction = ({ data }) => {
-    if (!Array.isArray(data)) {
-        throw new Error('Expected FileList for consumation, wrong indata')
+const consume: ConsumeFunction = ({ input }) => {
+    if (true !== input.data instanceof File) {
+        throw new Error('Image plugin expected File for consumation, wrong indata')
     }
 
-    const readers = []
-    for (const item of data) {
-        const { name, type, size } = item.data
+    const { name, type, size } = input.data
 
-        readers.push(new Promise((resolve, reject) => {
-            const reader = new FileReader()
+    const readerPromise = new Promise((resolve, reject) => {
+        const reader = new FileReader()
 
-            reader.addEventListener('load', () => {
-                if (typeof reader.result !== 'string') {
-                    reject(`Error when image dropped, resulted in ${typeof reader.result}`)
-                    return
-                }
+        reader.addEventListener('load', () => {
+            if (typeof reader.result !== 'string') {
+                reject(`Error when image dropped, resulted in ${typeof reader.result}`)
+                return
+            }
 
-                const tmpImage = new window.Image()
-                tmpImage.src = reader.result
-                tmpImage.onload = function () {
-                    window.setTimeout(() => {
-                        resolve({
-                            id: uuid.v4(),
-                            class: 'block',
-                            type: 'core/image',
-                            properties: {
-                                type: type,
-                                src: tmpImage.src,
-                                title: name,
-                                size: size,
-                                width: tmpImage.width,
-                                height: tmpImage.height
+            const tmpImage = new window.Image()
+            tmpImage.src = reader.result
+            tmpImage.onload = function () {
+                window.setTimeout(() => {
+                    resolve({
+                        id: uuid.v4(),
+                        class: 'block',
+                        type: 'core/image',
+                        properties: {
+                            type: type,
+                            src: tmpImage.src,
+                            title: name,
+                            size: size,
+                            width: tmpImage.width,
+                            height: tmpImage.height
+                        },
+                        children: [
+                            {
+                                type: 'core/image/image',
+                                children: [{ text: '' }]
                             },
-                            children: [
-                                {
-                                    type: 'core/image/image',
-                                    children: [{ text: '' }]
-                                },
-                                {
-                                    type: 'core/image/altText',
-                                    children: [{ text: name }]
-                                },
-                                {
-                                    type: 'core/image/text',
-                                    children: [{ text: '' }]
-                                }
-                            ]
-                        })
-                    }, 1000)
-                }
+                            {
+                                type: 'core/image/altText',
+                                children: [{ text: name }]
+                            },
+                            {
+                                type: 'core/image/text',
+                                children: [{ text: '' }]
+                            }
+                        ]
+                    })
+                }, 1000)
+            }
 
-            }, false)
+        }, false)
 
-            reader.readAsDataURL(item.data)
-        }))
+        reader.readAsDataURL(input.data)
+    })
 
-    }
-
-    return Promise.all(readers)
+    return readerPromise
 }
 
 export const Image: MimerPlugin = {
     class: 'block',
     name: 'core/image',
     consumer: {
-        bulk: false, // Can be omitted as false is default
         consumes,
         consume
     },

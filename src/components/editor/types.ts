@@ -43,11 +43,11 @@ export interface MimerComponent {
 export interface ConsumesProps {
   source: string
   type: string
-  data: any
+  input: any
 }
 
 export interface ConsumerProps {
-  data: any
+  input: any
 }
 
 // Returns [

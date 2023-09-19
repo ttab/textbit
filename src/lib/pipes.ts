@@ -3,6 +3,7 @@ import { Registry } from "../components/editor/registry"
 import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
 import { getNodeById } from "./utils"
+import { ConsumeFunction } from "../components/editor/types"
 
 export type PipeConsumer = {
   name: string,
@@ -14,7 +15,9 @@ export type PipeItem = {
   kind: string,
   type: string,
   source: string,
-  data: File | string,
+  input: File | string | null,
+  alternate?: string
+  output?: Element | Element[]
   consumer: Array<PipeConsumer>
 }
 
@@ -66,14 +69,14 @@ function aggregateConsumersInPipe(origPipe: Pipe) {
 
 function initConsumersForPipe(pipe: any[]) {
   for (const item of pipe) {
-    const { source, type, data } = item
+    const { source, type, input } = item
 
-    const speculators = Registry.plugins.filter(plugin => {
+    Registry.plugins.forEach(plugin => {
       if (typeof plugin.consumer?.consumes !== 'function') {
         return false
       }
 
-      const [match, produces = undefined, aggregate = false] = plugin.consumer.consumes({ source, type, data })
+      const [match, produces = undefined, aggregate = false] = plugin.consumer.consumes({ source, type, input })
       if (match === true) {
         item.consumer.push({
           name: plugin.name,
@@ -121,56 +124,110 @@ function initPipeForDrop(dt: DataTransfer) {
   return pipe
 }
 
+/**
+ * Loop over an aggregated pipe (of pipes) and execute the individual pipes
+ * 
+ * +---+    +---+---+---+---+
+ * | 1 | -> | a | b | c | d |
+ * +---+    +---+---+---+---+
+ * +---+    +---+
+ * | 2 | -> | e |
+ * +---+    +---+
+ * +---+    +---+---+
+ * | 3 | -> | f | i |
+ * +---+    +---+---+
+ *   ^
+ */
 export async function executeAggregatedPipe(aggregatedPipe: AggregatedPipe, e: React.DragEvent<HTMLDivElement>, editor: Editor, position: number) {
   if (aggregatedPipe.length) {
     e.preventDefault()
     e.stopPropagation()
 
+    let offset = 0
     for (const pipe of aggregatedPipe) {
       const len = pipe.consumer.length
 
       if (len === 0) {
         if (pipe.pipe.find(pipeItem => pipeItem.type === 'mimer/droppable-id')) {
-          moveNode(editor, pipe.pipe[0].data as string, position)
+          moveNode(editor, pipe.pipe[0].input as string, position)
         }
         else {
           const types = pipe.pipe.map(i => i.type).join(', ')
-          console.warn('Ignored dropped data/files of type ${types}')
-          continue
+          console.warn(`Ignored dropped data/files of type ${types}`)
         }
+        continue
       }
 
-      if (pipe.consumer.length > 1) {
-        // TODO: Implement choice of handler
-        // Now just use first one [0]
-      }
-      const consumer = pipe.consumer[0]
-
-      const plugin = Registry.plugins.find(plugin => plugin.name === consumer.name)
-
-      if (consumer.aggregate) {
-        const pipeItems = pipe.pipe.map(p => {
-          return {
-            source: p.source,
-            type: p.type,
-            data: p.data
-          }
-        })
-        plugin?.consumer?.consume({ data: pipeItems })
-      }
-      else {
-        for (const pipeItem of pipe.pipe) {
-          plugin?.consumer?.consume({
-            data: {
-              source: pipeItem.source,
-              type: pipeItem.type,
-              data: pipeItem.data
-            }
-          })
-        }
-      }
+      // FIXME: Should be aynchronous
+      offset += await executePipe(pipe, editor, position, offset)
     }
   }
+}
+
+/**
+ * Execute a pipe with items in an aggregated pipe
+ */
+async function executePipe(pipe: AggregatedPipeItem, editor: Editor, position: number, offset: number): Promise<number> {
+  if (pipe.consumer.length > 1) {
+    // TODO: Implement choice of handler
+    // Now just use first one [0]
+  }
+
+  // Find correct plugin/consume function
+  const consumer = pipe.consumer[0]
+  const plugin = Registry.plugins.find(plugin => plugin.name === consumer.name)
+  const consume = plugin?.consumer?.consume || undefined
+
+  if (!plugin || !consume) {
+    console.warn(`Could not find plugin <${consumer.name}> or it's consume() function to handle pipe item from $(pipeItem.source})`)
+    return 0
+  }
+
+  let localOffset = 0
+  if (consumer.aggregate) {
+    const input = pipe.pipe.map(p => {
+      return {
+        source: p.source,
+        type: p.type,
+        data: p.input
+      }
+    })
+    executePipeItem(consume, input, editor, position + offset)
+    localOffset++
+  }
+  else {
+    for (const pipeItem of pipe.pipe) {
+      const input = {
+        source: pipeItem.source,
+        type: pipeItem.type,
+        data: pipeItem.input
+      }
+      executePipeItem(consume, input, editor, position + offset + localOffset)
+      localOffset++
+    }
+  }
+
+  return localOffset
+}
+
+async function executePipeItem(consume: ConsumeFunction, input: any, editor: Editor, position: number) {
+  insertLoader(editor, position)
+  let offset = 0
+
+  try {
+    const result = await consume({ input })
+    if (result) {
+      Transforms.insertNodes(
+        editor, result, { at: [position], select: false }
+      )
+      offset++
+    }
+  }
+  catch (ex: any) {
+    console.warn(ex.message)
+  }
+
+  removeLoader(editor, position + offset)
 }
 
 function getDataItem(source: string, dt: DataTransfer, item: DataTransferItem) {
@@ -178,7 +235,7 @@ function getDataItem(source: string, dt: DataTransfer, item: DataTransferItem) {
     kind: item.kind,
     type: item.type,
     source,
-    data: dt.getData(item.type),
+    input: dt.getData(item.type),
     consumer: [],
     output: undefined
   }
@@ -189,27 +246,27 @@ function getHtmlItem(source: string, dt: DataTransfer, item: DataTransferItem, h
     kind: item.kind,
     type: item.type,
     source,
-    data: dt.getData(item.type),
+    input: dt.getData(item.type),
     alternate: hasTextFallback ? dt.getData('text/plain') : undefined,
     consumer: [],
     output: undefined
   }
 }
 
-function getFileItem(source: string, item: DataTransferItem) {
+function getFileItem(source: string, item: DataTransferItem): PipeItem {
   return {
     kind: item.kind,
     type: item.type,
     source,
-    data: item.getAsFile(),
+    input: item.getAsFile(),
     consumer: [],
     output: undefined
   }
 }
 
-function geUriListItems(source: string, dt: DataTransfer, item: DataTransferItem, hasTextFallback: boolean) {
+function geUriListItems(source: string, dt: DataTransfer, item: DataTransferItem, hasTextFallback: boolean): PipeItem[] {
   const data = dt.getData(item.type)
-  const items: any[] = []
+  const items: PipeItem[] = []
   const alternate = hasTextFallback ? dt.getData('text/plain') : undefined
 
   for (const line of data.split("\r\n")) {
@@ -217,7 +274,7 @@ function geUriListItems(source: string, dt: DataTransfer, item: DataTransferItem
       kind: item.kind,
       type: item.type,
       source,
-      data: line,
+      input: line,
       alternate,
       consumer: [],
       output: undefined
@@ -288,61 +345,4 @@ function moveNode(editor: Editor, id: string, to: number) {
   }
 
   Transforms.moveNodes(editor, { at: [from], to: [to] })
-}
-
-
-async function handleFileDrop(
-  editor: Editor,
-  position: number,
-  consumers: Array<{
-    consume: Function,
-    files: File[],
-    bulk: boolean
-  }>
-) {
-  if (!HistoryEditor.isHistoryEditor(editor)) {
-    throw new Error('Editor is not a history editor. Unexpected weirdness is going on!')
-  }
-
-  for (const { files, bulk } of consumers) {
-    if (bulk) {
-      insertLoader(editor, position)
-    }
-    else {
-      files.forEach(() => insertLoader(editor, position))
-    }
-  }
-
-  try {
-    let offset = 0
-    for (const { consume, files, bulk } of consumers) {
-      const result = await consume({ data: files })
-
-      Transforms.insertNodes(
-        editor, result, { at: [position + offset], select: false }
-      )
-
-      if (bulk) {
-        offset++
-        removeLoader(editor, position + offset)
-      }
-      else {
-        offset += files.length
-        files.forEach(() => {
-          removeLoader(editor, position + offset)
-        })
-      }
-    }
-  }
-  catch (error: any) {
-    if (typeof error === 'string') {
-      console.error(error)
-    }
-    else if (error.message) {
-      console.error(error.messsage)
-    }
-    else {
-      console.error('Unknown error on drop')
-    }
-  }
 }

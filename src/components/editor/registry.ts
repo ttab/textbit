@@ -215,7 +215,7 @@ function getConsumers(plugins: MimerPlugin[], data: any, intent?: string) {
             return
         }
 
-        const [match, produces = undefined] = plugin.consumer.consumes({ data, intent })
+        const [match, produces = undefined] = plugin.consumer.consumes({ input: data, intent })
         if (match) {
             consumers.push({
                 plugin,
