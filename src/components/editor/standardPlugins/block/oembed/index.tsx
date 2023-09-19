@@ -16,6 +16,61 @@ import { ConsumeFunction, ConsumesFunction, MimerPlugin, RenderElementProps } fr
 // }
 // type OembedElement = Element & OembedVideoProperties
 
+const SUPPORTED_OEMBED_URLS = [
+    {
+        url: 'open.spotify.com',
+        endpoint: 'https://open.spotify.com/oembed?url=' // rich
+    },
+    {
+        url: 'youtube.com/watch',
+        endpoint: 'https://www.youtube.com/oembed?format=json&url=' // video
+    },
+    {
+        url: 'vimeo.com',
+        endpoint: 'https://vimeo.com/api/oembed.json?url=' // video
+    },
+    {
+        url: 'gfycat.com',
+        endpoint: 'https://api.gfycat.com/v1/oembed?url=' // video
+    },
+    {
+        url: 'soundcloud.com',
+        endpoint: 'https://soundcloud.com/oembed?url=' // rich
+    },
+    {
+        url: 'on.soundcloud.com',
+        endpoint: 'https://soundcloud.com/oembed?url=' // righ
+    },
+    {
+        url: 'soundcloud.app.goog.gl',
+        endpoint: 'https://soundcloud.com/oembed?url=' // rich
+    },
+    {
+        url: 'tiktok.com',
+        endpoint: 'https://www.tiktok.com/oembed?url=' // video
+    },
+    // {
+    //     url: 'play.acast.com',
+    //     endpoint: 'https://oembed.acast.com/v1/embed-player?url=' // rich, cors!
+    // },
+    // {
+    //     url: 'giphy.com/gifs',
+    //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
+    // },
+    // {
+    //     url: 'giphy.com/clips',
+    //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
+    // },
+    // {
+    //     url: 'gph.is',
+    //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
+    // },
+    // {
+    //     url: 'pinterest.',
+    //     endpoint: 'https://www.pinterest.com/oembed.json?url=' // rich, cors!
+    // }
+]
+
 const render = ({ children }: RenderElementProps) => {
     const style = {
         minHeight: '10rem'
@@ -101,116 +156,29 @@ const renderTitle = ({ children }: RenderElementProps) => {
     </div>
 }
 
-const consumes: ConsumesFunction = ({ source, type, input: data }) => {
+const consumes: ConsumesFunction = ({ input }) => {
+    const { data, type } = input
+
     if (type !== 'text/uri-list') {
         return [false]
     }
 
-    const cleanUrl = data.replace(/^https?:\/\/(www.)?/, '')
-    const supported = [
-        {
-            url: 'open.spotify.com',
-            endpoint: 'https://open.spotify.com/oembed?url=' // rich
-        },
-        {
-            url: 'youtube.com/watch',
-            endpoint: 'https://www.youtube.com/oembed?format=json&url=' // video
-        },
-        {
-            url: 'vimeo.com',
-            endpoint: 'https://vimeo.com/api/oembed.json?url=' // video
-        },
-        {
-            url: 'gfycat.com',
-            endpoint: 'https://api.gfycat.com/v1/oembed?url=' // video
-        },
-        {
-            url: 'soundcloud.com',
-            endpoint: 'https://soundcloud.com/oembed?url=' // rich
-        },
-        {
-            url: 'on.soundcloud.com',
-            endpoint: 'https://soundcloud.com/oembed?url=' // righ
-        },
-        {
-            url: 'soundcloud.app.goog.gl',
-            endpoint: 'https://soundcloud.com/oembed?url=' // rich
-        },
-        {
-            url: 'tiktok.com',
-            endpoint: 'https://www.tiktok.com/oembed?url=' // video
-        },
-        // {
-        //     url: 'play.acast.com',
-        //     endpoint: 'https://oembed.acast.com/v1/embed-player?url=' // rich, cors!
-        // },
-        // {
-        //     url: 'giphy.com/gifs',
-        //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
-        // },
-        // {
-        //     url: 'giphy.com/clips',
-        //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
-        // },
-        // {
-        //     url: 'gph.is',
-        //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
-        // },
-        // {
-        //     url: 'pinterest.',
-        //     endpoint: 'https://www.pinterest.com/oembed.json?url=' // rich, cors!
-        // }
-    ]
-
-    const fetchUrl = supported.find(s => cleanUrl.startsWith(s.url))?.endpoint || null
-    return [fetchUrl ? true : false, 'core/oembed']
+    const oembedurl = getOembedUrl(data)
+    return [oembedurl ? true : false, 'core/oembed']
 }
 
-const consume: ConsumeFunction = ({ input: data }) => {
-    return Promise.all([])
+const consume: ConsumeFunction = async ({ input }) => {
+    if (Array.isArray(input)) {
+        throw new Error('Oembed plugin expected string for consumation, not a list/array')
+    }
+
+    if (typeof input.data !== 'string') {
+        throw new Error('Oembed plugin expected string for consumation, wrong indata')
+    }
+
+    const oEmbed = await fetchOembed(input.data)
+    return oEmbed ? createOembedNode(oEmbed) : undefined
 }
-
-// const dropMatcher: EventMatchFunction = (event) => {
-//     if (event.type !== 'drop') {
-//         return false
-//     }
-
-//     const nativeEvent = event.nativeEvent as DragEvent
-//     if (nativeEvent?.dataTransfer?.types.includes('text/uri-list')) {
-//         return false
-//     }
-
-//     const data = nativeEvent?.dataTransfer?.getData('text/uri-list')
-//     const uriList = Array.isArray(data) ? data : [data]
-
-//     for (const uri of uriList) {
-//         if (!!matchUrl(uri)) {
-//             return true
-//         }
-//     }
-
-//     return false
-// }
-
-// const dropHandler: DropEventFunction = async (editor, event) => {
-//     const data = event.dataTransfer.getData('text/uri-list')
-//     const uriList = Array.isArray(data) ? data : [data]
-
-//     const handleUris = uriList.filter(uri => !!matchUrl(uri))
-//     if (!handleUris.length) {
-//         return Promise.reject('No urls matching pattern as one of the hardcoded oembed sources')
-//     }
-
-//     try {
-//         const oembeds = await Promise.all(handleUris.map(uri => fetchOembed(uri)))
-//         return oembeds.map((props: any) => {
-//             return createOembedNode(props)
-//         })
-//     }
-//     catch (errorMsg) {
-//         throw (errorMsg)
-//     }
-// }
 
 
 const onInsertText = (editor: Editor, text: string) => {
@@ -319,21 +287,19 @@ const createOembedNode = (props: any): Element => {
     }
 }
 
-const fetchOembed = (url: string): Promise<{ [key: string]: string } | null> => {
-    const fetchUrl = matchUrl(url)
-
-    if (!fetchUrl) {
-        console.warn(`Oembed fetching ${url} is not supported`)
-        return Promise.resolve(null)
+const fetchOembed = (url: string): Promise<{ [key: string]: string } | undefined> => {
+    const oembedUrl = getOembedUrl(url)
+    if (!oembedUrl) {
+        return Promise.resolve(undefined)
     }
 
     return new Promise((resolve) => {
-        fetch(`${fetchUrl}${encodeURI(url)}`)
+        fetch(`${oembedUrl}${encodeURI(url)}`)
             .then(response => response.json())
             .then(obj => {
 
                 if (!obj || !obj.html) {
-                    resolve(null)
+                    resolve(undefined)
                     return
                 }
 
@@ -368,9 +334,15 @@ const fetchOembed = (url: string): Promise<{ [key: string]: string } | null> => 
             })
             .catch(ex => {
                 console.warn(`Could not fetch Oembed from ${url}`, ex)
-                resolve(null)
+                resolve(undefined)
             })
     })
+}
+
+const getOembedUrl = (url: string): string | undefined => {
+    const cleanUrl = url.replace(/^https?:\/\/(www.)?/, '')
+
+    return SUPPORTED_OEMBED_URLS.find(s => cleanUrl.startsWith(s.url))?.endpoint || undefined
 }
 
 const onNormalizeNode = (editor: Editor, entry: NodeEntry) => {
