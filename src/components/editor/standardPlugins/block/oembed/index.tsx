@@ -159,7 +159,7 @@ const renderTitle = ({ children }: RenderElementProps) => {
 const consumes: ConsumesFunction = ({ input }) => {
     const { data, type } = input
 
-    if (type !== 'text/uri-list') {
+    if (!['text/uri-list', 'text/plain'].includes(type)) {
         return [false]
     }
 
@@ -178,81 +178,6 @@ const consume: ConsumeFunction = async ({ input }) => {
 
     const oEmbed = await fetchOembed(input.data)
     return oEmbed ? createOembedNode(oEmbed) : undefined
-}
-
-
-const onInsertText = (editor: Editor, text: string) => {
-    const [willConsume] = consumes({ input: text })
-
-    if (!willConsume) {
-        return
-    }
-
-    if (!HistoryEditor.isHistoryEditor(editor)) {
-        return
-    }
-
-    if (!Range.isRange(editor.selection)) {
-        return
-    }
-
-    const range = Editor.unhangRange(editor, editor.selection)
-    let at = (range && range.anchor.path[0] > 0) ? range.anchor.path[0] : 0
-    const node = Node.get(editor, [at])
-
-    if (!Element.isElement(node)) {
-        return
-    }
-
-    HistoryEditor.withoutSaving(editor, () => {
-        if (node?.class === 'text' && Editor.string(editor, [at]) === '') {
-            // This highest level node is a text node and is empty, remove it
-            Transforms.removeNodes(editor, { at: [at] })
-        }
-        else {
-            // When not touching current node, put it after current node
-            at++
-        }
-
-        // FIXME: Refactor into helper function
-        Transforms.insertNodes(
-            editor,
-            [{
-                id: uuid.v4(),
-                class: 'void',
-                type: 'core/loader',
-                properties: {},
-                children: [{ text: '' }]
-            }],
-            {
-                at: [at],
-                select: false
-            }
-        )
-    })
-
-    fetchOembed(text).then(props => {
-        if (!props) {
-            // Remove temporary block
-            HistoryEditor.withoutSaving(editor, () => {
-                Transforms.removeNodes(editor, { at: [at] })
-            })
-        }
-        else {
-            Transforms.insertNodes(
-                editor,
-                [createOembedNode(props)],
-                { at: [at], select: true }
-            )
-
-            // Remove temporary block
-            HistoryEditor.withoutSaving(editor, () => {
-                Transforms.removeNodes(editor, { at: [at + 1] })
-            })
-        }
-    })
-
-    return true
 }
 
 const createOembedNode = (props: any): Element => {
@@ -391,7 +316,6 @@ export const OembedVideo: MimerPlugin = {
         consume
     },
     events: {
-        onInsertText,
         onNormalizeNode
     },
     component: {
