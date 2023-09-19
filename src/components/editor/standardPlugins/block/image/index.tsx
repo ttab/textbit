@@ -139,14 +139,14 @@ const actionHandler = ({ editor }: MimerActionHandlerProps): boolean => {
     return true
 }
 
-const consumes: ConsumesFunction = ({ type, input: data }) => {
-    if (!(data instanceof File)) {
+const consumes: ConsumesFunction = ({ input }) => {
+    if (!(input.data instanceof File)) {
         return [false]
     }
-    const { size } = data
+    const { size, type } = input.data
 
     if (!['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(type)) {
-        console.warn(`Image mime type ${type} not supported`)
+        console.warn(`Image mime type ${input.type} not supported`)
         return [false]
     }
 
@@ -163,6 +163,10 @@ const consumes: ConsumesFunction = ({ type, input: data }) => {
  * Consume a FileList and produce an array of core/image objects
  */
 const consume: ConsumeFunction = ({ input }) => {
+    if (Array.isArray(input)) {
+        throw new Error('Image plugin expected File for consumation, not a list/array')
+    }
+
     if (true !== input.data instanceof File) {
         throw new Error('Image plugin expected File for consumation, wrong indata')
     }

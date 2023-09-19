@@ -3,11 +3,11 @@ import { Registry } from "../components/editor/registry"
 import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
 import { getNodeById } from "./utils"
-import { ConsumeFunction } from "../components/editor/types"
+import { ConsumeFunction, ConsumerInput } from "../components/editor/types"
 
 export type PipeConsumer = {
   name: string,
-  produces: string,
+  produces?: string,
   aggregate: boolean
 }
 
@@ -67,7 +67,7 @@ function aggregateConsumersInPipe(origPipe: Pipe) {
   return aggregatedPipe
 }
 
-function initConsumersForPipe(pipe: any[]) {
+function initConsumersForPipe(pipe: Pipe) {
   for (const item of pipe) {
     const { source, type, input } = item
 
@@ -76,11 +76,18 @@ function initConsumersForPipe(pipe: any[]) {
         return false
       }
 
-      const [match, produces = undefined, aggregate = false] = plugin.consumer.consumes({ source, type, input })
+      const [match, produces = undefined, aggregate = false] = plugin.consumer.consumes({
+        input: {
+          source,
+          type,
+          data: input
+        }
+      })
+
       if (match === true) {
         item.consumer.push({
           name: plugin.name,
-          produces,
+          produces: produces || undefined,
           aggregate
         })
       }
@@ -89,7 +96,7 @@ function initConsumersForPipe(pipe: any[]) {
 }
 
 function initPipeForDrop(dt: DataTransfer) {
-  const pipe = [] //new Map()
+  const pipe = []
   let handleTextPlain = true
 
   // Add text/plain as "alternate" data with uri-list and html drop data types
@@ -210,7 +217,7 @@ async function executePipe(pipe: AggregatedPipeItem, editor: Editor, position: n
   return localOffset
 }
 
-async function executePipeItem(consume: ConsumeFunction, input: any, editor: Editor, position: number) {
+async function executePipeItem(consume: ConsumeFunction, input: ConsumerInput | ConsumerInput[], editor: Editor, position: number) {
   insertLoader(editor, position)
   let offset = 0
 

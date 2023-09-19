@@ -40,14 +40,18 @@ export interface MimerComponent {
   }
 }
 
-export interface ConsumesProps {
+export interface ConsumerInput {
   source: string
   type: string
-  input: any
+  data: any
+}
+
+export interface ConsumesProps {
+  input: ConsumerInput
 }
 
 export interface ConsumerProps {
-  input: any
+  input: ConsumerInput | ConsumerInput[]
 }
 
 // Returns [
