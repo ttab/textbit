@@ -99,30 +99,61 @@ Plugins does not really exist yet. These are hard coded into the src and can be 
 
 Plugins are defined using the interface below. (See `src/types.ts` for all the types.)
 
+
 ```javascript
-type MimerPlugin = {
-    class: MimerPluginClass
-    name: string
-    placeholder?: string
-    normalize?: NormalizeFunction
-    actions?: Array<{
-        tool?: JSX.Element | Array<JSX.Element | ToolFunction>
-        hotkey?: string
-        title?: string
-        handler: ActionFunction
-    }>
-    events?: Array<{
-        on: MimerEventTypes,
-        handler: InputEventFunction | DropEventFunction | FileInputEventFunction,
-        match?: EventMatchFunction
-    }>
-    components?: Array<{
-        type?: string
-        class?: string
-        render: RenderFunction
-    }>
-    style?: React.CSSProperties
+
+interface MimerComponent {
+  class?: string
+  type?: string
+  placeholder?: string,
+  render: RenderElementFunction | RenderLeafFunction
+  children?: MimerComponent[]
+  constraints?: {
+    minElements?: number
+    maxElements?: number
+    maxLength?: number
+    allowBreak?: boolean
+    allowSoftBreak?: boolean
+  }
 }
+
+interface ConsumerInput {
+  source: string
+  type: string
+  data: any
+}
+
+interface ConsumesProps {
+  input: ConsumerInput
+}
+
+interface ConsumerProps {
+  input: ConsumerInput | ConsumerInput[]
+}
+
+type ConsumesFunction = (props: ConsumesProps) => [boolean, (string | null)?, boolean?]
+type ConsumeFunction = (props: ConsumerProps) => Promise<any | undefined>
+
+interface MimerPlugin {
+  class: 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic'
+  name: string
+  consumer?: {
+    consumes: ConsumesFunction  // Can you consume [data], [true/false, provides `type` as response]
+    consume: ConsumeFunction // Consume [data] please
+  }
+  events?: {
+    onNormalizeNode?: (editor: Editor, entry: NodeEntry) => true | void
+  }
+  actions?: Array<{
+    tool?: JSX.Element | Array<JSX.Element | ToolFunction>
+    hotkey?: string
+    title?: string
+    handler: (props: MimerActionHandlerProps) => boolean
+  }>
+  component?: MimerComponent
+}
+
+
 ```
 
 **class** 
@@ -137,11 +168,23 @@ type MimerPluginClass = 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'vo
 
 Name of plugin. Used to derive default component type names. I.e a plugin named *core/heading-1* having a slate rendered component with no specifed type will inherit the plugin name as the component type.
 
+**consumer**
+
+The plugin can define two functions, one that can anser whether the plugin can consume a specific type of data and another that should be able to consume that data.
+
+The `consumer.consumes()` is asked for each data item. Input is a structure with `source` (_drop_, _fileinput_ or _text_), `type` (e.g. _image/jpeg_, _text/uri-list_, _text/plain_) and `data` (either a _File_ object or text data).
+
+The response can be `[false]` to say the plugin won't handle the data, or e.g. `[true, 'core/gallery', true]` to say it 1. wants to handle it, 2. it will return a specific data object and 3. it wants to receive all data as an array (in bulk).
+
+If the response is positive the `consumer.consume()` function will receive data items either as individual items (function is called for each data item) or all supported items have been aggregated into one array. The `consumer.consume()` should be _async_ or respond with a Promise.
+
+If the `consumer.consume()` function return a supported element it will automatically be inserted in the editor where the drop took place or where the current selection is.
+
 **placeholder**
 
 Optional placeholder text for empty text in the editor. Used to visualize the text type on empty lines. Only useful for text plugins.
 
-**normalize**
+**events.onNormalizeNode**
 
 Optional function for adding normalization. See [Slate Normalizing](https://docs.slatejs.org/concepts/11-normalizing) for details.
 
@@ -160,20 +203,6 @@ An array of action functions. Can optionally specify tools (JSX component render
 
 If the handler returns true the editor defaults to Slate default actions if exists. Right now used for e.g bold, italic.
 
-**events**
-
-List of event handlers.
-
-Supported events
-```javascript
-type MimerEventTypes = 'input' | 'drop' | 'fileinput'
-```
-
-The *match* function gives the ability to investigate whether a plugin wants to react to an event. If this returns `true` the handler is called and no more plugins will be asked.
-
-```javascript
-type EventMatchFunction = (event: React.DragEvent | React.ChangeEvent) => boolean
-```
 
 **components**
 
@@ -184,23 +213,30 @@ The default component for the plugin must not have a specified type. The type is
 If the default component have sub components they should have a type specified. The type will be appended to the default component type. Example:
 
 ```javascript
-OembedVideo: MimerPlugin = {
+const OembedVideo: MimerPlugin = {
     class: 'block',
     name: 'core/oembed',
-    components: [
-        {
-            render
-        },
-        {
-            type: 'embed',
-            class: 'void',
-            render: renderVideo
-        },
-        {
-            type: 'title',
-            render: renderTitle
-        }
-    ]
+    consumer: {
+        consumes,
+        consume
+    },
+    events: {
+        onNormalizeNode
+    },
+    component: {
+        render,
+        children: [
+            {
+                type: 'embed',
+                class: 'void',
+                render: renderVideo
+            },
+            {
+                type: 'title',
+                render: renderTitle
+            }
+        ]
+    }
 }
 ```
 
@@ -263,7 +299,7 @@ Element and Text interfaces have both been extended from Slate original BaseElem
 ```javascript
 declare module 'slate' {
     interface CustomTypes {
-        Editor: ReactEditor
+        Editor: BaseEditor & ReactEditor & HistoryEditor
         Element: BaseElement & {
             id?: string
             class?: string
@@ -288,44 +324,64 @@ declare module 'slate' {
 An example `core/image` Element node based would then look like below.
 
 ```javascript
-{
-    id: '11E7342C-772C-4027-81B5-1972DF8B0BA0',
+const Image: MimerPlugin = {
     class: 'block',
-    type: 'core/image',
-    properties: {
-        type: 'image/jpg',
-        src: 'https:/...',
-        size: '512023',
-        width: '2048',
-        height: '1365'
+    name: 'core/image',
+    consumer: {
+        consumes,
+        consume
     },
-    children: [
+    actions: [
         {
-            type: 'core/image/image',
-            children: [{ text: '' }]
-        },
-        {
-            type: 'core/image/altText',
-            children: [{ text: object.src }]
-        },
-        {
-            type: 'core/image/text',
-            children: [{ text: '' }]
+            title: 'Image',
+            tool: <BsImage />,
+            handler: actionHandler
         }
-    ]
+    ],
+    events: {
+        onNormalizeNode
+    },
+    component: {
+        render,
+        children: [
+            {
+                type: 'image',
+                class: 'void',
+                render: renderImage
+            },
+            {
+                type: 'altText',
+                render: renderAltText
+            },
+            {
+                type: 'text',
+                render: renderText
+            }
+        ]
+    }
 }
 ```
 
 An example `core/heading-1` Text node would in turn look like below.
 
 ```javascript
-{
-    type: 'core/heading-1',
-    id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
+const Title: MimerPlugin = {
     class: 'text',
-    children: [
-        { text: 'Better music?' }
-    ]
+    name: 'core/heading-1',
+    component: {
+        render,
+        placeholder: 'Title',
+    },
+    actions: [
+        {
+            title: 'Title',
+            tool: <MdTitle />,
+            hotkey: 'mod+1',
+            handler: ({ editor }) => {
+                convertToText(editor, 'core/heading-1')
+            }
+        }
+    ],
 }
 ```
 
@@ -347,8 +403,10 @@ A more full example of paragraph Text node with bold and italic leafs.
 ```
 
 ## Typescript
-All types are defined in `src/types.ts`
 
+All Slate types are defined in `src/types.ts`
+
+All Elephant/Mimer types are defined in `src/components/editor/types.ts`
 
 ## Registry
 

@@ -65,7 +65,6 @@ export interface MimerPlugin {
   class: 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic'
   name: string
   consumer?: {
-    bulk?: boolean // Default is false (individually)
     consumes: ConsumesFunction  // Can you consume [data], [true/false, provides `type` as response]
     consume: ConsumeFunction // Consume [data] please
   }
