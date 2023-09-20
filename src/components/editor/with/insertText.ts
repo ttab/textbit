@@ -16,13 +16,18 @@ export const withInsertText = (editor: Editor, plugins: MimerPlugin[]) => {
                 data: text
             }
 
-            if (consumer?.consumes({ input })) {
-                consumer.consume({ input }).then((result) => {
-                    if (result) {
+            const [accept, output = undefined] = consumer?.consumes({ input }) || [false]
+
+            if (accept) {
+                consumer?.consume({ input, editor }).then((result) => {
+                    if (typeof result === 'object' && output === result.type) {
                         insertNodes(editor, result)
                     }
-                    else {
-                        insertText(text)
+                    else if (typeof result === 'string' && output === 'text/plain') {
+                        insertText(result)
+                    }
+                    else if (result !== false) {
+                        insertText(input.data)
                     }
                 })
                 return

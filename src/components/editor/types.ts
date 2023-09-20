@@ -52,6 +52,7 @@ export interface ConsumesProps {
 
 export interface ConsumerProps {
   input: ConsumerInput | ConsumerInput[]
+  editor: Editor
 }
 
 // Returns [

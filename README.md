@@ -180,6 +180,8 @@ If the response is positive the `consumer.consume()` function will receive data 
 
 If the `consumer.consume()` function return a supported element it will automatically be inserted in the editor where the drop took place or where the current selection is.
 
+It the `consumer.consume()` function receives text and returns `false` it suppresses default behaviour. This is useful when text input is manipulated and handled by the consume function, or if you would like to hinder insertion of a specific text string. Normal behaviour when not returning anything is to fall back to inserting the default text.
+
 **placeholder**
 
 Optional placeholder text for empty text in the editor. Used to visualize the text type on empty lines. Only useful for text plugins.

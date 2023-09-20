@@ -168,11 +168,13 @@ const consumes: ConsumesFunction = ({ input }) => {
 
 const consume: ConsumeFunction = async ({ input }) => {
     if (Array.isArray(input)) {
-        throw new Error('Oembed plugin expected string for consumation, not a list/array')
+        console.warn('Oembed plugin expected string for consumation, not a list/array')
+        return
     }
 
     if (typeof input.data !== 'string') {
-        throw new Error('Oembed plugin expected string for consumation, wrong indata')
+        console.warn('Oembed plugin expected string for consumation, wrong indata')
+        return
     }
 
     const oEmbed = await fetchOembed(input.data)

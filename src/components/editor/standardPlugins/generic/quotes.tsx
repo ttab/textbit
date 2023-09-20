@@ -1,5 +1,5 @@
 import { Editor, Range, Transforms } from 'slate'
-import { MimerPlugin } from '../../types'
+import { ConsumeFunction, ConsumesFunction, MimerPlugin } from '../../types'
 
 
 const AllQuotes = {
@@ -14,15 +14,26 @@ const AllQuotes = {
     'fr': ['‹ ', ' ›', '« ', '»']
 }
 
-const onInsertText = (editor: Editor, text: string) => {
-    // Only handle single and double "computer" quotes
-    if (text !== '\'' && text !== '"') {
-        return
+const consumes: ConsumesFunction = ({ input }) => {
+    const { data, type, source } = input
+    if (type !== 'text/plain') {
+        return [false]
     }
 
-    // Range here is for the leaf if in a bold word. This is useless as
-    // it needs to be the range in the whole block
-    // FIXME: Walk the tree to get the real full text offset
+    // TODO: Implement support for handling larger chunks of text (on paste)
+
+    // For now, only handle single and double "computer" quotes when typing
+    if (data !== '\'' && data !== '"') {
+        return [false]
+    }
+
+    return [true]
+}
+
+const consume: ConsumeFunction = async ({ editor, input }) => {
+    const { data } = Array.isArray(input) ? input[0] : input
+
+    // FIXME: Walk the tree to get the real full text offset, this does not take into account leafs...
     if (!Range.isRange(editor.selection)) {
         return
     }
@@ -44,10 +55,10 @@ const onInsertText = (editor: Editor, text: string) => {
 
     // Which are the typographic quote we want for the char?
     let quotes: string[] = []
-    if (text === '\'') {
+    if (data === '\'') {
         quotes = [q[0], q[1]]
     }
-    else if (text === '"') {
+    else if (data === '"') {
         quotes = [q[2], q[3]]
     }
     else {
@@ -62,7 +73,7 @@ const onInsertText = (editor: Editor, text: string) => {
             // TODO: Look forward to see there is a closing quote, if not close this one
             return
         }
-        if (fragment[n] === text) {
+        if (fragment[n] === data) {
             prev = n;
             break;
         }
@@ -87,13 +98,14 @@ const onInsertText = (editor: Editor, text: string) => {
         at: { path: [at, 0], offset: prev },
     })
 
-    return true // Prevent further handling of this event
+    return false // Suppress default behaviour as we have taken care of it
 }
 
 export const Quotes: MimerPlugin = {
     class: 'generic',
     name: 'quotes',
-    events: {
-        onInsertText
+    consumer: {
+        consumes,
+        consume
     }
 }
