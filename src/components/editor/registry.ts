@@ -8,12 +8,6 @@ export type RegistryComponent = {
     component: MimerComponent
 }
 
-// export type RegistryEvent = {
-//     handler: () => Promise<any[]>, // FIXME: How should this handler look, should it be a promise for both plugin/component event handlers?
-//     plugin?: MimerPlugin
-//     component?: MimerComponent
-// }
-
 export type RegistryAction = {
     plugin: MimerPlugin
     hotkey: string
@@ -31,19 +25,10 @@ export interface RegistryInterface {
     leafComponents: Map<string, RegistryComponent>
     elementComponents: Map<string, RegistryComponent>
 
-    // Provides faster access to the right receiver when events fire
-    // events: Map<string, RegistryEvent>
-
     // Provides faster access to actions and keyboard shortcuts
     actions: RegistryAction[],
 
     addPlugin: (plugin: MimerPlugin) => void
-
-    getConsumers: (plugins: MimerPlugin[], data: any, intent?: string) =>
-        Array<{
-            plugin: MimerPlugin
-            produces: string | null
-        }>
 }
 
 export const Registry: RegistryInterface = {
@@ -51,8 +36,7 @@ export const Registry: RegistryInterface = {
     leafComponents: new Map(),
     elementComponents: new Map(),
     actions: [],
-    addPlugin,
-    getConsumers
+    addPlugin
 }
 
 /**
@@ -160,69 +144,4 @@ const registerActions = (plugins: MimerPlugin[]) => {
 
 
     return actions
-}
-
-// const registerNormalizers = (plugins: MimerPlugin[]) => {
-//     const normalizers: Normalizer[] = []
-
-//     plugins.forEach(plugin => {
-//         if (!plugin.normalize) {
-//             return
-//         }
-
-//         normalizers.push({
-//             name: plugin.name,
-//             class: plugin.class,
-//             normalize: plugin.normalize
-//         })
-//     })
-
-//     return normalizers
-// }
-
-
-// const registerEventHandlers = (plugins: MimerPlugin[]) => {
-//     const eventHandlers: EventHandler[] = []
-
-//     plugins
-//         .filter(plugin => Array.isArray(plugin.events) && plugin.events.length)
-//         .forEach((plugin) => {
-//             eventHandlers.push(...(plugin.events || []).map(({ on, handler, match = undefined }) => {
-//                 return {
-//                     name: plugin.name,
-//                     class: plugin.class,
-//                     on,
-//                     handler,
-//                     match
-//                 }
-//             }))
-//         })
-
-//     return eventHandlers
-// }
-
-/**
- * Return a list of consumers for the specified indata
- */
-function getConsumers(plugins: MimerPlugin[], data: any, intent?: string) {
-    const consumers: Array<{
-        plugin: MimerPlugin
-        produces: string | null
-    }> = []
-
-    plugins.forEach(plugin => {
-        if (typeof plugin.consumer?.consumes !== 'function' || typeof plugin.consumer?.consume !== 'function') {
-            return
-        }
-
-        const [match, produces = undefined] = plugin.consumer.consumes({ input: data, intent })
-        if (match) {
-            consumers.push({
-                plugin,
-                produces: produces || null
-            })
-        }
-    })
-
-    return Array.from(consumers)
 }
