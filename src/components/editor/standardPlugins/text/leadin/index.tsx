@@ -1,9 +1,9 @@
 import React from 'react' // Necessary for esbuild
 import { MdOutlineShortText } from 'react-icons/md'
 import { convertToText } from '../../../../../lib/utils'
-import { MimerPlugin, RenderLeafFunction } from '../../../../../types'
+import { MimerPlugin, RenderElementFunction } from '../../../types'
 
-const render: RenderLeafFunction = ({ children }) => {
+const render: RenderElementFunction = ({ children }) => {
     return <div className="font-bold">
         {children}
     </div>
@@ -12,16 +12,16 @@ const render: RenderLeafFunction = ({ children }) => {
 export const Leadin: MimerPlugin = {
     class: 'text',
     name: 'core/preamble',
-    placeholder: 'Leadin',
-    components: [{
+    component: {
+        placeholder: 'Leadin',
         render
-    }],
+    },
     actions: [
         {
             title: 'Leadin',
             tool: <MdOutlineShortText />,
             hotkey: 'mod+2',
-            handler: (editor) => {
+            handler: ({ editor }) => {
                 convertToText(editor, 'core/preamble')
             }
         }

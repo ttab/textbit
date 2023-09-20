@@ -77,7 +77,7 @@ export interface MimerPlugin {
     tool?: JSX.Element | Array<JSX.Element | ToolFunction>
     hotkey?: string
     title?: string
-    handler: (props: MimerActionHandlerProps) => boolean
+    handler: (props: MimerActionHandlerProps) => boolean | void
   }>
   component?: MimerComponent
 }

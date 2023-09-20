@@ -93,17 +93,17 @@ export const Blockquote: MimerPlugin = {
             handler: actionHandler
         }
     ],
-    components: [
-        {
-            render
-        },
-        {
-            type: 'body',
-            render: renderBody
-        },
-        {
-            type: 'caption',
-            render: renderCaption
-        }
-    ]
+    component: {
+        render,
+        children: [
+            {
+                type: 'body',
+                render: renderBody
+            },
+            {
+                type: 'caption',
+                render: renderCaption
+            }
+        ]
+    }
 }
