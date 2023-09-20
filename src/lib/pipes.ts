@@ -58,6 +58,8 @@ export function pipeFromFileInput(editor: Editor, e: ChangeEvent<HTMLInputElemen
 
   initConsumersForPipe(pipe)
 
+  // TODO: Implement user choice of consumer when there are multiple consumers for items
+
   const aggregatedPipe = aggregateConsumersInPipe(pipe)
 
   let position = 0
@@ -88,6 +90,8 @@ export function pipeFromDrop(editor: Editor, e: React.DragEvent, position: numbe
   initConsumersForPipe(pipe)
 
   const aggregatedPipe = aggregateConsumersInPipe(pipe)
+
+  // TODO: Implement user choice of consumer when there are multiple consumers for items
 
   executeAggregatedPipe(aggregatedPipe, e, editor, position)
 }
@@ -228,15 +232,10 @@ async function executeAggregatedPipe(aggregatedPipe: AggregatedPipe, e: React.Dr
  * Execute a pipe with items in an aggregated pipe
  */
 async function executePipe(pipe: AggregatedPipeItem, editor: Editor, position: number, offset: number): Promise<number> {
-  if (pipe.consumer.length > 1) {
-    // TODO: Implement choice of handler
-    // Now just use first one [0]
-  }
-
-  // Find correct plugin/consume function
-  const consumer = pipe.consumer[0]
+  const consumer = pipe.consumer[0] // Alternative consumers should have been removed previously
   const plugin = Registry.plugins.find(plugin => plugin.name === consumer.name)
   const consume = plugin?.consumer?.consume || undefined
+  const produces = consumer?.produces
 
   if (!plugin || !consume) {
     console.warn(`Could not find plugin <${consumer.name}> or it's consume() function to handle pipe item from $(pipeItem.source})`)
@@ -252,7 +251,7 @@ async function executePipe(pipe: AggregatedPipeItem, editor: Editor, position: n
         data: p.input
       }
     })
-    executePipeItem(consume, input, editor, position + offset)
+    executePipeItem(consume, input, produces, editor, position + offset)
     localOffset++
   }
   else {
@@ -262,7 +261,7 @@ async function executePipe(pipe: AggregatedPipeItem, editor: Editor, position: n
         type: pipeItem.type,
         data: pipeItem.input
       }
-      executePipeItem(consume, input, editor, position + offset + localOffset)
+      executePipeItem(consume, input, produces, editor, position + offset + localOffset)
       localOffset++
     }
   }
@@ -270,13 +269,13 @@ async function executePipe(pipe: AggregatedPipeItem, editor: Editor, position: n
   return localOffset
 }
 
-async function executePipeItem(consume: ConsumeFunction, input: ConsumerInput | ConsumerInput[], editor: Editor, position: number) {
+async function executePipeItem(consume: ConsumeFunction, input: ConsumerInput | ConsumerInput[], produces: string | undefined, editor: Editor, position: number) {
   insertLoader(editor, position)
   let offset = 0
 
   try {
-    const result = await consume({ input })
-    if (result) {
+    const result = await consume({ input, editor })
+    if (typeof result === 'object' && produces === result?.type) {
       Transforms.insertNodes(
         editor, result, { at: [position], select: false }
       )
