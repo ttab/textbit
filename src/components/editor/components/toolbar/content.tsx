@@ -2,13 +2,15 @@ import React, { useRef, useEffect, PropsWithChildren } from 'react'
 import ReactDOM from 'react-dom'
 import { useFocused, useSlate, useSlateSelection } from 'slate-react'
 import { Editor, Element as SlateElement } from 'slate'
-import { Action } from '../../../../types'
 
 import { modifier } from '../../../../lib/modifier'
 import { HiDotsVertical } from 'react-icons/hi'
 import { MdCheck } from 'react-icons/md'
 import { isFromTarget } from '../../../../lib/target'
+import { RegistryAction } from '../../registry'
+
 import './content.css'
+
 
 const Portal = ({ children }: PropsWithChildren) => {
     return typeof document === 'object'
@@ -17,11 +19,11 @@ const Portal = ({ children }: PropsWithChildren) => {
 }
 
 type ContentToolbarProps = {
-    actions: Action[]
+    actions: RegistryAction[]
 }
 
 type ContentToolProps = {
-    action: Action
+    action: RegistryAction
     toggleIsOpen: (newState: boolean) => void
 }
 
@@ -107,8 +109,8 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
         el.style.left = `${newLeft}px`
     })
 
-    const textActions = actions.filter(action => 'text' === action.class)
-    const blockActions = actions.filter(action => 'block' === action.class)
+    const textActions = actions.filter(action => 'text' === action.plugin.class)
+    const blockActions = actions.filter(action => 'block' === action.plugin.class)
 
     return <Portal>
         <div ref={ref} className={"mimer editor-content-menu"}>
@@ -126,9 +128,9 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
                 <>
                     {textActions.length > 0 &&
                         <ToolGroup>
-                            {textActions.map((action: Action) => {
+                            {textActions.map((action) => {
                                 return <MenuItem
-                                    key={`${action.class}-${action.name}`}
+                                    key={`${action.plugin.class}-${action.plugin.name}`}
                                     action={action}
                                     toggleIsOpen={toggleIsOpen}
                                 />
@@ -138,9 +140,9 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
 
                     {blockActions.length > 0 &&
                         <ToolGroup>
-                            {blockActions.map((action: Action) => {
+                            {blockActions.map((action) => {
                                 return <MenuItem
-                                    key={`${action.class}-${action.name}`}
+                                    key={`${action.plugin.class}-${action.plugin.name}`}
                                     action={action}
                                     toggleIsOpen={toggleIsOpen}
                                 />
@@ -159,17 +161,17 @@ const ToolGroup = ({ children }: PropsWithChildren) => {
 
 const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
     const editor = useSlate()
-    const isActive = isBlockActive(editor, action.name)
+    const isActive = isBlockActive(editor, action.plugin.name)
     const tool = React.isValidElement(action.tool) ? action.tool : undefined
 
     return (
         <a
-            key={`text-${action.name}`}
+            key={`text-${action.plugin.name}`}
             className="menu-item text-s text-ui font-semibold bg-base-hover r-base"
             onMouseDown={(e) => {
                 e.preventDefault()
                 toggleIsOpen(false)
-                action.handler(editor)
+                action.handler({ editor })
             }}
         >
             {isActive &&

@@ -1,18 +1,10 @@
 import React from 'react' // Necessary for esbuild
 import { useState, useEffect } from 'react'
-import { Editor, Element, Node, Range, Transforms } from 'slate'
-import { HistoryEditor } from 'slate-history'
+import { Editor, Element, NodeEntry, Transforms } from 'slate'
 import * as uuid from 'uuid'
 
-import {
-    DropEventFunction,
-    EventMatchFunction,
-    InputEventFunction,
-    MimerPlugin,
-    NormalizeFunction,
-    RenderElementFunction
-} from '../../../../../types'
 import { convertLastSibling } from '../../../../../lib/utils'
+import { ConsumeFunction, ConsumesFunction, MimerPlugin, RenderElementProps } from '../../../types'
 
 // FIXME: Should expose its own type
 //
@@ -23,7 +15,62 @@ import { convertLastSibling } from '../../../../../lib/utils'
 // }
 // type OembedElement = Element & OembedVideoProperties
 
-const render: RenderElementFunction = ({ children }) => {
+const SUPPORTED_OEMBED_URLS = [
+    {
+        url: 'open.spotify.com',
+        endpoint: 'https://open.spotify.com/oembed?url=' // rich
+    },
+    {
+        url: 'youtube.com/watch',
+        endpoint: 'https://www.youtube.com/oembed?format=json&url=' // video
+    },
+    {
+        url: 'vimeo.com',
+        endpoint: 'https://vimeo.com/api/oembed.json?url=' // video
+    },
+    {
+        url: 'gfycat.com',
+        endpoint: 'https://api.gfycat.com/v1/oembed?url=' // video
+    },
+    {
+        url: 'soundcloud.com',
+        endpoint: 'https://soundcloud.com/oembed?url=' // rich
+    },
+    {
+        url: 'on.soundcloud.com',
+        endpoint: 'https://soundcloud.com/oembed?url=' // righ
+    },
+    {
+        url: 'soundcloud.app.goog.gl',
+        endpoint: 'https://soundcloud.com/oembed?url=' // rich
+    },
+    {
+        url: 'tiktok.com',
+        endpoint: 'https://www.tiktok.com/oembed?url=' // video
+    },
+    // {
+    //     url: 'play.acast.com',
+    //     endpoint: 'https://oembed.acast.com/v1/embed-player?url=' // rich, cors!
+    // },
+    // {
+    //     url: 'giphy.com/gifs',
+    //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
+    // },
+    // {
+    //     url: 'giphy.com/clips',
+    //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
+    // },
+    // {
+    //     url: 'gph.is',
+    //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
+    // },
+    // {
+    //     url: 'pinterest.',
+    //     endpoint: 'https://www.pinterest.com/oembed.json?url=' // rich, cors!
+    // }
+]
+
+const render = ({ children }: RenderElementProps) => {
     const style = {
         minHeight: '10rem'
     }
@@ -33,7 +80,7 @@ const render: RenderElementFunction = ({ children }) => {
     </div>
 }
 
-const renderVideo: RenderElementFunction = ({ children, attributes, rootNode }) => {
+const renderVideo = ({ children, attributes, rootNode }: RenderElementProps) => {
     const { properties = {} } = Element.isElement(rootNode) ? rootNode : {}
     const src = properties?.src || ''
     const html = properties?.html || ''
@@ -96,7 +143,7 @@ const renderVideo: RenderElementFunction = ({ children, attributes, rootNode }) 
     )
 }
 
-const renderTitle: RenderElementFunction = ({ children }) => {
+const renderTitle = ({ children }: RenderElementProps) => {
     return <div className="text-sans-serif" style={{
         padding: '0.4rem 0.8rem',
         fontSize: '1rem',
@@ -108,180 +155,30 @@ const renderTitle: RenderElementFunction = ({ children }) => {
     </div>
 }
 
-const matchUrl = (url: string): string | null => {
-    const cleanUrl = url.replace(/^https?:\/\/(www.)?/, '')
-    const supported = [
-        {
-            url: 'open.spotify.com',
-            endpoint: 'https://open.spotify.com/oembed?url=' // rich
-        },
-        {
-            url: 'youtube.com/watch',
-            endpoint: 'https://www.youtube.com/oembed?format=json&url=' // video
-        },
-        {
-            url: 'vimeo.com',
-            endpoint: 'https://vimeo.com/api/oembed.json?url=' // video
-        },
-        {
-            url: 'gfycat.com',
-            endpoint: 'https://api.gfycat.com/v1/oembed?url=' // video
-        },
-        {
-            url: 'soundcloud.com',
-            endpoint: 'https://soundcloud.com/oembed?url=' // rich
-        },
-        {
-            url: 'on.soundcloud.com',
-            endpoint: 'https://soundcloud.com/oembed?url=' // righ
-        },
-        {
-            url: 'soundcloud.app.goog.gl',
-            endpoint: 'https://soundcloud.com/oembed?url=' // rich
-        },
-        {
-            url: 'tiktok.com',
-            endpoint: 'https://www.tiktok.com/oembed?url=' // video
-        },
-        // {
-        //     url: 'play.acast.com',
-        //     endpoint: 'https://oembed.acast.com/v1/embed-player?url=' // rich, cors!
-        // },
-        // {
-        //     url: 'giphy.com/gifs',
-        //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
-        // },
-        // {
-        //     url: 'giphy.com/clips',
-        //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
-        // },
-        // {
-        //     url: 'gph.is',
-        //     endpoint: 'https://giphy.com/services/oembed?url=' // cors!
-        // },
-        // {
-        //     url: 'pinterest.',
-        //     endpoint: 'https://www.pinterest.com/oembed.json?url=' // rich, cors!
-        // }
-    ]
+const consumes: ConsumesFunction = ({ input }) => {
+    const { data, type } = input
 
-    const fetchUrl = supported.find(s => cleanUrl.startsWith(s.url))?.endpoint || null
-    return fetchUrl || null
+    if (!['text/uri-list', 'text/plain'].includes(type)) {
+        return [false]
+    }
+
+    const oembedurl = getOembedUrl(data)
+    return [oembedurl ? true : false, 'core/oembed']
 }
 
-const dropMatcher: EventMatchFunction = (event) => {
-    if (event.type !== 'drop') {
-        return false
-    }
-
-    const nativeEvent = event.nativeEvent as DragEvent
-    if (nativeEvent?.dataTransfer?.types.includes('text/uri-list')) {
-        return false
-    }
-
-    const data = nativeEvent?.dataTransfer?.getData('text/uri-list')
-    const uriList = Array.isArray(data) ? data : [data]
-
-    for (const uri of uriList) {
-        if (!!matchUrl(uri)) {
-            return true
-        }
-    }
-
-    return false
-}
-
-const dropHandler: DropEventFunction = async (editor, event) => {
-    const data = event.dataTransfer.getData('text/uri-list')
-    const uriList = Array.isArray(data) ? data : [data]
-
-    const handleUris = uriList.filter(uri => !!matchUrl(uri))
-    if (!handleUris.length) {
-        return Promise.reject('No urls matching pattern as one of the hardcoded oembed sources')
-    }
-
-    try {
-        const oembeds = await Promise.all(handleUris.map(uri => fetchOembed(uri)))
-        return oembeds.map((props: any) => {
-            return createOembedNode(props)
-        })
-    }
-    catch (errorMsg) {
-        throw (errorMsg)
-    }
-}
-
-
-const inputHandler: InputEventFunction = (editor, text) => {
-    if (true !== !!matchUrl(text)) {
+const consume: ConsumeFunction = async ({ input }) => {
+    if (Array.isArray(input)) {
+        console.warn('Oembed plugin expected string for consumation, not a list/array')
         return
     }
 
-    if (!HistoryEditor.isHistoryEditor(editor)) {
+    if (typeof input.data !== 'string') {
+        console.warn('Oembed plugin expected string for consumation, wrong indata')
         return
     }
 
-    if (!Range.isRange(editor.selection)) {
-        return
-    }
-
-    const range = Editor.unhangRange(editor, editor.selection)
-    let at = (range && range.anchor.path[0] > 0) ? range.anchor.path[0] : 0
-    const node = Node.get(editor, [at])
-
-    if (!Element.isElement(node)) {
-        return
-    }
-
-    HistoryEditor.withoutSaving(editor, () => {
-        if (node?.class === 'text' && Editor.string(editor, [at]) === '') {
-            // This highest level node is a text node and is empty, remove it
-            Transforms.removeNodes(editor, { at: [at] })
-        }
-        else {
-            // When not touching current node, put it after current node
-            at++
-        }
-
-        // FIXME: Refactor into helper function
-        Transforms.insertNodes(
-            editor,
-            [{
-                id: uuid.v4(),
-                class: 'void',
-                type: 'core/loader',
-                properties: {},
-                children: [{ text: '' }]
-            }],
-            {
-                at: [at],
-                select: false
-            }
-        )
-    })
-
-    fetchOembed(text).then(props => {
-        if (!props) {
-            // Remove temporary block
-            HistoryEditor.withoutSaving(editor, () => {
-                Transforms.removeNodes(editor, { at: [at] })
-            })
-        }
-        else {
-            Transforms.insertNodes(
-                editor,
-                [createOembedNode(props)],
-                { at: [at], select: true }
-            )
-
-            // Remove temporary block
-            HistoryEditor.withoutSaving(editor, () => {
-                Transforms.removeNodes(editor, { at: [at + 1] })
-            })
-        }
-    })
-
-    return false
+    const oEmbed = await fetchOembed(input.data)
+    return oEmbed ? createOembedNode(oEmbed) : undefined
 }
 
 const createOembedNode = (props: any): Element => {
@@ -316,21 +213,19 @@ const createOembedNode = (props: any): Element => {
     }
 }
 
-const fetchOembed = (url: string): Promise<{ [key: string]: string } | null> => {
-    const fetchUrl = matchUrl(url)
-
-    if (!fetchUrl) {
-        console.warn(`Oembed fetching ${url} is not supported`)
-        return Promise.resolve(null)
+const fetchOembed = (url: string): Promise<{ [key: string]: string } | undefined> => {
+    const oembedUrl = getOembedUrl(url)
+    if (!oembedUrl) {
+        return Promise.resolve(undefined)
     }
 
     return new Promise((resolve) => {
-        fetch(`${fetchUrl}${encodeURI(url)}`)
+        fetch(`${oembedUrl}${encodeURI(url)}`)
             .then(response => response.json())
             .then(obj => {
 
                 if (!obj || !obj.html) {
-                    resolve(null)
+                    resolve(undefined)
                     return
                 }
 
@@ -365,12 +260,18 @@ const fetchOembed = (url: string): Promise<{ [key: string]: string } | null> => 
             })
             .catch(ex => {
                 console.warn(`Could not fetch Oembed from ${url}`, ex)
-                resolve(null)
+                resolve(undefined)
             })
     })
 }
 
-const normalize: NormalizeFunction = (editor, entry) => {
+const getOembedUrl = (url: string): string | undefined => {
+    const cleanUrl = url.replace(/^https?:\/\/(www.)?/, '')
+
+    return SUPPORTED_OEMBED_URLS.find(s => cleanUrl.startsWith(s.url))?.endpoint || undefined
+}
+
+const onNormalizeNode = (editor: Editor, entry: NodeEntry) => {
     const [node, path] = entry
     if (!Element.isElement(node)) {
         return
@@ -411,30 +312,25 @@ const normalize: NormalizeFunction = (editor, entry) => {
 export const OembedVideo: MimerPlugin = {
     class: 'block',
     name: 'core/oembed',
-    events: [
-        {
-            on: 'drop',
-            match: dropMatcher,
-            handler: dropHandler
-        },
-        {
-            on: 'input',
-            handler: inputHandler
-        }
-    ],
-    normalize,
-    components: [
-        {
-            render
-        },
-        {
-            type: 'embed',
-            class: 'void',
-            render: renderVideo
-        },
-        {
-            type: 'title',
-            render: renderTitle
-        }
-    ]
+    consumer: {
+        consumes,
+        consume
+    },
+    events: {
+        onNormalizeNode
+    },
+    component: {
+        render,
+        children: [
+            {
+                type: 'embed',
+                class: 'void',
+                render: renderVideo
+            },
+            {
+                type: 'title',
+                render: renderTitle
+            }
+        ]
+    }
 }

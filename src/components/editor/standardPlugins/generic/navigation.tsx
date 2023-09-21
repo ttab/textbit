@@ -1,6 +1,6 @@
 import { Transforms } from 'slate'
 import { getElementPosition } from '../../../../lib/utils'
-import { MimerPlugin } from '../../../../types'
+import { MimerPlugin } from '../../types'
 
 export const Navigation: MimerPlugin = {
     class: 'generic',
@@ -8,7 +8,7 @@ export const Navigation: MimerPlugin = {
     actions: [
         {
             hotkey: 'mod+option+up',
-            handler: (editor) => {
+            handler: ({ editor }) => {
                 const position = getElementPosition(editor)
 
                 Transforms.moveNodes(
@@ -22,7 +22,7 @@ export const Navigation: MimerPlugin = {
         },
         {
             hotkey: 'mod+option+down',
-            handler: (editor) => {
+            handler: ({ editor }) => {
                 const position = getElementPosition(editor)
 
                 Transforms.moveNodes(

@@ -1,31 +1,36 @@
-import React from 'react' // Necessary for esbuild
+import React, { JSX } from 'react' // Necessary for esbuild
 import { Transforms, Node, Element } from 'slate'
 import { BsChatQuote } from 'react-icons/bs'
 import * as uuid from 'uuid'
 
-import { ActionFunction, MimerPlugin, RenderElementFunction } from '../../../../../types'
+import {
+    MimerActionHandlerProps,
+    MimerPlugin,
+    RenderElementProps
+} from '../../../types'
+
 import { convertLastSibling, getElementPosition as getElementPosition, getSelectedText, insertAt } from '../../../../../lib/utils'
 import './style.css'
 
-const render: RenderElementFunction = ({ children }) => {
+const render = ({ children }: RenderElementProps): JSX.Element => {
     return <div className="fg-weak">
         {children}
     </div>
 }
 
-const renderBody: RenderElementFunction = ({ children }) => {
+const renderBody = ({ children }: RenderElementProps) => {
     return <div className="text-xl text-sans-serif font-light">
         {children}
     </div>
 }
 
-const renderCaption: RenderElementFunction = ({ children }) => {
+const renderCaption = ({ children }: RenderElementProps) => {
     return <div className="text-sm italic">
         {children}
     </div>
 }
 
-const actionHandler: ActionFunction = (editor) => {
+const actionHandler = ({ editor }: MimerActionHandlerProps) => {
     const text = getSelectedText(editor)
     const node = [{
         id: uuid.v4(),
@@ -57,29 +62,29 @@ const actionHandler: ActionFunction = (editor) => {
 export const Blockquote: MimerPlugin = {
     class: 'text',
     name: 'core/blockquote',
-    normalize: (editor, entry) => {
-        const [node, path] = entry
-        if (!Element.isElement(node)) {
-            return
-        }
+    // normalize: (editor, entry) => {
+    //     const [node, path] = entry
+    //     if (!Element.isElement(node)) {
+    //         return
+    //     }
 
-        convertLastSibling(editor, node, path, 'core/blockquote/caption', 'core/paragraph')
+    //     convertLastSibling(editor, node, path, 'core/blockquote/caption', 'core/paragraph')
 
-        const bodyNodes: Array<any> = []
-        for (const [child, childPath] of Node.elements(node)) {
-            if (child.type === 'core/blockquote/body') {
-                bodyNodes.push([child, childPath])
-            }
-        }
+    //     const bodyNodes: Array<any> = []
+    //     for (const [child, childPath] of Node.elements(node)) {
+    //         if (child.type === 'core/blockquote/body') {
+    //             bodyNodes.push([child, childPath])
+    //         }
+    //     }
 
-        // FIXME: This crash when last node in document
-        if (!bodyNodes.length || bodyNodes.length < 1) {
-            Transforms.removeNodes(editor, {
-                at: [...path],
-            })
-            return
-        }
-    },
+    //     // FIXME: This crash when last node in document
+    //     if (!bodyNodes.length || bodyNodes.length < 1) {
+    //         Transforms.removeNodes(editor, {
+    //             at: [...path],
+    //         })
+    //         return
+    //     }
+    // },
     actions: [
         {
             title: 'Blockquote',
@@ -88,17 +93,17 @@ export const Blockquote: MimerPlugin = {
             handler: actionHandler
         }
     ],
-    components: [
-        {
-            render
-        },
-        {
-            type: 'body',
-            render: renderBody
-        },
-        {
-            type: 'caption',
-            render: renderCaption
-        }
-    ]
+    component: {
+        render,
+        children: [
+            {
+                type: 'body',
+                render: renderBody
+            },
+            {
+                type: 'caption',
+                render: renderCaption
+            }
+        ]
+    }
 }

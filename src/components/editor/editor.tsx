@@ -1,8 +1,8 @@
 import React from 'react' // Necessary for esbuild
 import { useEffect, useMemo, useState, useCallback } from 'react'
-import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node } from "slate"
-import { withHistory } from "slate-history"
-import { Editable, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
+import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor } from "slate"
+import { HistoryEditor, withHistory } from "slate-history"
+import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
 import * as uuid from 'uuid'
 
 import '@fontsource/inter/variable.css'
@@ -27,29 +27,25 @@ import { StandardPlugins } from './standardPlugins'
 import { Registry } from './registry'
 import { ElementComponent } from './components/element/element'
 import { LeafComponent } from './components/leaf/leaf'
-import { toggleLeaf } from './standardPlugins/leaf/leaf'
+import { toggleLeaf } from '../../lib/toggleLeaf'
 import { withInsertText } from './with/insertText'
 import { withNormalizeNode } from './with/normalizeNode'
-import { Hook, InputEventFunction } from '../../types'
 import { withEditableVoids } from './with/editableVoids'
 import { ContentToolbar } from './components/toolbar/content'
 import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 
-interface EditorProps {
+interface MimerEditorProps {
     onChange?: (value: Descendant[]) => void
     value: Descendant[]
-    hooks?: Hook[]
 }
 
-StandardPlugins.forEach(Registry.addPlugin)
 
-
-export default function Editor({ value, onChange, hooks }: EditorProps) {
+export default function Editor({ value, onChange }: MimerEditorProps) {
     const inValue = value || [{
         id: uuid.v4(),
-        name: "paragraph",
+        name: "core/paragraph",
         class: "text",
         children: [
             { text: "" }
@@ -57,22 +53,23 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
     }]
 
     useMemo(() => {
-        Registry.registerHooks(hooks || [])
-        // StandardPlugins.forEach(Registry.addPlugin)
+        StandardPlugins.forEach(Registry.addPlugin)
     }, [])
 
-    const editor = useMemo<SlateEditor>(() => {
+    const editor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
         const editor = createEditor()
         withReact(editor)
         withHistory(editor)
         withInline(editor)
-        withInsertText(editor, Registry.events.filter(event => event.on === 'input').map((event) => event.handler as InputEventFunction))
-        withNormalizeNode(editor, Registry.normalizers)
+
+        withInsertText(editor, Registry.plugins)
+        withNormalizeNode(editor, Registry.plugins)
+
         withEditableVoids(editor, value, Registry)
         withInsertBreak(editor)
         withInsertHtml(editor)
 
-        return editor
+        return editor as BaseEditor & ReactEditor & HistoryEditor
     }, [])
 
     const [stats, setStats] = useState([0, 0])
@@ -82,7 +79,8 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
 
 
     const renderSlateElement = useCallback((props: RenderElementProps) => {
-        return ElementComponent(props, Registry.elementRenderers)
+        return ElementComponent(props, Registry.elementComponents)
+
     }, [])
 
     const renderLeafComponent = useCallback((props: RenderLeafProps) => {
@@ -99,10 +97,10 @@ export default function Editor({ value, onChange, hooks }: EditorProps) {
                 }}>
 
                     <InlineToolbar
-                        actions={Registry.actions.filter(a => ['leaf', 'inline'].includes(a.class))}
+                        actions={Registry.actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
                     />
                     <ContentToolbar
-                        actions={Registry.actions.filter(a => a.class !== 'leaf')}
+                        actions={Registry.actions.filter(action => action.plugin.class !== 'leaf')}
                     />
 
                     <Editable
@@ -137,11 +135,12 @@ function handleDecoration(editor: SlateEditor, node: Node, path: Path) {
         Range.isCollapsed(editor.selection) &&
         SlateElement.isElement(node)
     ) {
-        const renderer = Registry.elementRenderers.find(r => r.type === node.type)
+        const entry = Registry.elementComponents.get(node.type)
+
         return [
             {
                 ...editor.selection,
-                placeholder: renderer?.placeholder || '',
+                placeholder: entry?.component?.placeholder || '',
             }
         ]
     }
@@ -163,19 +162,18 @@ function handleOnKeyDown(event: React.KeyboardEvent<HTMLDivElement>, editor: Sla
 
         event.preventDefault()
 
-        // Call action handler, give access to editor and api
-        if (action.handler && true !== action.handler(editor)) {
+        if (action.handler && true !== action.handler({ editor })) {
             break
         }
 
-        if (action.class === 'leaf') {
-            toggleLeaf(editor, action.name)
+        if (action.plugin.class === 'leaf') {
+            toggleLeaf(editor, action.plugin.name)
         }
-        else if (action.class === 'text') {
+        else if (action.plugin.class === 'text') {
             // FIXME: Should not allow transforming blocks (only text class element)
             Transforms.setNodes(
                 editor,
-                { type: action.name },
+                { type: action.plugin.name },
                 { match: n => SlateElement.isElement(n) && SlateEditor.isBlock(editor, n) }
             )
         }

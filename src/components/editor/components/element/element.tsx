@@ -4,16 +4,16 @@ import { ChildElementComponent } from './components/child'
 import { ParentElementComponent } from './components/parent'
 import { InlineElementComponent } from './components/inline'
 import { UnknownElementComponent } from './components/unknown'
-import { Renderer } from '../../../../types'
+import { RegistryComponent } from '../../registry'
 
 /**
  * Render a custom Slate element
  */
-export const ElementComponent = (props: RenderElementProps, renderers: Renderer[]): JSX.Element => {
+export const ElementComponent = (props: RenderElementProps, components: Map<string, RegistryComponent>) => {
     const { element } = props
-    const renderer = renderers.find(renderer => renderer.type === element.type)
+    const component = components.get(element.type)
 
-    if (!renderer) {
+    if (!component) {
         return UnknownElementComponent(props)
     }
 
@@ -23,15 +23,15 @@ export const ElementComponent = (props: RenderElementProps, renderers: Renderer[
 
     // No parents found in path, render a root element
     if (path.length === 1) {
-        return ParentElementComponent({ ...props, renderer })
+        return ParentElementComponent({ ...props, component })
     }
 
     // Render an inline child element
-    if (renderer.class === 'inline') {
-        return InlineElementComponent({ ...props, renderer, })
+    if (component.class === 'inline') {
+        return InlineElementComponent({ ...props, component, })
     }
 
     // Render a child element and pass it the rootNode for reference
     const rootNode = Node.get(editor, [path[0]])
-    return ChildElementComponent({ ...props, renderer, rootNode })
+    return ChildElementComponent({ ...props, component, rootNode })
 }

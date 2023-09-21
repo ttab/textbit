@@ -169,6 +169,23 @@ export function insertAt(editor: Editor, position: number, nodes: Node | Node[])
     )
 }
 
+export function getNodeById(editor: Editor, id: string): NodeEntry<Node> | undefined {
+    const matches = Array.from(
+        Editor.nodes(editor, {
+            at: [0],
+            match: n => {
+                if (Editor.isEditor(n) || !SlateElement.isElement(n)) {
+                    return false
+                }
+
+                return (n.id === id)
+            }
+        })
+    )
+
+    return (matches.length === 1) ? matches[0] : undefined
+}
+
 export function getSelectedNodeEntries(editor: Editor): NodeEntry<Node>[] {
     const { selection } = editor
     const matches = Array.from(

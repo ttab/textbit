@@ -3,6 +3,11 @@ import * as uuid from 'uuid'
 
 import { Element as SlateElement, BaseRange } from 'slate'
 
+/**
+ * FIXME: Important bugs!
+ * BUG: When hitting <enter> in the middle of a text block an empty paragraph is inserted.
+ * BUG: When hitting <enter> in the middle of a text block the split paragraphs both get the same id.
+ */
 export const withInsertBreak = (editor: Editor) => {
     const { insertBreak } = editor
 

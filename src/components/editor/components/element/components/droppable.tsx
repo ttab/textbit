@@ -1,11 +1,10 @@
 import React, { useContext, useRef } from 'react'
 import { PropsWithChildren } from "react"
-import { Descendant, Editor, Element, Transforms } from 'slate'
+import { Descendant, Editor, Element } from 'slate'
 import { useSlateStatic } from 'slate-react'
 
-import { Registry } from '../../../registry'
 import { DragstateContext } from '../../dragndrop'
-import { handleDrop } from '../../../../../lib/hookableEvents'
+import { pipeFromDrop } from '../../../../../lib/pipes'
 
 type DroppableProps = {
     element?: Element
@@ -101,8 +100,12 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
             e.preventDefault()
         }}
         onDropCapture={(e) => {
+            if (ctx?.onDrop) {
+                ctx.onDrop(e)
+            }
+
             const container = droppableRef.current
-            if (!container || !ctx?.onDrop) {
+            if (!container) {
                 return
             }
 
@@ -112,59 +115,16 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
             }
 
             // TODO: Name and node can in the future be used to let plugins say that the
-            // node/plugin itself want to handle/hijack the drop - not implemented yet
+            // node/plugin itself want to handle/hijack the drop for a component to handle.
             // const name = droppableRef.current?.dataset?.name || null
-            const [position, node] = getDropPosition(editor, e, container, id)
+            const [position /*, node */] = getDropPosition(editor, e, container, id)
 
-            // Handle internal drag'n drops...
-            const nativeDataTransfer = e.nativeEvent.dataTransfer
-            if (nativeDataTransfer) {
-                const id = nativeDataTransfer.getData('mimer/droppable-id')
-                if (id) {
-                    e.stopPropagation()
-                    e.preventDefault()
-                    ctx?.onDrop(e)
-                    moveNode(editor, id, position)
-                    return
-                }
-            }
-
-            // Second, see if any dropHandlers want to handle it
-            // FIXME: Let more than one answer to the drop. Show dialog to user who can choose hemself.
-            const dropHandler = Registry.events.find(dh => dh.on === 'drop' && dh.match && dh.match(e))
-            if (!dropHandler) {
-                return
-            }
-
-            e.stopPropagation()
-            e.preventDefault()
-            ctx?.onDrop(e)
-
-            handleDrop(editor, e, position, dropHandler)
+            pipeFromDrop(editor, e, position)
         }}>
         <div className="droppable-area">
             {children}
         </div>
     </div >
-}
-
-function moveNode(editor: Editor, id: string, to: number) {
-    let from: number = 0
-    let node: Element | undefined = undefined
-
-    for (const child of editor.children as Element[]) {
-        if (child.id === id) {
-            node = child
-            break
-        }
-        from++
-    }
-
-    if (!node) {
-        return
-    }
-
-    Transforms.moveNodes(editor, { at: [from], to: [to] })
 }
 
 function getDropPosition(editor: Editor, e: React.DragEvent, container: HTMLDivElement, id: string): [number, Descendant | undefined] {
