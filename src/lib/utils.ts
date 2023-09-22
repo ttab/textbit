@@ -86,10 +86,11 @@ export function convertLastSibling(editor: Editor, node: Node, path: Path, fromT
  * @todo Store selection and restore it after transforms
  * 
  * @param editor Editor
- * @param type string
+ * @param type string i.e core/text
+ * @param subtype string e.g heading-1, preamble (or even undefined for body text)
  * @param nodes Node[]
  */
-export function convertToText(editor: Editor, type: string, nodes?: NodeEntry<Node>[]) {
+export function convertToText(editor: Editor, type: string, subtype?: string, nodes?: NodeEntry<Node>[]) {
     const plugin = Registry.plugins.find(p => p.name === type)
     const className = plugin?.class
     const targetNodes = nodes || getSelectedNodeEntries(editor)
@@ -114,10 +115,15 @@ export function convertToText(editor: Editor, type: string, nodes?: NodeEntry<No
 
             // Convert regular text elemenent
             if (isText(node)) {
+                const nodeAttribs: any = {
+                    type,
+                    properties: subtype ? { type: subtype } : {}
+                }
+
                 Transforms.setNodes(
                     editor,
-                    { type: type },
-                    { match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n) && n.type !== type }
+                    nodeAttribs,
+                    { match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n) && n?.properties?.type !== subtype }
                 )
                 continue
             }
@@ -132,6 +138,7 @@ export function convertToText(editor: Editor, type: string, nodes?: NodeEntry<No
                             id: uuid.v4(),
                             class: className,
                             type: type,
+                            properties: subtype ? { type: subtype } : {},
                             children: [{
                                 text: val[0].text
                             }]

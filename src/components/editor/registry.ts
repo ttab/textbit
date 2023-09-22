@@ -1,6 +1,7 @@
 import isHotKey from 'is-hotkey'
 
 import { MimerActionHandlerProps, MimerComponent, MimerPlugin, ToolFunction } from './types'
+import { Element } from 'slate'
 
 export type RegistryComponent = {
     type: string
@@ -13,8 +14,10 @@ export type RegistryAction = {
     hotkey: string
     isHotkey: (action: any) => boolean
     title: string
+    description: string
     tool: JSX.Element | Array<JSX.Element | ToolFunction> | null
-    handler: (props: MimerActionHandlerProps) => void | boolean
+    handler: (props: MimerActionHandlerProps) => void | boolean,
+    visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean]
 }
 
 export interface RegistryInterface {
@@ -136,12 +139,13 @@ const registerActions = (plugins: MimerPlugin[]) => {
                     hotkey: action.hotkey || '',
                     isHotkey: action.hotkey ? isHotKey(action.hotkey) : () => false,
                     title: action?.title || '',
+                    description: action?.title || '',
                     tool: action.tool || null,
-                    handler: action.handler
+                    handler: action.handler,
+                    visibility: action.visibility
                 }
             }))
         })
-
 
     return actions
 }

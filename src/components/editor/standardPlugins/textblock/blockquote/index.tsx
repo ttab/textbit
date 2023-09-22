@@ -90,7 +90,14 @@ export const Blockquote: MimerPlugin = {
             title: 'Blockquote',
             tool: <BsChatQuote />,
             hotkey: 'mod+shift+2',
-            handler: actionHandler
+            handler: actionHandler,
+            visibility: (element, rootElement) => {
+                return [
+                    true, // Always visible
+                    true, // Always enabled
+                    false // Never active
+                ]
+            }
         }
     ],
     component: {

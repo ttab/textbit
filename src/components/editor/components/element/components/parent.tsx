@@ -23,10 +23,11 @@ export const ParentElementComponent = ({ element, attributes, children, componen
         overflow: 'hidden'
     }
 
+    const elementTypeClass = `${element.type.replace('/', '--')}`
     return (
         <Droppable element={element}>
             <div
-                className={`parent ${element.class} ${element.type}`}
+                className={`parent ${element.class} ${elementTypeClass}`}
                 data-id={element.id}
                 {...attributes}
             >

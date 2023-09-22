@@ -130,7 +130,7 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
                         <ToolGroup>
                             {textActions.map((action) => {
                                 return <MenuItem
-                                    key={`${action.plugin.class}-${action.plugin.name}`}
+                                    key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
                                     action={action}
                                     toggleIsOpen={toggleIsOpen}
                                 />
@@ -142,7 +142,7 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
                         <ToolGroup>
                             {blockActions.map((action) => {
                                 return <MenuItem
-                                    key={`${action.plugin.class}-${action.plugin.name}`}
+                                    key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
                                     action={action}
                                     toggleIsOpen={toggleIsOpen}
                                 />
@@ -161,12 +161,11 @@ const ToolGroup = ({ children }: PropsWithChildren) => {
 
 const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
     const editor = useSlate()
-    const isActive = isBlockActive(editor, action.plugin.name)
+    const isActive = isBlockActive(editor, action)
     const tool = React.isValidElement(action.tool) ? action.tool : undefined
 
     return (
         <a
-            key={`text-${action.plugin.name}`}
             className="menu-item text-s text-ui font-semibold bg-base-hover r-base"
             onMouseDown={(e) => {
                 e.preventDefault()
@@ -190,20 +189,31 @@ const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
     )
 }
 
-const isBlockActive = (editor: Editor, format: string, blockType = 'type'): boolean => {
+const isBlockActive = (editor: Editor, action: any): [boolean, boolean, boolean] => {
     const { selection } = editor
-    if (!selection) return false
+    if (!selection) {
+        return [false, false, false]
+    }
 
+    // FIXME: This should not be for each tool, it would be enough once
     const [match] = Array.from(
         Editor.nodes(editor, {
             at: Editor.unhangRange(editor, selection),
             match: el => {
                 return !Editor.isEditor(el) &&
-                    SlateElement.isElement(el) &&
-                    el.type === format
+                    SlateElement.isElement(el)
             }
         })
     )
 
-    return !!match
+    if (!match.length) {
+        return [false, false, false]
+    }
+
+    if (!action?.visibility) {
+        return [false, false, false]
+    }
+
+    const [visible, enabled, active] = action?.visibility(match[0])
+    return active
 }

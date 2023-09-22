@@ -1,5 +1,5 @@
 import { JSX } from "react"
-import { Editor, Node, NodeEntry } from "slate"
+import { Editor, Node, NodeEntry, Element } from "slate"
 import {
   RenderElementProps as SlateRenderElementProps,
   RenderLeafProps as SlateRenderLeafProps
@@ -77,7 +77,9 @@ export interface MimerPlugin {
     tool?: JSX.Element | Array<JSX.Element | ToolFunction>
     hotkey?: string
     title?: string
+    description?: string
     handler: (props: MimerActionHandlerProps) => boolean | void
+    visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean] // visible, enabled, active
   }>
   component?: MimerComponent
 }

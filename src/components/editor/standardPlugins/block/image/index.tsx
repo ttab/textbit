@@ -234,7 +234,14 @@ export const Image: MimerPlugin = {
         {
             title: 'Image',
             tool: <BsImage />,
-            handler: actionHandler
+            handler: actionHandler,
+            visibility: (element, rootElement) => {
+                return [
+                    true, // Always visible
+                    true, // Always enabled
+                    false // Never active
+                ]
+            }
         }
     ],
     events: {

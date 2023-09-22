@@ -61,15 +61,20 @@ import { uploadImages } from './images'
 
 const initialValue: Descendant[] = [
     {
-        type: 'core/heading-1',
+        type: 'core/text',
         id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
         class: 'text',
+        {
+            properties: {
+                type: 'h1'
+            }
+        },
         children: [
             { text: 'Better music?' }
         ]
     },
     {
-        type: 'core/preamble',
+        type: 'core/text',
         id: '538345e5-bacc-48f9-9ed2-b219892b51dc',
         class: 'text',
         children: [
@@ -145,6 +150,7 @@ interface MimerPlugin {
     onNormalizeNode?: (editor: Editor, entry: NodeEntry) => true | void
   }
   actions?: Array<{
+    name?: string // Will inherit plugin name if not specified
     tool?: JSX.Element | Array<JSX.Element | ToolFunction>
     hotkey?: string
     title?: string
@@ -212,7 +218,7 @@ Array of JSX components that can be rendered in the editable area. The *type* pr
 
 The default component for the plugin must not have a specified type. The type is in that case inherited from the plugin name.
 
-If the default component have sub components they should have a type specified. The type will be appended to the default component type. Example:
+If the default component have sub components they should have a type specified. The type will be appended to the default component type. Examples:
 
 ```javascript
 const OembedVideo: MimerPlugin = {
@@ -243,6 +249,45 @@ const OembedVideo: MimerPlugin = {
 ```
 
 The above will result in three component types. The default component will be typed as `core/oembed` and correspond to a custom element also typed the same. The two other will internally be typed as `core/oembed/embed` and `core/oembed/title`.
+
+```javascript
+const Image: MimerPlugin = {
+    class: 'block',
+    name: 'core/image',
+    consumer: {
+        consumes,
+        consume
+    },
+    actions: [
+        {
+            title: 'Image',
+            tool: <BsImage />,
+            handler: actionHandler
+        }
+    ],
+    events: {
+        onNormalizeNode
+    },
+    component: {
+        render,
+        children: [
+            {
+                type: 'image',
+                class: 'void',
+                render: renderImage
+            },
+            {
+                type: 'altText',
+                render: renderAltText
+            },
+            {
+                type: 'text',
+                render: renderText
+            }
+        ]
+    }
+}
+```
 
 ## Plugin classes
 
@@ -323,75 +368,44 @@ declare module 'slate' {
 }
 ```
 
-An example `core/image` Element node based would then look like below.
-
-```javascript
-const Image: MimerPlugin = {
-    class: 'block',
-    name: 'core/image',
-    consumer: {
-        consumes,
-        consume
-    },
-    actions: [
-        {
-            title: 'Image',
-            tool: <BsImage />,
-            handler: actionHandler
-        }
-    ],
-    events: {
-        onNormalizeNode
-    },
-    component: {
-        render,
-        children: [
-            {
-                type: 'image',
-                class: 'void',
-                render: renderImage
-            },
-            {
-                type: 'altText',
-                render: renderAltText
-            },
-            {
-                type: 'text',
-                render: renderText
-            }
-        ]
-    }
-}
-```
-
-An example `core/heading-1` Text node would in turn look like below.
-
-```javascript
-const Title: MimerPlugin = {
-    class: 'text',
-    name: 'core/heading-1',
-    component: {
-        render,
-        placeholder: 'Title',
-    },
-    actions: [
-        {
-            title: 'Title',
-            tool: <MdTitle />,
-            hotkey: 'mod+1',
-            handler: ({ editor }) => {
-                convertToText(editor, 'core/heading-1')
-            }
-        }
-    ],
-}
-```
-
-A more full example of paragraph Text node with bold and italic leafs.
+An example `core/image` Element node based could then look like below.
 
 ```javascript
 {
-    type: 'core/paragraph',
+    type: 'core/image',
+    id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
+    class: 'block',
+    properties: {
+        type: 'image/jpeg',
+        src: 'https://...',
+        title: 'myimage.jpg',
+        size: 237005,
+        width: 800,
+        height: 600
+    },
+    children: [
+        {
+            type: 'core/image/image',
+            children: [{ text: '' }]
+        },
+        {
+            type: 'core/image/altText',
+            children: [{ text: name }]
+        },
+        {
+            type: 'core/image/text',
+            children: [{ text: '' }]
+        }
+    ]
+}
+```
+
+
+An example of paragraph Text node with bold and italic leafs. (_Note that paragraphs, or body text, has no properties_.)
+
+```javascript
+{
+    type: 'core/text',
     id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
     class: 'text',
     children: [

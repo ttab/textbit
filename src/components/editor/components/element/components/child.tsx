@@ -17,7 +17,7 @@ type RenderChildElementProps = {
 export const ChildElementComponent = ({ attributes, children, element, component, rootNode }: RenderChildElementProps) => {
     return (
         <div
-            className={`child ${component.type}`}
+            className={`child ${component.type.replace('/', '--')}`}
             data-id={element.id}
             {...attributes}
         >

@@ -1,8 +1,5 @@
 import { Element, Node } from "slate"
-import { Paragraph } from './text/paragraph'
-import { Title } from './text/title'
-import { Dateline } from './text/dateline'
-import { Leadin } from './text/leadin'
+import { Text } from './text/text'
 import { Bold, Italic, Underline } from "./leaf/leaf"
 import { Blockquote } from "./textblock/blockquote"
 import { Navigation } from "./generic/navigation"
@@ -52,10 +49,7 @@ export const MimerElement = {
 }
 
 export const StandardPlugins = [
-    Paragraph,
-    Title,
-    Leadin,
-    Dateline,
+    Text,
     Blockquote,
     Bold,
     Italic,
