@@ -66,7 +66,7 @@ export default function Editor({ value, onChange }: MimerEditorProps) {
         withNormalizeNode(editor, Registry.plugins)
 
         withEditableVoids(editor, value, Registry)
-        withInsertBreak(editor)
+        withInsertBreak(editor, Registry.elementComponents)
         withInsertHtml(editor)
 
         return editor as BaseEditor & ReactEditor & HistoryEditor

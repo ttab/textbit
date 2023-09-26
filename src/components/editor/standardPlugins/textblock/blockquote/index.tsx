@@ -109,7 +109,10 @@ export const Blockquote: MimerPlugin = {
             },
             {
                 type: 'caption',
-                render: renderCaption
+                render: renderCaption,
+                constraints: {
+                    allowBreak: false
+                }
             }
         ]
     }
