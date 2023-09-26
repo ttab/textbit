@@ -6,38 +6,47 @@ import { Descendant } from 'slate'
 
 const initialValue: Descendant[] = [
     {
-        type: 'core/heading-1',
+        type: 'core/text',
         id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
         class: 'text',
+        properties: {
+            type: 'h1'
+        },
         children: [
             { text: 'Better music?' }
         ]
     },
     {
-        type: 'core/preamble',
+        type: 'core/text',
         id: '538345e5-bacc-48f9-9ed2-b219892b51dc',
         class: 'text',
+        properties: {
+            type: 'preamble'
+        },
         children: [
             { text: 'It is one of those days when better music makes all the difference in the world. At least to me, my inner and imaginary friend.' }
         ]
     },
     {
-        type: 'core/dateline',
+        type: 'core/text',
         id: '538345e5-cadd-4558-9ed2-a219892b51dc',
         class: 'text',
+        properties: {
+            type: 'dateline'
+        },
         children: [
             { text: 'Kalmar' }
         ]
     },
     {
-        type: 'core/paragraph',
+        type: 'core/text',
         id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
         class: 'text',
         children: [
             { text: 'An example paragraph that contains text that is a wee bit ' },
-            { text: 'stronger', formats: ['bold'] },
+            { text: 'stronger', formats: ['core/bold'] },
             { text: ' than normal but also text that is somewhat ' },
-            { text: 'emphasized', formats: ['italic'] },
+            { text: 'emphasized', formats: ['core/italic'] },
             { text: ' compared to the normal styled text found elsewhere in the document.' },
         ],
     },
@@ -61,7 +70,7 @@ const initialValue: Descendant[] = [
         ]
     },
     {
-        type: 'core/paragraph',
+        type: 'core/text',
         class: 'text',
         id: '538345e5-bacc-48f9-8ef1-1215892b61ed',
         children: [
@@ -69,14 +78,14 @@ const initialValue: Descendant[] = [
         ],
     },
     {
-        type: 'core/paragraph',
+        type: 'core/text',
         id: '538343b5-badd-48f9-8ef0-1219891b60ef',
         class: 'text',
         children: [
             { text: 'An example paragraph that contains text that is a wee bit ' },
-            { text: 'stronger', formats: ['bold'] },
+            { text: 'stronger', formats: ['core/bold'] },
             { text: ' than normal but also text that is somewhat ' },
-            { text: 'emphasized', formats: ['italic'] },
+            { text: 'emphasized', formats: ['core/italic'] },
             { text: ' compared to the normal styled text found elsewhere in the document.' },
         ],
     }
