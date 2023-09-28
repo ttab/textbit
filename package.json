@@ -15,7 +15,7 @@
     "start": "node local/__tooling__/esbuild.config.js -w"
   },
   "author": "Danne Lundqvist",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
