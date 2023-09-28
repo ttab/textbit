@@ -25,7 +25,6 @@ jobs:
 
       - name: Install npm modules and build
         run: |-
-          cd modules/event
           npm i
           npm run build
           npm prune --production
