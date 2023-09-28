@@ -33,6 +33,12 @@ export default [
                 minimize: false
             })
         ],
+        onwarn: function (warning, handler) {
+            // Ignore "<this> is not defined" warning (from react-icons et al)
+            if (warning.code !== 'THIS_IS_UNDEFINED') {
+                handler(warning)
+            }
+        }
     },
     {
         input: "dist/esm/types/index.d.ts",
