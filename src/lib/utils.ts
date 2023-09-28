@@ -1,27 +1,8 @@
 import { Editor, Node, BaseRange, Path, Transforms, Descendant, Element as SlateElement, NodeEntry } from "slate"
 import * as uuid from 'uuid'
-
+import { TextbitElement } from "@/lib/textbit-element"
 import { Registry } from "../components/editor/registry"
 
-const isBlock = (n: Node): boolean => {
-    return SlateElement.isElement(n) && n.class === 'block'
-}
-
-const isTextBlock = (n: Node): boolean => {
-    return SlateElement.isElement(n) && n.class === 'text'
-}
-
-const isText = (n: Node): boolean => {
-    return SlateElement.isElement(n) && n.class === 'text'
-}
-
-const isVoid = (n: Node): boolean => {
-    return SlateElement.isElement(n) && n.class === 'void'
-}
-
-const isInline = (n: Node): boolean => {
-    return SlateElement.isElement(n) && n.class === 'inline'
-}
 
 /**
  * Helper function to find siblings of the same type and convert the last to a new text element.
@@ -102,19 +83,19 @@ export function convertToText(editor: Editor, type: string, subtype?: string, no
 
     // Not allowed (as it crashes if last element is a block) if any element is not text/textblock
     for (const [node] of targetNodes) {
-        if (!isText(node) && !isTextBlock(node)) {
+        if (!TextbitElement.isText(node) && !TextbitElement.isTextblock(node)) {
             return
         }
     }
 
     Editor.withoutNormalizing(editor, () => {
         for (const [node, [position]] of targetNodes) {
-            if (!isText(node) && !isTextBlock(node)) {
+            if (!TextbitElement.isText(node) && !TextbitElement.isTextblock(node)) {
                 continue
             }
 
             // Convert regular text elemenent
-            if (isText(node)) {
+            if (TextbitElement.isText(node)) {
                 const nodeAttribs: any = {
                     type,
                     properties: subtype ? { type: subtype } : {}
@@ -128,7 +109,7 @@ export function convertToText(editor: Editor, type: string, subtype?: string, no
                 continue
             }
 
-            if (isTextBlock(node)) {
+            if (TextbitElement.isTextblock(node)) {
                 const texts = Node.texts(node)
                 const strings: Node[] = []
 

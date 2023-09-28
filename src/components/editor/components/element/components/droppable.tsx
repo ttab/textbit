@@ -34,7 +34,7 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
             el.style.opacity = '1'
 
             // Remove the temporary element
-            const temps = document.getElementsByClassName('mimer-dragged-temp')
+            const temps = document.getElementsByClassName('textbit-dragged-temp')
             if (temps.length) {
                 for (const t of temps) {
                     if (t.parentNode) {
@@ -62,12 +62,12 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
             clone.style.width = `${el.offsetWidth * 0.4}px`
             clone.style.height = `${el.offsetHeight * 0.4}px`
 
-            clone.classList.add('mimer-dragged-temp') // Used to clean out in dragEnd()
+            clone.classList.add('textbit-dragged-temp') // Used to clean out in dragEnd()
             document.body.appendChild(clone)
 
             el.style.opacity = '0.5'
             e.dataTransfer.clearData()
-            e.dataTransfer.setData("mimer/droppable-id", dataId)
+            e.dataTransfer.setData("textbit/droppable-id", dataId)
             e.dataTransfer.setDragImage(
                 clone,
                 (e.clientX - left) * 0.2,

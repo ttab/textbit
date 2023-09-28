@@ -4,10 +4,10 @@ import { BsChatQuote } from 'react-icons/bs'
 import * as uuid from 'uuid'
 
 import {
-    MimerActionHandlerProps,
-    MimerPlugin,
+    TextbitActionHandlerProps,
+    TextbitPlugin,
     RenderElementProps
-} from '../../../types'
+} from '../../../../../types'
 
 import { convertLastSibling, getElementPosition as getElementPosition, getSelectedText, insertAt } from '../../../../../lib/utils'
 import './style.css'
@@ -30,7 +30,7 @@ const renderCaption = ({ children }: RenderElementProps) => {
     </div>
 }
 
-const actionHandler = ({ editor }: MimerActionHandlerProps) => {
+const actionHandler = ({ editor }: TextbitActionHandlerProps) => {
     const text = getSelectedText(editor)
     const node = [{
         id: uuid.v4(),
@@ -59,7 +59,7 @@ const actionHandler = ({ editor }: MimerActionHandlerProps) => {
 }
 
 
-export const Blockquote: MimerPlugin = {
+export const Blockquote: TextbitPlugin = {
     class: 'text',
     name: 'core/blockquote',
     // normalize: (editor, entry) => {

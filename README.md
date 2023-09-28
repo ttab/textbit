@@ -1,4 +1,4 @@
-# Elephant Editor (elephant-slate)
+# Textbit compoment
 
 ## Description
 
@@ -53,8 +53,8 @@ Tooling for _esbuild_ and _esbuildserve_.
 This example is not expressed in full and assumes there is an NPM package available. Which at this point it's not.
 
 ```jsx
-import { Editor } from '@ttapp/elephant-slate'
-import '@ttapp/elephant-slate/dist/esm/index.css'
+import { Editor } from '@ttapp/textbit'
+import '@ttapp/textbit/dist/esm/index.css'
 
 import { Descendant } from 'slate'
 import { uploadImages } from './images'
@@ -107,12 +107,12 @@ Plugins are defined using the interface below. (See `src/types.ts` for all the t
 
 ```javascript
 
-interface MimerComponent {
+interface TextbitComponent {
   class?: string
   type?: string
   placeholder?: string,
   render: RenderElementFunction | RenderLeafFunction
-  children?: MimerComponent[]
+  children?: TextbitComponent[]
   constraints?: {
     minElements?: number
     maxElements?: number
@@ -139,7 +139,7 @@ interface ConsumerProps {
 type ConsumesFunction = (props: ConsumesProps) => [boolean, (string | null)?, boolean?]
 type ConsumeFunction = (props: ConsumerProps) => Promise<any | undefined>
 
-interface MimerPlugin {
+interface TextbitPlugin {
   class: 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic'
   name: string
   consumer?: {
@@ -154,9 +154,9 @@ interface MimerPlugin {
     tool?: JSX.Element | Array<JSX.Element | ToolFunction>
     hotkey?: string
     title?: string
-    handler: (props: MimerActionHandlerProps) => boolean
+    handler: (props: TextbitActionHandlerProps) => boolean
   }>
-  component?: MimerComponent
+  component?: TextbitComponent
 }
 
 
@@ -167,7 +167,7 @@ interface MimerPlugin {
 Plugin class (see below for more details on the plugin classes).
 
 ```javascript
-type MimerPluginClass = 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic'
+type TextbitPluginClass = 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic'
 ```
 
 **name**
@@ -221,7 +221,7 @@ The default component for the plugin must not have a specified type. The type is
 If the default component have sub components they should have a type specified. The type will be appended to the default component type. Examples:
 
 ```javascript
-const OembedVideo: MimerPlugin = {
+const OembedVideo: TextbitPlugin = {
     class: 'block',
     name: 'core/oembed',
     consumer: {
@@ -291,7 +291,7 @@ const Image: MimerPlugin = {
 
 ## Plugin classes
 
-Elephant-slate introduces a concept of plugins of different classes. Some relate to Slate node types (leaf, etc) and some are composites or not nodes at all. These all accomodate different ways of handling content in various ways.
+Textbit introduces a concept of plugins of different classes. Some relate to Slate node types (leaf, etc) and some are composites or not nodes at all. These all accomodate different ways of handling content in various ways.
 
 ### Leaf
 
@@ -422,7 +422,7 @@ An example of paragraph Text node with bold and italic leafs. (_Note that paragr
 
 All Slate types are defined in `src/types.ts`
 
-All Elephant/Mimer types are defined in `src/components/editor/types.ts`
+All Textbit types are defined in `src/components/editor/types.ts`
 
 ## Registry
 

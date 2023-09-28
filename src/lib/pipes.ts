@@ -3,7 +3,7 @@ import { Registry } from "../components/editor/registry"
 import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
 import { getNodeById, getSelectedNodeEntries } from "./utils"
-import { ConsumeFunction, ConsumerInput } from "../components/editor/types"
+import { ConsumeFunction, ConsumerInput } from "../types"
 import { ChangeEvent } from "react"
 
 export type PipeConsumer = {
@@ -212,7 +212,7 @@ async function executeAggregatedPipe(aggregatedPipe: AggregatedPipe, e: React.Dr
       const len = pipe.consumer.length
 
       if (len === 0) {
-        if (pipe.pipe.find(pipeItem => pipeItem.type === 'mimer/droppable-id')) {
+        if (pipe.pipe.find(pipeItem => pipeItem.type === 'textbit/droppable-id')) {
           moveNode(editor, pipe.pipe[0].input as string, position)
         }
         else {

@@ -8,7 +8,7 @@ import {
 
 import { BsTextParagraph } from 'react-icons/bs'
 
-import { MimerPlugin, RenderElementFunction, RenderElementProps } from '../../../types'
+import { TextbitPlugin, RenderElementFunction, RenderElementProps } from '../../../../../types'
 import { convertToText } from '../../../../../lib/utils'
 import { Element } from 'slate'
 
@@ -126,7 +126,7 @@ const render = (props: RenderElementProps) => {
   return t?.render(props) || fallbackRender(props)
 }
 
-export const Text: MimerPlugin = {
+export const Text: TextbitPlugin = {
   class: 'text',
   name: 'core/text',
   component: {

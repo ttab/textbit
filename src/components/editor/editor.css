@@ -1,4 +1,4 @@
-.mimer-editor {
+.textbit-editor {
     position: relative;
     height: 100%;
 
@@ -13,12 +13,12 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-.mimer-drag-container {
+.textbit-drag-container {
     overflow-x: scroll;
     height: 100%;
 }
 
-.mimer-drag-container .editor-drop-marker {
+.textbit-drag-container .editor-drop-marker {
     display: block;
     position: absolute;
     overflow-x: scroll;
@@ -32,12 +32,12 @@
     transition: opacity 0.1s;
 }
 
-.mimer-drag-container .editor-drop-marker.active {
+.textbit-drag-container .editor-drop-marker.active {
     opacity: 0.8;
 }
 
 
-.mimer-editor div[role="textbox"] {
+.textbit-editor div[role="textbox"] {
     height: 100%;
     min-height: 200px;
     overflow-x: scroll;
@@ -47,53 +47,53 @@
 /**
  * Parent elements and droppables
  */
-.mimer-editor .droppable-block {
+.textbit-editor .droppable-block {
     position: relative;
 }
 
-.mimer-editor .parent {
+.textbit-editor .parent {
     color: var(--fg-base);
     padding: 0.4rem 1.6rem 0.4rem 4.2rem;
 }
 
-.mimer-editor.mimer-drag-over .parent.block {
+.textbit-editor.textbit-drag-over .parent.block {
     pointer-events: none;
 }
 
-.mimer-editor .droppable-block:first-child .parent {
+.textbit-editor .droppable-block:first-child .parent {
     padding-top: 1.6rem;
 }
 
-.mimer-editor .droppable-block:last-child .parent {
+.textbit-editor .droppable-block:last-child .parent {
     padding-bottom: 1.6rem;
 }
 
-.mimer-editor .droppable-block {
+.textbit-editor .droppable-block {
     position: relative;
     width: 100%;
     box-sizing: border-box;
 }
 
-.mimer-editor.drag-over .droppable-block>div {
+.textbit-editor.drag-over .droppable-block>div {
     pointer-events: none;
 }
 
 /* Special rule to make bold leafs in bold elements even bolder */
-.mimer-editor .parent .font-bold .bold {
+.textbit-editor .parent .font-bold .bold {
     font-weight: var(--font-bolder);
 }
 
 /**
  * Resusable element transitions
  */
-.mimer-editor .parent .appear-transitions {
+.textbit-editor .parent .appear-transitions {
     transition:
         padding 0.4s,
         height 0.6s,
         opacity 0.6s ease-in;
 }
 
-.mimer-editor .parent .appear-dimmed {
+.textbit-editor .parent .appear-dimmed {
     opacity: 0.3;
 }
 
@@ -101,208 +101,208 @@
 /**
  * Theme base color classes
  */
-.mimer .fg-base {
+.textbit .fg-base {
     color: var(--fg-base);
 }
 
-.mimer .fg-weak {
+.textbit .fg-weak {
     color: var(--fg-base);
     opacity: 0.7;
 }
 
-.mimer .bg-base,
-.mimer.bg-base {
+.textbit .bg-base,
+.textbit.bg-base {
     background-color: var(--bg-base);
     color: var(--fg-base);
 }
 
-.mimer .bg-base-hover:hover {
+.textbit .bg-base-hover:hover {
     background-color: var(--bg-base-hover);
 }
 
-.mimer .bg-base-focus {
+.textbit .bg-base-focus {
     background-color: var(--bg-base-hover);
 }
 
-.mimer .bg-base-10,
-.mimer.bg-base-10 {
+.textbit .bg-base-10,
+.textbit.bg-base-10 {
     background-color: var(--bg-base-10);
     color: var(--fg-base);
 }
 
-.mimer .bg-base-20,
-.mimer.bg-base-20 {
+.textbit .bg-base-20,
+.textbit.bg-base-20 {
     background-color: var(--bg-base-20);
     color: var(--fg-base);
 }
 
-.mimer .bg-base-30,
-.mimer.bg-base-30 {
+.textbit .bg-base-30,
+.textbit.bg-base-30 {
     background-color: var(--bg-base-30);
     color: var(--fg-base);
 }
 
-.mimer .s-base {
+.textbit .s-base {
     box-shadow: var(--s-base);
 }
 
-.mimer .s-base-10 {
+.textbit .s-base-10 {
     box-shadow: var(--s-base-10);
 }
 
-.mimer .s-base-20 {
+.textbit .s-base-20 {
     box-shadow: var(--s-base-20);
 }
 
-.mimer .s-base-30 {
+.textbit .s-base-30 {
     box-shadow: var(--s-base-30);
 }
 
 
-.mimer .primary {
+.textbit .primary {
     background-color: var(--bg-primary);
     color: var(--fg-primary);
 }
 
-.mimer .bg-primary {
+.textbit .bg-primary {
     background-color: var(--bg-primary);
 }
 
-.mimer .fg-primary {
+.textbit .fg-primary {
     color: var(--bg-primary);
 }
 
-.mimer .primary-hover:hover {
+.textbit .primary-hover:hover {
     background-color: var(--bg-primary-hover);
     color: var(--fg-primary-hover);
 }
 
-.mimer .primary-weak {
+.textbit .primary-weak {
     background-color: var(--bg-primary);
     color: var(--fg-primary);
     opacity: 0.7;
 }
 
 
-.mimer .fg-link {
+.textbit .fg-link {
     color: var(--fg-link)
 }
 
-.mimer .fg-error {
+.textbit .fg-error {
     color: var(--fg-error)
 }
 
 /**
  * General resuable defaults
  */
-.mimer .r-base {
+.textbit .r-base {
     border-radius: var(--r-base);
     overflow: hidden;
 }
 
-.mimer .r-less {
+.textbit .r-less {
     border-radius: calc(var(--r-base) / 1.5);
     overflow: hidden;
 }
 
-.mimer .r-none {
+.textbit .r-none {
     border-radius: 0;
 }
 
-.mimer .b-base {
+.textbit .b-base {
     border: 1px solid var(--b-base);
 }
 
-.mimer .b-weak {
+.textbit .b-weak {
     border: 1px solid var(--b-weak);
 }
 
-.mimer .no-border {
+.textbit .no-border {
     border: none;
 }
 
-.mimer .weak {
+.textbit .weak {
     opacity: 0.9;
 }
 
-.mimer .weaker {
+.textbit .weaker {
     opacity: 0.7;
 }
 
-.mimer .text-ui {
+.textbit .text-ui {
     font-family: var(--font-family-ui)
 }
 
-.mimer .text-sans-serif {
+.textbit .text-sans-serif {
     font-family: var(--font-family-sans-serif);
 }
 
-.mimer .text-xs {
+.textbit .text-xs {
     font-size: 0.8rem;
 }
 
-.mimer .text-sm {
+.textbit .text-sm {
     font-size: 0.9rem;
 }
 
-.mimer .text-md {
+.textbit .text-md {
     font-size: 1.1rem;
 }
 
-.mimer .text-lg {
+.textbit .text-lg {
     font-size: 1.35rem;
 }
 
-.mimer .text-xl {
+.textbit .text-xl {
     font-size: 1.8rem;
 }
 
-.mimer .text-xl2 {
+.textbit .text-xl2 {
     font-size: 2.2rem;
 }
 
-.mimer .font-light {
+.textbit .font-light {
     font-weight: var(--font-weight-light);
 }
 
-.mimer .font-normal {
+.textbit .font-normal {
     font-weight: var(--font-weight-normal);
 }
 
-.mimer .font-bold,
-.mimer .bold {
+.textbit .font-bold,
+.textbit .bold {
     font-weight: var(--font-weight-bold);
 }
 
-.mimer .font-semibold {
+.textbit .font-semibold {
     font-weight: var(--font-weight-semibold);
 }
 
-.mimer .font-bolder {
+.textbit .font-bolder {
     font-weight: var(--font-weight-bolder);
 }
 
-.mimer .italic {
+.textbit .italic {
     font-style: italic;
 }
 
-.mimer .not-italic {
+.textbit .not-italic {
     font-style: normal;
 }
 
-.mimer .underline {
+.textbit .underline {
     text-decoration-line: underline;
 }
 
-.mimer .line-through {
+.textbit .line-through {
     text-decoration-line: line-through;
 }
 
-.mimer .no-underline {
+.textbit .no-underline {
     text-decoration-line: none;
 }
 
-.mimer input {
+.textbit input {
     font-family: var(--font-family-ui);
     font-size: 1.1rem;
     line-height: var(--line-height);
@@ -310,7 +310,7 @@
     color: var(--fg-base);
 }
 
-.mimer input[type="text"] {
+.textbit input[type="text"] {
     padding: 2px 8px;
     border: 1px solid var(--b-base);
     border-radius: calc(var(--r-base) / 1.5);

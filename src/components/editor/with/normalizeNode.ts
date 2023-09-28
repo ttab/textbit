@@ -1,10 +1,10 @@
 import { Editor, Element, NodeEntry } from "slate"
-import { MimerComponent, MimerPlugin } from "../types"
+import { TextbitComponent, TextbitPlugin } from "../../../types"
 
 type NormalizerFunc = (editor: Editor, entry: NodeEntry) => true | void
 type NormalizerMap = Map<string, NormalizerFunc>
 
-export const withNormalizeNode = (editor: Editor, plugins: MimerPlugin[]) => {
+export const withNormalizeNode = (editor: Editor, plugins: TextbitPlugin[]) => {
     const { normalizeNode } = editor
 
     // Store normalize event handlers in a Map for faster access. Each plugin have
@@ -40,7 +40,7 @@ export const withNormalizeNode = (editor: Editor, plugins: MimerPlugin[]) => {
     return editor
 }
 
-function addNormalizerForComponent(componentType: string, normalizers: NormalizerMap, normalizer: NormalizerFunc, component: MimerComponent) {
+function addNormalizerForComponent(componentType: string, normalizers: NormalizerMap, normalizer: NormalizerFunc, component: TextbitComponent) {
     normalizers.set(componentType, normalizer)
 
     // As for now we only support normalization to be handled by the plugin

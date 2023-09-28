@@ -20,7 +20,7 @@ const DragAndDrop = ({ children }: DragAndDropProps) => {
     const counter = useRef(0)
 
     const onDragEnter = () => {
-        containerRef.current?.classList.add('mimer-drag-over')
+        containerRef.current?.classList.add('textbit-drag-over')
         markerRef.current?.classList.add('active')
         counter.current++
     }
@@ -28,14 +28,14 @@ const DragAndDrop = ({ children }: DragAndDropProps) => {
     const onDragLeave = () => {
         setTimeout(() => {
             if (--counter.current === 0) {
-                containerRef.current?.classList.remove('mimer-drag-over')
+                containerRef.current?.classList.remove('textbit-drag-over')
                 markerRef.current?.classList.remove('active')
             }
         })
     }
 
     const onDrop = (e: DragEvent) => {
-        containerRef.current?.classList.remove('mimer-drag-over')
+        containerRef.current?.classList.remove('textbit-drag-over')
         markerRef.current?.classList.remove('active')
     }
 
@@ -52,7 +52,7 @@ const DragAndDrop = ({ children }: DragAndDropProps) => {
         <DragstateContext.Provider value={{ onDragEnter, onDragLeave, onDrop, setPosition: setMarkerPosition }}>
             <div
                 ref={containerRef}
-                className="mimer-drag-container"
+                className="textbit-drag-container"
             >
                 <DropMarker ref={markerRef} />
                 {children}

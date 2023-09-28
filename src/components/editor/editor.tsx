@@ -36,13 +36,13 @@ import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 
-interface MimerEditorProps {
+interface TextbitEditorProps {
     onChange?: (value: Descendant[]) => void
     value: Descendant[]
 }
 
 
-export default function Editor({ value, onChange }: MimerEditorProps) {
+export default function Editor({ value, onChange }: TextbitEditorProps) {
     const inValue = value || [{
         id: uuid.v4(),
         name: "core/paragraph",
@@ -88,7 +88,7 @@ export default function Editor({ value, onChange }: MimerEditorProps) {
     }, [])
 
     return (
-        <div className="mimer mimer-editor bg-base-10 fg-base">
+        <div className="textbit textbit-editor bg-base-10 fg-base">
             <DragAndDrop>
 
                 <Slate editor={editor} value={inValue} onChange={(value) => {

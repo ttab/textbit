@@ -6,7 +6,7 @@ import * as uuid from 'uuid'
 import { convertLastSibling } from '../../../../../lib/utils'
 import './index.css'
 import { BsImage } from 'react-icons/bs'
-import { ConsumeFunction, ConsumesFunction, MimerActionHandlerProps, MimerPlugin, RenderElementProps } from '../../../types'
+import { ConsumeFunction, ConsumesFunction, TextbitActionHandlerProps, TextbitPlugin, RenderElementProps } from '../../../../../types'
 import { pipeFromFileInput } from '../../../../../lib/pipes'
 
 // FIXME: Should expose its own type
@@ -52,7 +52,7 @@ const renderImage = ({ children, attributes, rootNode }: RenderElementProps) => 
 
     return (
         <div contentEditable={false} {...attributes} draggable={false}>
-            <div ref={imgContainerRef} className='mimer-image-container appear-transitions appear-dimmed'>
+            <div ref={imgContainerRef} className='textbit-image-container appear-transitions appear-dimmed'>
                 <img width='100%' src={src} />
             </div>
             {children}
@@ -114,7 +114,7 @@ const onNormalizeNode = (editor: Editor, entry: NodeEntry) => {
     return true
 }
 
-const actionHandler = ({ editor }: MimerActionHandlerProps): boolean => {
+const actionHandler = ({ editor }: TextbitActionHandlerProps): boolean => {
     let fileSelector: HTMLInputElement | undefined = document.createElement('input')
 
     fileSelector.accept = "image/jpg, image/gif, image/png";
@@ -223,7 +223,7 @@ const consume: ConsumeFunction = ({ input }) => {
     return readerPromise
 }
 
-export const Image: MimerPlugin = {
+export const Image: TextbitPlugin = {
     class: 'block',
     name: 'core/image',
     consumer: {

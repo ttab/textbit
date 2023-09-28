@@ -4,7 +4,7 @@ import { Editor, Element, NodeEntry, Transforms } from 'slate'
 import * as uuid from 'uuid'
 
 import { convertLastSibling } from '../../../../../lib/utils'
-import { ConsumeFunction, ConsumesFunction, MimerPlugin, RenderElementProps } from '../../../types'
+import { ConsumeFunction, ConsumesFunction, TextbitPlugin, RenderElementProps } from '../../../../../types'
 
 // FIXME: Should expose its own type
 //
@@ -309,7 +309,7 @@ const onNormalizeNode = (editor: Editor, entry: NodeEntry) => {
     // }
 }
 
-export const OembedVideo: MimerPlugin = {
+export const OembedVideo: TextbitPlugin = {
     class: 'block',
     name: 'core/oembed',
     consumer: {

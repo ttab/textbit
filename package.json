@@ -1,7 +1,7 @@
 {
-  "name": "@ttab/elephant-slate",
+  "name": "@ttab/textbit",
   "version": "0.0.1",
-  "description": "Elephant editor component",
+  "description": "Textbit is an editable component created as part of the Elephant project, based on Slate.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "files": [

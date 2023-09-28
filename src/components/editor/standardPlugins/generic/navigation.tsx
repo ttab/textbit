@@ -1,8 +1,8 @@
 import { Transforms } from 'slate'
 import { getElementPosition } from '../../../../lib/utils'
-import { MimerPlugin } from '../../types'
+import { TextbitPlugin } from '../../../../types'
 
-export const Navigation: MimerPlugin = {
+export const Navigation: TextbitPlugin = {
     class: 'generic',
     name: 'navigation',
     actions: [

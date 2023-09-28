@@ -1,28 +1,28 @@
 import isHotKey from 'is-hotkey'
 
-import { MimerActionHandlerProps, MimerComponent, MimerPlugin, ToolFunction } from './types'
+import { TextbitActionHandlerProps, TextbitComponent, TextbitPlugin, ToolFunction } from '../../types'
 import { Element } from 'slate'
 
 export type RegistryComponent = {
     type: string
     class: string
-    component: MimerComponent
+    component: TextbitComponent
 }
 
 export type RegistryAction = {
-    plugin: MimerPlugin
+    plugin: TextbitPlugin
     hotkey: string
     isHotkey: (action: any) => boolean
     title: string
     description: string
     tool: JSX.Element | Array<JSX.Element | ToolFunction> | null
-    handler: (props: MimerActionHandlerProps) => void | boolean,
+    handler: (props: TextbitActionHandlerProps) => void | boolean,
     visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean]
 }
 
 export interface RegistryInterface {
     // Main registry of plugins
-    plugins: MimerPlugin[]
+    plugins: TextbitPlugin[]
 
     // Provides faster access in rendering cycles
     leafComponents: Map<string, RegistryComponent>
@@ -31,7 +31,7 @@ export interface RegistryInterface {
     // Provides faster access to actions and keyboard shortcuts
     actions: RegistryAction[],
 
-    addPlugin: (plugin: MimerPlugin) => void
+    addPlugin: (plugin: TextbitPlugin) => void
 }
 
 export const Registry: RegistryInterface = {
@@ -48,7 +48,7 @@ export const Registry: RegistryInterface = {
  * 
  * @param plugin 
  */
-function addPlugin(plugin: MimerPlugin) {
+function addPlugin(plugin: TextbitPlugin) {
     // 1. Create new list of plugins, override old instance of a plugin if already registered, preserve order
     const plugins = [...Registry.plugins]
     const idx = plugins.findIndex((existingPlugin => existingPlugin.name === plugin.name))
@@ -77,7 +77,7 @@ function addPlugin(plugin: MimerPlugin) {
  * Register a plugins components render functions for faster access in the rendering functionality.
  * Type and class of the topmost component can be derived from name and class of the plugin
  */
-const registerComponents = (plugin: MimerPlugin) => {
+const registerComponents = (plugin: TextbitPlugin) => {
     const { component = null } = plugin
     if (component === null) {
         return
@@ -93,7 +93,7 @@ const registerComponents = (plugin: MimerPlugin) => {
     )
 }
 
-const registerComponent = (components: Map<string, RegistryComponent>, compType: string, component: MimerComponent) => {
+const registerComponent = (components: Map<string, RegistryComponent>, compType: string, component: TextbitComponent) => {
     const { children = [] } = component
 
     if (components.has(compType)) {
@@ -127,7 +127,7 @@ const registerComponent = (components: Map<string, RegistryComponent>, compType:
 /**
  * Register actions in an iterable array
  */
-const registerActions = (plugins: MimerPlugin[]) => {
+const registerActions = (plugins: TextbitPlugin[]) => {
     const actions: RegistryAction[] = []
 
     plugins

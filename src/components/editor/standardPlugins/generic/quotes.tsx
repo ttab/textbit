@@ -1,5 +1,5 @@
 import { Editor, Range, Transforms } from 'slate'
-import { ConsumeFunction, ConsumesFunction, MimerPlugin } from '../../types'
+import { ConsumeFunction, ConsumesFunction, TextbitPlugin } from '../../../../types'
 
 
 const AllQuotes = {
@@ -101,7 +101,7 @@ const consume: ConsumeFunction = async ({ editor, input }) => {
     return false // Suppress default behaviour as we have taken care of it
 }
 
-export const Quotes: MimerPlugin = {
+export const Quotes: TextbitPlugin = {
     class: 'generic',
     name: 'quotes',
     consumer: {

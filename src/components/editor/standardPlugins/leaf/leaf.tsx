@@ -1,9 +1,9 @@
 import React from 'react' // Necessary for esbuild
 import { MdFormatBold, MdFormatItalic, MdFormatUnderlined } from 'react-icons/md'
-import { MimerPlugin } from '../../types'
+import { TextbitPlugin } from '../../../../types'
 import './leaf.css'
 
-const Bold: MimerPlugin = {
+const Bold: TextbitPlugin = {
     class: 'leaf',
     name: 'core/bold',
     actions: [{
@@ -13,7 +13,7 @@ const Bold: MimerPlugin = {
     }]
 }
 
-const Italic: MimerPlugin = {
+const Italic: TextbitPlugin = {
     class: 'leaf',
     name: 'core/italic',
     actions: [{
@@ -23,7 +23,7 @@ const Italic: MimerPlugin = {
     }]
 }
 
-const Underline: MimerPlugin = {
+const Underline: TextbitPlugin = {
     class: 'leaf',
     name: 'core/underline',
     actions: [{

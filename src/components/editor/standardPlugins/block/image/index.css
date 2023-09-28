@@ -1,14 +1,14 @@
-.mimer-image-container {
+.textbit-image-container {
     height: auto;
     position: relative;
 }
 
-.mimer-image-container.appear-dimmed {
+.textbit-image-container.appear-dimmed {
     height: 10rem;
     overflow: hidden;
 }
 
-.mimer-image-container img {
+.textbit-image-container img {
     display: block;
     object-fit: cover;
 }

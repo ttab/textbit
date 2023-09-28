@@ -135,7 +135,7 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
     return <Portal>
         <div
             ref={ref}
-            className="mimer editor-inline-menu"
+            className="textbit editor-inline-menu"
             onMouseDown={(e) => {
                 // Prevent clicks (between tool groups) taking focus from editor
                 e.preventDefault()

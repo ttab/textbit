@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react'
 import { Editor, Transforms, Range, Element as SlateElement } from 'slate'
 import { ReactEditor } from 'slate-react'
-import { MimerElement } from '../..'
 
-import { MimerPlugin, RenderElementFunction, ToolFunction } from '../../../types'
+import { TextbitPlugin, RenderElementFunction, ToolFunction } from '../../../../../types'
 
-import { MdEdit, MdLink, MdLinkOff } from 'react-icons/md'
+import { MdLink, MdLinkOff } from 'react-icons/md'
 import * as uuid from 'uuid'
 import isUrl from 'is-url'
+import { TextbitElement } from '@/lib/textbit-element'
 
 /**
  * FIXME
@@ -116,7 +116,7 @@ const deleteLink = (editor: Editor) => {
     })
 }
 
-export const Link: MimerPlugin = {
+export const Link: TextbitPlugin = {
     class: 'inline',
     name: 'core/link',
     component: {
@@ -139,7 +139,7 @@ export const Link: MimerPlugin = {
             // If we already have a link, focus on it's input
             const nodeEntries = Array.from(Editor.nodes(editor, {
                 at: Editor.unhangRange(editor, selection),
-                match: n => !Editor.isEditor(n) && MimerElement.isInline(n) && MimerElement.isOfType(n, 'core/link')
+                match: n => !Editor.isEditor(n) && TextbitElement.isInline(n) && TextbitElement.isOfType(n, 'core/link')
             }))
 
             if (nodeEntries.length) {

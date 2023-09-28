@@ -113,7 +113,7 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
     const blockActions = actions.filter(action => 'block' === action.plugin.class)
 
     return <Portal>
-        <div ref={ref} className={"mimer editor-content-menu"}>
+        <div ref={ref} className={"textbit editor-content-menu"}>
             <a
                 className="editor-content-menu-anchor fg-base b-base bg-base-hover"
                 onMouseDown={(e) => {

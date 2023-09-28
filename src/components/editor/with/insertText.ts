@@ -1,7 +1,7 @@
 import { Editor, Element, Node, Range, Transforms } from "slate"
-import { MimerPlugin } from "../types"
+import { TextbitPlugin } from "../../../types"
 
-export const withInsertText = (editor: Editor, plugins: MimerPlugin[]) => {
+export const withInsertText = (editor: Editor, plugins: TextbitPlugin[]) => {
     const { insertText } = editor
 
     const consumers = plugins

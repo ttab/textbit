@@ -1,25 +1,25 @@
 import {
-    MimerDescendant,
-    MimerElement,
-    MimerText
-} from './types'
+    TextbitDescendant,
+    TextbitElement,
+    TextbitText
+} from './slate-overrides'
 
 export {
-    MimerDescendant,
-    MimerElement,
-    MimerText
+    TextbitDescendant as MimerDescendant,
+    TextbitElement as MimerElement,
+    TextbitText as MimerText
 }
 
 import {
-    MimerActionHandlerProps,
-    MimerComponent,
-    MimerPlugin
-} from './components/editor/types'
+    TextbitActionHandlerProps,
+    TextbitComponent,
+    TextbitPlugin
+} from './types'
 
 export {
-    MimerActionHandlerProps,
-    MimerComponent,
-    MimerPlugin
+    TextbitActionHandlerProps as MimerActionHandlerProps,
+    TextbitComponent as MimerComponent,
+    TextbitPlugin as MimerPlugin
 }
 
 export {

@@ -11,7 +11,7 @@ export default function handleChange(editor: Editor, cb: Function | null, value:
         // localStorage.setItem('content', content)
         // console.log(JSON.stringify(value, null, 2))
 
-        // onChange(value, serializeHtml(value as MimerElementPlugin[]))
+        // onChange(value, serializeHtml(value as Textbit[]))
         cb(value)
     }
 
