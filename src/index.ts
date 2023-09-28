@@ -5,9 +5,9 @@ import {
 } from './slate-overrides'
 
 export {
-    TextbitDescendant as MimerDescendant,
-    TextbitElement as MimerElement,
-    TextbitText as MimerText
+    TextbitDescendant,
+    TextbitElement,
+    TextbitText
 }
 
 import {
@@ -17,9 +17,9 @@ import {
 } from './types'
 
 export {
-    TextbitActionHandlerProps as MimerActionHandlerProps,
-    TextbitComponent as MimerComponent,
-    TextbitPlugin as MimerPlugin
+    TextbitActionHandlerProps,
+    TextbitComponent,
+    TextbitPlugin
 }
 
 export {

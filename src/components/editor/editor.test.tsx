@@ -1,10 +1,10 @@
 import React from 'react' // Necessary for esbuild
 import { render, screen } from "@testing-library/react"
-import { Editor as MimerEditor } from "../"
+import { Editor as TextbitEditor } from "../"
 import 'jest'
 import { Descendant } from 'slate'
 
-describe("MimerEditor", () => {
+describe("TextbitEditor", () => {
     const initialValue: Descendant[] = [
         {
             type: 'core/heading-1',
@@ -22,8 +22,8 @@ describe("MimerEditor", () => {
         }
     ]
 
-    test("renders the MimerEditor component", () => {
-        const { unmount, container } = render(<MimerEditor value={initialValue} onChange={() => { return }} />)
+    test("renders the TextbitEditor component", () => {
+        const { unmount, container } = render(<TextbitEditor value={initialValue} onChange={() => { return }} />)
 
         expect(screen.getByRole('textbox'))
         expect(container.querySelectorAll('div[data-id="be0ec554-839d-413c-9140-c408cb213f1e"]')).toHaveLength(2)

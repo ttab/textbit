@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Editor as MimerEditor } from '../../src'
+import { Editor as TextbitEditor } from '../../src'
 import { ThemeSwitcher } from './themeSwitcher'
 import { Descendant } from 'slate'
 
@@ -98,7 +98,7 @@ function App() {
         <div style={{ position: 'relative', height: '1200px' }}>
             <ThemeSwitcher />
 
-            <MimerEditor
+            <TextbitEditor
 
                 value={initialValue}
                 onChange={value => {
