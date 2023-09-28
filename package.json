@@ -16,6 +16,13 @@
   },
   "author": "Danne Lundqvist",
   "license": "MIT",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/ttab"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ttab/textbit.git"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
