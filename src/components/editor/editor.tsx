@@ -39,10 +39,11 @@ import { withInsertHtml } from './with/insertHtml'
 interface TextbitEditorProps {
     onChange?: (value: Descendant[]) => void
     value: Descendant[]
+    customEditor?: BaseEditor & ReactEditor & HistoryEditor
 }
 
 
-export default function Editor({ value, onChange }: TextbitEditorProps) {
+export default function Editor({ value, onChange, customEditor }: TextbitEditorProps) {
     const inValue = value || [{
         id: uuid.v4(),
         name: "core/paragraph",
@@ -57,7 +58,7 @@ export default function Editor({ value, onChange }: TextbitEditorProps) {
     }, [])
 
     const editor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
-        const editor = createEditor()
+        const editor = customEditor ?? createEditor()
         withReact(editor)
         withHistory(editor)
         withInline(editor)
