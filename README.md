@@ -1,4 +1,4 @@
-# Textbit compoment
+# Textbit component
 
 ## Description
 
