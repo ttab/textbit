@@ -26,7 +26,7 @@ export type ToolFunction = (editor: Editor, node: NodeEntry<Node>) => JSX.Elemen
 
 
 export interface TextbitComponent {
-  class?: string
+  class: string
   type?: string
   placeholder?: string,
   render: RenderElementFunction // | RenderLeafFunction

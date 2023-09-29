@@ -57,12 +57,14 @@ const initialValue: Descendant[] = [
         children: [
             {
                 type: 'core/blockquote/body',
+                class: 'text',
                 children: [
                     { text: 'Just a regular paragraph that contains some nonsensical writing' }
                 ]
             },
             {
                 type: 'core/blockquote/caption',
+                class: 'text',
                 children: [
                     { text: 'Mr Smith' }
                 ]

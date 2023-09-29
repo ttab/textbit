@@ -203,10 +203,12 @@ const createOembedNode = (props: any): Element => {
         children: [
             {
                 type: 'core/oembed/embed',
+                class: 'text',
                 children: [{ text: '' }]
             },
             {
                 type: 'core/oembed/title',
+                class: 'text',
                 children: [{ text: props.title }]
             }
         ]

@@ -40,10 +40,12 @@ const actionHandler = ({ editor }: TextbitActionHandlerProps) => {
         children: [
             {
                 type: 'core/blockquote/body',
+                class: 'text',
                 children: [{ text: text || '' }]
             },
             {
                 type: 'core/blockquote/caption',
+                class: 'text',
                 children: [{ text: '' }]
             }
         ]
@@ -102,14 +104,17 @@ export const Blockquote: TextbitPlugin = {
         }
     ],
     component: {
+        class: 'textblock',
         render,
         children: [
             {
                 type: 'body',
+                class: 'text',
                 render: renderBody
             },
             {
                 type: 'caption',
+                class: 'text',
                 render: renderCaption,
                 constraints: {
                     allowBreak: false

@@ -108,7 +108,7 @@ Plugins are defined using the interface below. (See `src/types.ts` for all the t
 ```javascript
 
 interface TextbitComponent {
-  class?: string
+  class: string
   type?: string
   placeholder?: string,
   render: RenderElementFunction | RenderLeafFunction
@@ -241,6 +241,7 @@ const OembedVideo: TextbitPlugin = {
             },
             {
                 type: 'title',
+                class: 'text',
                 render: renderTitle
             }
         ]
@@ -278,10 +279,12 @@ const Image: MimerPlugin = {
             },
             {
                 type: 'altText',
+                class: 'text',
                 render: renderAltText
             },
             {
                 type: 'text',
+                class: 'text',
                 render: renderText
             }
         ]

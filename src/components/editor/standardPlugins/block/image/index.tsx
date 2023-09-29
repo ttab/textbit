@@ -200,14 +200,17 @@ const consume: ConsumeFunction = ({ input }) => {
                         children: [
                             {
                                 type: 'core/image/image',
+                                class: 'text',
                                 children: [{ text: '' }]
                             },
                             {
                                 type: 'core/image/altText',
+                                class: 'text',
                                 children: [{ text: name }]
                             },
                             {
                                 type: 'core/image/text',
+                                class: 'text',
                                 children: [{ text: '' }]
                             }
                         ]

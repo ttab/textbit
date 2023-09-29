@@ -130,6 +130,7 @@ export const Text: TextbitPlugin = {
   class: 'text',
   name: 'core/text',
   component: {
+    class: 'text',
     render,
     placeholder: '¶' // FIXME: Needs to be a render function for subtypes,
   },
