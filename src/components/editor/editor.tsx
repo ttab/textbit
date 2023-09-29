@@ -39,11 +39,11 @@ import { withInsertHtml } from './with/insertHtml'
 interface TextbitEditorProps {
     onChange?: (value: Descendant[]) => void
     value: Descendant[]
-    customEditor?: BaseEditor & ReactEditor & HistoryEditor
+    editor?: BaseEditor & ReactEditor & HistoryEditor
 }
 
 
-export default function Editor({ value, onChange, customEditor }: TextbitEditorProps) {
+export default function Editor({ value, onChange, editor }: TextbitEditorProps) {
     const inValue = value || [{
         id: uuid.v4(),
         name: "core/paragraph",
@@ -57,25 +57,25 @@ export default function Editor({ value, onChange, customEditor }: TextbitEditorP
         StandardPlugins.forEach(Registry.addPlugin)
     }, [])
 
-    const editor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
-        const editor = customEditor ?? createEditor()
-        withReact(editor)
-        withHistory(editor)
-        withInline(editor)
+    const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
+        const e = SlateEditor.isEditor(editor) ? editor : createEditor()
+        withReact(e)
+        withHistory(e)
+        withInline(e)
 
-        withInsertText(editor, Registry.plugins)
-        withNormalizeNode(editor, Registry.plugins)
+        withInsertText(e, Registry.plugins)
+        withNormalizeNode(e, Registry.plugins)
 
-        withEditableVoids(editor, value, Registry)
-        withInsertBreak(editor, Registry.elementComponents)
-        withInsertHtml(editor)
+        withEditableVoids(e, value, Registry)
+        withInsertBreak(e, Registry.elementComponents)
+        withInsertHtml(e)
 
-        return editor as BaseEditor & ReactEditor & HistoryEditor
+        return e as BaseEditor & ReactEditor & HistoryEditor
     }, [])
 
     const [stats, setStats] = useState([0, 0])
     useEffect(() => {
-        setStats(calculateStats(editor))
+        setStats(calculateStats(textbitEditor))
     }, [])
 
 
@@ -92,9 +92,9 @@ export default function Editor({ value, onChange, customEditor }: TextbitEditorP
         <div className="textbit textbit-editor bg-base-10 fg-base">
             <DragAndDrop>
 
-                <Slate editor={editor} value={inValue} onChange={(value) => {
-                    handleChange(editor, onChange || null, value)
-                    setStats(calculateStats(editor))
+                <Slate editor={textbitEditor} value={inValue} onChange={(value) => {
+                    handleChange(textbitEditor, onChange || null, value)
+                    setStats(calculateStats(textbitEditor))
                 }}>
 
                     <InlineToolbar
@@ -108,8 +108,8 @@ export default function Editor({ value, onChange, customEditor }: TextbitEditorP
                         // style={{ minHeight: expandHeight ? '100%' : 'auto' }}
                         renderElement={renderSlateElement}
                         renderLeaf={renderLeafComponent}
-                        onKeyDown={event => handleOnKeyDown(event, editor)}
-                        decorate={([node, path]) => handleDecoration(editor, node, path)}
+                        onKeyDown={event => handleOnKeyDown(event, textbitEditor)}
+                        decorate={([node, path]) => handleDecoration(textbitEditor, node, path)}
                     />
 
                 </Slate>
