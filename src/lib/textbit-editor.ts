@@ -1,7 +1,14 @@
-import { Element as SlateElement, Editor as SlateEditor, Node } from "slate"
+import { Element as SlateElement, Editor as SlateEditor, Node, ExtendedType, NodeEntry, Editor, EditorInterface } from "slate"
 import { TextbitElement } from "./textbit-element"
 
-export const TextbitEditor = {
+interface TextbitEditorInterface extends EditorInterface {
+  position: (editor: SlateEditor) => number
+  length: (editor: SlateEditor) => number
+  parents: <T extends Node>(editor: SlateEditor) => Generator<NodeEntry<T>, void, undefined>
+}
+export declare type TextbitEditor = TextbitEditorInterface
+
+export const TextbitEditor: TextbitEditor = {
   ...SlateEditor,
 
   /** Return start position of the starting element of the current selection (collapsed or not collapsed) in the editor */

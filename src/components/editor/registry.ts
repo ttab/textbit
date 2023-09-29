@@ -7,6 +7,7 @@ export type RegistryComponent = {
     type: string
     class: string
     component: TextbitComponent
+    parent: TextbitComponent | null
 }
 
 export type RegistryAction = {
@@ -93,7 +94,7 @@ const registerComponents = (plugin: TextbitPlugin) => {
     )
 }
 
-const registerComponent = (components: Map<string, RegistryComponent>, compType: string, component: TextbitComponent) => {
+const registerComponent = (components: Map<string, RegistryComponent>, compType: string, component: TextbitComponent, parent?: TextbitComponent) => {
     const { children = [] } = component
 
     if (components.has(compType)) {
@@ -107,7 +108,8 @@ const registerComponent = (components: Map<string, RegistryComponent>, compType:
     components.set(compType, {
         type: compType,
         class: component.class || 'text',
-        component: component
+        component: component,
+        parent: parent || null
     })
 
     children.forEach(childComponent => {
@@ -118,7 +120,8 @@ const registerComponent = (components: Map<string, RegistryComponent>, compType:
         registerComponent(
             components,
             `${compType}/${childComponent.type}`, // Aggregated type identifier (e.g. core/image/caption)
-            childComponent
+            childComponent,
+            component
         )
     })
 }
