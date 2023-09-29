@@ -190,11 +190,6 @@ export function getSelectedNodes(editor: Editor): Node[] {
     return getSelectedNodeEntries(editor).map(nodeEntry => nodeEntry[0])
 }
 
-export function getElementPosition(editor: Editor, range?: BaseRange): number {
-    const useRange = range || Editor.unhangRange(editor, editor.selection as BaseRange)
-    return (useRange && useRange.anchor.path[0] > 0) ? useRange.anchor.path[0] : 0
-}
-
 export function getSelectedText(editor: Editor, range?: BaseRange): string | undefined {
     const useRange = range || Editor.unhangRange(editor, editor.selection as BaseRange)
     return Editor.string(editor, useRange)

@@ -9,8 +9,9 @@ import {
     RenderElementProps
 } from '../../../../../types'
 
-import { convertLastSibling, getElementPosition as getElementPosition, getSelectedText, insertAt } from '../../../../../lib/utils'
+import { convertLastSibling, getSelectedText, insertAt } from '../../../../../lib/utils'
 import './style.css'
+import { TextbitEditor } from '@/lib/textbit-editor'
 
 const render = ({ children }: RenderElementProps): JSX.Element => {
     return <div className="fg-weak">
@@ -48,7 +49,7 @@ const actionHandler = ({ editor }: TextbitActionHandlerProps) => {
         ]
     }]
 
-    const position = getElementPosition(editor) + (!!text ? 0 : 1)
+    const position = TextbitEditor.position(editor) + (!!text ? 0 : 1)
     insertAt(editor, position, node)
 
     const atChild = !!text ? 0 : 1
