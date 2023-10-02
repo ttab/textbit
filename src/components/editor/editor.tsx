@@ -68,7 +68,7 @@ export default function Editor({ value, onChange, editor }: TextbitEditorProps) 
 
         withEditableVoids(e, value, Registry)
         withInsertBreak(e, Registry.elementComponents)
-        withInsertHtml(e)
+        withInsertHtml(e, Registry.plugins)
 
         return e as BaseEditor & ReactEditor & HistoryEditor
     }, [])

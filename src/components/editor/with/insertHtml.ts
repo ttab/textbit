@@ -1,82 +1,59 @@
-import { BaseRange, Editor, Element, Node, Path, Transforms } from 'slate'
-import * as uuid from 'uuid'
-import { Registry } from '../registry'
-import { TextbitEditor } from '@/lib/textbit-editor'
-import { Range } from 'slate'
-import { TextbitElement } from '@/lib/textbit-element'
-import { componentConstraints } from '@/lib/componentConstraints'
+import { Editor } from 'slate'
+import { pasteToParagraphs } from '@/lib/pasteToParagraphs'
+import { ConsumeFunction, ConsumesFunction, TextbitPlugin } from 'src/types'
+import { pasteToConsumers } from '@/lib/pasteToConsumer'
 
-export const withInsertHtml = (editor: Editor) => {
-    const { insertData } = editor
+type Consumers = {
+    consumes: ConsumesFunction
+    consume: ConsumeFunction
+}[]
+
+export const withInsertHtml = (editor: Editor, plugins: TextbitPlugin[]) => {
+    const { insertData, insertText } = editor
+
+    const consumers: Consumers = plugins
+        .filter(({ consumer }) => consumer?.consume && consumer?.consumes)
+        .map(({ consumer }) => consumer) as Consumers
 
     editor.insertData = (data) => {
-        const { selection } = editor
-        if (!selection) {
+        const { types } = data
+
+        // Let slate handle slate stuff, works best most of the time
+        if (types.includes('application/x-slate-fragment')) {
             return insertData(data)
         }
 
-        // We only take care of simple collapsed selections or range selections
-        // in the same text node.
-        const edges = Range.edges(selection)
-        if (!Range.isCollapsed(selection) && 0 !== Path.compare(edges[0].path, edges[1].path)) {
-            return insertData(data)
+        const input = {
+            source: 'html',
+            type: 'text/html',
+            data
         }
 
-        // Split text into paragraphs based on newlines or carriage returns
-        const text = data.getData('text/plain')
-        const paragraphedText = text.replace(/[\r\n]{2,}/g, "\n").trim()
-        const paragraphs = paragraphedText.split("\n").map(t => t.trim())
-        if (paragraphs.length < 2) {
-            return insertData(data)
+        const handle = pasteToConsumers(editor, consumers, input)
+        if (handle instanceof Promise) {
+            handle.then(response => {
+                // If a consumer have processed the input and in turn produced
+                // text, use that instead of the original text
+                if (typeof response === 'string') {
+                    // Hand this over to insertText to finish
+                    return insertText(response)
+                }
+            })
+            return
         }
 
-        // Find node and which component this is related to
-        const parent = TextbitEditor.parent(editor, selection)
-        const node = parent[0] as Element
-        const { component: tbComponent = undefined } = Registry.elementComponents.get(node.type) || {}
-        if (!tbComponent) {
-            return insertData(data)
-        }
-
-        // Only handle paste inside of text elements
-        if (node.class !== 'text') {
-            return insertData(data)
-        }
-
-        // If we don't allow break, let default put all text in same node
-        const { allowBreak } = componentConstraints(tbComponent)
-        if (!allowBreak) {
-            return insertData(data)
-        }
-
-        // If we have a longer path, paste happens in a child node, all
-        // new nodes should be of the same type then
-        let nodeType = 'core/text'
-        let properties: { [key: string]: string | number; } | undefined = {}
-
-        if (parent[1].length > 1) {
-            nodeType = node.type
-            properties = node.properties
-        }
-
-        const nodes: Node[] = paragraphs.map((s) => {
-            return {
-                id: uuid.v4(),
-                type: nodeType,
-                class: 'text',
-                children: [
-                    { text: s }
-                ],
-                properties: properties
+        // If we originally got html/text now try to paste it as paragraphs
+        // If we don't, Slate will hand it over to insertText(), but when we
+        // can handle it we actually do this better than insertText() of Slate
+        // which often produces excessive amounts of newlines.
+        if (types.includes('text/plain') && types.includes('text/html')) {
+            const text = data.getData('text/plain')
+            if (text && true === pasteToParagraphs(text, editor)) {
+                return
             }
-        })
-
-        const firstNode = nodes.shift()
-        if (firstNode) {
-            // The first text should end up in the text where the paste is happening
-            Transforms.insertFragment(editor, [firstNode])
         }
 
-        Transforms.insertNodes(editor, nodes)
+        // Fallback to Slate
+        insertData(data)
     }
 }
