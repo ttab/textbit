@@ -323,6 +323,7 @@ export const OembedVideo: TextbitPlugin = {
     },
     component: {
         render,
+        class: 'block',
         children: [
             {
                 type: 'embed',
@@ -331,6 +332,7 @@ export const OembedVideo: TextbitPlugin = {
             },
             {
                 type: 'title',
+                class: 'text',
                 render: renderTitle
             }
         ]
