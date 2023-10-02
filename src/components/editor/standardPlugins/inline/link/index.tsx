@@ -120,6 +120,7 @@ export const Link: TextbitPlugin = {
     class: 'inline',
     name: 'core/link',
     component: {
+        class: 'inline',
         render: renderLinkComponent
     },
     actions: [{

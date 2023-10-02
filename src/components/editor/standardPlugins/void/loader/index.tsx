@@ -37,6 +37,7 @@ export const Loader: TextbitPlugin = {
     class: 'void',
     name: 'core/loader',
     component: {
+        class: 'void',
         render
     }
 }

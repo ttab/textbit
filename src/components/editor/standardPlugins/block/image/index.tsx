@@ -251,6 +251,7 @@ export const Image: TextbitPlugin = {
         onNormalizeNode
     },
     component: {
+        class: 'block',
         render,
         children: [
             {
@@ -260,10 +261,12 @@ export const Image: TextbitPlugin = {
             },
             {
                 type: 'altText',
+                class: 'text',
                 render: renderAltText
             },
             {
                 type: 'text',
+                class: 'text',
                 render: renderText
             }
         ]
