@@ -20,8 +20,11 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
     const { element, attributes, component } = renderProps
 
     const style = {
-        boxShadow: `${component.class === 'block' && selected && focused ? '0 0 0 3px rgb(117 138 242)' : 'none'}`,
-        overflow: 'hidden'
+        boxShadow: `${component.class === 'block' && selected && focused ? 'rgba(117, 117, 117, 0.3) 0px 0px 0px 2px' : 'none'}`,
+        overflow: 'hidden',
+        padding: '5px',
+        margin: '-5px',
+        borderRadius: '3px'
     }
 
     const elementTypeClass = `${element.type.replace('/', '--')}`

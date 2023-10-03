@@ -32,11 +32,12 @@ export interface TextbitComponent {
   render: RenderElementFunction // | RenderLeafFunction
   children?: TextbitComponent[]
   constraints?: {
-    minElements?: number
-    maxElements?: number
-    maxLength?: number
+    // minElements?: number
+    // maxElements?: number
+    // maxLength?: number
     allowBreak?: boolean
     allowSoftBreak?: boolean
+    normalizeNode?: (editor: Editor, nodeEntry: NodeEntry) => boolean | void
   }
 }
 

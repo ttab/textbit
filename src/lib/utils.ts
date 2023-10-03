@@ -94,7 +94,7 @@ export function convertToText(editor: Editor, type: string, subtype?: string, no
                 continue
             }
 
-            // Convert regular text elemenent
+            // Convert regular text element
             if (TextbitElement.isText(node)) {
                 const nodeAttribs: any = {
                     type,

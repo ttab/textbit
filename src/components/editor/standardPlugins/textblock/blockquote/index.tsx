@@ -1,5 +1,5 @@
 import React, { JSX } from 'react' // Necessary for esbuild
-import { Transforms, Node, Element } from 'slate'
+import { Transforms, Node, Element, Editor, NodeEntry } from 'slate'
 import { BsChatQuote } from 'react-icons/bs'
 import * as uuid from 'uuid'
 
@@ -12,6 +12,7 @@ import {
 import { convertLastSibling, getSelectedText, insertAt } from '../../../../../lib/utils'
 import './style.css'
 import { TextbitEditor } from '@/lib/textbit-editor'
+import { TextbitElement } from '@/lib/textbit-element'
 
 const render = ({ children }: RenderElementProps): JSX.Element => {
     return <div className="fg-weak">
@@ -61,33 +62,78 @@ const actionHandler = ({ editor }: TextbitActionHandlerProps) => {
     })
 }
 
+const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
+    const [node, path] = nodeEntry
+    const children = Array.from(Node.children(editor, path))
+
+    if (children.length === 1) {
+        // Ensure there is text, or remove the node entirely
+        let textFound = false
+        for (const [child] of children) {
+            for (let textNode of Node.texts(child)) {
+                if (textNode[0].text.trim() !== '') {
+                    textFound = true
+                }
+            }
+        }
+
+        if (!textFound) {
+            Transforms.removeNodes(editor, { at: path })
+            return true
+        }
+
+        // Add missing body or caption
+        const [addType, atPos] = TextbitElement.isOfType(children[0][0], 'core/blockquote/caption') ? ['core/blockquote/body', 0] : ['core/blockquote/caption', 1]
+
+        Transforms.insertNodes(
+            editor,
+            {
+                id: uuid.v4(),
+                class: 'text',
+                type: addType,
+                children: [{ text: '' }]
+            },
+            { at: [...path, atPos] }
+        )
+        return
+    }
+
+    let n = 1
+    for (const [child, childPath] of children) {
+        if (TextbitElement.isBlock(child) || TextbitElement.isTextblock(child)) {
+            // Unwrap block node children (move text element children upwards in tree)
+            Transforms.unwrapNodes(editor, {
+                at: childPath,
+                split: true
+            })
+            return true
+        }
+
+        if (n < children.length && TextbitElement.isText(child) && !TextbitElement.isOfType(child, 'core/blockquote/body')) {
+            // Turn unknown text elements to /core/blockquote/body
+            Transforms.setNodes(
+                editor,
+                { type: 'core/blockquote/body' },
+                { at: childPath }
+            )
+            return true
+        }
+
+        // Make sure last element is a caption
+        if (n++ === children.length && !TextbitElement.isOfType(child, 'core/blockquote/caption')) {
+            Transforms.setNodes(
+                editor,
+                { type: 'core/blockquote/caption' },
+                { at: childPath }
+            )
+            return true
+        }
+    }
+}
 
 export const Blockquote: TextbitPlugin = {
-    class: 'text',
+    class: 'textblock',
     name: 'core/blockquote',
-    // normalize: (editor, entry) => {
-    //     const [node, path] = entry
-    //     if (!Element.isElement(node)) {
-    //         return
-    //     }
-
-    //     convertLastSibling(editor, node, path, 'core/blockquote/caption', 'core/paragraph')
-
-    //     const bodyNodes: Array<any> = []
-    //     for (const [child, childPath] of Node.elements(node)) {
-    //         if (child.type === 'core/blockquote/body') {
-    //             bodyNodes.push([child, childPath])
-    //         }
-    //     }
-
-    //     // FIXME: This crash when last node in document
-    //     if (!bodyNodes.length || bodyNodes.length < 1) {
-    //         Transforms.removeNodes(editor, {
-    //             at: [...path],
-    //         })
-    //         return
-    //     }
-    // },
     actions: [
         {
             title: 'Blockquote',
@@ -106,6 +152,9 @@ export const Blockquote: TextbitPlugin = {
     component: {
         class: 'textblock',
         render,
+        constraints: {
+            normalizeNode: normalizeBlockquote
+        },
         children: [
             {
                 type: 'body',

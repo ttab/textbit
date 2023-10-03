@@ -2,19 +2,21 @@ import { TextbitComponent } from "src/types"
 
 export function componentConstraints(component: TextbitComponent) {
   const {
-    maxLength = -1,        // Max length of text content
-    maxElements = -1,      // Max no of elements in parent
-    minElements = 0,       // Min no of elements in parent
-    allowBreak = true,     // Allow normal break to create new node of same type
-    allowSoftBreak = false // Allow soft break (newline in text node)
+    // maxLength = undefined,   // Max length of text content
+    // maxElements = undefined, // Max no of elements in parent
+    // minElements = undefined, // Min no of elements in parent
+    allowBreak,       // Allow normal break to create new node of same type
+    allowSoftBreak,  // Allow soft break (newline in text node)
+    normalizeNode
   } = component?.constraints || {}
 
   return {
-    maxLength,
-    maxElements,
-    minElements,
-    allowBreak,
-    allowSoftBreak
+    // maxLength: maxLength ?? 0, // I.e no limit
+    // maxElements: maxElements ?? 0, // I.e no limit
+    // minElements: minElements ?? 0,
+    allowBreak: allowBreak ?? true,
+    allowSoftBreak: allowSoftBreak ?? false,
+    normalizeNode: normalizeNode instanceof Function ? normalizeNode : undefined
   }
 }
 

@@ -64,7 +64,7 @@ export default function Editor({ value, onChange, editor }: TextbitEditorProps) 
         withInline(e)
 
         withInsertText(e, Registry.plugins)
-        withNormalizeNode(e, Registry.plugins)
+        withNormalizeNode(e, Registry.plugins, Registry.elementComponents)
 
         withEditableVoids(e, value, Registry)
         withInsertBreak(e, Registry.elementComponents)
