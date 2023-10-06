@@ -1,10 +1,11 @@
 import React from 'react' // Necessary for esbuild
 import { useState, useEffect } from 'react'
-import { Editor, Element, NodeEntry, Transforms } from 'slate'
+import { Descendant, Editor, Element, Node, NodeEntry, Transforms } from 'slate'
 import * as uuid from 'uuid'
 
 import { convertLastSibling } from '../../../../../lib/utils'
 import { ConsumeFunction, ConsumesFunction, TextbitPlugin, RenderElementProps } from '../../../../../types'
+import { TextbitElement } from '@/lib/textbit-element'
 
 // FIXME: Should expose its own type
 //
@@ -144,13 +145,21 @@ const renderVideo = ({ children, attributes, rootNode }: RenderElementProps) => 
 }
 
 const renderTitle = ({ children }: RenderElementProps) => {
-    return <div className="text-sans-serif" style={{
-        padding: '0.4rem 0.8rem',
-        fontSize: '1rem',
-        textAlign: 'center',
+    return <div className="text-sans-serif text-sm r-less b-weak" style={{
+        marginTop: '0.5rem',
+        padding: '0.4rem 0.5rem',
         opacity: '0.85',
-        fontWeight: '400'
+        background: 'rgba(201, 201, 201, 0.3)',
+        display: 'flex'
     }}>
+        <label
+            contentEditable={false}
+            className="text-sans-serif text-xs font-light not-italic"
+            style={{
+                flex: '0 0 45px',
+                alignSelf: 'center'
+            }}
+        >Title:</label>
         <span>{children}</span>
     </div>
 }
@@ -273,42 +282,50 @@ const getOembedUrl = (url: string): string | undefined => {
     return SUPPORTED_OEMBED_URLS.find(s => cleanUrl.startsWith(s.url))?.endpoint || undefined
 }
 
-const onNormalizeNode = (editor: Editor, entry: NodeEntry) => {
-    const [node, path] = entry
-    if (!Element.isElement(node)) {
-        return
-    }
+const normalizeOembed = (editor: Editor, nodeEndtry: NodeEntry) => {
+    const [node, path] = nodeEndtry
+    const children = Array.from(Node.children(editor, path))
 
-    // If any child element (parent el + 2 children) is missing, remove all
-    if (node.children.length < 2) {
+    if (children.length < 2) {
         Transforms.removeNodes(editor, { at: [path[0]] })
-        return
+        return true
     }
 
-    // Remove excess titles (only one allowed)
-    const titles = node.children.filter((child: any) => child?.type === 'core/oembed/title')
-    if (Array.isArray(titles) && titles.length > 1) {
-        return convertLastSibling(editor, node, path, 'core/oembed/title', 'core/paragraph')
-    }
 
-    // Syncronizing editable child "title" to property. Not necessary anymore but
-    // saving this as an example for now/the future, while thinking about this more...
-    //
-    // const title = Node.string(titles[0])
-    // if (title !== node?.properties?.title) {
-    //     Transforms.setNodes(
-    //         editor,
-    //         {
-    //             properties: {
-    //                 ...node.properties,
-    //                 title: title
-    //             }
-    //         },
-    //         {
-    //             at: path
-    //         }
-    //     )
-    // }
+    let n = 0
+    for (const [child, childPath] of children) {
+        if (TextbitElement.isBlock(child) || TextbitElement.isTextblock(child)) {
+            // Unwrap block node children (move text element children upwards in tree)
+            Transforms.unwrapNodes(editor, {
+                at: childPath,
+                split: true
+            })
+            return true
+        }
+
+        if (n === 1 && !TextbitElement.isOfType(child, 'core/oembed/title')) {
+            Transforms.setNodes(
+                editor,
+                { type: 'core/oembed/text' },
+                { at: childPath }
+            )
+            return true
+        }
+
+        if (n > 1) {
+            // Excessive nodes are lifted and transformed to text
+            Transforms.setNodes(
+                editor,
+                {type: 'core/text', properties: {}},
+                {at: childPath}
+            )
+            Transforms.liftNodes(
+                editor,
+                { at: childPath}
+            )
+        }
+        n++
+    }
 }
 
 export const OembedVideo: TextbitPlugin = {
@@ -318,12 +335,12 @@ export const OembedVideo: TextbitPlugin = {
         consumes,
         consume
     },
-    events: {
-        onNormalizeNode
-    },
     component: {
         render,
         class: 'block',
+        constraints: {
+            normalizeNode: normalizeOembed
+        },
         children: [
             {
                 type: 'embed',
