@@ -120,7 +120,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
         }
 
         // Make sure last element is a caption
-        if (n++ === children.length && !TextbitElement.isOfType(child, 'core/blockquote/caption')) {
+        if (n === children.length && !TextbitElement.isOfType(child, 'core/blockquote/caption')) {
             Transforms.setNodes(
                 editor,
                 { type: 'core/blockquote/caption' },
@@ -128,6 +128,20 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
             )
             return true
         }
+
+        if (n > 2) {
+            // Excessive nodes are lifted and transformed to text
+            Transforms.setNodes(
+                editor,
+                {type: 'core/text', properties: {}},
+                {at: childPath}
+            )
+            Transforms.liftNodes(
+                editor,
+                { at: childPath}
+            )
+        }
+        n++
     }
 }
 
@@ -164,10 +178,7 @@ export const Blockquote: TextbitPlugin = {
             {
                 type: 'caption',
                 class: 'text',
-                render: renderCaption,
-                constraints: {
-                    allowBreak: false
-                }
+                render: renderCaption
             }
         ]
     }
