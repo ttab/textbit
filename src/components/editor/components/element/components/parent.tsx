@@ -20,13 +20,12 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
     const { element, attributes, component } = renderProps
 
     const style = {
-        boxShadow: `${component.class === 'block' && selected && focused ? 'rgba(117, 117, 117, 0.3) 0px 0px 0px 2px' : 'none'}`,
+        // boxShadow: `${component.class === 'block' && selected && focused ? 'rgba(124, 58, 237, 0.7) 0px 0px 0px 2px' : 'none'}`,
         overflow: 'hidden',
-        padding: '5px',
-        margin: '-5px',
-        borderRadius: '3px'
+        padding: '8px',
+        margin: '-8px'
     }
-
+    const borderClass = component.class === 'block' && selected && focused ? 'b-primary' : 'no-border'
     const elementTypeClass = `${element.type.replace('/', '--')}`
     return (
         <Droppable element={element}>
@@ -35,7 +34,7 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
                 data-id={element.id}
                 {...attributes}
             >
-                <div className="editor-block" style={style} >
+                <div className={`editor-block r-less ${borderClass}`} style={style} >
                     {component.component.render(renderProps)}
                 </div>
             </div>

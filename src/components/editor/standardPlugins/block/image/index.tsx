@@ -3,11 +3,12 @@ import { useEffect, useRef } from 'react'
 import { Transforms, Element, Editor, NodeEntry } from 'slate'
 import * as uuid from 'uuid'
 
-import { convertLastSibling } from '../../../../../lib/utils'
 import './index.css'
 import { BsImage } from 'react-icons/bs'
 import { ConsumeFunction, ConsumesFunction, TextbitActionHandlerProps, TextbitPlugin, RenderElementProps } from '../../../../../types'
 import { pipeFromFileInput } from '../../../../../lib/pipes'
+import { Node } from 'slate'
+import { TextbitElement } from '@/lib/textbit-element'
 
 // FIXME: Should expose its own type
 //
@@ -60,58 +61,141 @@ const renderImage = ({ children, attributes, rootNode }: RenderElementProps) => 
     )
 }
 
-const renderAltText = ({ children }: RenderElementProps) => {
-    return <div draggable={true} className="text-sans-serif" style={{
-        padding: '0.4rem 0.8rem',
-        fontSize: '1rem',
-        textAlign: 'center',
-        opacity: '0.85',
-        fontWeight: '400'
-    }}>
-        <figcaption>{children}</figcaption>
-    </div>
-}
-
 const renderText = ({ children }: RenderElementProps) => {
-    return <div draggable={true} className="text-sans-serif" style={{
-        padding: '0.4rem 0.8rem',
-        fontSize: '1rem',
-        textAlign: 'center',
+    return <div draggable={false} className="text-serif text-sm italic r-less b-weak" style={{
+        marginTop: '0.5rem',
+        padding: '0.5rem 0.5rem',
         opacity: '0.85',
-        fontWeight: '400'
+        background: 'rgba(201, 201, 201, 0.3)',
+        display: 'flex'
     }}>
+        <label
+            contentEditable={false}
+            className="text-sans-serif text-xs font-light not-italic"
+            style={{
+                flex: '0 0 45px',
+                alignSelf: 'center'
+            }}
+        >Text:</label>
         <figcaption>{children}</figcaption>
     </div>
 }
 
 
-const onNormalizeNode = (editor: Editor, entry: NodeEntry) => {
-    const [node, path] = entry
-    if (!Element.isElement(node)) {
-        return
+const renderAltText = ({ children }: RenderElementProps) => {
+    return <div draggable={false} className="text-sans-serif text-sm center" style={{
+        marginTop: '0.5rem',
+        padding: '0.5rem 0.5rem',
+        opacity: '0.85',
+        background: 'rgba(201, 201, 201, 0.3)',
+        display: 'flex'
+    }}>
+        <label
+            contentEditable={false}
+            className="text-sans-serif text-xs font-light not-italic"
+            style={{
+                flex: '0 0 45px',
+                alignSelf: 'center'
+            }}
+        >Alt:</label>
+        <figcaption>{children}</figcaption>
+    </div>
+}
+
+const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
+    const [node, path] = nodeEntry
+    const children = Array.from(Node.children(editor, path))
+
+    if (children.length < 3) {
+        
+        let hasAltText = false
+        let hasText = false
+        let hasImage = false
+        
+        for (const [child] of children) {
+            if (!Element.isElement(child)) {
+                continue
+            }
+
+            if (child.type === 'core/image/image') {
+                hasImage = true
+            }
+
+            if (child.type === 'core/image/altText') {
+                hasAltText = true
+            }
+
+            if (child.type === 'core/image/text') {
+                hasText = true
+            }
+        }
+
+        if (!hasImage)  {
+            // If image is gone, delete the whole block
+            Transforms.removeNodes(editor, { at: path })
+            return true
+        }
+        else if (!hasText || !hasAltText) {
+            // If either text is missing, add empty text node in the right position
+            const [addType, atPos] = (!hasAltText) ? ['core/image/altText', 2] : ['core/image/text', 1]
+            Transforms.insertNodes(
+                editor,
+                {
+                    id: uuid.v4(),
+                    class: 'text',
+                    type: addType,
+                    children: [{ text: '' }]
+                },
+                { at: [...path, atPos] }
+            )
+            return true
+        }
     }
 
-    // If any child element (parent el + 2 children) is missing, remove all
-    if (node.children.length < 3) {
-        Transforms.removeNodes(editor, { at: [path[0]] })
-        return true
-    }
 
-    // Remove excess altText (only one allowed)
-    const altTexts = node.children.filter((child: any) => child?.type === 'core/image/text')
-    if (Array.isArray(altTexts) && altTexts.length > 1) {
-        // FIXME: Merge all altTexts into one. It should be just one
-        return true
-    }
+    let n = 0
+    for (const [child, childPath] of children) {
+        if (TextbitElement.isBlock(child) || TextbitElement.isTextblock(child)) {
+            // Unwrap block node children (move text element children upwards in tree)
+            Transforms.unwrapNodes(editor, {
+                at: childPath,
+                split: true
+            })
+            return true
+        }
 
-    // Remove excess text (only one allowed)
-    const texts = node.children.filter((child: any) => child?.type === 'core/image/text')
-    if (Array.isArray(texts) && texts.length > 1) {
-        convertLastSibling(editor, node, path, 'core/image/text', 'core/paragraph')
-        return true
-    }
+        if (n === 1 && !TextbitElement.isOfType(child, 'core/image/text')) {
+            Transforms.setNodes(
+                editor,
+                { type: 'core/image/text' },
+                { at: childPath }
+            )
+            return true
+        }
 
-    return true
+        if (n === 2 && !TextbitElement.isOfType(child, 'core/image/altText')) {
+            Transforms.setNodes(
+                editor,
+                { type: 'core/image/altText' },
+                { at: childPath }
+            )
+            return true
+        }
+
+        if (n > 2) {
+            // Excessive nodes are lifted and transformed to text
+            Transforms.setNodes(
+                editor,
+                {type: 'core/text', properties: {}},
+                {at: childPath}
+            )
+            Transforms.liftNodes(
+                editor,
+                { at: childPath}
+            )
+        }
+        n++
+    }
 }
 
 const actionHandler = ({ editor }: TextbitActionHandlerProps): boolean => {
@@ -204,14 +288,14 @@ const consume: ConsumeFunction = ({ input }) => {
                                 children: [{ text: '' }]
                             },
                             {
-                                type: 'core/image/altText',
-                                class: 'text',
-                                children: [{ text: name }]
-                            },
-                            {
                                 type: 'core/image/text',
                                 class: 'text',
                                 children: [{ text: '' }]
+                            },
+                            {
+                                type: 'core/image/altText',
+                                class: 'text',
+                                children: [{ text: name }]
                             }
                         ]
                     })
@@ -247,12 +331,12 @@ export const Image: TextbitPlugin = {
             }
         }
     ],
-    events: {
-        onNormalizeNode
-    },
     component: {
         class: 'block',
         render,
+        constraints: {
+            normalizeNode: normalizeImage
+        },
         children: [
             {
                 type: 'image',

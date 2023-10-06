@@ -95,7 +95,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
             },
             { at: [...path, atPos] }
         )
-        return
+        return true
     }
 
     let n = 1

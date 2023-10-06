@@ -38,7 +38,7 @@
 
     --bg-primary: rgb(100, 102, 233);
     --fg-primary: rgb(245, 245, 245);
-    --bg-primary-hover: rgb(88, 90, 211);
+    --bg-primary-hover: hsl(221.2 83.2% 53.3%);
     --fg-primary-hover: rgb(255, 255, 255);
 
     --fg-link: rgb(62, 116, 233);
