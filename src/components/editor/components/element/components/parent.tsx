@@ -19,14 +19,15 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
 
     const { element, attributes, component } = renderProps
 
+    const blockMargin = ['block', 'textblock'].includes(component.class) ? '0px' : '-8px'
     const style = {
-        // boxShadow: `${component.class === 'block' && selected && focused ? 'rgba(124, 58, 237, 0.7) 0px 0px 0px 2px' : 'none'}`,
         overflow: 'hidden',
         padding: '8px',
-        margin: '-8px'
+        margin: `${blockMargin}, -8px`
     }
-    const borderClass = component.class === 'block' && selected && focused ? 'b-primary' : 'no-border'
+    const borderClass = ['block', 'textblock'].includes(component.class) && selected && focused ? 'b-primary' : 'no-border'
     const elementTypeClass = `${element.type.replace('/', '--')}`
+
     return (
         <Droppable element={element}>
             <div
