@@ -193,6 +193,7 @@ const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
                 editor,
                 { at: childPath}
             )
+            return true
         }
         n++
     }
