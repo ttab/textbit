@@ -2,7 +2,7 @@ import { Editor, Transforms, Text } from 'slate'
 
 /**
  * Toggle leaf marks stored as plugin names in formats array for leaf nodes
- * 
+ *
  * FIXME: Clears formats if first part of selection don't have formats but the
  * second half of the seletion have as the check for existing formats only
  * look at the first part, and then clears it before moving on to add the new.

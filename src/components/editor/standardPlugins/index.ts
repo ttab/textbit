@@ -10,15 +10,15 @@ import { Link } from './inline/link'
 
 
 export const StandardPlugins = [
-    Text,
-    Blockquote,
-    Bold,
-    Italic,
-    Underline,
-    Navigation,
-    OembedVideo,
-    Quotes,
-    Image,
-    Loader,
-    Link
+  Text,
+  Blockquote,
+  Bold,
+  Italic,
+  Underline,
+  Navigation,
+  OembedVideo,
+  Quotes,
+  Image,
+  Loader,
+  Link
 ]

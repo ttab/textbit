@@ -1,14 +1,14 @@
 .textbit-image-container {
-    height: auto;
-    position: relative;
+  height: auto;
+  position: relative;
 }
 
 .textbit-image-container.appear-dimmed {
-    height: 10rem;
-    overflow: hidden;
+  height: 10rem;
+  overflow: hidden;
 }
 
 .textbit-image-container img {
-    display: block;
-    object-fit: cover;
+  display: block;
+  object-fit: cover;
 }

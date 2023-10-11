@@ -4,36 +4,36 @@ import { pasteToParagraphs } from "@/lib/pasteToParagraphs"
 import { pasteToConsumers } from "@/lib/pasteToConsumer"
 
 type Consumers = {
-    consumes: ConsumesFunction
-    consume: ConsumeFunction
+  consumes: ConsumesFunction
+  consume: ConsumeFunction
 }[]
 
 export const withInsertText = (editor: Editor, plugins: TextbitPlugin[]) => {
-    const { insertText } = editor
+  const { insertText } = editor
 
-    const consumers: Consumers = plugins
-        .filter(({ consumer }) => consumer?.consume && consumer?.consumes)
-        .map(({ consumer }) => consumer) as Consumers
+  const consumers: Consumers = plugins
+    .filter(({ consumer }) => consumer?.consume && consumer?.consumes)
+    .map(({ consumer }) => consumer) as Consumers
 
-    editor.insertText = (text) => {
-        const input = {
-            source: 'text',
-            type: 'text/plain',
-            data: text
-        }
-
-        const handle = pasteToConsumers(editor, consumers, input)
-        if (handle instanceof Promise) {
-            handle.then(response => {
-                const newText = typeof response === 'string' ? response : text
-                insertText(text)
-            })
-            return
-        }
-
-        // Fallback to Slate
-        insertText(text)
+  editor.insertText = (text) => {
+    const input = {
+      source: 'text',
+      type: 'text/plain',
+      data: text
     }
 
-    return editor
+    const handle = pasteToConsumers(editor, consumers, input)
+    if (handle instanceof Promise) {
+      handle.then(response => {
+        const newText = typeof response === 'string' ? response : text
+        insertText(text)
+      })
+      return
+    }
+
+    // Fallback to Slate
+    insertText(text)
+  }
+
+  return editor
 }

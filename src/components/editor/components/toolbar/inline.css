@@ -1,71 +1,71 @@
 .editor-inline-menu {
-    opacity: 0;
-    position: absolute;
-    z-index: 1;
-    top: -10000px;
-    left: -10000px;
-    margin-top: -8px;
-    transition: opacity 0.1s;
-    padding: 4px;
+  opacity: 0;
+  position: absolute;
+  z-index: 1;
+  top: -10000px;
+  left: -10000px;
+  margin-top: -8px;
+  transition: opacity 0.1s;
+  padding: 4px;
 }
 
 .editor-inline-menu>div {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
 .editor-inline-menu .editor-inline-menu-arrow {
-    position: absolute;
-    bottom: -3px;
-    left: 45%;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 8px solid var(--bg-base-30);
-    /** FIXME: Handle by theme **/
-    filter: drop-shadow(0px 3px 2px rgba(0, 0, 0, 0.2));
+  position: absolute;
+  bottom: -3px;
+  left: 45%;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--bg-base-30);
+  /** FIXME: Handle by theme **/
+  filter: drop-shadow(0px 3px 2px rgba(0, 0, 0, 0.2));
 }
 
 .editor-inline-menu .editor-tool-group {
-    display: flex;
-    flex-direction: row;
-    padding: 0 4px;
-    border-right: 2px solid var(--b-weak);
+  display: flex;
+  flex-direction: row;
+  padding: 0 4px;
+  border-right: 2px solid var(--b-weak);
 }
 
 .editor-inline-menu .editor-tool-group:first-child {
-    padding-left: 0;
+  padding-left: 0;
 }
 
 .editor-inline-menu .editor-tool-group:last-child {
-    padding-right: 0;
-    border-right: none;
+  padding-right: 0;
+  border-right: none;
 }
 
 .editor-inline-menu .editor-tool-group div {
-    display: inline-block;
+  display: inline-block;
 }
 
 .editor-inline-menu span.editor-tool {
-    text-align: center;
-    padding: 6px 8px;
-    cursor: pointer;
-    font-size: 1.3rem;
-    position: relative;
+  text-align: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  position: relative;
 }
 
 .editor-inline-menu span.editor-tool>svg {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .editor-inline-menu span.editor-tool>em {
-    position: absolute;
-    height: 3px;
-    left: 5%;
-    right: 5%;
-    bottom: 2px;
-    border-radius: 20px;
+  position: absolute;
+  height: 3px;
+  left: 5%;
+  right: 5%;
+  bottom: 2px;
+  border-radius: 20px;
 }
 
 .editor-inline-menu span.editor-tool:hover>em {
-    opacity: 0.4;
+  opacity: 0.4;
 }

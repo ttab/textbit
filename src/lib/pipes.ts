@@ -190,7 +190,7 @@ function initPipeForDrop(dt: DataTransfer) {
 
 /**
  * Loop over an aggregated pipe (of pipes) and execute the individual pipes
- * 
+ *
  * +---+    +---+---+---+---+
  * | 1 | -> | a | b | c | d |
  * +---+    +---+---+---+---+

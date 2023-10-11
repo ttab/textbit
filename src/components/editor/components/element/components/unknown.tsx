@@ -4,26 +4,26 @@ import { Droppable } from "./droppable"
 
 /**
  * Used when no renderer exists, unknown node
- * 
+ *
  * @param props RenderElementProps
  * @returns JSX.Element
  */
 export const UnknownElementComponent = ({ element, attributes, children }: RenderElementProps) => {
-    return (
-        // TODO: Investigate if this dataId should be there (as data-id - or at all)?
-        // <Droppable dataId={element?.id || ''}>
-        <Droppable>
-            <div
-                contentEditable={false}
-                className="parent unknown"
-                data-id={element.id}
-                {...attributes}
-            >
-                <pre style={{ fontSize: '80%' }}> UNKNOWN OBJECT({element.type})</pre>
-                <div style={{ opacity: '0.4' }}>
-                    {children}
-                </div>
-            </div>
-        </Droppable>
-    )
+  return (
+    // TODO: Investigate if this dataId should be there (as data-id - or at all)?
+    // <Droppable dataId={element?.id || ''}>
+    <Droppable>
+      <div
+        contentEditable={false}
+        className="parent unknown"
+        data-id={element.id}
+        {...attributes}
+      >
+        <pre style={{ fontSize: '80%' }}> UNKNOWN OBJECT({element.type})</pre>
+        <div style={{ opacity: '0.4' }}>
+          {children}
+        </div>
+      </div>
+    </Droppable>
+  )
 }

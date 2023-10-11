@@ -1,46 +1,46 @@
 .textbit-editor {
-    position: relative;
-    height: 100%;
+  position: relative;
+  height: 100%;
 
-    font-family: var(--font-family-serif);
-    font-weight: var(--font-normal);
-    font-size: var(--font-size);
-    line-height: var(--line-height);
-    letter-spacing: var(--letter-spacing);
-    background-color: var(--bg-base-100);
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-family-serif);
+  font-weight: var(--font-normal);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+  letter-spacing: var(--letter-spacing);
+  background-color: var(--bg-base-100);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .textbit-drag-container {
-    overflow-x: scroll;
-    height: 100%;
+  overflow-x: scroll;
+  height: 100%;
 }
 
 .textbit-drag-container .editor-drop-marker {
-    display: block;
-    position: absolute;
-    overflow-x: scroll;
-    height: 2px;
-    margin-top: -1px;
-    left: 4rem;
-    right: 1.8rem;
-    background: var(--bg-primary-hover);
-    opacity: 0;
-    box-shadow: 0px 0px 4px 2px var(--bg-base-hover);
-    transition: opacity 0.1s;
+  display: block;
+  position: absolute;
+  overflow-x: scroll;
+  height: 2px;
+  margin-top: -1px;
+  left: 4rem;
+  right: 1.8rem;
+  background: var(--bg-primary-hover);
+  opacity: 0;
+  box-shadow: 0px 0px 4px 2px var(--bg-base-hover);
+  transition: opacity 0.1s;
 }
 
 .textbit-drag-container .editor-drop-marker.active {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 
 
 .textbit-editor div[role="textbox"] {
-    height: 100%;
-    min-height: 200px;
-    overflow-x: scroll;
+  height: 100%;
+  min-height: 200px;
+  overflow-x: scroll;
 }
 
 
@@ -48,53 +48,53 @@
  * Parent elements and droppables
  */
 .textbit-editor .droppable-block {
-    position: relative;
+  position: relative;
 }
 
 .textbit-editor .parent {
-    color: var(--fg-base);
-    padding: 0.4rem 3.6rem 0.4rem 4.2rem;
+  color: var(--fg-base);
+  padding: 0.4rem 3.6rem 0.4rem 4.2rem;
 }
 
 .textbit-editor.textbit-drag-over .parent.block {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .textbit-editor .droppable-block:first-child .parent {
-    padding-top: 1.6rem;
+  padding-top: 1.6rem;
 }
 
 .textbit-editor .droppable-block:last-child .parent {
-    padding-bottom: 1.6rem;
+  padding-bottom: 1.6rem;
 }
 
 .textbit-editor .droppable-block {
-    position: relative;
-    width: 100%;
-    box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .textbit-editor.drag-over .droppable-block>div {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 /* Special rule to make bold leafs in bold elements even bolder */
 .textbit-editor .parent .font-bold .bold {
-    font-weight: var(--font-bolder);
+  font-weight: var(--font-bolder);
 }
 
 /**
  * Resusable element transitions
  */
 .textbit-editor .parent .appear-transitions {
-    transition:
-        padding 0.4s,
-        height 0.6s,
-        opacity 0.6s ease-in;
+  transition:
+    padding 0.4s,
+    height 0.6s,
+    opacity 0.6s ease-in;
 }
 
 .textbit-editor .parent .appear-dimmed {
-    opacity: 0.3;
+  opacity: 0.3;
 }
 
 
@@ -102,221 +102,221 @@
  * Theme base color classes
  */
 .textbit .fg-base {
-    color: var(--fg-base);
+  color: var(--fg-base);
 }
 
 .textbit .fg-weak {
-    color: var(--fg-base);
-    opacity: 0.7;
+  color: var(--fg-base);
+  opacity: 0.7;
 }
 
 .textbit .bg-base,
 .textbit.bg-base {
-    background-color: var(--bg-base);
-    color: var(--fg-base);
+  background-color: var(--bg-base);
+  color: var(--fg-base);
 }
 
 .textbit .bg-base-hover:hover {
-    background-color: var(--bg-base-hover);
+  background-color: var(--bg-base-hover);
 }
 
 .textbit .bg-base-focus {
-    background-color: var(--bg-base-hover);
+  background-color: var(--bg-base-hover);
 }
 
 .textbit .bg-base-10,
 .textbit.bg-base-10 {
-    background-color: var(--bg-base-10);
-    color: var(--fg-base);
+  background-color: var(--bg-base-10);
+  color: var(--fg-base);
 }
 
 .textbit .bg-base-20,
 .textbit.bg-base-20 {
-    background-color: var(--bg-base-20);
-    color: var(--fg-base);
+  background-color: var(--bg-base-20);
+  color: var(--fg-base);
 }
 
 .textbit .bg-base-30,
 .textbit.bg-base-30 {
-    background-color: var(--bg-base-30);
-    color: var(--fg-base);
+  background-color: var(--bg-base-30);
+  color: var(--fg-base);
 }
 
 .textbit .s-base {
-    box-shadow: var(--s-base);
+  box-shadow: var(--s-base);
 }
 
 .textbit .s-base-10 {
-    box-shadow: var(--s-base-10);
+  box-shadow: var(--s-base-10);
 }
 
 .textbit .s-base-20 {
-    box-shadow: var(--s-base-20);
+  box-shadow: var(--s-base-20);
 }
 
 .textbit .s-base-30 {
-    box-shadow: var(--s-base-30);
+  box-shadow: var(--s-base-30);
 }
 
 
 .textbit .primary {
-    background-color: var(--bg-primary);
-    color: var(--fg-primary);
+  background-color: var(--bg-primary);
+  color: var(--fg-primary);
 }
 
 .textbit .bg-primary {
-    background-color: var(--bg-primary);
+  background-color: var(--bg-primary);
 }
 
 .textbit .fg-primary {
-    color: var(--bg-primary);
+  color: var(--bg-primary);
 }
 
 .textbit .primary-hover:hover {
-    background-color: var(--bg-primary-hover);
-    color: var(--fg-primary-hover);
+  background-color: var(--bg-primary-hover);
+  color: var(--fg-primary-hover);
 }
 
 .textbit .primary-weak {
-    background-color: var(--bg-primary);
-    color: var(--fg-primary);
-    opacity: 0.7;
+  background-color: var(--bg-primary);
+  color: var(--fg-primary);
+  opacity: 0.7;
 }
 
 
 .textbit .fg-link {
-    color: var(--fg-link)
+  color: var(--fg-link)
 }
 
 .textbit .fg-error {
-    color: var(--fg-error)
+  color: var(--fg-error)
 }
 
 /**
  * General resuable defaults
  */
 .textbit .r-base {
-    border-radius: var(--r-base);
-    overflow: hidden;
+  border-radius: var(--r-base);
+  overflow: hidden;
 }
 
 .textbit .r-less {
-    border-radius: calc(var(--r-base) / 1.5);
-    overflow: hidden;
+  border-radius: calc(var(--r-base) / 1.5);
+  overflow: hidden;
 }
 
 .textbit .r-none {
-    border-radius: 0;
+  border-radius: 0;
 }
 
 .textbit .b-primary {
-    box-shadow: var(--bg-primary-hover) 0 0 0 2px;
+  box-shadow: var(--bg-primary-hover) 0 0 0 2px;
 }
 
 .textbit .b-base {
-    border: 1px solid var(--b-base);
+  border: 1px solid var(--b-base);
 }
 
 .textbit .b-weak {
-    border: 1px solid var(--b-weak);
+  border: 1px solid var(--b-weak);
 }
 
 .textbit .no-border {
-    border: none;
+  border: none;
 }
 
 .textbit .weak {
-    opacity: 0.9;
+  opacity: 0.9;
 }
 
 .textbit .weaker {
-    opacity: 0.7;
+  opacity: 0.7;
 }
 
 .textbit .text-ui {
-    font-family: var(--font-family-ui)
+  font-family: var(--font-family-ui)
 }
 
 .textbit .text-sans-serif {
-    font-family: var(--font-family-sans-serif);
+  font-family: var(--font-family-sans-serif);
 }
 
 .textbit .text-xs {
-    font-size: 0.8rem;
+  font-size: 0.8rem;
 }
 
 .textbit .text-sm {
-    font-size: 0.9rem;
+  font-size: 0.9rem;
 }
 
 .textbit .text-md {
-    font-size: 1.1rem;
+  font-size: 1.1rem;
 }
 
 .textbit .text-lg {
-    font-size: 1.35rem;
+  font-size: 1.35rem;
 }
 
 .textbit .text-xl {
-    font-size: 1.8rem;
+  font-size: 1.8rem;
 }
 
 .textbit .text-xl2 {
-    font-size: 2.2rem;
+  font-size: 2.2rem;
 }
 
 .textbit .font-light {
-    font-weight: var(--font-weight-light);
+  font-weight: var(--font-weight-light);
 }
 
 .textbit .font-normal {
-    font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-normal);
 }
 
 .textbit .font-bold,
 .textbit .bold {
-    font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
 }
 
 .textbit .font-semibold {
-    font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
 }
 
 .textbit .font-bolder {
-    font-weight: var(--font-weight-bolder);
+  font-weight: var(--font-weight-bolder);
 }
 
 .textbit .italic {
-    font-style: italic;
+  font-style: italic;
 }
 
 .textbit .not-italic {
-    font-style: normal;
+  font-style: normal;
 }
 
 .textbit .underline {
-    text-decoration-line: underline;
+  text-decoration-line: underline;
 }
 
 .textbit .line-through {
-    text-decoration-line: line-through;
+  text-decoration-line: line-through;
 }
 
 .textbit .no-underline {
-    text-decoration-line: none;
+  text-decoration-line: none;
 }
 
 .textbit input {
-    font-family: var(--font-family-ui);
-    font-size: 1.1rem;
-    line-height: var(--line-height);
-    font-weight: var(--font-weight-normal);
-    color: var(--fg-base);
+  font-family: var(--font-family-ui);
+  font-size: 1.1rem;
+  line-height: var(--line-height);
+  font-weight: var(--font-weight-normal);
+  color: var(--fg-base);
 }
 
 .textbit input[type="text"] {
-    padding: 2px 8px;
-    border: 1px solid var(--b-base);
-    border-radius: calc(var(--r-base) / 1.5);
-    background-color: var(--bg-base-30);
+  padding: 2px 8px;
+  border: 1px solid var(--b-base);
+  border-radius: calc(var(--r-base) / 1.5);
+  background-color: var(--bg-base-30);
 }

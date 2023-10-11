@@ -1,27 +1,27 @@
 import {
-    TextbitDescendant,
-    TextbitElement,
-    TextbitText
+  TextbitDescendant,
+  TextbitElement,
+  TextbitText
 } from './slate-overrides'
 
 export {
-    TextbitDescendant,
-    TextbitElement,
-    TextbitText
+  TextbitDescendant,
+  TextbitElement,
+  TextbitText
 }
 
 import {
-    TextbitActionHandlerProps,
-    TextbitComponent,
-    TextbitPlugin
+  TextbitActionHandlerProps,
+  TextbitComponent,
+  TextbitPlugin
 } from './types'
 
 export {
-    TextbitActionHandlerProps,
-    TextbitComponent,
-    TextbitPlugin
+  TextbitActionHandlerProps,
+  TextbitComponent,
+  TextbitPlugin
 }
 
 export {
-    Editor
+  Editor
 } from './components';

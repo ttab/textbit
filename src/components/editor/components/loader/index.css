@@ -1,139 +1,139 @@
 .appear-loading {
-    text-align: text-center;
-    height: 10rem;
-    position: relative;
+  text-align: text-center;
+  height: 10rem;
+  position: relative;
 }
 
 .appear-loading>div {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 45px;
-    height: 45px;
-    animation: rotate-move 3s ease infinite;
-    -webkit-filter: url("#goo");
-    filter: url("#goo");
-    overflow: visible;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 45px;
+  height: 45px;
+  animation: rotate-move 3s ease infinite;
+  -webkit-filter: url("#goo");
+  filter: url("#goo");
+  overflow: visible;
 }
 
 .dot {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    position: absolute;
-    margin: auto;
-    background-color: #999;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  position: absolute;
+  margin: auto;
+  background-color: #999;
 }
 
 .dot-3 {
-    animation: dot-3-move 3s ease infinite, index 6s ease infinite;
+  animation: dot-3-move 3s ease infinite, index 6s ease infinite;
 }
 
 .dot-2 {
-    animation: dot-2-move 3s ease infinite, index 6s -4s ease infinite;
+  animation: dot-2-move 3s ease infinite, index 6s -4s ease infinite;
 }
 
 .dot-1 {
-    animation: dot-1-move 3s ease infinite, index 6s -2s ease infinite;
+  animation: dot-1-move 3s ease infinite, index 6s -2s ease infinite;
 }
 
 @keyframes dot-3-move {
-    0% {
-        transform: scale(1)
-    }
+  0% {
+    transform: scale(1)
+  }
 
-    20% {
-        transform: translateY(-18%) scale(.55)
-    }
+  20% {
+    transform: translateY(-18%) scale(.55)
+  }
 
-    40% {
-        transform: translateY(-90%) scale(.55)
-    }
+  40% {
+    transform: translateY(-90%) scale(.55)
+  }
 
-    70% {
-        transform: translateY(-90%) scale(.55)
-    }
+  70% {
+    transform: translateY(-90%) scale(.55)
+  }
 
-    100% {
-        transform: translateY(0%) scale(1)
-    }
+  100% {
+    transform: translateY(0%) scale(1)
+  }
 }
 
 @keyframes dot-2-move {
-    0% {
-        transform: scale(1)
-    }
+  0% {
+    transform: scale(1)
+  }
 
-    20% {
-        transform: translate(-16%, 12%) scale(.55)
-    }
+  20% {
+    transform: translate(-16%, 12%) scale(.55)
+  }
 
-    40% {
-        transform: translate(-80%, 60%) scale(.55)
-    }
+  40% {
+    transform: translate(-80%, 60%) scale(.55)
+  }
 
-    70% {
-        transform: translate(-80%, 60%) scale(.55)
-    }
+  70% {
+    transform: translate(-80%, 60%) scale(.55)
+  }
 
-    100% {
-        transform: translateY(0%) scale(1)
-    }
+  100% {
+    transform: translateY(0%) scale(1)
+  }
 }
 
 @keyframes dot-1-move {
-    0% {
-        transform: scale(1)
-    }
+  0% {
+    transform: scale(1)
+  }
 
-    20% {
-        transform: translate(16%, 12%) scale(.55)
-    }
+  20% {
+    transform: translate(16%, 12%) scale(.55)
+  }
 
-    40% {
-        transform: translate(80%, 60%) scale(.55)
-    }
+  40% {
+    transform: translate(80%, 60%) scale(.55)
+  }
 
-    70% {
-        transform: translate(80%, 60%) scale(.55)
-    }
+  70% {
+    transform: translate(80%, 60%) scale(.55)
+  }
 
-    100% {
-        transform: translateY(0%) scale(1)
-    }
+  100% {
+    transform: translateY(0%) scale(1)
+  }
 }
 
 @keyframes rotate-move {
-    25% {
-        transform: translate(-50%, -50%) rotate(0deg)
-    }
+  25% {
+    transform: translate(-50%, -50%) rotate(0deg)
+  }
 
-    50% {
-        transform: translate(-50%, -50%) rotate(360deg)
-    }
+  50% {
+    transform: translate(-50%, -50%) rotate(360deg)
+  }
 
-    75% {
-        transform: translate(-50%, -50%) rotate(360deg)
-    }
+  75% {
+    transform: translate(-50%, -50%) rotate(360deg)
+  }
 
-    100% {
-        transform: translate(-50%, -50%) rotate(360deg)
-    }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg)
+  }
 }
 
 @keyframes index {
 
-    0%,
-    100% {
-        z-index: 3
-    }
+  0%,
+  100% {
+    z-index: 3
+  }
 
-    33.3% {
-        z-index: 2
-    }
+  33.3% {
+    z-index: 2
+  }
 
-    66.6% {
-        z-index: 1
-    }
+  66.6% {
+    z-index: 1
+  }
 }
