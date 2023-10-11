@@ -29,7 +29,7 @@ export const TextbitEditor: TextbitEditor = {
       SlateEditor.nodes(editor, {
         at: [],
         mode: 'highest',
-        match: n => TextbitElement.isElement(n)
+        match: n => SlateElement.isElement(n)
       })).length
   },
 
@@ -38,7 +38,7 @@ export const TextbitEditor: TextbitEditor = {
     return SlateEditor.nodes(editor, {
       at: [],
       mode: 'highest',
-      match: n => TextbitElement.isElement(n)
+      match: n => SlateElement.isElement(n)
     })
   }
 }
