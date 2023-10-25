@@ -12,7 +12,7 @@
     "watch": "rollup -w -c tooling/rollup.config.mjs",
     "build": "rollup -c tooling/rollup.config.mjs",
     "test": "jest -c tooling/jest.config.ts",
-    "start": "node local/__tooling__/esbuild.config.js -w"
+    "dev": "node local/__tooling__/esbuild.config.js -w"
   },
   "author": "Danne Lundqvist",
   "license": "MIT",
@@ -62,10 +62,10 @@
     "is-hotkey": "^0.2.0",
     "is-url": "^1.2.4",
     "react-icons": "^4.7.1",
-    "slate": "^0.91.3",
+    "slate": "^0.91.4",
     "slate-history": "^0.86.0",
     "slate-hyperscript": "^0.77.0",
-    "slate-react": "^0.91.3",
+    "slate-react": "^0.91.11",
     "uuid": "^9.0.0"
   }
 }
