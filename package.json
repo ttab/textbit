@@ -49,12 +49,12 @@
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.0",
-    "typescript": "^4.9.5"
-  },
-  "peerDependencies": {
+    "typescript": "^4.9.5",
     "@fontsource/inter": "^4.5.15",
     "@fontsource/roboto": "^4.5.8",
-    "@fontsource/source-serif-pro": "^4.5.9",
+    "@fontsource/source-serif-pro": "^4.5.9"
+  },
+  "peerDependencies": {
     "react": "^18.2.0"
   },
   "dependencies": {
