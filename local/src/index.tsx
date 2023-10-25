@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { TextbitEditor } from '../../src'
+import { Editor as TextbitEditor } from '../../src'
 import { ThemeSwitcher } from './themeSwitcher'
 import { Descendant } from 'slate'
 
