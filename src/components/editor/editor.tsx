@@ -4,6 +4,7 @@ import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as
 import { HistoryEditor, withHistory } from "slate-history"
 import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
 import * as uuid from 'uuid'
+import { YHistoryEditor } from '@slate-yjs/core'
 
 import '@fontsource/inter/variable.css'
 import '@fontsource/roboto/300.css'
@@ -39,12 +40,12 @@ import { withInsertHtml } from './with/insertHtml'
 interface TextbitEditorProps {
   onChange?: (value: Descendant[]) => void
   value: Descendant[]
-  editor?: BaseEditor & ReactEditor & HistoryEditor
+  yjsEditor?: SlateEditor
   verbose?: boolean
 }
 
 
-export default function Editor({ value, onChange, editor, verbose = false }: TextbitEditorProps) {
+export default function Editor({ value, onChange, yjsEditor, verbose = false }: TextbitEditorProps) {
   const inValue = value || [{
     id: uuid.v4(),
     name: "core/paragraph",
@@ -58,12 +59,16 @@ export default function Editor({ value, onChange, editor, verbose = false }: Tex
     Registry.initialize(Registry, StandardPlugins, verbose)
   }, [])
 
-  const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
-    const e = SlateEditor.isEditor(editor) ? editor : createEditor()
-    withReact(e)
-    withHistory(e)
-    withInline(e)
 
+  const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
+    const e = SlateEditor.isEditor(yjsEditor) ? yjsEditor : createEditor()
+
+    if (!YHistoryEditor.isYHistoryEditor) {
+      withHistory(e)
+    }
+    withReact(e)
+
+    withInline(e)
     withInsertText(e, Registry.plugins)
     withNormalizeNode(e, Registry.plugins, Registry.elementComponents)
 
@@ -71,7 +76,7 @@ export default function Editor({ value, onChange, editor, verbose = false }: Tex
     withInsertBreak(e, Registry.elementComponents)
     withInsertHtml(e, Registry.plugins)
 
-    return e as BaseEditor & ReactEditor & HistoryEditor
+    return e
   }, [])
 
   const [stats, setStats] = useState([0, 0])
