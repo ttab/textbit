@@ -40,10 +40,11 @@ interface TextbitEditorProps {
   onChange?: (value: Descendant[]) => void
   value: Descendant[]
   editor?: BaseEditor & ReactEditor & HistoryEditor
+  verbose?: boolean
 }
 
 
-export default function Editor({ value, onChange, editor }: TextbitEditorProps) {
+export default function Editor({ value, onChange, editor, verbose = false }: TextbitEditorProps) {
   const inValue = value || [{
     id: uuid.v4(),
     name: "core/paragraph",
@@ -54,7 +55,7 @@ export default function Editor({ value, onChange, editor }: TextbitEditorProps) 
   }]
 
   useMemo(() => {
-    StandardPlugins.forEach(Registry.addPlugin)
+    Registry.initialize(Registry, StandardPlugins, verbose)
   }, [])
 
   const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {

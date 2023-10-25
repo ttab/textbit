@@ -30,9 +30,16 @@ export interface RegistryInterface {
   elementComponents: Map<string, RegistryComponent>
 
   // Provides faster access to actions and keyboard shortcuts
-  actions: RegistryAction[],
+  actions: RegistryAction[]
 
+  // Output verbose info on console on what is happening
+  verbose: boolean
+
+  // Add one plugin
   addPlugin: (plugin: TextbitPlugin) => void
+
+  // Initialize Registry and add all incoming plugins
+  initialize: (Registry: RegistryInterface, plugins: TextbitPlugin[], verbose: boolean) => void
 }
 
 export const Registry: RegistryInterface = {
@@ -40,7 +47,22 @@ export const Registry: RegistryInterface = {
   leafComponents: new Map(),
   elementComponents: new Map(),
   actions: [],
-  addPlugin
+  verbose: false,
+  addPlugin,
+  initialize
+}
+
+/**
+ * Initalize a clean registry and register all plugins
+ */
+export function initialize(registry: RegistryInterface, plugins: TextbitPlugin[], verbose: boolean) {
+  Registry.actions.length = 0
+  Registry.plugins.length = 0
+  Registry.leafComponents.clear()
+  Registry.elementComponents.clear()
+  Registry.verbose = verbose
+
+  plugins.forEach(registry.addPlugin)
 }
 
 /**
@@ -50,10 +72,17 @@ export const Registry: RegistryInterface = {
  * @param plugin
  */
 function addPlugin(plugin: TextbitPlugin) {
+  if (Registry.verbose) {
+    console.info(`Registering plugin ${plugin.name}`)
+  }
+
   // 1. Create new list of plugins, override old instance of a plugin if already registered, preserve order
   const plugins = [...Registry.plugins]
   const idx = plugins.findIndex((existingPlugin => existingPlugin.name === plugin.name))
   if (idx !== -1) {
+    if (Registry.verbose) {
+      console.warn(`Overriding already registered plugin ${plugin.name}`)
+    }
     plugins[idx] = plugin
   }
   else {
