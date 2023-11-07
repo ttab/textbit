@@ -36,6 +36,7 @@ import { ContentToolbar } from './components/toolbar/content'
 import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
+import { PresenceOverlay } from './components/presenceOverlay/presenceOverlay'
 
 interface TextbitEditorProps {
   onChange?: (value: Descendant[]) => void
@@ -110,14 +111,14 @@ export default function Editor({ value, onChange, yjsEditor, verbose = false }: 
             actions={Registry.actions.filter(action => action.plugin.class !== 'leaf')}
           />
 
-          <Editable
-            // style={{ minHeight: expandHeight ? '100%' : 'auto' }}
-            renderElement={renderSlateElement}
-            renderLeaf={renderLeafComponent}
-            onKeyDown={event => handleOnKeyDown(event, textbitEditor)}
-            decorate={([node, path]) => handleDecoration(textbitEditor, node, path)}
-          />
-
+          <PresenceOverlay isCollaborative={!!yjsEditor}>
+            <Editable
+              renderElement={renderSlateElement}
+              renderLeaf={renderLeafComponent}
+              onKeyDown={event => handleOnKeyDown(event, textbitEditor)}
+              decorate={([node, path]) => handleDecoration(textbitEditor, node, path)}
+            />
+          </PresenceOverlay>
         </Slate>
 
       </DragAndDrop>
@@ -125,6 +126,7 @@ export default function Editor({ value, onChange, yjsEditor, verbose = false }: 
     </div>
   )
 }
+
 
 /*
  * Display decoration when node is

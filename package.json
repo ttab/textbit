@@ -56,13 +56,14 @@
     "typescript": "^4.9.5"
   },
   "peerDependencies": {
-    "@slate-yjs/core": "^1.0.2",
-    "react": "^18.2.0",
     "@fontsource/inter": "^4.5.15",
     "@fontsource/roboto": "^4.5.8",
-    "@fontsource/source-serif-pro": "^4.5.9"
+    "@fontsource/source-serif-pro": "^4.5.9",
+    "@slate-yjs/core": "^1.0.2",
+    "react": "^18.2.0"
   },
   "dependencies": {
+    "@slate-yjs/react": "^1.1.0",
     "escape-html": "^1.0.3",
     "is-hotkey": "^0.2.0",
     "is-url": "^1.2.4",
