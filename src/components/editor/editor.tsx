@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react' // Necessary for esbuild
+import React from 'react' // Necessary for esbuild
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
@@ -36,7 +36,6 @@ import { ContentToolbar } from './components/toolbar/content'
 import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
-import { RemoteCursorOverlay } from './components/presenceOverlay/remoteCursorOverlay'
 import { PresenceOverlay } from './components/presenceOverlay/presenceOverlay'
 
 interface TextbitEditorProps {
