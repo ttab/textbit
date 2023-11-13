@@ -1,9 +1,9 @@
-import {
-  type CursorOverlayData,
-  useRemoteCursorOverlayPositions
-} from '@slate-yjs/react'
+import React, { useRef } from 'react'
+import type { CSSProperties, PropsWithChildren } from 'react'
 
-import React, { type CSSProperties, type PropsWithChildren, useRef } from 'react'
+import { useRemoteCursorOverlayPositions } from '@slate-yjs/react'
+import type { CursorOverlayData } from '@slate-yjs/react'
+
 
 interface CursorData {
   [key: string]: string
