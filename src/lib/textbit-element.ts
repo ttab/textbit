@@ -40,5 +40,3 @@ export const TextbitElement: TextbitElementInterface = {
     return Element.isElement(value) && value?.id === id
   }
 }
-
-

@@ -44,9 +44,17 @@ const initialValue: Descendant[] = [
     class: 'text',
     children: [
       { text: 'An example paragraph that contains text that is a wee bit ' },
-      { text: 'stronger', formats: ['core/bold'] },
-      { text: ' than normal but also text that is somewhat ' },
-      { text: 'emphasized', formats: ['core/italic'] },
+      {
+        text: 'stronger',
+        'core/bold': true
+      },
+      {
+        text: ' than normal but also text that is somewhat '
+      },
+      {
+        text: 'emphasized',
+        'core/italic': true
+      },
       { text: ' compared to the normal styled text found elsewhere in the document.' },
     ],
   },
@@ -85,9 +93,16 @@ const initialValue: Descendant[] = [
     class: 'text',
     children: [
       { text: 'An example paragraph that contains text that is a wee bit ' },
-      { text: 'stronger', formats: ['core/bold'] },
+      {
+        text: 'stronger',
+        'core/bold': true,
+        'core/italic': true
+      },
       { text: ' than normal but also text that is somewhat ' },
-      { text: 'emphasized', formats: ['core/italic'] },
+      {
+        text: 'emphasized',
+        'core/italic': true
+      },
       { text: ' compared to the normal styled text found elsewhere in the document.' },
     ],
   }
