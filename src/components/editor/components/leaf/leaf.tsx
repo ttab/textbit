@@ -1,12 +1,9 @@
 import React from 'react' // Necessary for esbuild
 import { RenderLeafProps } from 'slate-react'
-import { RegistryComponent } from '../../registry'
 
 /**
  * Render a leaf
  * All rendered leafs are decorated with custom style and class.
- *
- * @todo Create type/interface for Leafs/Leaf here.
  *
  * @param props RenaderLeafProps
  * @param registeredLeafs any[]
@@ -19,8 +16,9 @@ export const LeafComponent = (props: RenderLeafProps): JSX.Element => {
     return <></>
   }
 
-  // Translate plugin names (core/bold) to class names (core--bold)
-  let classNames = (Array.isArray(leaf.formats)) ? leaf.formats.map(name => { return name.replace('/', '--') }) : []
+  const classNames = Object.keys(leaf).reduce((previous, current) => {
+    return leaf[current] === true ? [...previous, current] : previous
+  }, [] as string[])
 
   // The following is a workaround for a Chromium bug where, if you have an inline at
   // the end of a block, clicking the end of a block puts the cursor inside the inline

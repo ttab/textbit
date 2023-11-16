@@ -27,8 +27,8 @@ export interface TextbitElement extends BaseElement {
 
 export interface TextbitText extends BaseText {
   text: string
-  formats?: string[]
   placeholder?: string
+  [key: string]: boolean | string | undefined
 }
 
 export type TextbitDescendant = TextbitElement | TextbitText

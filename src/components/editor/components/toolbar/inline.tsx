@@ -7,6 +7,7 @@ import { toggleLeaf } from '../../../../lib/toggleLeaf'
 import { isFromTarget } from '../../../../lib/target'
 import './inline.css'
 import { RegistryAction } from '../../registry'
+import { hasMark } from '@/lib/hasMark'
 
 const Portal = ({ children }: PropsWithChildren) => {
   return typeof document === 'object'
@@ -200,8 +201,7 @@ export const ToolGroup = ({ children }: PropsWithChildren) => {
  */
 const ToolButton = ({ action }: InlineToolProps) => {
   const editor = useSlate()
-  const marks = Editor.marks(editor)
-  const isActive = marks ? marks.formats?.includes(action.plugin.name) : false
+  const isActive = hasMark(editor, action.plugin.name)
 
   return <span
     className={`editor-tool r-less bg-base-hover`}

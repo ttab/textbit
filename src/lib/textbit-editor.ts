@@ -1,10 +1,10 @@
-import { Element as SlateElement, Editor as SlateEditor, Node, ExtendedType, NodeEntry, Editor, EditorInterface } from "slate"
-import { TextbitElement } from "./textbit-element"
+import { Element as SlateElement, Editor as SlateEditor, Node, Text, NodeEntry, Editor, EditorInterface, Path } from "slate"
 
 interface TextbitEditorInterface extends EditorInterface {
   position: (editor: SlateEditor) => number
   length: (editor: SlateEditor) => number
   parents: <T extends Node>(editor: SlateEditor) => Generator<NodeEntry<T>, void, undefined>
+  selectedTextEntries: (editor: Editor) => NodeEntry<Node>[]
 }
 export declare type TextbitEditor = TextbitEditorInterface
 
@@ -40,7 +40,30 @@ export const TextbitEditor: TextbitEditor = {
       mode: 'highest',
       match: n => SlateElement.isElement(n)
     })
+  },
+
+  /** Return all text nodes in selection */
+  selectedTextEntries: (editor) => {
+    const { selection } = editor
+
+    if (!selection) {
+      return []
+    }
+
+    const matcherFunc = (node: Node, path: Path) => {
+      if (!Text.isText(node)) {
+        return false
+      }
+
+      const [parentNode] = Editor.parent(editor, path)
+      return SlateElement.isElement(parentNode) && (!editor.isVoid(parentNode) || editor.markableVoid(parentNode))
+    }
+
+    return Array.from(
+      Editor.nodes(editor, {
+        match: matcherFunc,
+        voids: false
+      })
+    )
   }
 }
-
-
