@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import { Editor, Transforms, Range, Element as SlateElement } from 'slate'
 import { ReactEditor } from 'slate-react'
 
-import { TextbitPlugin, RenderElementFunction, ToolFunction } from '../../../../../types'
+import { TBPlugin, TBRenderElementFunction, TBToolFunction } from '../../../../../types'
 
 import { MdLink, MdLinkOff } from 'react-icons/md'
 import * as uuid from 'uuid'
@@ -18,7 +18,7 @@ import { TextbitElement } from '@/lib/textbit-element'
  * 5.   Add InlineChromiumBugfix as is in https://github.com/ianstormtaylor/slate/blob/main/site/examples/inlines.tsx
  */
 
-const renderLinkComponent: RenderElementFunction = ({ attributes, children, element }) => {
+const renderLinkComponent: TBRenderElementFunction = ({ attributes, children, element }) => {
   const url: string = element.properties?.url as string || ''
 
   return (
@@ -38,7 +38,7 @@ const renderLinkComponent: RenderElementFunction = ({ attributes, children, elem
   )
 }
 
-const EditLink: ToolFunction = (editor, entry) => {
+const EditLink: TBToolFunction = (editor, entry) => {
   const [node, path] = entry
 
   if (!SlateElement.isElement(node)) {
@@ -116,7 +116,7 @@ const deleteLink = (editor: Editor) => {
   })
 }
 
-export const Link: TextbitPlugin = {
+export const Link: TBPlugin = {
   class: 'inline',
   name: 'core/link',
   component: {
@@ -181,4 +181,3 @@ export const Link: TextbitPlugin = {
     }
   }]
 }
-

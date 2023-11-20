@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Editor as TextbitEditor } from '../../src'
+import { TBDescendant, TextbitEditable } from '../../src'
 import { ThemeSwitcher } from './themeSwitcher'
-import { Descendant } from 'slate'
 
-const initialValue: Descendant[] = [
+const initialValue: TBDescendant[] = [
   {
     type: 'core/text',
     id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
@@ -109,13 +108,13 @@ const initialValue: Descendant[] = [
 ]
 
 function App() {
-  const [value, setValue] = useState<Descendant[]>(initialValue)
+  const [value, setValue] = useState<TBDescendant[]>(initialValue)
 
   return (
     <div style={{ position: 'relative', height: '1200px' }}>
       <ThemeSwitcher />
 
-      <TextbitEditor
+      <TextbitEditable
         value={initialValue}
         onChange={value => {
           setValue(value)

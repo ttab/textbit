@@ -38,7 +38,7 @@ import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 import { PresenceOverlay } from './components/presenceOverlay/presenceOverlay'
 
-interface TextbitEditorProps {
+interface TextbitEditableProps {
   onChange?: (value: Descendant[]) => void
   value: Descendant[]
   yjsEditor?: SlateEditor
@@ -46,7 +46,7 @@ interface TextbitEditorProps {
 }
 
 
-export default function Editor({ value, onChange, yjsEditor, verbose = false }: TextbitEditorProps) {
+export function TextbitEditable({ value, onChange, yjsEditor, verbose = false }: TextbitEditableProps) {
   const inValue = value || [{
     id: uuid.v4(),
     name: "core/paragraph",

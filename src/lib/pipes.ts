@@ -3,7 +3,7 @@ import { Registry } from "../components/editor/registry"
 import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
 import { getNodeById, getSelectedNodeEntries } from "./utils"
-import { ConsumeFunction, ConsumerInput } from "../types"
+import { TBConsumeFunction, TBConsumerInput } from "../types"
 import { ChangeEvent } from "react"
 
 export type PipeConsumer = {
@@ -269,7 +269,7 @@ async function executePipe(pipe: AggregatedPipeItem, editor: Editor, position: n
   return localOffset
 }
 
-async function executePipeItem(consume: ConsumeFunction, input: ConsumerInput | ConsumerInput[], produces: string | undefined, editor: Editor, position: number) {
+async function executePipeItem(consume: TBConsumeFunction, input: TBConsumerInput | TBConsumerInput[], produces: string | undefined, editor: Editor, position: number) {
   insertLoader(editor, position)
   let offset = 0
 

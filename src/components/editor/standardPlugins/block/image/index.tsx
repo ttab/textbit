@@ -5,7 +5,7 @@ import * as uuid from 'uuid'
 
 import './index.css'
 import { BsImage } from 'react-icons/bs'
-import { ConsumeFunction, ConsumesFunction, TextbitActionHandlerProps, TextbitPlugin, RenderElementProps } from '../../../../../types'
+import { TBConsumeFunction, TBConsumesFunction, TBActionHandlerProps, TBPlugin, TBRenderElementProps } from '../../../../../types'
 import { pipeFromFileInput } from '../../../../../lib/pipes'
 import { Node } from 'slate'
 import { TextbitElement } from '@/lib/textbit-element'
@@ -26,7 +26,7 @@ import { TextbitElement } from '@/lib/textbit-element'
 //
 // type ImageElement = Element & ImageProperties
 
-const render = ({ children }: RenderElementProps) => {
+const render = ({ children }: TBRenderElementProps) => {
   const style = {
     minHeight: '10rem',
     margin: '0'
@@ -37,7 +37,7 @@ const render = ({ children }: RenderElementProps) => {
   </figure>
 }
 
-const renderImage = ({ children, attributes, rootNode }: RenderElementProps) => {
+const renderImage = ({ children, attributes, rootNode }: TBRenderElementProps) => {
   const { properties = {} } = Element.isElement(rootNode) ? rootNode : {}
   const src: string = properties?.src as string || ''
   const h = properties?.height ?? 1
@@ -61,7 +61,7 @@ const renderImage = ({ children, attributes, rootNode }: RenderElementProps) => 
   )
 }
 
-const renderText = ({ children }: RenderElementProps) => {
+const renderText = ({ children }: TBRenderElementProps) => {
   return <div draggable={false} className="text-serif text-sm italic r-less b-weak" style={{
     marginTop: '0.5rem',
     padding: '0.5rem 0.5rem',
@@ -82,7 +82,7 @@ const renderText = ({ children }: RenderElementProps) => {
 }
 
 
-const renderAltText = ({ children }: RenderElementProps) => {
+const renderAltText = ({ children }: TBRenderElementProps) => {
   return <div draggable={false} className="text-sans-serif text-sm center" style={{
     marginTop: '0.5rem',
     padding: '0.5rem 0.5rem',
@@ -199,7 +199,7 @@ const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
   }
 }
 
-const actionHandler = ({ editor }: TextbitActionHandlerProps): boolean => {
+const actionHandler = ({ editor }: TBActionHandlerProps): boolean => {
   let fileSelector: HTMLInputElement | undefined = document.createElement('input')
 
   fileSelector.accept = "image/jpg, image/gif, image/png";
@@ -223,7 +223,7 @@ const actionHandler = ({ editor }: TextbitActionHandlerProps): boolean => {
   return true
 }
 
-const consumes: ConsumesFunction = ({ input }) => {
+const consumes: TBConsumesFunction = ({ input }) => {
   if (!(input.data instanceof File)) {
     return [false]
   }
@@ -246,7 +246,7 @@ const consumes: ConsumesFunction = ({ input }) => {
 /**
  * Consume a FileList and produce an array of core/image objects
  */
-const consume: ConsumeFunction = ({ input }) => {
+const consume: TBConsumeFunction = ({ input }) => {
   if (Array.isArray(input)) {
     throw new Error('Image plugin expected File for consumation, not a list/array')
   }
@@ -311,7 +311,7 @@ const consume: ConsumeFunction = ({ input }) => {
   return readerPromise
 }
 
-export const Image: TextbitPlugin = {
+export const Image: TBPlugin = {
   class: 'block',
   name: 'core/image',
   consumer: {

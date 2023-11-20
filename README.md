@@ -1,8 +1,8 @@
-# Textbit component
+# Textbit editable
 
 ## Description
 
-An editor component based on Slate for embedding into react applications. See [Slate documentation](https://docs.slatejs.org/) for more information.
+An editable component based on Slate for embedding into react applications. See [Slate documentation](https://docs.slatejs.org/) for more information on Slate.
 
 ## Development
 
@@ -16,6 +16,12 @@ An editor component based on Slate for embedding into react applications. See [S
 This will product both an ESM and CJS modules in as well as a typescript definition (_index.d.ts_) file in `dist/`.
 
 ## Structure
+
+### Types and other exports
+
+All exported types are prefixed with _`TB`_ to distinguish types from core Slate types. Examples are `TBElement`, `TBText` and `TBDescendant`.
+
+Objects, functions and components use full _`Textbit`_ name as prefix. The actual editable component is called `TextbitEditable`. Utility functions and type narrowing functions are found in `TextbitEditor` which inherits from Slate `Editor` and `TextbitElement` which inherits from Slate `Element`.
 
 ### Main directory structure
 
@@ -53,13 +59,16 @@ Tooling for _esbuild_ and _esbuildserve_.
 This example is not expressed in full and assumes there is an NPM package available. Which at this point it's not.
 
 ```jsx
-import { Editor } from '@ttapp/textbit'
+import {
+  TextbitEditable,
+  type TBDescendant
+} from '@ttab/textbit'
+
 import '@ttapp/textbit/dist/esm/index.css'
 
-import { Descendant } from 'slate'
 import { uploadImages } from './images'
 
-const initialValue: Descendant[] = [
+const initialValue: TBDescendant[] = [
     {
         type: 'core/text',
         id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
@@ -83,11 +92,11 @@ const initialValue: Descendant[] = [
     }
 ]
 
-const [value, setValue] = useState<Descendant[]>(initialValue)
+const [value, setValue] = useState<TBDescendant[]>(initialValue)
 
 function App() {
     return (
-        <Editor
+        <TextbitEditable
             value={value}
             onChange={(value) => onChangeImpl(setValue, value)}
         />
@@ -102,77 +111,39 @@ Plugins does not really exist yet. These are hard coded into the src and can be 
 
 ### How to define a "plugin"
 
-Plugins are defined using the interface below. (See `src/types.ts` for all the types.)
-
+Plugins are defined by the interface `TBplugin`. See type definitions for all types used by this interface.
 
 ```javascript
-
-interface TextbitComponent {
-  class: string
-  type?: string
-  placeholder?: string,
-  render: RenderElementFunction | RenderLeafFunction
-  children?: TextbitComponent[]
-  constraints?: {
-    minElements?: number
-    maxElements?: number
-    maxLength?: number
-    allowBreak?: boolean
-    allowSoftBreak?: boolean
-  }
-}
-
-interface ConsumerInput {
-  source: string
-  type: string
-  data: any
-}
-
-interface ConsumesProps {
-  input: ConsumerInput
-}
-
-interface ConsumerProps {
-  input: ConsumerInput | ConsumerInput[]
-}
-
-type ConsumesFunction = (props: ConsumesProps) => [boolean, (string | null)?, boolean?]
-type ConsumeFunction = (props: ConsumerProps) => Promise<any | undefined>
-
-interface TextbitPlugin {
+export interface TBPlugin {
   class: 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic'
   name: string
   consumer?: {
-    consumes: ConsumesFunction  // Can you consume [data], [true/false, provides `type` as response]
-    consume: ConsumeFunction // Consume [data] please
+    consumes: TBConsumesFunction  // Can you consume [data], [true/false, provides `type` as response]
+    consume: TBConsumeFunction // Consume [data] please
   }
   events?: {
+    onInsertText?: (editor: Editor, text: string) => true | void
     onNormalizeNode?: (editor: Editor, entry: NodeEntry) => true | void
   }
   actions?: Array<{
-    name?: string // Will inherit plugin name if not specified
-    tool?: JSX.Element | Array<JSX.Element | ToolFunction>
+    tool?: JSX.Element | Array<JSX.Element | TBToolFunction>
     hotkey?: string
     title?: string
-    handler: (props: TextbitActionHandlerProps) => boolean
+    description?: string
+    handler: (props: TBActionHandlerProps) => boolean | void
+    visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean] // visible, enabled, active
   }>
-  component?: TextbitComponent
+  component?: TBComponent
 }
-
-
 ```
 
-**class** 
+**class**
 
-Plugin class (see below for more details on the plugin classes).
-
-```javascript
-type TextbitPluginClass = 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic'
-```
+Defines generics for a class. See below for more details on the plugin classes.
 
 **name**
 
-Name of plugin. Used to derive default component type names. I.e a plugin named *core/heading-1* having a slate rendered component with no specifed type will inherit the plugin name as the component type.
+Name of plugin. Used to derive default component _type_. I.e a plugin named *core/heading-1* having a slate rendered component with no specifed _type_ will inherit the plugin name as the component type.
 
 **consumer**
 
@@ -194,16 +165,7 @@ Optional placeholder text for empty text in the editor. Used to visualize the te
 
 **events.onNormalizeNode**
 
-Optional function for adding normalization. See [Slate Normalizing](https://docs.slatejs.org/concepts/11-normalizing) for details.
-
-```javascript
-type NormalizeFunction = (editor: Editor, entry: NodeEntry) => void
-type Normalizer = {
-    name: string
-    class?: string
-    normalize: NormalizeFunction
-}
-```
+Optional function for adding custom normalization. See [Slate Normalizing](https://docs.slatejs.org/concepts/11-normalizing) for details.
 
 **actions**
 
@@ -221,7 +183,7 @@ The default component for the plugin must not have a specified type. The type is
 If the default component have sub components they should have a type specified. The type will be appended to the default component type. Examples:
 
 ```javascript
-const OembedVideo: TextbitPlugin = {
+const OembedVideo: TBPlugin = {
     class: 'block',
     name: 'core/oembed',
     consumer: {
@@ -252,7 +214,7 @@ const OembedVideo: TextbitPlugin = {
 The above will result in three component types. The default component will be typed as `core/oembed` and correspond to a custom element also typed the same. The two other will internally be typed as `core/oembed/embed` and `core/oembed/title`.
 
 ```javascript
-const Image: MimerPlugin = {
+const Image: TBPlugin = {
     class: 'block',
     name: 'core/image',
     consumer: {
@@ -334,7 +296,7 @@ Standalone void node type that has no editable properties. Editor does not handl
 
 Example `src/components/editor/standardPlugins/void/loader`
 
-A specific block element that have no editable properties 
+A specific block element that have no editable properties
 
 ### Generic
 
@@ -347,27 +309,34 @@ Example `src/components/editor/standardPlugins/generic/quotes.tsx`
 Element and Text interfaces have both been extended from Slate original BaseElement and BaseText interfaces.
 
 ```javascript
+export interface TBElement extends BaseElement {
+  id?: string
+  class?: string
+  type: string
+  hotKey?: string
+  properties?: {
+    [key: string]: string | number
+  }
+  attributes?: {
+    [key: string]: string | number
+  }
+}
+
+export interface TBText extends BaseText {
+  text: string
+  placeholder?: string
+  [key: string]: boolean | string | undefined
+}
+
+export type TBDescendant = TBElement | TBText
+
+/** Slate module extensions */
 declare module 'slate' {
-    interface CustomTypes {
-        Editor: BaseEditor & ReactEditor & HistoryEditor
-        Element: BaseElement & {
-            id?: string
-            class?: string
-            type: string
-            hotKey?: string
-            properties?: {
-                [key: string]: string | number
-            }
-            attributes?: {
-                [key: string]: string | number
-            }
-        }
-        Text: BaseText & {
-            text: string
-            formats?: string[]
-            placeholder?: string
-        }
-    }
+  interface CustomTypes {
+    Editor: BaseEditor & ReactEditor & HistoryEditor
+    Element: TBElement
+    Text: TBText
+  }
 }
 ```
 
@@ -375,9 +344,9 @@ An example `core/image` Element node based could then look like below.
 
 ```javascript
 {
-    type: 'core/image',
     id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
     class: 'block',
+    type: 'core/image',
     properties: {
         type: 'image/jpeg',
         src: 'https://...',
@@ -408,9 +377,9 @@ An example of paragraph Text node with bold and italic leafs. (_Note that paragr
 
 ```javascript
 {
-    type: 'core/text',
     id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
     class: 'text',
+    type: 'core/text',
     children: [
         { text: 'An example paragraph that contains text that is a wee bit ' },
         { text: 'stronger', formats: ['bold'] },
@@ -420,14 +389,3 @@ An example of paragraph Text node with bold and italic leafs. (_Note that paragr
     ],
 }
 ```
-
-## Typescript
-
-All Slate types are defined in `src/types.ts`
-
-All Textbit types are defined in `src/components/editor/types.ts`
-
-## Registry
-
-This is where everything is stored when a plugin is registered.
-`src/components/editor/registry.ts`

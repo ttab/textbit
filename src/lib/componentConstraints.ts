@@ -1,6 +1,6 @@
-import { TextbitComponent } from "src/types"
+import { TBComponent } from "src/types"
 
-export function componentConstraints(component: TextbitComponent) {
+export function componentConstraints(component: TBComponent) {
   const {
     // maxLength = undefined,   // Max length of text content
     // maxElements = undefined, // Max no of elements in parent
@@ -19,4 +19,3 @@ export function componentConstraints(component: TextbitComponent) {
     normalizeNode: normalizeNode instanceof Function ? normalizeNode : undefined
   }
 }
-

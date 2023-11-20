@@ -8,7 +8,7 @@ import {
 
 import { BsTextParagraph } from 'react-icons/bs'
 
-import { TextbitPlugin, RenderElementFunction, RenderElementProps } from '../../../../../types'
+import { TBPlugin, TBRenderElementFunction, TBRenderElementProps } from '../../../../../types'
 import { convertToText } from '../../../../../lib/utils'
 import { Element } from 'slate'
 
@@ -18,7 +18,7 @@ type TextType = {
   title: string,
   type?: string,
   description?: string,
-  render: RenderElementFunction,
+  render: TBRenderElementFunction,
   visibility: (element: Element, rootElement?: Element) => [boolean, boolean, boolean] // visible, enabled, active
 }
 
@@ -28,7 +28,7 @@ const textTypes: TextType[] = [
     title: 'Title',
     hotkey: 'mod+1',
     tool: <MdTitle />,
-    render: ({ children }: RenderElementProps) => {
+    render: ({ children }: TBRenderElementProps) => {
       return <div className="text-xl2 font-bold text-sans-serif">
         {children}
       </div>
@@ -46,7 +46,7 @@ const textTypes: TextType[] = [
     title: 'Subtitle',
     hotkey: 'mod+2',
     tool: <MdTextFields />,
-    render: ({ children }: RenderElementProps) => {
+    render: ({ children }: TBRenderElementProps) => {
       return <div className="text-l font-bold text-sans-serif">
         {children}
       </div>
@@ -64,7 +64,7 @@ const textTypes: TextType[] = [
     title: 'Preamble',
     hotkey: 'mod+3',
     tool: <MdOutlineShortText />,
-    render: ({ children }: RenderElementProps) => {
+    render: ({ children }: TBRenderElementProps) => {
       return <div className="font-bold">
         {children}
       </div>
@@ -82,7 +82,7 @@ const textTypes: TextType[] = [
     title: 'Body text',
     hotkey: 'mod+0',
     tool: <BsTextParagraph />,
-    render: ({ children }: RenderElementProps) => {
+    render: ({ children }: TBRenderElementProps) => {
       return <>
         {children}
       </>
@@ -100,7 +100,7 @@ const textTypes: TextType[] = [
     title: 'Dateline',
     hotkey: undefined,
     tool: <MdRadar />,
-    render: ({ children }: RenderElementProps) => {
+    render: ({ children }: TBRenderElementProps) => {
       return <div className="text-sm font-bold text-sans-serif">
         <span style={{ padding: '3px 9px 2px 9px', display: 'inline-block' }} className="bg-base-focus">{children}</span>
       </div>
@@ -115,18 +115,18 @@ const textTypes: TextType[] = [
   }
 ]
 
-const fallbackRender = ({ children }: RenderElementProps) => {
+const fallbackRender = ({ children }: TBRenderElementProps) => {
   return <div className="italic line-through weaker text-sans-serif">
     {children}
   </div>
 }
 
-const render = (props: RenderElementProps) => {
+const render = (props: TBRenderElementProps) => {
   const t = textTypes.find(t => t.type === props.element?.properties?.type)
   return t?.render(props) || fallbackRender(props)
 }
 
-export const Text: TextbitPlugin = {
+export const Text: TBPlugin = {
   class: 'text',
   name: 'core/text',
   component: {

@@ -1,8 +1,8 @@
 import { Transforms } from 'slate'
-import { TextbitPlugin } from '../../../../types'
-import { TextbitEditor } from '@/lib/textbit-editor'
+import { TBPlugin } from '../../../../types'
+import { TextbitEditor } from '@/lib/index'
 
-export const Navigation: TextbitPlugin = {
+export const Navigation: TBPlugin = {
   class: 'generic',
   name: 'navigation',
   actions: [

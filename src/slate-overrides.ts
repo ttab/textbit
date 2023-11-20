@@ -6,13 +6,13 @@ import {
 
 import {
   ReactEditor,
-  RenderElementProps as SlateRenderElementProps,
-  RenderLeafProps as SlateRenderLeafProps
 } from "slate-react"
 
-import { HistoryEditor } from "slate-history"
+import {
+  HistoryEditor
+} from 'slate-history'
 
-export interface TextbitElement extends BaseElement {
+export interface TBElement extends BaseElement {
   id?: string
   class?: string
   type: string
@@ -25,19 +25,19 @@ export interface TextbitElement extends BaseElement {
   }
 }
 
-export interface TextbitText extends BaseText {
+export interface TBText extends BaseText {
   text: string
   placeholder?: string
   [key: string]: boolean | string | undefined
 }
 
-export type TextbitDescendant = TextbitElement | TextbitText
+export type TBDescendant = TBElement | TBText
 
 /** Slate module extensions */
 declare module 'slate' {
   interface CustomTypes {
     Editor: BaseEditor & ReactEditor & HistoryEditor
-    Element: TextbitElement
-    Text: TextbitText
+    Element: TBElement
+    Text: TBText
   }
 }

@@ -1,29 +1,29 @@
 import isHotKey from 'is-hotkey'
 
-import { TextbitActionHandlerProps, TextbitComponent, TextbitPlugin, ToolFunction } from '../../types'
+import { TBActionHandlerProps, TBComponent, TBPlugin, TBToolFunction } from '../../types'
 import { Element } from 'slate'
 
 export type RegistryComponent = {
   type: string
   class: string
-  component: TextbitComponent
-  parent: TextbitComponent | null
+  component: TBComponent
+  parent: TBComponent | null
 }
 
 export type RegistryAction = {
-  plugin: TextbitPlugin
+  plugin: TBPlugin
   hotkey: string
   isHotkey: (action: any) => boolean
   title: string
   description: string
-  tool: JSX.Element | Array<JSX.Element | ToolFunction> | null
-  handler: (props: TextbitActionHandlerProps) => void | boolean,
+  tool: JSX.Element | Array<JSX.Element | TBToolFunction> | null
+  handler: (props: TBActionHandlerProps) => void | boolean,
   visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean]
 }
 
 export interface RegistryInterface {
   // Main registry of plugins
-  plugins: TextbitPlugin[]
+  plugins: TBPlugin[]
 
   // Provides faster access in rendering cycles
   leafComponents: Map<string, RegistryComponent>
@@ -36,10 +36,10 @@ export interface RegistryInterface {
   verbose: boolean
 
   // Add one plugin
-  addPlugin: (plugin: TextbitPlugin) => void
+  addPlugin: (plugin: TBPlugin) => void
 
   // Initialize Registry and add all incoming plugins
-  initialize: (Registry: RegistryInterface, plugins: TextbitPlugin[], verbose: boolean) => void
+  initialize: (Registry: RegistryInterface, plugins: TBPlugin[], verbose: boolean) => void
 }
 
 export const Registry: RegistryInterface = {
@@ -55,7 +55,7 @@ export const Registry: RegistryInterface = {
 /**
  * Initalize a clean registry and register all plugins
  */
-export function initialize(registry: RegistryInterface, plugins: TextbitPlugin[], verbose: boolean) {
+export function initialize(registry: RegistryInterface, plugins: TBPlugin[], verbose: boolean) {
   Registry.actions.length = 0
   Registry.plugins.length = 0
   Registry.leafComponents.clear()
@@ -71,7 +71,7 @@ export function initialize(registry: RegistryInterface, plugins: TextbitPlugin[]
  *
  * @param plugin
  */
-function addPlugin(plugin: TextbitPlugin) {
+function addPlugin(plugin: TBPlugin) {
   if (Registry.verbose) {
     console.info(`Registering plugin ${plugin.name}`)
   }
@@ -107,7 +107,7 @@ function addPlugin(plugin: TextbitPlugin) {
  * Register a plugins components render functions for faster access in the rendering functionality.
  * Type and class of the topmost component can be derived from name and class of the plugin
  */
-const registerComponents = (plugin: TextbitPlugin) => {
+const registerComponents = (plugin: TBPlugin) => {
   const { component = null } = plugin
   if (component === null) {
     return
@@ -123,7 +123,7 @@ const registerComponents = (plugin: TextbitPlugin) => {
   )
 }
 
-const registerComponent = (components: Map<string, RegistryComponent>, compType: string, component: TextbitComponent, parent?: TextbitComponent) => {
+const registerComponent = (components: Map<string, RegistryComponent>, compType: string, component: TBComponent, parent?: TBComponent) => {
   const { children = [] } = component
 
   if (components.has(compType)) {
@@ -159,7 +159,7 @@ const registerComponent = (components: Map<string, RegistryComponent>, compType:
 /**
  * Register actions in an iterable array
  */
-const registerActions = (plugins: TextbitPlugin[]) => {
+const registerActions = (plugins: TBPlugin[]) => {
   const actions: RegistryAction[] = []
 
   plugins

@@ -1,16 +1,12 @@
-import { Editor, Transforms, Range, Path, Element, Node } from "slate"
-import * as uuid from 'uuid'
-import { componentConstraints } from "./componentConstraints"
-import { Registry } from "src/components/editor/registry"
-import { TextbitEditor } from "./textbit-editor"
-import { ConsumeFunction, ConsumerInput, ConsumesFunction } from "src/types"
+import { Editor, Transforms, Range, Element, Node } from "slate"
+import { TBConsumeFunction, TBConsumerInput, TBConsumesFunction } from "src/types"
 
 type Consumers = {
-  consumes: ConsumesFunction
-  consume: ConsumeFunction
+  consumes: TBConsumesFunction
+  consume: TBConsumeFunction
 }[]
 
-export function pasteToConsumers(editor: Editor, consumers: Consumers, input: ConsumerInput): false | Promise<string | void> {
+export function pasteToConsumers(editor: Editor, consumers: Consumers, input: TBConsumerInput): false | Promise<string | void> {
   const [consume, output] = findConsumer(consumers, input)
 
   if (typeof consume !== 'function') {
@@ -35,7 +31,7 @@ export function pasteToConsumers(editor: Editor, consumers: Consumers, input: Co
 }
 
 
-function findConsumer(consumers: Consumers, input: ConsumerInput) {
+function findConsumer(consumers: Consumers, input: TBConsumerInput) {
   for (const consumer of consumers) {
 
     const [accept, output] = consumer?.consumes({ input }) || [false]

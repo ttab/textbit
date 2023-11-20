@@ -1,1 +1,1 @@
-export { default as Editor } from './editor'
+export { TextbitEditable } from './editor'
