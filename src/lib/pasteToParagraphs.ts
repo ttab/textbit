@@ -2,7 +2,7 @@ import { Editor, Transforms, Range, Path, Element, Node } from "slate"
 import * as uuid from 'uuid'
 import { componentConstraints } from "./componentConstraints"
 import { Registry } from "src/components/editor/registry"
-import { TextbitEditor } from "./textbit-editor"
+import { TextbitEditor } from "@/lib"
 
 
 export function pasteToParagraphs(text: string, editor: Editor): boolean | void {

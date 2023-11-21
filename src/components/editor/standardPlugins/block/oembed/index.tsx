@@ -1,10 +1,9 @@
 import React from 'react' // Necessary for esbuild
 import { useState, useEffect } from 'react'
-import { Descendant, Editor, Element, Node, NodeEntry, Transforms } from 'slate'
+import { Editor, Element, Node, NodeEntry, Transforms } from 'slate'
 import * as uuid from 'uuid'
 
-import { convertLastSibling } from '../../../../../lib/utils'
-import { ConsumeFunction, ConsumesFunction, TextbitPlugin, RenderElementProps } from '../../../../../types'
+import { TBConsumeFunction, TBConsumesFunction, TBPlugin, TBRenderElementProps } from '../../../../../types'
 import { TextbitElement } from '@/lib/textbit-element'
 
 // FIXME: Should expose its own type
@@ -71,7 +70,7 @@ const SUPPORTED_OEMBED_URLS = [
   // }
 ]
 
-const render = ({ children }: RenderElementProps) => {
+const render = ({ children }: TBRenderElementProps) => {
   const style = {
     minHeight: '10rem'
   }
@@ -81,7 +80,7 @@ const render = ({ children }: RenderElementProps) => {
   </div>
 }
 
-const renderVideo = ({ children, attributes, rootNode }: RenderElementProps) => {
+const renderVideo = ({ children, attributes, rootNode }: TBRenderElementProps) => {
   const { properties = {} } = Element.isElement(rootNode) ? rootNode : {}
   const src = properties?.src || ''
   const html = properties?.html || ''
@@ -144,7 +143,7 @@ const renderVideo = ({ children, attributes, rootNode }: RenderElementProps) => 
   )
 }
 
-const renderTitle = ({ children }: RenderElementProps) => {
+const renderTitle = ({ children }: TBRenderElementProps) => {
   return <div className="text-sans-serif text-sm r-less b-weak" style={{
     marginTop: '0.5rem',
     padding: '0.4rem 0.5rem',
@@ -164,7 +163,7 @@ const renderTitle = ({ children }: RenderElementProps) => {
   </div>
 }
 
-const consumes: ConsumesFunction = ({ input }) => {
+const consumes: TBConsumesFunction = ({ input }) => {
   const { data, type } = input
 
   if (!['text/uri-list', 'text/plain'].includes(type)) {
@@ -175,7 +174,7 @@ const consumes: ConsumesFunction = ({ input }) => {
   return [oembedurl ? true : false, 'core/oembed']
 }
 
-const consume: ConsumeFunction = async ({ input }) => {
+const consume: TBConsumeFunction = async ({ input }) => {
   if (Array.isArray(input)) {
     console.warn('Oembed plugin expected string for consumation, not a list/array')
     return
@@ -328,7 +327,7 @@ const normalizeOembed = (editor: Editor, nodeEndtry: NodeEntry) => {
   }
 }
 
-export const OembedVideo: TextbitPlugin = {
+export const OembedVideo: TBPlugin = {
   class: 'block',
   name: 'core/oembed',
   consumer: {

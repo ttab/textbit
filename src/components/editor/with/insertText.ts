@@ -1,14 +1,14 @@
 import { Editor } from "slate"
-import { ConsumeFunction, ConsumesFunction, TextbitPlugin } from "../../../types"
+import { TBConsumeFunction, TBConsumesFunction, TBPlugin } from "../../../types"
 import { pasteToParagraphs } from "@/lib/pasteToParagraphs"
 import { pasteToConsumers } from "@/lib/pasteToConsumer"
 
 type Consumers = {
-  consumes: ConsumesFunction
-  consume: ConsumeFunction
+  consumes: TBConsumesFunction
+  consume: TBConsumeFunction
 }[]
 
-export const withInsertText = (editor: Editor, plugins: TextbitPlugin[]) => {
+export const withInsertText = (editor: Editor, plugins: TBPlugin[]) => {
   const { insertText } = editor
 
   const consumers: Consumers = plugins

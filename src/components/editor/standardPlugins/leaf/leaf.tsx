@@ -1,9 +1,9 @@
 import React from 'react' // Necessary for esbuild
 import { MdFormatBold, MdFormatItalic, MdFormatUnderlined } from 'react-icons/md'
-import { TextbitPlugin } from '../../../../types'
+import { TBPlugin } from '../../../../types'
 import './leaf.css'
 
-const Bold: TextbitPlugin = {
+const Bold: TBPlugin = {
   class: 'leaf',
   name: 'core/bold',
   actions: [{
@@ -13,7 +13,7 @@ const Bold: TextbitPlugin = {
   }]
 }
 
-const Italic: TextbitPlugin = {
+const Italic: TBPlugin = {
   class: 'leaf',
   name: 'core/italic',
   actions: [{
@@ -23,7 +23,7 @@ const Italic: TextbitPlugin = {
   }]
 }
 
-const Underline: TextbitPlugin = {
+const Underline: TBPlugin = {
   class: 'leaf',
   name: 'core/underline',
   actions: [{

@@ -1,12 +1,12 @@
 import { Editor, Element, Node, NodeEntry, Transforms } from "slate"
-import { TextbitComponent, TextbitPlugin } from "../../../types"
+import { TBComponent, TBPlugin } from "../../../types"
 import { RegistryComponent } from "../registry"
 import { componentConstraints } from "@/lib/componentConstraints"
 
 type NormalizerFunc = (editor: Editor, entry: NodeEntry) => true | void
 type NormalizerMap = Map<string, NormalizerFunc>
 
-export const withNormalizeNode = (editor: Editor, plugins: TextbitPlugin[], components: Map<string, RegistryComponent>) => {
+export const withNormalizeNode = (editor: Editor, plugins: TBPlugin[], components: Map<string, RegistryComponent>) => {
   const { normalizeNode } = editor
 
   editor.normalizeNode = (entry) => {
@@ -86,7 +86,7 @@ export const withNormalizeNode = (editor: Editor, plugins: TextbitPlugin[], comp
   return editor
 }
 
-function addNormalizerForComponent(componentType: string, normalizers: NormalizerMap, normalizer: NormalizerFunc, component: TextbitComponent) {
+function addNormalizerForComponent(componentType: string, normalizers: NormalizerMap, normalizer: NormalizerFunc, component: TBComponent) {
   normalizers.set(componentType, normalizer)
 
   // As for now we only support normalization to be handled by the plugin

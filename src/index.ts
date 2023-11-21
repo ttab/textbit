@@ -1,27 +1,32 @@
-import {
-  TextbitDescendant,
-  TextbitElement,
-  TextbitText
+import type {
+  TBDescendant,
+  TBElement,
+  TBText
 } from './slate-overrides'
 
 export {
-  TextbitDescendant,
-  TextbitElement,
-  TextbitText
+  TBDescendant,
+  TBElement,
+  TBText
 }
 
 import {
-  TextbitActionHandlerProps,
-  TextbitComponent,
-  TextbitPlugin
+  TBActionHandlerProps,
+  TBComponent,
+  TBPlugin
 } from './types'
 
 export {
-  TextbitActionHandlerProps,
-  TextbitComponent,
-  TextbitPlugin
+  TBActionHandlerProps,
+  TBComponent,
+  TBPlugin
 }
 
 export {
-  Editor
+  TextbitEditable
 } from './components';
+
+export {
+  TextbitEditor,
+  TextbitElement
+} from './lib'

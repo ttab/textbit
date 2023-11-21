@@ -1,10 +1,10 @@
 import React from 'react' // Necessary for esbuild
 
-import { TextbitPlugin, RenderElementFunction } from '../../../../../types'
+import { TBPlugin, TBRenderElementFunction } from '../../../../../types'
 
 import './style.css'
 
-const render: RenderElementFunction = ({ children }) => {
+const render: TBRenderElementFunction = ({ children }) => {
   const style = {
     minHeight: '10rem'
   }
@@ -33,7 +33,7 @@ const render: RenderElementFunction = ({ children }) => {
   // </div>
 }
 
-export const Loader: TextbitPlugin = {
+export const Loader: TBPlugin = {
   class: 'void',
   name: 'core/loader',
   component: {

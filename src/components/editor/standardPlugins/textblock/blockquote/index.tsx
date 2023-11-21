@@ -1,38 +1,37 @@
 import React, { JSX } from 'react' // Necessary for esbuild
-import { Transforms, Node, Element, Editor, NodeEntry } from 'slate'
+import { Transforms, Node, Editor, NodeEntry } from 'slate'
 import { BsChatQuote } from 'react-icons/bs'
 import * as uuid from 'uuid'
 
 import {
-  TextbitActionHandlerProps,
-  TextbitPlugin,
-  RenderElementProps
+  TBActionHandlerProps,
+  TBPlugin,
+  TBRenderElementProps
 } from '../../../../../types'
 
-import { convertLastSibling, getSelectedText, insertAt } from '../../../../../lib/utils'
+import { TextbitEditor, TextbitElement } from '@/lib/index'
+import { getSelectedText, insertAt } from '@/lib/utils'
 import './style.css'
-import { TextbitEditor } from '@/lib/textbit-editor'
-import { TextbitElement } from '@/lib/textbit-element'
 
-const render = ({ children }: RenderElementProps): JSX.Element => {
+const render = ({ children }: TBRenderElementProps): JSX.Element => {
   return <div className="fg-weak">
     {children}
   </div>
 }
 
-const renderBody = ({ children }: RenderElementProps) => {
+const renderBody = ({ children }: TBRenderElementProps) => {
   return <div className="text-xl text-sans-serif font-light">
     {children}
   </div>
 }
 
-const renderCaption = ({ children }: RenderElementProps) => {
+const renderCaption = ({ children }: TBRenderElementProps) => {
   return <div className="text-sm italic">
     {children}
   </div>
 }
 
-const actionHandler = ({ editor }: TextbitActionHandlerProps) => {
+const actionHandler = ({ editor }: TBActionHandlerProps) => {
   const text = getSelectedText(editor)
   const node = [{
     id: uuid.v4(),
@@ -145,7 +144,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
   }
 }
 
-export const Blockquote: TextbitPlugin = {
+export const Blockquote: TBPlugin = {
   class: 'textblock',
   name: 'core/blockquote',
   actions: [
