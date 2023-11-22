@@ -6,17 +6,6 @@ import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, with
 import * as uuid from 'uuid'
 import { YHistoryEditor } from '@slate-yjs/core'
 
-import '@fontsource/inter/variable.css'
-import '@fontsource/roboto/300.css'
-import '@fontsource/roboto/400.css'
-import '@fontsource/roboto/500.css'
-import '@fontsource/source-serif-pro/300.css'
-import '@fontsource/source-serif-pro/400.css'
-import '@fontsource/source-serif-pro/600.css'
-import '@fontsource/source-serif-pro/700.css'
-import '@fontsource/source-serif-pro/900.css'
-
-import './editor-variables.css'
 import './editor.css'
 
 import { DragAndDrop } from './components/dragndrop'
@@ -96,7 +85,7 @@ export function TextbitEditable({ value, onChange, yjsEditor, verbose = false }:
   }, [])
 
   return (
-    <div className="textbit textbit-editor bg-base-10 fg-base">
+    <div className="textbit textbit-editor">
       <DragAndDrop>
 
         <Slate editor={textbitEditor} value={inValue} onChange={(value) => {
@@ -122,6 +111,7 @@ export function TextbitEditable({ value, onChange, yjsEditor, verbose = false }:
         </Slate>
 
       </DragAndDrop>
+
       <Footer stats={{ words: stats[0], characters: stats[1] }} />
     </div>
   )

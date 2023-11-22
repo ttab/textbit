@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import { TBDescendant, TextbitEditable } from '../../src'
 import { ThemeSwitcher } from './themeSwitcher'
 
+import './editor-variables.css'
+// import './editor.css'
+
 const initialValue: TBDescendant[] = [
   {
     type: 'core/text',
@@ -111,16 +114,26 @@ function App() {
   const [value, setValue] = useState<TBDescendant[]>(initialValue)
 
   return (
-    <div style={{ position: 'relative', height: '1200px' }}>
-      <ThemeSwitcher />
+    <div style={{
+      margin: '0 auto',
+      height: '100vh',
+      maxWidth: '800px',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <div style={{ height: '47px' }}>
+        <ThemeSwitcher />
+      </div>
 
-      <TextbitEditable
-        value={initialValue}
-        onChange={value => {
-          setValue(value)
-        }}
-        verbose={true}
-      />
+      <div style={{ flex: '1' }}>
+        <TextbitEditable
+          value={initialValue}
+          onChange={value => {
+            setValue(value)
+          }}
+          verbose={true}
+        />
+      </div>
     </div>
   )
 }

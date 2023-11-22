@@ -2,24 +2,28 @@
 <html>
 
 <head>
-    <title>Textbit Editor</title>
-    <link rel="stylesheet" href="build/index.css" />
-    <style>
-        body {
-            margin: 0;
-            padding: 60px 20px;
-        }
+  <title>Textbit Editor</title>
+  <link rel="stylesheet" href="build/index.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
 
-        #app>div {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-    </style>
+    body.dark {
+      background-color: hsl(240 10% 3.9%);
+    }
+
+    #app {
+      height: 100vh;
+      max-height: 100vh;
+    }
+  </style>
 </head>
 
 <body>
-    <div id="app" />
-    <script src="build/index.js"></script>
+  <div id="app" />
+  <script src="build/index.js"></script>
 </body>
 
 </html>

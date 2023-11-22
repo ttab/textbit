@@ -11,7 +11,7 @@ type FooterProps = {
 export const Footer = ({ stats }: FooterProps) => {
   return (
     <div
-      className="textbit-editor-footer text-ui text-sm fg-base bg-base-20 b-weak"
+      className="textbit-editor-footer font-ui text-sm"
     >
       <div>
         Words: <strong>{stats.words}</strong>

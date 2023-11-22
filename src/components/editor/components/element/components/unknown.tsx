@@ -15,7 +15,7 @@ export const UnknownElementComponent = ({ element, attributes, children }: Rende
     <Droppable>
       <div
         contentEditable={false}
-        className="parent unknown"
+        className="textbit-parent textbit-unknown"
         data-id={element.id}
         {...attributes}
       >

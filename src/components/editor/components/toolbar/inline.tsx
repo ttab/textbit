@@ -136,7 +136,7 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
   return <Portal>
     <div
       ref={ref}
-      className="textbit editor-inline-menu"
+      className="textbit textbit-inline-menu"
       onMouseDown={(e) => {
         // Prevent clicks (between tool groups) taking focus from editor
         e.preventDefault()
@@ -144,56 +144,55 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
     >
       {(showLeafTools || showInlineTools || showCurrentTool) &&
         <>
-          <div className="rounded bg-base-30 s-base-10 r-base b-weak" style={{ padding: '4px' }}>
-            {(!isCollapsed || inlineNode) &&
-              <>
-                {/* First group contains normal leafs, but only if it is not collapsed */}
-                {showLeafTools &&
-                  <ToolGroup>
-                    {leafActions.map((action, idx) =>
-                      <ToolButton
-                        key={`${action.plugin.class}-${action.plugin.name}--${idx}`}
-                        action={action}
-                      />
-                    )}
-                  </ToolGroup>
-                }
-
-                {/* Second group with normal inline tools if no inline nodes are selected */}
-                {showInlineTools &&
-                  <ToolGroup>
-                    {inlineActions.map((action, idx) =>
-                      <ToolButton
-                        key={`${action.plugin.class}-${action.plugin.name}-${idx}`}
-                        action={action}
-                      />
-                    )}
-                  </ToolGroup>
-                }
-
-                {/* When just one inlime tool (second (del) and third tool (edit)) */}
-                {/*should be shown (if it has multiple tools) */}
-                {showCurrentTool &&
-                  <ToolGroup>
-                    <InlineTool
-                      key={`${inlineNodeAction.plugin.class}-${inlineNodeAction.plugin.name}`}
-                      action={inlineNodeAction}
-                      node={inlineNode}
+          {(!isCollapsed || inlineNode) &&
+            <>
+              {/* First group contains normal leafs, but only if it is not collapsed */}
+              {showLeafTools &&
+                <ToolGroup>
+                  {leafActions.map((action, idx) =>
+                    <ToolButton
+                      key={`${action.plugin.class}-${action.plugin.name}--${idx}`}
+                      action={action}
                     />
-                  </ToolGroup>
-                }
+                  )}
+                </ToolGroup>
+              }
 
-              </>
-            }
-          </div>
-          <div className="editor-inline-menu-arrow"></div>
+              {/* Second group with normal inline tools if no inline nodes are selected */}
+              {showInlineTools &&
+                <ToolGroup>
+                  {inlineActions.map((action, idx) =>
+                    <ToolButton
+                      key={`${action.plugin.class}-${action.plugin.name}-${idx}`}
+                      action={action}
+                    />
+                  )}
+                </ToolGroup>
+              }
+
+              {/* When just one inlime tool (second (del) and third tool (edit)) */}
+              {/*should be shown (if it has multiple tools) */}
+              {showCurrentTool &&
+                <ToolGroup>
+                  <InlineTool
+                    key={`${inlineNodeAction.plugin.class}-${inlineNodeAction.plugin.name}`}
+                    action={inlineNodeAction}
+                    node={inlineNode}
+                  />
+                </ToolGroup>
+              }
+
+            </>
+          }
         </>}
     </div>
   </Portal>
 }
 
 export const ToolGroup = ({ children }: PropsWithChildren) => {
-  return <div className="editor-tool-group">{children}</div>
+  return <div className="textbit-tool-group">
+    {children}
+  </div>
 }
 
 /**
@@ -203,8 +202,8 @@ const ToolButton = ({ action }: InlineToolProps) => {
   const editor = useSlate()
   const isActive = hasMark(editor, action.plugin.name)
 
-  return <span
-    className={`editor-tool r-less bg-base-hover`}
+  return <div
+    className={`textbit-tool`}
     onMouseDown={(e) => {
       e.preventDefault()
       if (true === action.handler({ editor })) {
@@ -214,9 +213,9 @@ const ToolButton = ({ action }: InlineToolProps) => {
   >
     <>
       {!Array.isArray(action.tool) ? action.tool : action.tool[0]}
-      <em className={`${isActive ? 'primary' : ''}`}></em>
+      <em className={`${isActive ? 'active' : ''}`}></em>
     </>
-  </span>
+  </div>
 }
 
 

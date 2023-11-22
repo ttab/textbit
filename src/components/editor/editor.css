@@ -1,13 +1,10 @@
 .textbit-editor {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   position: relative;
   height: 100%;
-
-  font-family: var(--font-family-serif);
-  font-weight: var(--font-normal);
-  font-size: var(--font-size);
-  line-height: var(--line-height);
-  letter-spacing: var(--letter-spacing);
-  background-color: var(--bg-base-100);
+  background-color: var(--background);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -15,7 +12,7 @@
 
 .textbit-drag-container {
   overflow-x: scroll;
-  height: 100%;
+  flex: 1;
 }
 
 .textbit-drag-container .editor-drop-marker {
@@ -26,9 +23,8 @@
   margin-top: -1px;
   left: 4rem;
   right: 1.8rem;
-  background: var(--bg-primary-hover);
+  background: hsl(var(--accent-foreground));
   opacity: 0;
-  box-shadow: 0px 0px 4px 2px var(--bg-base-hover);
   transition: opacity 0.1s;
 }
 
@@ -51,8 +47,7 @@
   position: relative;
 }
 
-.textbit-editor .parent {
-  color: var(--fg-base);
+.textbit-editor .textbit-parent {
   padding: 0.4rem 3.6rem 0.4rem 4.2rem;
 }
 
@@ -78,11 +73,6 @@
   pointer-events: none;
 }
 
-/* Special rule to make bold leafs in bold elements even bolder */
-.textbit-editor .parent .font-bold .bold {
-  font-weight: var(--font-bolder);
-}
-
 /**
  * Resusable element transitions
  */
@@ -101,7 +91,7 @@
 /**
  * Theme base color classes
  */
-.textbit .fg-base {
+/* .textbit .fg-base {
   color: var(--fg-base);
 }
 
@@ -192,9 +182,6 @@
   color: var(--fg-error)
 }
 
-/**
- * General resuable defaults
- */
 .textbit .r-base {
   border-radius: var(--r-base);
   overflow: hidden;
@@ -319,4 +306,4 @@
   border: 1px solid var(--b-base);
   border-radius: calc(var(--r-base) / 1.5);
   background-color: var(--bg-base-30);
-}
+} */

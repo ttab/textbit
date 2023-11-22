@@ -33,11 +33,12 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
   const selection = useSlateSelection()
 
   const toggleIsOpen = () => {
-    if (ref.current?.classList.contains('open')) {
-      ref.current?.classList.remove('open')
+    const cls = ref.current?.classList
+    if (cls?.contains('open')) {
+      cls?.remove('open')
     }
     else {
-      ref.current?.classList.add('open')
+      cls?.add('open')
     }
   }
 
@@ -47,7 +48,7 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
 
   useEffect(() => {
     const clickHandler = (e: MouseEvent) => {
-      if (!isFromTarget(e.target as HTMLElement, { className: 'editor-content-menu-anchor' })) {
+      if (!isFromTarget(e.target as HTMLElement, { className: 'textbit-content-menu-anchor' })) {
         if (isOpen()) {
           toggleIsOpen()
         }
@@ -95,7 +96,9 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
     }
 
     const originStyle = window.getComputedStyle(originEl)
-    const offsetHeight = (parseFloat(originStyle.lineHeight) - parseFloat(originStyle.fontSize)) / 2
+    const lineHeight = parseFloat(originStyle.lineHeight)
+    // 19.2 is derived from most browsers having default 1.2rem, 1.2rem in px are 19.2
+    const offsetHeight = (lineHeight | 19.2 - parseFloat(originStyle.fontSize)) / 2
     const rect = parentEl.getBoundingClientRect()
     const topOffset = parseFloat(window.getComputedStyle(parentEl).paddingTop)
 
@@ -113,9 +116,9 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
   const blockActions = actions.filter(action => 'block' === action.plugin.class)
 
   return <Portal>
-    <div ref={ref} className={"textbit editor-content-menu"}>
+    <div ref={ref} className="textbit-content-menu">
       <a
-        className="editor-content-menu-anchor fg-base b-base bg-base-hover"
+        className="textbit-content-menu-anchor"
         onMouseDown={(e) => {
           e.preventDefault()
           toggleIsOpen()
@@ -124,7 +127,7 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
         <HiDotsVertical />
       </a>
 
-      <div className="rounded bg-base-30 s-base-30 r-base b-weak">
+      <div className="">
         <>
           {textActions.length > 0 &&
             <ToolGroup>
@@ -156,7 +159,9 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
 }
 
 const ToolGroup = ({ children }: PropsWithChildren) => {
-  return <div className="editor-tool-group">{children}</div>
+  return <div className="textbit-tool-group">
+    {children}
+  </div>
 }
 
 const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
@@ -166,7 +171,7 @@ const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
 
   return (
     <a
-      className="menu-item text-s text-ui font-semibold bg-base-hover r-base"
+      className="textbit-content-menu-item"
       onMouseDown={(e) => {
         e.preventDefault()
         toggleIsOpen(false)
@@ -174,10 +179,10 @@ const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
       }}
     >
       {isActive &&
-        <span className="fg-primary"><MdCheck /></span>
+        <span className="textbit-content-menu-item-icon active"><MdCheck /></span>
       }
       {!isActive && tool &&
-        <span className="menu-item-icon fg-primary">{tool}</span>
+        <span className="textbit-content-menu-item-icon">{tool}</span>
       }
       {!isActive && !tool &&
         <span></span>

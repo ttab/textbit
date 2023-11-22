@@ -6,6 +6,7 @@ import terser from "@rollup/plugin-terser";
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
 import packageJson from "../package.json" assert { type: "json" }
+import replace from '@rollup/plugin-replace'
 
 export default [
   {
@@ -28,6 +29,9 @@ export default [
       commonjs(),
       typescript({ tsconfig: "./tsconfig.build.json" }),
       terser(),
+      replace({
+        'require("@fontsource/inter/variable.css")': '/* excluded */',
+      }),
       postcss({
         extract: true,
         minimize: false

@@ -24,14 +24,12 @@
     "url": "git+https://github.com/ttab/textbit.git"
   },
   "devDependencies": {
-    "@fontsource/inter": "^4.5.15",
-    "@fontsource/roboto": "^4.5.8",
-    "@fontsource/source-serif-pro": "^4.5.9",
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-terser": "^0.4.0",
     "@rollup/plugin-typescript": "^11.0.0",
     "@slate-yjs/core": "^1.0.2",
+    "@slate-yjs/react": "^1.1.0",
     "@testing-library/dom": "^9.3.1",
     "@testing-library/react": "^14.0.0",
     "@types/escape-html": "^1.0.2",
@@ -50,20 +48,18 @@
     "rollup-plugin-import-css": "^3.1.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
+    "tailwind": "^4.0.0",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5"
   },
   "peerDependencies": {
-    "@fontsource/inter": "^4.5.15",
-    "@fontsource/roboto": "^4.5.8",
-    "@fontsource/source-serif-pro": "^4.5.9",
     "@slate-yjs/core": "^1.0.2",
+    "@slate-yjs/react": "^1.1.0",
     "react": "^18.2.0"
   },
   "dependencies": {
-    "@slate-yjs/react": "^1.1.0",
     "escape-html": "^1.0.3",
     "is-hotkey": "^0.2.0",
     "is-url": "^1.2.4",

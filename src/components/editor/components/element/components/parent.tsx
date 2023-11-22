@@ -26,12 +26,11 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
     margin: `${blockMargin}, -8px`
   }
   const borderClass = ['block', 'textblock'].includes(component.class) && selected && focused ? 'b-primary' : 'no-border'
-  const elementTypeClass = `${element.type.replace('/', '--')}`
 
   return (
     <Droppable element={element}>
       <div
-        className={`parent ${element.class} ${elementTypeClass}`}
+        className={`parent ${element.class} ${element.type}`}
         data-id={element.id}
         {...attributes}
       >
@@ -42,4 +41,3 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
     </Droppable>
   )
 }
-

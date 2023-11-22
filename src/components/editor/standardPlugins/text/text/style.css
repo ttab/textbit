@@ -1,0 +1,49 @@
+.core\/text {
+  font-family: var(--font-family-serif), '"Source Serif Pro", Georgia, serif';
+  font-size: 1.1rem;
+  line-height: 1.5;
+  letter-spacing: -0.003em;
+}
+
+.core\/text .textbit-h1 {
+  font-size: 200%;
+  font-weight: bold;
+  font-family: var(--font-family-sans-serif, 'InterVariable, "Helvetica Neue", Helvetica, sans-serif');
+}
+
+.core\/text .textbit-h2 {
+  font-size: 125%;
+  font-weight: bold;
+  font-family: var(--font-family-sans-serif, 'InterVariable, "Helvetica Neue", Helvetica, sans-serif');
+}
+
+.core\/text .textbit-preamble {
+  font-weight: bold;
+}
+
+.core\/text .textbit-dateline {
+  display: inline-block;
+  padding: 3px 6px;
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  font-weight: bold;
+  font-size: 90%;
+  font-family: var(--font-family-sans-serif, 'InterVariable, "Helvetica Neue", Helvetica, sans-serif');
+}
+
+.core\/text .textbit-unknown {
+  font-style: italic;
+  text-decoration: line-through;
+  opacity: 0.7;
+  background-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+.core\/text .textbit-h1 .core\/bold,
+.core\/text .textbit-h2 .core\/bold,
+.core\/text .textbit-preamble .core\/bold,
+.core\/text .textbit-dateline .core\/bold {
+  font-weight: bolder;
+}
