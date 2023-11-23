@@ -1,12 +1,10 @@
 .textbit-content-menu {
   display: none;
   position: absolute;
-  left: -10000px;
   box-sizing: border-box;
   font-size: 0.9rem;
   line-height: 2.3rem;
   letter-spacing: 0.03rem;
-
 }
 
 .textbit-content-menu svg {

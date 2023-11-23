@@ -30,7 +30,7 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
   return (
     <Droppable element={element}>
       <div
-        className={`parent ${element.class} ${element.type}`}
+        className={`textbit-parent ${element.class} ${element.type}`}
         data-id={element.id}
         {...attributes}
       >

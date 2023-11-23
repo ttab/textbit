@@ -84,7 +84,7 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
 
     while (iteratorEl) {
       iteratorEl = iteratorEl.parentElement
-      if (iteratorEl?.classList.contains('parent')) {
+      if (iteratorEl?.classList.contains('textbit-parent')) {
         parentEl = iteratorEl
         break
       }
@@ -97,14 +97,15 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
 
     const originStyle = window.getComputedStyle(originEl)
     const lineHeight = parseFloat(originStyle.lineHeight)
-    // 19.2 is derived from most browsers having default 1.2rem, 1.2rem in px are 19.2
+    // Default being 19.2 is derived from most browsers having default 1.2rem.
+    // 1rem is mostly 16px, 1.2rem in px are 19.2px
     const offsetHeight = (lineHeight | 19.2 - parseFloat(originStyle.fontSize)) / 2
     const rect = parentEl.getBoundingClientRect()
     const topOffset = parseFloat(window.getComputedStyle(parentEl).paddingTop)
+    const newTop = rect.top + window.scrollY + topOffset + offsetHeight
 
     // Left offset is based on menu button being 2 rem in a 4.2 rem wide column + 1 px border
     const offsetLeft = parseFloat(getComputedStyle(document.documentElement).fontSize) + 1
-    const newTop = rect.top + window.pageYOffset + topOffset + offsetHeight
     const newLeft = rect.left + offsetLeft
 
     el.style.display = 'block'
