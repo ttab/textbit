@@ -6,7 +6,9 @@
   line-height: 17px;
   font-size: 12px;
   gap: 20px;
-  padding: 20px 6px;
+  padding: 20px 8px;
+  margin-left: 4.2rem;
+  margin-right: 3.6rem;
 }
 
 .theme-switch-wrapper {

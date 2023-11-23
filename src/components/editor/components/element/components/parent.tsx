@@ -18,12 +18,9 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
   const focused = useFocused()
 
   const { element, attributes, component } = renderProps
-
-  const blockMargin = ['block', 'textblock'].includes(component.class) ? '0px' : '-8px'
   const style = {
     overflow: 'hidden',
-    padding: '8px',
-    margin: `${blockMargin}, -8px`
+    padding: ['block', 'textblock'].includes(component.class) ? '8px' : '0 8px',
   }
   const borderClass = ['block', 'textblock'].includes(component.class) && selected && focused ? 'textbit-active' : ''
 
@@ -34,7 +31,7 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
         data-id={element.id}
         {...attributes}
       >
-        <div className={`textbit-block r-less ${borderClass}`} style={style} >
+        <div className={`textbit-block ${borderClass}`} style={style} >
           {component.component.render(renderProps)}
         </div>
       </div>

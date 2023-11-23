@@ -4,7 +4,6 @@ import { TBDescendant, TextbitEditable } from '../../src'
 import { ThemeSwitcher } from './themeSwitcher'
 
 import './editor-variables.css'
-// import './editor.css'
 
 const initialValue: TBDescendant[] = [
   {
