@@ -25,7 +25,7 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
     padding: '8px',
     margin: `${blockMargin}, -8px`
   }
-  const borderClass = ['block', 'textblock'].includes(component.class) && selected && focused ? 'b-primary' : 'no-border'
+  const borderClass = ['block', 'textblock'].includes(component.class) && selected && focused ? 'textbit-active' : ''
 
   return (
     <Droppable element={element}>
@@ -34,7 +34,7 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
         data-id={element.id}
         {...attributes}
       >
-        <div className={`editor-block r-less ${borderClass}`} style={style} >
+        <div className={`textbit-block r-less ${borderClass}`} style={style} >
           {component.component.render(renderProps)}
         </div>
       </div>

@@ -17,9 +17,21 @@
   display: flex;
   margin-top: 0.5rem;
   padding: 0.5rem 0.5rem;
-  background-color: hsl(var(--secondary));
+  background-color: hsl(var(--input));
   font-family: var(--font-family-serif);
   border: 1px solic hsl(var(--border));
+}
+
+.core\/image-input :focus {
+  outline: 1px solid pink;
+}
+
+.core\/image-input :active {
+  outline: 1px solid yellow;
+}
+
+.core\/image-input :target {
+  outline: 1px solid blue;
 }
 
 .core\/image-input label {

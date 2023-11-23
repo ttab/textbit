@@ -5,7 +5,7 @@
   position: relative;
   height: 100%;
   background-color: var(--background);
-  color: hsl(var(--primary));
+  color: hsl(var(--foreground));
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -42,25 +42,35 @@
 
 
 /**
- * Parent elements and droppables
+ * Parent elements and block focus
+ */
+.textbit-editor .textbit-parent {
+  padding: 0.4rem 3.6rem 0.4rem 4.2rem;
+}
+
+.textbit-editor .textbit-parent .textbit-block {}
+
+.textbit-editor .textbit-parent .textbit-block.textbit-active {
+  outline: 2px solid hsl(var(--secondary));
+  border-radius: calc(var(--radius) * 0.5);
+}
+
+/**
+ * Droppable styling
  */
 .textbit-editor .droppable-block {
   position: relative;
 }
 
-.textbit-editor .textbit-parent {
-  padding: 0.4rem 3.6rem 0.4rem 4.2rem;
-}
-
-.textbit-editor.textbit-drag-over .parent.block {
+.textbit-editor.textbit-drag-over .textbit-parent.block {
   pointer-events: none;
 }
 
-.textbit-editor .droppable-block:first-child .parent {
+.textbit-editor .droppable-block:first-child .textbit-parent {
   padding-top: 1.6rem;
 }
 
-.textbit-editor .droppable-block:last-child .parent {
+.textbit-editor .droppable-block:last-child .textbit-parent {
   padding-bottom: 1.6rem;
 }
 

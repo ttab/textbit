@@ -9,6 +9,8 @@ import * as uuid from 'uuid'
 import isUrl from 'is-url'
 import { TextbitElement } from '@/lib/textbit-element'
 
+import './index.css'
+
 /**
  * FIXME
  * 1. v When url input has focus, allow ESC to move focus to text content again
@@ -26,7 +28,6 @@ const renderLinkComponent: TBRenderElementFunction = ({ attributes, children, el
       {...attributes}
       href={url}
       title={`${element.properties?.title || ''}`}
-      className={`${isUrl(url) ? 'fg-link' : 'fg-error'}`}
       style={{
         textDecorationStyle: isUrl(url) ? 'solid' : 'wavy'
       }}
@@ -50,7 +51,7 @@ const EditLink: TBToolFunction = (editor, entry) => {
 
   return <>
     <span
-      className='editor-tool r-less bg-base-hover'
+      className="textbit-tool"
       onMouseDown={(e) => {
         e.preventDefault()
         deleteLink(editor)
@@ -59,10 +60,8 @@ const EditLink: TBToolFunction = (editor, entry) => {
       <MdLinkOff />
     </span>
 
-    <span className="editor-tool" style={{ paddingLeft: '0px', paddingRight: '0px' }}>
+    <span className="textbit-tool core/link-input">
       <input
-        className="text-ui"
-        style={{ margin: '-5px 0' }}
         id={node.id}
         ref={inputRef}
         type="text"

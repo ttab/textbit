@@ -9,11 +9,13 @@
   transition: opacity 0.1s;
   border-radius: calc(var(--radius) * 0.8);
   background-color: hsl(var(--popover));
-  box-shadow: 0px 3px 10px -6px hsl(var(--primary));
+  box-shadow: 0px 3px 10px -6px hsl(var(--foreground));
+  color: hsl(var(--popover-foreground));
 }
 
 .dark .textbit-inline-menu {
   box-shadow: none;
+  border: 1px solid hsl(var(--border))
 }
 
 /* Arrow indicator */
