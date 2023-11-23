@@ -18,8 +18,10 @@
   margin-top: 0.5rem;
   padding: 0.5rem 0.5rem;
   background-color: hsl(var(--input));
-  font-family: var(--font-family-serif);
-  border: 1px solic hsl(var(--border));
+  font-family: var(--font-family-sans-serif, InterVariable, "Helvetica Neue", Helvetica, sans-serif);
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) * 0.5);
+  font-size: 90%;
 }
 
 .core\/image-input :focus {
@@ -35,10 +37,7 @@
 }
 
 .core\/image-input label {
-  opacity: 0.9;
+  opacity: 0.8;
   font-family: var(--font-family-ui);
-  font-weight: bold;
-  font-size: 90%;
-  align-self: center;
   flex: 0 0 55px;
 }
