@@ -1,5 +1,6 @@
 import React, { PropsWithChildren } from "react"
 import { RemoteCursorOverlay } from "./remoteCursorOverlay"
+import './index.css'
 
 type PresenceOverylayProps = PropsWithChildren<{ isCollaborative: boolean }>
 
@@ -10,7 +11,7 @@ export function PresenceOverlay({ children, isCollaborative }: PresenceOverylayP
     </>
   }
 
-  return <RemoteCursorOverlay className="flex justify-center my-32 mx-10">
+  return <RemoteCursorOverlay>
     {children}
   </RemoteCursorOverlay>
 }
