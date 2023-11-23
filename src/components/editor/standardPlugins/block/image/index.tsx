@@ -10,22 +10,6 @@ import { pipeFromFileInput } from '../../../../../lib/pipes'
 import { Node } from 'slate'
 import { TextbitElement } from '@/lib/textbit-element'
 
-// FIXME: Should expose its own type
-//
-// type ImageProperties = {
-//     properties: {
-//         src: string
-//         type: string
-//         altText: string
-//         text?: string
-//         size: number
-//         width: number
-//         height: number
-//     }
-// }
-//
-// type ImageElement = Element & ImageProperties
-
 const render = ({ children }: TBRenderElementProps) => {
   const style = {
     minHeight: '10rem',
@@ -53,7 +37,7 @@ const renderImage = ({ children, attributes, rootNode }: TBRenderElementProps) =
 
   return (
     <div contentEditable={false} {...attributes} draggable={false}>
-      <div ref={imgContainerRef} className='textbit-image-container appear-transitions appear-dimmed'>
+      <div ref={imgContainerRef} className='core/image-container appear-transitions appear-dimmed'>
         <img width='100%' src={src} />
       </div>
       {children}
@@ -62,42 +46,16 @@ const renderImage = ({ children, attributes, rootNode }: TBRenderElementProps) =
 }
 
 const renderText = ({ children }: TBRenderElementProps) => {
-  return <div draggable={false} className="text-serif text-sm italic r-less b-weak" style={{
-    marginTop: '0.5rem',
-    padding: '0.5rem 0.5rem',
-    opacity: '0.85',
-    background: 'rgba(201, 201, 201, 0.3)',
-    display: 'flex'
-  }}>
-    <label
-      contentEditable={false}
-      className="text-sans-serif text-xs font-light not-italic"
-      style={{
-        flex: '0 0 45px',
-        alignSelf: 'center'
-      }}
-    >Text:</label>
+  return <div draggable={false} className="core/image-input">
+    <label contentEditable={false}>Text:</label >
     <figcaption>{children}</figcaption>
-  </div>
+  </div >
 }
 
 
 const renderAltText = ({ children }: TBRenderElementProps) => {
-  return <div draggable={false} className="text-sans-serif text-sm center" style={{
-    marginTop: '0.5rem',
-    padding: '0.5rem 0.5rem',
-    opacity: '0.85',
-    background: 'rgba(201, 201, 201, 0.3)',
-    display: 'flex'
-  }}>
-    <label
-      contentEditable={false}
-      className="text-sans-serif text-xs font-light not-italic"
-      style={{
-        flex: '0 0 45px',
-        alignSelf: 'center'
-      }}
-    >Alt:</label>
+  return <div draggable={false} className="core/image-input">
+    <label contentEditable={false}>Alt:</label>
     <figcaption>{children}</figcaption>
   </div>
 }
