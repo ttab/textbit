@@ -1,0 +1,17 @@
+.core\/oembed-input {
+  display: flex;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.5rem;
+  background-color: hsl(var(--secondary));
+  font-family: var(--font-family-serif);
+  border: 1px solic hsl(var(--border));
+}
+
+.core\/oembed-input label {
+  opacity: 0.9;
+  font-family: var(--font-family-ui);
+  font-weight: bold;
+  font-size: 90%;
+  align-self: center;
+  flex: 0 0 55px;
+}
