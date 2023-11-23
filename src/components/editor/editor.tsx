@@ -53,7 +53,7 @@ export function TextbitEditable({ value, onChange, yjsEditor, verbose = false }:
   const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
     const e = SlateEditor.isEditor(yjsEditor) ? yjsEditor : createEditor()
 
-    if (!YHistoryEditor.isYHistoryEditor) {
+    if (!YHistoryEditor.isYHistoryEditor(e)) {
       withHistory(e)
     }
     withReact(e)
