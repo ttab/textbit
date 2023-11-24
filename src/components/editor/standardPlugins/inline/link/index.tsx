@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Editor, Transforms, Range, Element as SlateElement } from 'slate'
 import { ReactEditor } from 'slate-react'
 
@@ -8,6 +8,8 @@ import { MdLink, MdLinkOff } from 'react-icons/md'
 import * as uuid from 'uuid'
 import isUrl from 'is-url'
 import { TextbitElement } from '@/lib/textbit-element'
+
+import './index.css'
 
 /**
  * FIXME
@@ -20,15 +22,49 @@ import { TextbitElement } from '@/lib/textbit-element'
 
 const renderLinkComponent: TBRenderElementFunction = ({ attributes, children, element }) => {
   const url: string = element.properties?.url as string || ''
+  const [isPressed, setIsPressed] = useState<boolean>(false)
+  const [isHovering, setIsHovering] = useState<boolean>(false)
+
+  useEffect(() => {
+    const keyDownListener = (event: KeyboardEvent) => {
+      if (isPressed !== (event.metaKey || event.ctrlKey)) {
+        setIsPressed(true)
+      }
+    }
+    window.document.addEventListener('keydown', keyDownListener)
+
+    const keyUpListener = (event: KeyboardEvent) => {
+      if (isPressed !== (event.metaKey || event.ctrlKey)) {
+        setIsPressed(false)
+      }
+    }
+    window.document.addEventListener('keyup', keyUpListener)
+
+    return () => {
+      window.document.removeEventListener('keydown', keyDownListener)
+      window.document.removeEventListener('keyup', keyUpListener)
+    }
+  })
 
   return (
     <a
       {...attributes}
       href={url}
+      onClick={(event) => {
+        if (event.ctrlKey === true || event.metaKey === true) {
+          window.open(url, '_blank')
+        }
+      }}
+      onMouseEnter={(event) => {
+        setIsHovering(true)
+      }}
+      onMouseLeave={(event) => {
+        setIsHovering(false)
+      }}
       title={`${element.properties?.title || ''}`}
-      className={`${isUrl(url) ? 'fg-link' : 'fg-error'}`}
       style={{
-        textDecorationStyle: isUrl(url) ? 'solid' : 'wavy'
+        textDecorationStyle: isUrl(url) ? 'solid' : 'wavy',
+        cursor: isHovering && isPressed ? 'pointer' : 'auto'
       }}
     >
       {/* <InlineChromiumBugfix /> */}
@@ -50,7 +86,7 @@ const EditLink: TBToolFunction = (editor, entry) => {
 
   return <>
     <span
-      className='editor-tool r-less bg-base-hover'
+      className="textbit-tool"
       onMouseDown={(e) => {
         e.preventDefault()
         deleteLink(editor)
@@ -59,10 +95,8 @@ const EditLink: TBToolFunction = (editor, entry) => {
       <MdLinkOff />
     </span>
 
-    <span className="editor-tool" style={{ paddingLeft: '0px', paddingRight: '0px' }}>
+    <span className="textbit-tool core/link-input">
       <input
-        className="text-ui"
-        style={{ margin: '-5px 0' }}
         id={node.id}
         ref={inputRef}
         type="text"

@@ -14,19 +14,19 @@ import { getSelectedText, insertAt } from '@/lib/utils'
 import './style.css'
 
 const render = ({ children }: TBRenderElementProps): JSX.Element => {
-  return <div className="fg-weak">
+  return <>
     {children}
-  </div>
+  </>
 }
 
 const renderBody = ({ children }: TBRenderElementProps) => {
-  return <div className="text-xl text-sans-serif font-light">
+  return <div className="textbit-body">
     {children}
   </div>
 }
 
 const renderCaption = ({ children }: TBRenderElementProps) => {
-  return <div className="text-sm italic">
+  return <div className="textbit-caption">
     {children}
   </div>
 }

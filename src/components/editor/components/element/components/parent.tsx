@@ -18,28 +18,23 @@ export const ParentElementComponent = (renderProps: RenderParentElementProps) =>
   const focused = useFocused()
 
   const { element, attributes, component } = renderProps
-
-  const blockMargin = ['block', 'textblock'].includes(component.class) ? '0px' : '-8px'
   const style = {
     overflow: 'hidden',
-    padding: '8px',
-    margin: `${blockMargin}, -8px`
+    padding: ['block', 'textblock'].includes(component.class) ? '8px' : '0 8px',
   }
-  const borderClass = ['block', 'textblock'].includes(component.class) && selected && focused ? 'b-primary' : 'no-border'
-  const elementTypeClass = `${element.type.replace('/', '--')}`
+  const borderClass = ['block', 'textblock'].includes(component.class) && selected && focused ? 'textbit-active' : ''
 
   return (
     <Droppable element={element}>
       <div
-        className={`parent ${element.class} ${elementTypeClass}`}
+        className={`textbit-parent ${element.class} ${element.type}`}
         data-id={element.id}
         {...attributes}
       >
-        <div className={`editor-block r-less ${borderClass}`} style={style} >
+        <div className={`textbit-block ${borderClass}`} style={style} >
           {component.component.render(renderProps)}
         </div>
       </div>
     </Droppable>
   )
 }
-

@@ -12,6 +12,8 @@ import { TBPlugin, TBRenderElementFunction, TBRenderElementProps } from '../../.
 import { convertToText } from '../../../../../lib/utils'
 import { Element } from 'slate'
 
+import './style.css'
+
 type TextType = {
   tool: JSX.Element,
   hotkey?: string,
@@ -29,7 +31,7 @@ const textTypes: TextType[] = [
     hotkey: 'mod+1',
     tool: <MdTitle />,
     render: ({ children }: TBRenderElementProps) => {
-      return <div className="text-xl2 font-bold text-sans-serif">
+      return <div className="textbit-h1">
         {children}
       </div>
     },
@@ -47,7 +49,7 @@ const textTypes: TextType[] = [
     hotkey: 'mod+2',
     tool: <MdTextFields />,
     render: ({ children }: TBRenderElementProps) => {
-      return <div className="text-l font-bold text-sans-serif">
+      return <div className="textbit-h2">
         {children}
       </div>
     },
@@ -65,7 +67,7 @@ const textTypes: TextType[] = [
     hotkey: 'mod+3',
     tool: <MdOutlineShortText />,
     render: ({ children }: TBRenderElementProps) => {
-      return <div className="font-bold">
+      return <div className="textbit-preamble">
         {children}
       </div>
     },
@@ -97,12 +99,12 @@ const textTypes: TextType[] = [
   },
   {
     type: 'dateline',
-    title: 'Dateline',
+    title: 'Datelines',
     hotkey: undefined,
     tool: <MdRadar />,
     render: ({ children }: TBRenderElementProps) => {
-      return <div className="text-sm font-bold text-sans-serif">
-        <span style={{ padding: '3px 9px 2px 9px', display: 'inline-block' }} className="bg-base-focus">{children}</span>
+      return <div className="textbit-dateline">
+        {children}
       </div>
     },
     visibility: (element, rootElement) => {
@@ -116,7 +118,7 @@ const textTypes: TextType[] = [
 ]
 
 const fallbackRender = ({ children }: TBRenderElementProps) => {
-  return <div className="italic line-through weaker text-sans-serif">
+  return <div className="textbit-unknown">
     {children}
   </div>
 }

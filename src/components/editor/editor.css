@@ -1,13 +1,11 @@
 .textbit-editor {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   position: relative;
   height: 100%;
-
-  font-family: var(--font-family-serif);
-  font-weight: var(--font-normal);
-  font-size: var(--font-size);
-  line-height: var(--line-height);
-  letter-spacing: var(--letter-spacing);
-  background-color: var(--bg-base-100);
+  background-color: var(--background);
+  color: hsl(var(--foreground));
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -15,7 +13,7 @@
 
 .textbit-drag-container {
   overflow-x: scroll;
-  height: 100%;
+  flex: 1;
 }
 
 .textbit-drag-container .editor-drop-marker {
@@ -26,9 +24,8 @@
   margin-top: -1px;
   left: 4rem;
   right: 1.8rem;
-  background: var(--bg-primary-hover);
+  background: hsl(var(--accent-foreground));
   opacity: 0;
-  box-shadow: 0px 0px 4px 2px var(--bg-base-hover);
   transition: opacity 0.1s;
 }
 
@@ -45,26 +42,35 @@
 
 
 /**
- * Parent elements and droppables
+ * Parent elements and block focus
+ */
+.textbit-editor .textbit-parent {
+  padding: 0.5rem 3.6rem 0.5rem 4.2rem;
+}
+
+.textbit-editor .textbit-parent .textbit-block {}
+
+.textbit-editor .textbit-parent .textbit-block.textbit-active {
+  outline: 2px solid hsl(var(--secondary));
+  border-radius: calc(var(--radius) * 0.5);
+}
+
+/**
+ * Droppable styling
  */
 .textbit-editor .droppable-block {
   position: relative;
 }
 
-.textbit-editor .parent {
-  color: var(--fg-base);
-  padding: 0.4rem 3.6rem 0.4rem 4.2rem;
-}
-
-.textbit-editor.textbit-drag-over .parent.block {
+.textbit-editor.textbit-drag-over .textbit-parent.block {
   pointer-events: none;
 }
 
-.textbit-editor .droppable-block:first-child .parent {
+.textbit-editor .droppable-block:first-child .textbit-parent {
   padding-top: 1.6rem;
 }
 
-.textbit-editor .droppable-block:last-child .parent {
+.textbit-editor .droppable-block:last-child .textbit-parent {
   padding-bottom: 1.6rem;
 }
 
@@ -76,11 +82,6 @@
 
 .textbit-editor.drag-over .droppable-block>div {
   pointer-events: none;
-}
-
-/* Special rule to make bold leafs in bold elements even bolder */
-.textbit-editor .parent .font-bold .bold {
-  font-weight: var(--font-bolder);
 }
 
 /**
@@ -95,228 +96,4 @@
 
 .textbit-editor .parent .appear-dimmed {
   opacity: 0.3;
-}
-
-
-/**
- * Theme base color classes
- */
-.textbit .fg-base {
-  color: var(--fg-base);
-}
-
-.textbit .fg-weak {
-  color: var(--fg-base);
-  opacity: 0.7;
-}
-
-.textbit .bg-base,
-.textbit.bg-base {
-  background-color: var(--bg-base);
-  color: var(--fg-base);
-}
-
-.textbit .bg-base-hover:hover {
-  background-color: var(--bg-base-hover);
-}
-
-.textbit .bg-base-focus {
-  background-color: var(--bg-base-hover);
-}
-
-.textbit .bg-base-10,
-.textbit.bg-base-10 {
-  background-color: var(--bg-base-10);
-  color: var(--fg-base);
-}
-
-.textbit .bg-base-20,
-.textbit.bg-base-20 {
-  background-color: var(--bg-base-20);
-  color: var(--fg-base);
-}
-
-.textbit .bg-base-30,
-.textbit.bg-base-30 {
-  background-color: var(--bg-base-30);
-  color: var(--fg-base);
-}
-
-.textbit .s-base {
-  box-shadow: var(--s-base);
-}
-
-.textbit .s-base-10 {
-  box-shadow: var(--s-base-10);
-}
-
-.textbit .s-base-20 {
-  box-shadow: var(--s-base-20);
-}
-
-.textbit .s-base-30 {
-  box-shadow: var(--s-base-30);
-}
-
-
-.textbit .primary {
-  background-color: var(--bg-primary);
-  color: var(--fg-primary);
-}
-
-.textbit .bg-primary {
-  background-color: var(--bg-primary);
-}
-
-.textbit .fg-primary {
-  color: var(--bg-primary);
-}
-
-.textbit .primary-hover:hover {
-  background-color: var(--bg-primary-hover);
-  color: var(--fg-primary-hover);
-}
-
-.textbit .primary-weak {
-  background-color: var(--bg-primary);
-  color: var(--fg-primary);
-  opacity: 0.7;
-}
-
-
-.textbit .fg-link {
-  color: var(--fg-link)
-}
-
-.textbit .fg-error {
-  color: var(--fg-error)
-}
-
-/**
- * General resuable defaults
- */
-.textbit .r-base {
-  border-radius: var(--r-base);
-  overflow: hidden;
-}
-
-.textbit .r-less {
-  border-radius: calc(var(--r-base) / 1.5);
-  overflow: hidden;
-}
-
-.textbit .r-none {
-  border-radius: 0;
-}
-
-.textbit .b-primary {
-  box-shadow: var(--bg-primary-hover) 0 0 0 2px;
-}
-
-.textbit .b-base {
-  border: 1px solid var(--b-base);
-}
-
-.textbit .b-weak {
-  border: 1px solid var(--b-weak);
-}
-
-.textbit .no-border {
-  border: none;
-}
-
-.textbit .weak {
-  opacity: 0.9;
-}
-
-.textbit .weaker {
-  opacity: 0.7;
-}
-
-.textbit .text-ui {
-  font-family: var(--font-family-ui)
-}
-
-.textbit .text-sans-serif {
-  font-family: var(--font-family-sans-serif);
-}
-
-.textbit .text-xs {
-  font-size: 0.8rem;
-}
-
-.textbit .text-sm {
-  font-size: 0.9rem;
-}
-
-.textbit .text-md {
-  font-size: 1.1rem;
-}
-
-.textbit .text-lg {
-  font-size: 1.35rem;
-}
-
-.textbit .text-xl {
-  font-size: 1.8rem;
-}
-
-.textbit .text-xl2 {
-  font-size: 2.2rem;
-}
-
-.textbit .font-light {
-  font-weight: var(--font-weight-light);
-}
-
-.textbit .font-normal {
-  font-weight: var(--font-weight-normal);
-}
-
-.textbit .font-bold,
-.textbit .bold {
-  font-weight: var(--font-weight-bold);
-}
-
-.textbit .font-semibold {
-  font-weight: var(--font-weight-semibold);
-}
-
-.textbit .font-bolder {
-  font-weight: var(--font-weight-bolder);
-}
-
-.textbit .italic {
-  font-style: italic;
-}
-
-.textbit .not-italic {
-  font-style: normal;
-}
-
-.textbit .underline {
-  text-decoration-line: underline;
-}
-
-.textbit .line-through {
-  text-decoration-line: line-through;
-}
-
-.textbit .no-underline {
-  text-decoration-line: none;
-}
-
-.textbit input {
-  font-family: var(--font-family-ui);
-  font-size: 1.1rem;
-  line-height: var(--line-height);
-  font-weight: var(--font-weight-normal);
-  color: var(--fg-base);
-}
-
-.textbit input[type="text"] {
-  padding: 2px 8px;
-  border: 1px solid var(--b-base);
-  border-radius: calc(var(--r-base) / 1.5);
-  background-color: var(--bg-base-30);
 }

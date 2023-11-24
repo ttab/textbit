@@ -15,35 +15,23 @@ interface CursorData {
 
 type CaretProps = Pick<CursorOverlayData<CursorData>, 'caretPosition' | 'data'>
 
-function Caret({ caretPosition, data }: CaretProps): React.ReactElement {
-  const caretStyle: CSSProperties = {
-    ...caretPosition,
-    background: data?.color || 'gray',
-    width: '2px'
-  }
 
-  const labelStyle: CSSProperties = {
-    transform: 'translateY(-91%)',
-    width: 'max-content',
-    padding: '0px 6px 1px 6px',
-    opacity: '0.9',
-    backgroundColor: data?.color || 'gray',
-    whiteSpace: 'nowrap',
-    top: '0',
-    borderBottomLeftRadius: '0'
-  }
+export function RemoteCursorOverlay({ children }: PropsWithChildren): React.ReactElement {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [cursors] = useRemoteCursorOverlayPositions<CursorData>({
+    containerRef
+  })
 
   return (
-    <div style={caretStyle} className="absolute">
-      <div
-        className={`text-sans-serif absolute text-xs fg-base r-base b-weak`}
-        style={labelStyle}
-      >
-        {data?.name || '?'}
-      </div>
+    <div className="textbit-y-overlay" ref={containerRef}>
+      {children}
+      {cursors.map((cursor) => (
+        <RemoteSelection key={cursor.clientId} {...cursor} />
+      ))}
     </div>
   )
 }
+
 
 function RemoteSelection({ data, selectionRects, caretPosition }: CursorOverlayData<CursorData>): React.ReactElement | null {
   if (!data) {
@@ -56,35 +44,36 @@ function RemoteSelection({ data, selectionRects, caretPosition }: CursorOverlayD
   }
 
   return (
-    <React.Fragment>
+    <>
       {selectionRects.map((position, i) => (
         <div
+          className="textbit-y-selection"
           style={{ ...selectionStyle, ...position }}
-          className="absolute pointer-events-none"
           key={i}
         />
       ))}
       {caretPosition && <Caret caretPosition={caretPosition} data={data} />}
-    </React.Fragment>
+    </>
   )
 }
 
-type RemoteCursorsProps = PropsWithChildren<{
-  className?: string
-}>
 
-export function RemoteCursorOverlay({ className, children }: RemoteCursorsProps): React.ReactElement {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [cursors] = useRemoteCursorOverlayPositions<CursorData>({
-    containerRef
-  })
+function Caret({ caretPosition, data }: CaretProps): React.ReactElement {
+  const caretStyle: CSSProperties = {
+    ...caretPosition,
+    background: data?.color || 'gray',
+    width: '2px'
+  }
+
+  const labelStyle: CSSProperties = {
+    backgroundColor: data?.color || 'gray'
+  }
 
   return (
-    <div className={`relative ${className || ''}`} ref={containerRef}>
-      {children}
-      {cursors.map((cursor) => (
-        <RemoteSelection key={cursor.clientId} {...cursor} />
-      ))}
+    <div style={caretStyle} className="textbit-y-caret">
+      <div style={labelStyle}>
+        {data?.name || '?'}
+      </div>
     </div>
   )
 }

@@ -1,9 +1,21 @@
-.textbit-editor .parent.blockquote>div {
-  padding-left: 1.6rem;
-  border-left: 5px solid var(--b-base);
+.core\/blockquote {
+  font-family: var(--font-family-serif), '"Source Serif Pro", Georgia, serif';
+  font-size: 1.8rem;
+  line-height: 1.2;
+  letter-spacing: -0.003em;
+  opacity: 0.8;
 }
 
-.textbit-editor .parent.blockquote>div>div:first-child {
-  line-height: 180%;
-  font-variation-settings: "wght" 200;
+.core\/blockquote\/body {
+  padding-left: 1.6rem;
+  border-left: 5px solid hsl(var(--border));
+}
+
+.core\/blockquote\/caption {
+  padding-top: 0.5rem;
+  font-size: 0.9rem;
+  font-style: italic;
+
+  padding-left: 1.6rem;
+  border-left: 5px solid hsl(var(--border));
 }

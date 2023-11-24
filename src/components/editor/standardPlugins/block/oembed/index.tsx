@@ -6,14 +6,7 @@ import * as uuid from 'uuid'
 import { TBConsumeFunction, TBConsumesFunction, TBPlugin, TBRenderElementProps } from '../../../../../types'
 import { TextbitElement } from '@/lib/textbit-element'
 
-// FIXME: Should expose its own type
-//
-// type OembedVideoProperties = {
-//     properties: {
-//         url: string
-//     }
-// }
-// type OembedElement = Element & OembedVideoProperties
+import './index.css'
 
 const SUPPORTED_OEMBED_URLS = [
   {
@@ -144,21 +137,8 @@ const renderVideo = ({ children, attributes, rootNode }: TBRenderElementProps) =
 }
 
 const renderTitle = ({ children }: TBRenderElementProps) => {
-  return <div className="text-sans-serif text-sm r-less b-weak" style={{
-    marginTop: '0.5rem',
-    padding: '0.4rem 0.5rem',
-    opacity: '0.85',
-    background: 'rgba(201, 201, 201, 0.3)',
-    display: 'flex'
-  }}>
-    <label
-      contentEditable={false}
-      className="text-sans-serif text-xs font-light not-italic"
-      style={{
-        flex: '0 0 45px',
-        alignSelf: 'center'
-      }}
-    >Title:</label>
+  return <div className="core/oembed-input">
+    <label contentEditable={false}>Title:</label>
     <span>{children}</span>
   </div>
 }

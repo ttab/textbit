@@ -1,3 +1,4 @@
+import React from 'react'
 import { RenderElementProps } from "slate-react"
 import { RegistryComponent } from "../../../registry"
 
@@ -11,6 +12,14 @@ type RenderInlineElementProps = {
  * @param props RenderInlineElementProps
  * @returns JSX.Element
  */
-export const InlineElementComponent = ({ element, attributes, children, component }: RenderInlineElementProps) => {
-  return component.component.render({ element, attributes, children })
+export const InlineElementComponent = ({ attributes, children, element, component }: RenderInlineElementProps) => {
+  return (
+    <span
+      className={`inline ${component.type}`}
+      data-id={element.id}
+      {...attributes}
+    >
+      {component.component.render({ element, attributes, children })}
+    </span>
+  )
 }
