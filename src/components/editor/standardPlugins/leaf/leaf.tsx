@@ -1,6 +1,6 @@
 import React from 'react' // Necessary for esbuild
 import { MdFormatBold, MdFormatItalic, MdFormatUnderlined } from 'react-icons/md'
-import { TBPlugin } from '../../../../types'
+import { TBPlugin } from '../../../../types/types'
 import './leaf.css'
 
 const Bold: TBPlugin = {

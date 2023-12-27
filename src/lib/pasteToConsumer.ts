@@ -1,5 +1,5 @@
 import { Editor, Transforms, Range, Element, Node } from "slate"
-import { TBConsumeFunction, TBConsumerInput, TBConsumesFunction } from "src/types"
+import { TBConsumeFunction, TBConsumerInput, TBConsumesFunction } from "src/types/types"
 
 type Consumers = {
   consumes: TBConsumesFunction

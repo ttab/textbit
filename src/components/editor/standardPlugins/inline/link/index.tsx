@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Editor, Transforms, Range, Element as SlateElement } from 'slate'
 import { ReactEditor } from 'slate-react'
 
-import { TBPlugin, TBRenderElementFunction, TBToolFunction } from '../../../../../types'
+import { TBPlugin, TBRenderElementFunction, TBToolFunction } from '../../../../../types/types'
 
 import { MdLink, MdLinkOff } from 'react-icons/md'
 import * as uuid from 'uuid'

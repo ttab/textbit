@@ -8,7 +8,7 @@ import {
 
 import { BsTextParagraph } from 'react-icons/bs'
 
-import { TBPlugin, TBRenderElementFunction, TBRenderElementProps } from '../../../../../types'
+import { TBPlugin, TBRenderElementFunction, TBRenderElementProps } from '../../../../../types/types'
 import { convertToText } from '../../../../../lib/utils'
 import { Element } from 'slate'
 

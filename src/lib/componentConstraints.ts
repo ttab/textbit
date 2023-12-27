@@ -1,4 +1,4 @@
-import { TBComponent } from "src/types"
+import { TBComponent } from "src/types/types"
 
 export function componentConstraints(component: TBComponent) {
   const {

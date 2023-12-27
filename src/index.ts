@@ -2,7 +2,7 @@ import type {
   TBDescendant,
   TBElement,
   TBText
-} from './slate-overrides'
+} from './types/slate'
 
 export {
   TBDescendant,
@@ -14,7 +14,7 @@ import {
   TBActionHandlerProps,
   TBComponent,
   TBPlugin
-} from './types'
+} from './types/types'
 
 export {
   TBActionHandlerProps,

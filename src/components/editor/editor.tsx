@@ -26,7 +26,7 @@ import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 import { PresenceOverlay } from './components/presenceOverlay/presenceOverlay'
-import { TBPlugin } from 'src/types'
+import { TBPlugin } from 'src/types/types'
 
 interface TextbitEditableProps {
   onChange?: (value: Descendant[]) => void

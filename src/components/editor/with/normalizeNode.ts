@@ -1,5 +1,5 @@
 import { Editor, Element, Node, NodeEntry, Transforms } from "slate"
-import { TBComponent, TBPlugin } from "../../../types"
+import { TBComponent, TBPlugin } from "../../../types/types"
 import { RegistryComponent } from "../registry"
 import { componentConstraints } from "@/lib/componentConstraints"
 

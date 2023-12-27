@@ -1,5 +1,5 @@
 import { Editor, Range, Transforms } from 'slate'
-import { TBConsumeFunction, TBConsumesFunction, TBPlugin } from '../../../../types'
+import { TBConsumeFunction, TBConsumesFunction, TBPlugin } from '../../../../types/types'
 
 
 const AllQuotes = {

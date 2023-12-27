@@ -1,6 +1,6 @@
 import isHotKey from 'is-hotkey'
 
-import { TBActionHandlerProps, TBComponent, TBPlugin, TBToolFunction } from '../../types'
+import { TBActionHandlerProps, TBComponent, TBPlugin, TBToolFunction } from '../../types/types'
 import { Element } from 'slate'
 
 export type RegistryComponent = {
