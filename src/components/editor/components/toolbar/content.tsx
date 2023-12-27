@@ -114,6 +114,7 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
   })
 
   const textActions = actions.filter(action => 'text' === action.plugin.class)
+  const textblockActions = actions.filter(action => 'textblock' === action.plugin.class)
   const blockActions = actions.filter(action => 'block' === action.plugin.class)
 
   return <Portal>
@@ -133,6 +134,18 @@ export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
           {textActions.length > 0 &&
             <ToolGroup>
               {textActions.map((action) => {
+                return <MenuItem
+                  key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                  action={action}
+                  toggleIsOpen={toggleIsOpen}
+                />
+              })}
+            </ToolGroup>
+          }
+
+          {textblockActions.length > 0 &&
+            <ToolGroup>
+              {textblockActions.map((action) => {
                 return <MenuItem
                   key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
                   action={action}

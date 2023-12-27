@@ -26,16 +26,18 @@ import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 import { PresenceOverlay } from './components/presenceOverlay/presenceOverlay'
+import { TBPlugin } from 'src/types'
 
 interface TextbitEditableProps {
   onChange?: (value: Descendant[]) => void
   value: Descendant[]
+  plugins?: TBPlugin[]
   yjsEditor?: SlateEditor
   verbose?: boolean
 }
 
 
-export function TextbitEditable({ value, onChange, yjsEditor, verbose = false }: TextbitEditableProps) {
+export function TextbitEditable({ value, plugins, onChange, yjsEditor, verbose = false }: TextbitEditableProps) {
   const inValue = value || [{
     id: uuid.v4(),
     name: "core/paragraph",
@@ -46,7 +48,13 @@ export function TextbitEditable({ value, onChange, yjsEditor, verbose = false }:
   }]
 
   useMemo(() => {
-    Registry.initialize(Registry, StandardPlugins, verbose)
+    Registry.initialize(
+      Registry,
+      [
+        ...StandardPlugins,
+        ...(Array.isArray(plugins) ? plugins : [])
+      ],
+      verbose)
   }, [])
 
 

@@ -1,4 +1,4 @@
-.core\/blockquote {
+.textbit-editor .textblock.core\/blockquote {
   font-family: var(--font-family-serif), '"Source Serif Pro", Georgia, serif';
   font-size: 1.8rem;
   line-height: 1.2;
@@ -6,12 +6,12 @@
   opacity: 0.8;
 }
 
-.core\/blockquote\/body {
+.textbit-editor .core\/blockquote\/body {
   padding-left: 1.6rem;
   border-left: 5px solid hsl(var(--border));
 }
 
-.core\/blockquote\/caption {
+.textbit-editor .core\/blockquote\/caption {
   padding-top: 0.5rem;
   font-size: 0.9rem;
   font-style: italic;

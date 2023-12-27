@@ -13,6 +13,7 @@ interface TextbitEditorInterface extends EditorInterface {
   length: (editor: SlateEditor) => number
   parents: <T extends Node>(editor: SlateEditor) => Generator<NodeEntry<T>, void, undefined>
   selectedTextEntries: (editor: SlateEditor) => NodeEntry<Node>[]
+  includes: (editor: SlateEditor, type: string) => boolean
 }
 export declare type TextbitEditor = TextbitEditorInterface
 
@@ -73,5 +74,32 @@ export const TextbitEditor: TextbitEditor = {
         voids: false
       })
     )
+  },
+
+  /**
+   * Check if selection includes specified element type.
+   *
+   * @param editor
+   * @param type
+   * @returns boolean
+   */
+  includes: (editor, type) => {
+    const { selection } = editor
+
+    if (!selection) {
+      return false
+    }
+
+    const [match] = Array.from(
+      SlateEditor.nodes(editor, {
+        at: SlateEditor.unhangRange(editor, selection),
+        match: node =>
+          !SlateEditor.isEditor(node) &&
+          SlateElement.isElement(node) &&
+          node.type === type
+      })
+    )
+
+    return !!match
   }
 }

@@ -207,3 +207,29 @@ export function cloneChildren(children: Descendant[]): Descendant[] {
     return { ...node }
   })
 }
+
+/**
+ * Check if a list of node entries has text in them. Useful in normalizers.
+ *
+ * @example
+ * const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
+ *   const [node, path] = nodeEntry
+ *   const children = Array.from(Node.children(editor, path))
+ *   const isEmpty = !hasText(children)
+ *   // ...
+ * }
+ *
+ * @param nodes
+ * @returns
+ */
+export function hasText(nodes: NodeEntry<Descendant>[]): boolean {
+  for (const [node] of nodes) {
+    for (const textNode of Node.texts(node)) {
+      if (textNode[0].text.trim() !== '') {
+        return true
+      }
+    }
+  }
+
+  return false
+}

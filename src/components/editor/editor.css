@@ -48,7 +48,17 @@
   padding: 0.5rem 3.6rem 0.5rem 4.2rem;
 }
 
-.textbit-editor .textbit-parent .textbit-block {}
+/**
+ * Element default text styling
+ */
+.textbit-editor .textbit-parent.text,
+.textbit-editor .textbit-parent.textblock,
+.textbit-editor .textbit-parent.block {
+  font-family: var(--font-family-serif, "Source Serif Pro", Georgia, serif);
+  font-size: 1.1rem;
+  line-height: 1.5;
+  letter-spacing: -0.003em;
+}
 
 .textbit-editor .textbit-parent .textbit-block.textbit-active {
   outline: 2px solid hsl(var(--secondary));

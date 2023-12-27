@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { TBDescendant, TextbitEditable } from '../../src'
 import { ThemeSwitcher } from './themeSwitcher'
+import { BulletList, NumberList } from './plugins'
 
 import './editor-variables.css'
 
@@ -127,6 +128,10 @@ function App() {
       <div style={{ flex: '1' }}>
         <TextbitEditable
           value={initialValue}
+          plugins={[
+            BulletList,
+            NumberList
+          ]}
           onChange={value => {
             setValue(value)
           }}

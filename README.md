@@ -56,7 +56,6 @@ Tooling for _esbuild_ and _esbuildserve_.
 
 ## Using in other projects
 
-This example is not expressed in full and assumes there is an NPM package available. Which at this point it's not.
 
 ```jsx
 import {
@@ -67,6 +66,10 @@ import {
 import '@ttapp/textbit/dist/esm/index.css'
 
 import { uploadImages } from './images'
+import {
+  Image,
+  List
+} from './plugins'
 
 const initialValue: TBDescendant[] = [
     {
@@ -98,6 +101,10 @@ function App() {
     return (
         <TextbitEditable
             value={value}
+            plugins={[
+              Image,
+              List
+            ]}
             onChange={(value) => onChangeImpl(setValue, value)}
         />
     )
@@ -106,7 +113,7 @@ function App() {
 
 ## Plugins
 
-Plugins does not really exist yet. These are hard coded into the src and can be found in `src/components/editor/standardPlugins` sub directories depending on the type of plugin it is (see below for type of plugins).
+Plugins can be provided as an array of Plugins.
 
 
 ### How to define a "plugin"
