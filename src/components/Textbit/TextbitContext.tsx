@@ -1,83 +1,67 @@
 import React, {
   createContext,
   useReducer,
-  useMemo,
-  PropsWithChildren,
-  Dispatch
+  useContext,
+  PropsWithChildren
 } from 'react'
 
 
 interface TextbitProviderState {
   words: number
   characters: number
-}
-
-interface RegistryProviderAction {
-  words?: number
-  characters?: number
-}
-
-export interface TextbitProviderContext extends TextbitProviderState {
-  dispatch: Dispatch<RegistryProviderAction>
+  dispatch: React.Dispatch<Partial<TextbitProviderState>>
 }
 
 const initialState: TextbitProviderState = {
   words: 0,
-  characters: 0
+  characters: 0,
+  dispatch: () => {}
 }
 
-/**
- * RegistryReducer
- *
- * @param state
- * @param action
- * @returns RegistryProviderState
- */
-const reducer = (state: TextbitProviderState, action: RegistryProviderAction): TextbitProviderState => {
+
+// Create the context
+const TextbitContext = createContext(initialState)
+
+
+// Define the reducer function
+const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderState>): TextbitProviderState => {
   const { words, characters } = action
-  const newState = { ...state }
+  const partialState: Partial<TextbitProviderState> = {}
 
   if (typeof words === 'number') {
-    newState.words = words
+    partialState.words = words
   }
 
   if (typeof characters === 'number') {
-    newState.characters = characters
+    partialState.characters = characters
   }
 
-  return newState
+  return {
+    ...state,
+    ...partialState
+  }
 }
 
 
-/**
- * Registry context
- */
-export const TextbitContext = createContext<TextbitProviderContext>({
-  ...initialState,
-  dispatch: () => {}
-})
-
-
-/**
- * RegistryProvider
- *
- * @param children
- * @returns JSX.Element
- */
-const TextbitProvider = ({ children }: PropsWithChildren): JSX.Element => {
+// Create the context provider component
+export const TextbitContextProvider = ({ children }: PropsWithChildren): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  // Memoize the context value to avoid unnecessary re-renders
-  const contextValue = useMemo((): TextbitProviderState => {
-    return state
-  }, [state])
-
-  return <TextbitContext.Provider value={{
-    ...contextValue,
-    dispatch
-  }}>
-    {children}
-  </TextbitContext.Provider>
+  return (
+    <TextbitContext.Provider value={{ ...state, dispatch }}>
+      {children}
+    </TextbitContext.Provider>
+  )
 }
 
-export { TextbitProvider }
+
+// Hook to consume the context
+export const useTextbitContext = () => {
+  const context = useContext(TextbitContext)
+
+  if (!context) {
+    throw new Error('useTextbitContext must be used within a TextbitContextProvider')
+  }
+
+  return context
+}

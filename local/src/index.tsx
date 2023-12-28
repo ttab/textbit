@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Textbit, TextbitEditable, TextbitFooter } from '../../src'
+import { Textbit, TextbitEditable, TextbitFooter, useTextbitContext } from '../../src'
 import { TBDescendant } from '../../src/types'
 import { ThemeSwitcher } from './themeSwitcher'
 import { BulletList, NumberList } from './plugins'
@@ -112,8 +112,6 @@ const initialValue: TBDescendant[] = [
 ]
 
 function App() {
-  const [value, setValue] = useState<TBDescendant[]>(initialValue)
-
   return (
     <div style={{
       margin: '0 auto',
@@ -122,27 +120,41 @@ function App() {
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <div style={{ height: '47px' }}>
+      <Textbit>
+        <Editor initialValue={initialValue} />
+      </Textbit >
+    </div >
+  )
+}
+
+function Editor({ initialValue }: { initialValue: TBDescendant[] }) {
+  const [, setValue] = useState<TBDescendant[]>(initialValue)
+  const { characters } = useTextbitContext()
+
+  return (
+    <>
+      <div style={{ height: '47px', display: 'flex', justifyItems: 'center', alignItems: 'center' }}>
         <ThemeSwitcher />
+        <div>
+          Characters: {characters}
+        </div>
       </div>
 
-      <div style={{ flex: '1' }}>
-        <Textbit>
-          <TextbitEditable
-            value={initialValue}
-            plugins={[
-              BulletList,
-              NumberList
-            ]}
-            onChange={value => {
-              setValue(value)
-            }}
-            verbose={true}
-          />
-          <TextbitFooter />
-        </Textbit>
+      <div style={{ flex: '1', display: 'flex', flexDirection: 'column' }}>
+        <TextbitEditable
+          value={initialValue}
+          plugins={[
+            BulletList,
+            NumberList
+          ]}
+          onChange={value => {
+            setValue(value)
+          }}
+          verbose={true}
+        />
+        <TextbitFooter />
       </div>
-    </div>
+    </>
   )
 }
 

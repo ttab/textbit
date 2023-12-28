@@ -1,9 +1,9 @@
-import React, { useContext } from 'react' // Necessary for esbuild
-import { useTextbit } from '../Textbit/useTextbit'
+import React from 'react' // Necessary for esbuild
+import { useTextbitContext } from '../Textbit'
 import './style.css'
 
 export const TextbitFooter = () => {
-  const { words, characters } = useTextbit()
+  const { words, characters } = useTextbitContext()
 
   return (
     <div

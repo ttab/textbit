@@ -27,7 +27,7 @@ import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 import { PresenceOverlay } from './components/PresenceOverlay/PresenceOverlay'
 import { TBPlugin } from '../../types'
-import { useTextbit } from '../Textbit/useTextbit'
+import { useTextbitContext } from '../Textbit'
 import { debounce } from '@/lib/debounce'
 
 /**
@@ -68,7 +68,7 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
       verbose)
   }, [])
 
-  const { dispatch } = useTextbit()
+  const { dispatch } = useTextbitContext()
 
   const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
     const e = SlateEditor.isEditor(yjsEditor) ? yjsEditor : createEditor()

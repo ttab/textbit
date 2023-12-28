@@ -1,2 +1,2 @@
 export { Textbit } from './Textbit'
-export { useTextbit } from './useTextbit'
+export { useTextbitContext } from './TextbitContext'

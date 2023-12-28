@@ -1,7 +1,8 @@
 export {
   Textbit,
   TextbitEditable,
-  TextbitFooter
+  TextbitFooter,
+  useTextbitContext
 } from './components';
 
 export {
