@@ -38,7 +38,8 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "src/components/editor/editor.test.tsx"
   ],
   "exclude": [
     "node_modules",

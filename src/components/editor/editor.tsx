@@ -26,16 +26,19 @@ import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 import { PresenceOverlay } from './components/presenceOverlay/presenceOverlay'
-import { TBPlugin } from 'src/types/types'
+import { TBPlugin } from '../../types'
 
-interface TextbitEditableProps {
+/**
+ * @interface
+ * TextbitEditable props
+ */
+export interface TextbitEditableProps {
   onChange?: (value: Descendant[]) => void
   value: Descendant[]
   plugins?: TBPlugin[]
   yjsEditor?: SlateEditor
   verbose?: boolean
 }
-
 
 export function TextbitEditable({ value, plugins, onChange, yjsEditor, verbose = false }: TextbitEditableProps) {
   const inValue = value || [{

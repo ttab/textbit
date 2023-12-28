@@ -1,9 +1,10 @@
 import { JSX } from "react"
 import {
-  Editor,
+  Editor as SlateEditor,
   Node,
   NodeEntry,
-  Element
+  Element,
+  Descendant
 } from "slate"
 
 import {
@@ -49,14 +50,14 @@ export type TBRenderElementFunction = (props: TBRenderElementProps) => JSX.Eleme
  * Action handler props interface
  */
 export interface TBActionHandlerProps {
-  editor: Editor
+  editor: SlateEditor
 }
 
 /**
  * Tool rendering function definition
  * @type TBToolFunction
  */
-export type TBToolFunction = (editor: Editor, node: NodeEntry<Node>) => JSX.Element
+export type TBToolFunction = (editor: SlateEditor, node: NodeEntry<Node>) => JSX.Element
 
 
 /**
@@ -96,7 +97,7 @@ export interface TBComponent {
     allowSoftBreak?: boolean
 
     /** Normalizer function, optional */
-    normalizeNode?: (editor: Editor, nodeEntry: NodeEntry) => boolean | void
+    normalizeNode?: (editor: SlateEditor, nodeEntry: NodeEntry) => boolean | void
   }
 }
 
@@ -129,7 +130,7 @@ export interface TBConsumesProps {
  */
 export interface TBConsumerProps {
   input: TBConsumerInput | TBConsumerInput[]
-  editor: Editor
+  editor: SlateEditor
 }
 
 
@@ -183,8 +184,8 @@ export interface TBPlugin {
    * Event handlers
    */
   events?: {
-    onInsertText?: (editor: Editor, text: string) => true | void
-    onNormalizeNode?: (editor: Editor, entry: NodeEntry) => true | void
+    onInsertText?: (editor: SlateEditor, text: string) => true | void
+    onNormalizeNode?: (editor: SlateEditor, entry: NodeEntry) => true | void
   }
 
   /**
