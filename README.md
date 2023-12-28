@@ -59,7 +59,9 @@ Tooling for _esbuild_ and _esbuildserve_.
 
 ```jsx
 import {
+  Textbit,
   TextbitEditable,
+  TextbitFooter,
   type TBDescendant
 } from '@ttab/textbit'
 
@@ -98,16 +100,19 @@ const initialValue: TBDescendant[] = [
 const [value, setValue] = useState<TBDescendant[]>(initialValue)
 
 function App() {
-    return (
-        <TextbitEditable
-            value={value}
-            plugins={[
-              Image,
-              List
-            ]}
-            onChange={(value) => onChangeImpl(setValue, value)}
-        />
-    )
+  return (
+    <Textbit>
+      <TextbitEditable
+        value={value}
+        plugins={[
+          Image,
+          List
+        ]}
+        onChange={(value) => onChangeImpl(setValue, value)}
+      />
+      <TextbitFooter/>
+    </Textbit>
+  )
 }
 ```
 

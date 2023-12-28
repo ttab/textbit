@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { TextbitEditable } from '../../src'
+import { Textbit, TextbitEditable, TextbitFooter } from '../../src'
 import { TBDescendant } from '../../src/types'
 import { ThemeSwitcher } from './themeSwitcher'
 import { BulletList, NumberList } from './plugins'
@@ -127,17 +127,20 @@ function App() {
       </div>
 
       <div style={{ flex: '1' }}>
-        <TextbitEditable
-          value={initialValue}
-          plugins={[
-            BulletList,
-            NumberList
-          ]}
-          onChange={value => {
-            setValue(value)
-          }}
-          verbose={true}
-        />
+        <Textbit>
+          <TextbitEditable
+            value={initialValue}
+            plugins={[
+              BulletList,
+              NumberList
+            ]}
+            onChange={value => {
+              setValue(value)
+            }}
+            verbose={true}
+          />
+          <TextbitFooter />
+        </Textbit>
       </div>
     </div>
   )

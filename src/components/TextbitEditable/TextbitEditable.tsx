@@ -1,5 +1,5 @@
 import React from 'react' // Necessary for esbuild
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useCallback } from 'react'
 import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
 import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
@@ -13,7 +13,6 @@ import { StandardPlugins } from '@/components/core'
 import { DragAndDrop } from './components/DragAndDrop'
 import { withInline } from './with/inline'
 import { calculateStats, handleChange } from '../../lib/index'
-import { Footer } from '@/components/TextbitEditable/components/Footer'
 
 import { Registry } from '../Registry'
 import { ElementComponent } from './components/Element'
@@ -28,6 +27,8 @@ import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 import { PresenceOverlay } from './components/PresenceOverlay/PresenceOverlay'
 import { TBPlugin } from '../../types'
+import { useTextbit } from '../Textbit/useTextbit'
+import { debounce } from '@/lib/debounce'
 
 /**
  * @interface
@@ -41,7 +42,13 @@ export interface TextbitEditableProps {
   verbose?: boolean
 }
 
-export function TextbitEditable({ value, plugins, onChange, yjsEditor, verbose = false }: TextbitEditableProps) {
+// FIXME: This rerenders everytime value is changed. Might be that we want to
+//
+// 1. use value as initialValue
+// 2. store value in a state?
+// 2. memoize rendering
+
+export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose = false }: TextbitEditableProps) => {
   const inValue = value || [{
     id: uuid.v4(),
     name: "core/paragraph",
@@ -61,6 +68,7 @@ export function TextbitEditable({ value, plugins, onChange, yjsEditor, verbose =
       verbose)
   }, [])
 
+  const { dispatch } = useTextbit()
 
   const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
     const e = SlateEditor.isEditor(yjsEditor) ? yjsEditor : createEditor()
@@ -81,9 +89,12 @@ export function TextbitEditable({ value, plugins, onChange, yjsEditor, verbose =
     return e
   }, [])
 
-  const [stats, setStats] = useState([0, 0])
   useEffect(() => {
-    setStats(calculateStats(textbitEditor))
+    const [words, characters] = calculateStats(textbitEditor)
+    dispatch({
+      words,
+      characters
+    })
   }, [])
 
 
@@ -96,39 +107,48 @@ export function TextbitEditable({ value, plugins, onChange, yjsEditor, verbose =
     return Leaf(props)
   }, [])
 
+  const debouncedOnchange = useMemo(() => {
+    return debounce((value: Descendant[]) => {
+      handleChange(textbitEditor, onChange || null, value)
+      const [words, characters] = calculateStats(textbitEditor)
+      dispatch({
+        words,
+        characters
+      })
+    }, 250)
+  }, [])
+
+  const handleOnChange = useCallback((value: Descendant[]) => {
+    debouncedOnchange(value)
+  }, [])
+
   return (
-    <div className="textbit textbit-editor">
-      <DragAndDrop>
+    <DragAndDrop>
 
-        <Slate editor={textbitEditor} value={inValue} onChange={(value) => {
-          handleChange(textbitEditor, onChange || null, value)
-          setStats(calculateStats(textbitEditor))
-        }}>
+      <Slate editor={textbitEditor} value={inValue} onChange={(value) => {
+        handleOnChange(value)
+      }}>
 
-          <InlineToolbar
-            actions={Registry.actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
+        <InlineToolbar
+          actions={Registry.actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
+        />
+        <ContentToolbar
+          actions={Registry.actions.filter(action => action.plugin.class !== 'leaf')}
+        />
+
+        <PresenceOverlay isCollaborative={!!yjsEditor}>
+          <Editable
+            renderElement={renderSlateElement}
+            renderLeaf={renderLeafComponent}
+            onKeyDown={event => handleOnKeyDown(event, textbitEditor)}
+            decorate={([node, path]) => handleDecoration(textbitEditor, node, path)}
           />
-          <ContentToolbar
-            actions={Registry.actions.filter(action => action.plugin.class !== 'leaf')}
-          />
+        </PresenceOverlay>
+      </Slate>
 
-          <PresenceOverlay isCollaborative={!!yjsEditor}>
-            <Editable
-              renderElement={renderSlateElement}
-              renderLeaf={renderLeafComponent}
-              onKeyDown={event => handleOnKeyDown(event, textbitEditor)}
-              decorate={([node, path]) => handleDecoration(textbitEditor, node, path)}
-            />
-          </PresenceOverlay>
-        </Slate>
-
-      </DragAndDrop>
-
-      <Footer stats={{ words: stats[0], characters: stats[1] }} />
-    </div>
+    </DragAndDrop>
   )
 }
-
 
 /*
  * Display decoration when node is

@@ -1,6 +1,6 @@
 import { Editor, Element, Node } from "slate"
 
-export default function calculateStats(editor: Editor): number[] {
+export default function calculateStats(editor: Editor): [number, number] {
   const textNodes = Array.from(Editor.nodes(editor, {
     at: [],
     match: n => Element.isElement(n) && ['text', 'textblock'].includes(n.class || '')
