@@ -3,19 +3,23 @@ import { render, screen } from "@testing-library/react"
 import { TextbitEditable } from "./TextbitEditable"
 import 'jest'
 import { Descendant } from 'slate'
+import { Textbit } from '../Textbit/Textbit'
 
 describe("TextbitEditor", () => {
   const initialValue: Descendant[] = [
     {
-      type: 'core/heading-1',
+      type: 'core/text',
       id: 'be0ec554-839d-413c-9140-c408cb213f1e',
       class: 'text',
       children: [
         { text: 'This is title' }
-      ]
+      ],
+      properties: {
+        type: 'h1'
+      }
     },
     {
-      type: 'core/paragraph',
+      type: 'core/text',
       class: 'text',
       id: 'fc542b22-6046-49d8-8eae-56a8597599a3',
       children: [{ text: 'This is paragraph' }],
@@ -23,7 +27,11 @@ describe("TextbitEditor", () => {
   ]
 
   test("renders the TextbitEditor component", () => {
-    const { unmount, container } = render(<TextbitEditable value={initialValue} onChange={() => { return }} />)
+    const { unmount, container } = render(
+      <Textbit>
+        <TextbitEditable value={initialValue} onChange={() => { return }} />
+      </Textbit>
+    )
 
     expect(screen.getByRole('textbox'))
     expect(container.querySelectorAll('div[data-id="be0ec554-839d-413c-9140-c408cb213f1e"]')).toHaveLength(2)
