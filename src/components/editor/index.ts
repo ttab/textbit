@@ -1,1 +1,0 @@
-export { TextbitEditable } from './editor'

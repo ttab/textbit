@@ -1,5 +1,5 @@
 import { Editor, Transforms, Element } from "slate"
-import { Registry } from "../components/editor/registry"
+import { Registry } from "../components/Registry"
 import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
 import { getNodeById, getSelectedNodeEntries } from "./utils"

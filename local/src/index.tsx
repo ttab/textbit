@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { TBDescendant, TextbitEditable } from '../../src'
+import { TextbitEditable } from '../../src'
+import { TBDescendant } from '../../src/types'
 import { ThemeSwitcher } from './themeSwitcher'
 import { BulletList, NumberList } from './plugins'
 

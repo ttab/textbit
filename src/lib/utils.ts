@@ -1,7 +1,7 @@
 import { Editor, Node, BaseRange, Path, Transforms, Descendant, Element as SlateElement, NodeEntry } from "slate"
 import * as uuid from 'uuid'
 import { TextbitElement } from "@/lib/textbit-element"
-import { Registry } from "../components/editor/registry"
+import { Registry } from "../components/Registry"
 
 
 /**

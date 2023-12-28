@@ -1,7 +1,7 @@
 import { Editor, Transforms, Range, Path, Element, Node } from "slate"
 import * as uuid from 'uuid'
 import { componentConstraints } from "./componentConstraints"
-import { Registry } from "src/components/editor/registry"
+import { Registry } from "@/components/Registry"
 import { TextbitEditor } from "@/lib"
 
 
