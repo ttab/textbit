@@ -11,6 +11,10 @@ export {
 } from './lib'
 
 export {
+  TBElement,
+  TBDescendant,
+  TBText,
+  TBEditor,
   TBRenderElementProps,
   TBRenderLeafProps,
   TBRenderElementFunction,

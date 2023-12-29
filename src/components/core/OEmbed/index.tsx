@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { Editor, Element, Node, NodeEntry, Transforms } from 'slate'
 import * as uuid from 'uuid'
 
-import { TBConsumeFunction, TBConsumesFunction, TBPlugin, TBRenderElementProps } from '../../../types/types'
+import { TBConsumeFunction, TBConsumesFunction, TBPlugin, TBRenderElementProps } from '../../../types'
 import { TextbitElement } from '@/lib/textbit-element'
 
 import './index.css'

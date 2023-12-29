@@ -7,7 +7,7 @@ import {
   TBActionHandlerProps,
   TBPlugin,
   TBRenderElementProps
-} from '@/types/types'
+} from '@/types'
 
 import { TextbitEditor, TextbitElement } from '@/lib/index'
 import { getSelectedText, insertAt } from '@/lib/utils'

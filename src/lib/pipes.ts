@@ -3,7 +3,7 @@ import { Registry } from "../components/Registry"
 import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
 import { getNodeById, getSelectedNodeEntries } from "./utils"
-import { TBConsumeFunction, TBConsumerInput } from "../types/types"
+import { TBConsumeFunction, TBConsumerInput } from "../types"
 import { ChangeEvent } from "react"
 
 export type PipeConsumer = {

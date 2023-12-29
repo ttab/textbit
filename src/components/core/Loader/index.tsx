@@ -1,6 +1,6 @@
 import React from 'react' // Necessary for esbuild
 
-import { TBPlugin, TBRenderElementFunction } from '../../../types/types'
+import { TBPlugin, TBRenderElementFunction } from '../../../types'
 
 import './style.css'
 

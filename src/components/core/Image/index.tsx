@@ -5,7 +5,7 @@ import * as uuid from 'uuid'
 
 import './style.css'
 import { BsImage } from 'react-icons/bs'
-import { TBConsumeFunction, TBConsumesFunction, TBActionHandlerProps, TBPlugin, TBRenderElementProps } from '../../../types/types'
+import { TBConsumeFunction, TBConsumesFunction, TBActionHandlerProps, TBPlugin, TBRenderElementProps } from '../../../types'
 import { pipeFromFileInput } from '../../../lib/pipes'
 import { Node } from 'slate'
 import { TextbitElement } from '@/lib/textbit-element'

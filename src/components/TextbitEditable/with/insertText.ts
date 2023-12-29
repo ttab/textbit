@@ -1,5 +1,5 @@
 import { Editor } from "slate"
-import { TBConsumeFunction, TBConsumesFunction, TBPlugin } from "../../../types/types"
+import { TBConsumeFunction, TBConsumesFunction, TBPlugin } from "../../../types"
 import { pasteToParagraphs } from "@/lib/pasteToParagraphs"
 import { pasteToConsumers } from "@/lib/pasteToConsumer"
 
