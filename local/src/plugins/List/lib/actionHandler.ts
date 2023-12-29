@@ -2,7 +2,7 @@ import * as uuid from 'uuid'
 import { Editor, Transforms } from 'slate'
 
 import { TextbitEditor, TextbitElement } from '../../../../../src/lib'
-import { TBElement } from '../../../../../src/slate-overrides'
+import { TBElement } from '../../../../../src'
 
 export const actionHandler = (editor: Editor, type: string) => {
   const listType = ['core/bullet-list', 'core/number-list'].includes(type) ? type : 'core/bullet-list'
