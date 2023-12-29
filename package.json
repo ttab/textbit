@@ -12,7 +12,9 @@
     "watch": "rollup -w -c tooling/rollup.config.mjs",
     "build": "rollup -c tooling/rollup.config.mjs",
     "test": "jest -c tooling/jest.config.ts",
-    "dev": "node local/__tooling__/esbuild.config.js -w"
+    "dev": "node local/__tooling__/esbuild.config.js -w",
+    "preversion": "npm test && npm run build",
+    "postversion": "git push && git push --tags"
   },
   "author": "Danne Lundqvist",
   "license": "MIT",
