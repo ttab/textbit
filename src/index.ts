@@ -7,7 +7,8 @@ export {
 
 export {
   TextbitEditor,
-  TextbitElement
+  TextbitElement,
+  isValidLink
 } from './lib'
 
 export {

@@ -10,6 +10,7 @@ import isUrl from 'is-url'
 import { TextbitElement } from '@/lib/textbit-element'
 
 import './style.css'
+import { isValidLink } from '@/lib/isValidLink'
 
 /**
  * FIXME
@@ -81,7 +82,7 @@ const EditLink: TBToolFunction = (editor, entry) => {
     return <></>
   }
 
-  const [url, seturl] = useState(node.properties?.url || '')
+  const [url, seturl] = useState<string>(typeof node.properties?.url === 'string' ? node.properties.url : '')
   const inputRef = useRef<HTMLInputElement>(null)
 
   return <>
@@ -116,18 +117,21 @@ const EditLink: TBToolFunction = (editor, entry) => {
           }
         }}
         onBlur={(e) => {
-          if (url !== '') {
-            Transforms.setNodes(
-              editor,
-              {
-                properties: {
-                  ...node.properties,
-                  url: url
-                }
-              },
-              { at: path }
-            )
+          if (!isValidLink(url || '')) {
+            deleteLink(editor)
+            return
           }
+
+          Transforms.setNodes(
+            editor,
+            {
+              properties: {
+                ...node.properties,
+                url: url
+              }
+            },
+            { at: path }
+          )
         }}
       />
     </span>
