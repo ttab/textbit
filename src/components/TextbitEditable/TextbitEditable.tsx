@@ -12,7 +12,7 @@ import { StandardPlugins } from '@/components/core'
 
 import { DragAndDrop } from './components/DragAndDrop'
 import { withInline } from './with/inline'
-import { calculateStats, handleChange } from '../../lib/index'
+import { calculateStats } from '../../lib/index'
 
 import { Registry } from '../Registry'
 import { ElementComponent } from './components/Element'
@@ -109,8 +109,12 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
 
   const debouncedOnchange = useMemo(() => {
     return debounce((value: Descendant[]) => {
-      handleChange(textbitEditor, onChange || null, value)
+      if (onChange) {
+        onChange(value)
+      }
+
       const [words, characters] = calculateStats(textbitEditor)
+
       dispatch({
         words,
         characters
@@ -119,7 +123,12 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
   }, [])
 
   const handleOnChange = useCallback((value: Descendant[]) => {
-    debouncedOnchange(value)
+    const isAstChange = textbitEditor.operations.some(
+      op => 'set_selection' !== op.type
+    )
+    if (isAstChange) {
+      debouncedOnchange(value)
+    }
   }, [])
 
   return (

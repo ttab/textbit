@@ -148,6 +148,7 @@ function Editor({ initialValue }: { initialValue: TBDescendant[] }) {
             NumberList
           ]}
           onChange={value => {
+            console.log(value, null, 2)
             setValue(value)
           }}
           verbose={true}
