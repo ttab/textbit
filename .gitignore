@@ -33,9 +33,3 @@ yarn-error.log*
 
 # npm
 .npmrc
-
-# direnv
-flake.nix
-flake.lock
-.envrc
-.direnv
