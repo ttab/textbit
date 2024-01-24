@@ -13,7 +13,6 @@ import {
 } from "slate-react"
 
 import { ReactEditor } from "slate-react"
-
 import { HistoryEditor } from 'slate-history'
 
 /**
@@ -80,9 +79,6 @@ export interface TBRenderElementProps extends SlateRenderElementProps {
    * Undefined if the node being rendered is a root node.
    * */
   rootNode?: Node,
-
-  /** JSX children to render, render function should render these. */
-  children: JSX.Element[]
 }
 
 
