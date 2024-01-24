@@ -8,7 +8,8 @@ export {
 export {
   TextbitEditor,
   TextbitElement,
-  isValidLink
+  isValidLink,
+  handleFileInputChangeEvent
 } from './lib'
 
 export {
