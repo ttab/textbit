@@ -1,12 +1,13 @@
 import React from 'react' // Necessary for esbuild
-import { Node } from "slate"
+import { Node } from 'slate'
 import { RenderElementProps } from "slate-react"
-import { Registry } from '../../../Registry'
+import { Plugin } from '@/types'
 
-type RenderChildElementProps = {
-  component: Registry
+
+interface ChildElementProps extends RenderElementProps {
+  entry: Plugin.ComponentEntry
   rootNode: Node
-} & RenderElementProps
+}
 
 /**
  * Render a child element of class text, textblock, block, void)
@@ -14,15 +15,15 @@ type RenderChildElementProps = {
  * @param props RenderChildElementProps
  * @returns JSX.Element
  */
-export const ChildElement = ({ attributes, children, element, component, rootNode }: RenderChildElementProps) => {
+export const ChildElement = ({ attributes, children, element, entry, rootNode }: ChildElementProps) => {
   return (
     <div
-      className={`child ${component.type}`}
+      className={`child ${entry.type}`}
       data-id={element.id}
       {...attributes}
     >
       <div>
-        {component.component.render({ element, attributes, children, rootNode })}
+        {entry.component({ element, attributes, children, rootNode })}
       </div>
     </div>
   )

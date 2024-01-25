@@ -2,12 +2,12 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Editor, Transforms, Range, Element as SlateElement } from 'slate'
 import { ReactEditor } from 'slate-react'
 
-import { TBPlugin, TBRenderElementFunction, TBToolFunction } from '../../../types'
+import { Plugin } from '../../../types'
 
 import { MdLink, MdLinkOff } from 'react-icons/md'
 import * as uuid from 'uuid'
 import isUrl from 'is-url'
-import { TextbitElement } from '@/lib/textbit-element'
+import { TBElement } from '@/lib/textbit-element'
 
 import './style.css'
 import { isValidLink } from '@/lib/isValidLink'
@@ -21,7 +21,7 @@ import { isValidLink } from '@/lib/isValidLink'
  * 5.   Add InlineChromiumBugfix as is in https://github.com/ianstormtaylor/slate/blob/main/site/examples/inlines.tsx
  */
 
-const renderLinkComponent: TBRenderElementFunction = ({ attributes, children, element }) => {
+const LinkComponent: Plugin.Component = ({ attributes, children, element }) => {
   const url: string = element.properties?.url as string || ''
   const [isPressed, setIsPressed] = useState<boolean>(false)
   const [isHovering, setIsHovering] = useState<boolean>(false)
@@ -75,8 +75,8 @@ const renderLinkComponent: TBRenderElementFunction = ({ attributes, children, el
   )
 }
 
-const EditLink: TBToolFunction = (editor, entry) => {
-  const [node, path] = entry
+const EditLink: Plugin.ToolComponent = ({ editor, entry }) => {
+  const [node, path] = entry || []
 
   if (!SlateElement.isElement(node)) {
     return <></>
@@ -154,16 +154,16 @@ const deleteLink = (editor: Editor) => {
   })
 }
 
-export const Link: TBPlugin = {
+export const Link: Plugin.Definition = {
   class: 'inline',
   name: 'core/link',
-  component: {
+  componentEntry: {
     class: 'inline',
-    render: renderLinkComponent
+    component: LinkComponent
   },
   actions: [{
     tool: [
-      <MdLink />,
+      () => <MdLink />,
       EditLink
     ],
     hotkey: 'mod+k',
@@ -178,7 +178,7 @@ export const Link: TBPlugin = {
       // If we already have a link, focus on it's input
       const nodeEntries = Array.from(Editor.nodes(editor, {
         at: Editor.unhangRange(editor, selection),
-        match: n => !Editor.isEditor(n) && TextbitElement.isInline(n) && TextbitElement.isOfType(n, 'core/link')
+        match: n => !Editor.isEditor(n) && TBElement.isInline(n) && TBElement.isOfType(n, 'core/link')
       }))
 
       if (nodeEntries.length) {

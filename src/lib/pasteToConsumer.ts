@@ -1,12 +1,12 @@
 import { Editor, Transforms, Range, Element, Node } from "slate"
-import { TBConsumeFunction, TBConsumerInput, TBConsumesFunction } from "src/types"
+import { Plugin } from "src/types"
 
 type Consumers = {
-  consumes: TBConsumesFunction
-  consume: TBConsumeFunction
+  consumes: Plugin.ConsumesFunction
+  consume: Plugin.ConsumeFunction
 }[]
 
-export function pasteToConsumers(editor: Editor, consumers: Consumers, input: TBConsumerInput): false | Promise<string | void> {
+export function pasteToConsumers(editor: Editor, consumers: Consumers, input: Plugin.Resource): false | Promise<string | void> {
   const [consume, output] = findConsumer(consumers, input)
 
   if (typeof consume !== 'function') {
@@ -31,7 +31,7 @@ export function pasteToConsumers(editor: Editor, consumers: Consumers, input: TB
 }
 
 
-function findConsumer(consumers: Consumers, input: TBConsumerInput) {
+function findConsumer(consumers: Consumers, input: Plugin.Resource) {
   for (const consumer of consumers) {
 
     const [accept, output] = consumer?.consumes({ input }) || [false]

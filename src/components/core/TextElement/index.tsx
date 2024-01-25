@@ -8,19 +8,19 @@ import {
 
 import { BsTextParagraph } from 'react-icons/bs'
 
-import { TBPlugin, TBRenderElementFunction, TBRenderElementProps } from '../../../types'
-import { convertToText } from '../../../lib/utils'
+import { Plugin } from '../../../types'
+import { convertToText } from '@/lib/utils'
 import { Element } from 'slate'
 
 import './style.css'
 
-type TextType = {
-  tool: JSX.Element,
+interface TextType {
+  tool: Plugin.ToolComponent,
   hotkey?: string,
   title: string,
   type?: string,
   description?: string,
-  render: TBRenderElementFunction,
+  render: Plugin.Component,
   visibility: (element: Element, rootElement?: Element) => [boolean, boolean, boolean] // visible, enabled, active
 }
 
@@ -29,8 +29,8 @@ const textTypes: TextType[] = [
     type: 'h1',
     title: 'Title',
     hotkey: 'mod+1',
-    tool: <MdTitle />,
-    render: ({ children }: TBRenderElementProps) => {
+    tool: () => <MdTitle />,
+    render: ({ children }) => {
       return <div className="textbit-h1">
         {children}
       </div>
@@ -47,8 +47,8 @@ const textTypes: TextType[] = [
     type: 'h2',
     title: 'Subtitle',
     hotkey: 'mod+2',
-    tool: <MdTextFields />,
-    render: ({ children }: TBRenderElementProps) => {
+    tool: () => <MdTextFields />,
+    render: ({ children }) => {
       return <div className="textbit-h2">
         {children}
       </div>
@@ -65,8 +65,8 @@ const textTypes: TextType[] = [
     type: 'preamble',
     title: 'Preamble',
     hotkey: 'mod+3',
-    tool: <MdOutlineShortText />,
-    render: ({ children }: TBRenderElementProps) => {
+    tool: () => <MdOutlineShortText />,
+    render: ({ children }) => {
       return <div className="textbit-preamble">
         {children}
       </div>
@@ -83,8 +83,8 @@ const textTypes: TextType[] = [
     type: undefined,
     title: 'Body text',
     hotkey: 'mod+0',
-    tool: <BsTextParagraph />,
-    render: ({ children }: TBRenderElementProps) => {
+    tool: () => <BsTextParagraph />,
+    render: ({ children }) => {
       return <>
         {children}
       </>
@@ -101,8 +101,8 @@ const textTypes: TextType[] = [
     type: 'dateline',
     title: 'Datelines',
     hotkey: undefined,
-    tool: <MdRadar />,
-    render: ({ children }: TBRenderElementProps) => {
+    tool: () => <MdRadar />,
+    render: ({ children }) => {
       return <div className="textbit-dateline">
         {children}
       </div>
@@ -117,23 +117,23 @@ const textTypes: TextType[] = [
   }
 ]
 
-const fallbackRender = ({ children }: TBRenderElementProps) => {
+const UnknownComponent: Plugin.Component = ({ children }) => {
   return <div className="textbit-unknown">
     {children}
   </div>
 }
 
-const render = (props: TBRenderElementProps) => {
+const TextComponent: Plugin.Component = (props) => {
   const t = textTypes.find(t => t.type === props.element?.properties?.type)
-  return t?.render(props) || fallbackRender(props)
+  return t?.render(props) || UnknownComponent(props)
 }
 
-export const TextElement: TBPlugin = {
+export const TextElement: Plugin.Definition = {
   class: 'text',
   name: 'core/text',
-  component: {
+  componentEntry: {
     class: 'text',
-    render,
+    component: TextComponent,
     placeholder: '¶' // FIXME: Needs to be a render function for subtypes,
   },
   actions: textTypes.map((t) => {

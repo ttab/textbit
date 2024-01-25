@@ -1,34 +1,34 @@
 import React from 'react' // Necessary for esbuild
 import { MdFormatBold, MdFormatItalic, MdFormatUnderlined } from 'react-icons/md'
-import { TBPlugin } from '../../../types'
+import { Plugin } from '@/types'
 import './style.css'
 
-const Bold: TBPlugin = {
+const Bold: Plugin.Definition = {
   class: 'leaf',
   name: 'core/bold',
   actions: [{
-    tool: <MdFormatBold />,
+    tool: () => <MdFormatBold />,
     hotkey: 'mod+b',
     handler: () => true
   }]
 }
 
-const Italic: TBPlugin = {
+const Italic: Plugin.Definition = {
   class: 'leaf',
   name: 'core/italic',
   actions: [{
-    tool: <MdFormatItalic />,
+    tool: () => <MdFormatItalic />,
     hotkey: 'mod+i',
     handler: () => true
   }]
 }
 
-const Underline: TBPlugin = {
+const Underline: Plugin.Definition = {
   class: 'leaf',
   name: 'core/underline',
   actions: [{
     hotkey: 'mod+u',
-    tool: <MdFormatUnderlined />,
+    tool: () => <MdFormatUnderlined />,
     handler: () => true
   }]
 }

@@ -1,10 +1,10 @@
 import React from 'react'
 import { RenderElementProps } from "slate-react"
-import { Registry } from "../../../Registry"
+import { Plugin } from '@/types'
 
-type RenderInlineElementProps = {
-  component: Registry
-} & RenderElementProps
+interface InlineElementProps extends RenderElementProps {
+  entry: Plugin.ComponentEntry
+}
 
 /**
  * Render an inline child element (class inline)
@@ -12,14 +12,14 @@ type RenderInlineElementProps = {
  * @param props RenderInlineElementProps
  * @returns JSX.Element
  */
-export const InlineElement = ({ attributes, children, element, component }: RenderInlineElementProps) => {
+export const InlineElement = ({ attributes, children, element, entry }: InlineElementProps) => {
   return (
     <span
-      className={`inline ${component.type}`}
+      className={`inline ${entry.type}`}
       data-id={element.id}
       {...attributes}
     >
-      {component.component.render({ element, attributes, children })}
+      {entry.component({ element, attributes, children })}
     </span>
   )
 }
