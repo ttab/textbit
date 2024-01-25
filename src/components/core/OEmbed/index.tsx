@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react'
 import { Editor, Element, Node, NodeEntry, Transforms } from 'slate'
 import * as uuid from 'uuid'
 
-import { TBConsumeFunction, TBConsumesFunction, TBPlugin, TBRenderElementProps } from '../../../types'
-import { TextbitElement } from '@/lib/textbit-element'
+import { Plugin } from '../../../types'
+import { TBElement } from '@/lib/textbit-element'
 
 import './index.css'
 
@@ -63,7 +63,7 @@ const SUPPORTED_OEMBED_URLS = [
   // }
 ]
 
-const render = ({ children }: TBRenderElementProps) => {
+const OembedWrapper: Plugin.Component = ({ children }) => {
   const style = {
     minHeight: '10rem'
   }
@@ -73,7 +73,7 @@ const render = ({ children }: TBRenderElementProps) => {
   </div>
 }
 
-const renderVideo = ({ children, attributes, rootNode }: TBRenderElementProps) => {
+const OembedVideo: Plugin.Component = ({ children, attributes, rootNode }) => {
   const { properties = {} } = Element.isElement(rootNode) ? rootNode : {}
   const src = properties?.src || ''
   const html = properties?.html || ''
@@ -136,14 +136,14 @@ const renderVideo = ({ children, attributes, rootNode }: TBRenderElementProps) =
   )
 }
 
-const renderTitle = ({ children }: TBRenderElementProps) => {
+const OembedTitle: Plugin.Component = ({ children }) => {
   return <div className="core/oembed-input">
     <label contentEditable={false}>Title:</label>
     <span>{children}</span>
   </div>
 }
 
-const consumes: TBConsumesFunction = ({ input }) => {
+const consumes: Plugin.ConsumesFunction = ({ input }) => {
   const { data, type } = input
 
   if (!['text/uri-list', 'text/plain'].includes(type)) {
@@ -154,7 +154,7 @@ const consumes: TBConsumesFunction = ({ input }) => {
   return [oembedurl ? true : false, 'core/oembed']
 }
 
-const consume: TBConsumeFunction = async ({ input }) => {
+const consume: Plugin.ConsumeFunction = async ({ input }) => {
   if (Array.isArray(input)) {
     console.warn('Oembed plugin expected string for consumation, not a list/array')
     return
@@ -273,7 +273,7 @@ const normalizeOembed = (editor: Editor, nodeEndtry: NodeEntry) => {
 
   let n = 0
   for (const [child, childPath] of children) {
-    if (TextbitElement.isBlock(child) || TextbitElement.isTextblock(child)) {
+    if (TBElement.isBlock(child) || TBElement.isTextblock(child)) {
       // Unwrap block node children (move text element children upwards in tree)
       Transforms.unwrapNodes(editor, {
         at: childPath,
@@ -282,7 +282,7 @@ const normalizeOembed = (editor: Editor, nodeEndtry: NodeEntry) => {
       return true
     }
 
-    if (n === 1 && !TextbitElement.isOfType(child, 'core/oembed/title')) {
+    if (n === 1 && !TBElement.isOfType(child, 'core/oembed/title')) {
       Transforms.setNodes(
         editor,
         { type: 'core/oembed/text' },
@@ -307,15 +307,15 @@ const normalizeOembed = (editor: Editor, nodeEndtry: NodeEntry) => {
   }
 }
 
-export const OEmbed: TBPlugin = {
+export const OEmbed: Plugin.Definition = {
   class: 'block',
   name: 'core/oembed',
   consumer: {
     consumes,
     consume
   },
-  component: {
-    render,
+  componentEntry: {
+    component: OembedWrapper,
     class: 'block',
     constraints: {
       normalizeNode: normalizeOembed
@@ -324,12 +324,12 @@ export const OEmbed: TBPlugin = {
       {
         type: 'embed',
         class: 'void',
-        render: renderVideo
+        component: OembedVideo
       },
       {
         type: 'title',
         class: 'text',
-        render: renderTitle
+        component: OembedTitle
       }
     ]
   }

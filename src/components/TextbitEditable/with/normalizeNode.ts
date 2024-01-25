@@ -1,35 +1,35 @@
 import { Editor, Element, Node, NodeEntry, Transforms } from "slate"
-import { TBComponent, TBPlugin } from "../../../types"
-import { Registry } from "../../Registry"
-import { componentConstraints } from "@/lib/componentConstraints"
+import { Plugin } from "@/types"
+import { RegistryComponent } from "../../Registry"
+//import { componentConstraints } from "@/lib/componentConstraints"
 
 type NormalizerFunc = (editor: Editor, entry: NodeEntry) => true | void
 type NormalizerMap = Map<string, NormalizerFunc>
 
-export const withNormalizeNode = (editor: Editor, plugins: TBPlugin[], components: Map<string, Registry>) => {
+export const withNormalizeNode = (editor: Editor, plugins: Plugin.Definition[], components: Map<string, RegistryComponent>) => {
   const { normalizeNode } = editor
 
-  editor.normalizeNode = (entry) => {
-    const [node, path] = entry
+  editor.normalizeNode = (nodeEntry) => {
+    const [node, path] = nodeEntry
 
     // Normalization constraints only supported on Elements
     if (!Element.isElement(node)) {
-      return normalizeNode(entry)
+      return normalizeNode(nodeEntry)
     }
 
     const item = components.get(node.type)
     if (!item) {
-      return normalizeNode(entry)
+      return normalizeNode(nodeEntry)
     }
 
     // Use component normalizer if exists
-    if (typeof item.component.constraints?.normalizeNode === 'function') {
-      if (true === item.component.constraints?.normalizeNode(editor, entry)) {
+    if (typeof item.componentEntry.constraints?.normalizeNode === 'function') {
+      if (true === item.componentEntry.constraints?.normalizeNode(editor, nodeEntry)) {
         return
       }
     }
 
-    normalizeNode(entry)
+    normalizeNode(nodeEntry)
 
     // const parent = Node.parent(editor, path)
 
@@ -86,7 +86,7 @@ export const withNormalizeNode = (editor: Editor, plugins: TBPlugin[], component
   return editor
 }
 
-function addNormalizerForComponent(componentType: string, normalizers: NormalizerMap, normalizer: NormalizerFunc, component: TBComponent) {
+function addNormalizerForComponent(componentType: string, normalizers: NormalizerMap, normalizer: NormalizerFunc, entry: Plugin.ComponentEntry) {
   normalizers.set(componentType, normalizer)
 
   // As for now we only support normalization to be handled by the plugin

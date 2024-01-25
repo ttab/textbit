@@ -5,12 +5,16 @@ import * as uuid from 'uuid'
 
 import './style.css'
 import { BsImage } from 'react-icons/bs'
-import { TBConsumeFunction, TBConsumesFunction, TBActionHandlerProps, TBPlugin, TBRenderElementProps } from '../../../types'
-import { pipeFromFileInput } from '../../../lib/pipes'
-import { Node } from 'slate'
-import { TextbitElement } from '@/lib/textbit-element'
+import {
+  Plugin,
+  TBEditor
+} from '@/types'
 
-const render = ({ children }: TBRenderElementProps) => {
+import { handleFileInputChangeEvent } from '@/lib'
+import { Node } from 'slate'
+import { TBElement } from '@/lib/textbit-element'
+
+const Figure: Plugin.Component = ({ children }) => {
   const style = {
     minHeight: '10rem',
     margin: '0'
@@ -21,7 +25,7 @@ const render = ({ children }: TBRenderElementProps) => {
   </figure>
 }
 
-const renderImage = ({ children, attributes, rootNode }: TBRenderElementProps) => {
+const FigureImage: Plugin.Component = ({ children, attributes, rootNode }) => {
   const { properties = {} } = Element.isElement(rootNode) ? rootNode : {}
   const src: string = properties?.src as string || ''
   const h = properties?.height ?? 1
@@ -45,7 +49,7 @@ const renderImage = ({ children, attributes, rootNode }: TBRenderElementProps) =
   )
 }
 
-const renderText = ({ children }: TBRenderElementProps) => {
+const FigureText: Plugin.Component = ({ children }) => {
   return <div draggable={false} className="core/image-input">
     <label contentEditable={false}>Text:</label >
     <figcaption>{children}</figcaption>
@@ -53,7 +57,7 @@ const renderText = ({ children }: TBRenderElementProps) => {
 }
 
 
-const renderAltText = ({ children }: TBRenderElementProps) => {
+const FigureAltText: Plugin.Component = ({ children }) => {
   return <div draggable={false} className="core/image-input">
     <label contentEditable={false}>Alt:</label>
     <figcaption>{children}</figcaption>
@@ -113,7 +117,7 @@ const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
 
   let n = 0
   for (const [child, childPath] of children) {
-    if (TextbitElement.isBlock(child) || TextbitElement.isTextblock(child)) {
+    if (TBElement.isBlock(child) || TBElement.isTextblock(child)) {
       // Unwrap block node children (move text element children upwards in tree)
       Transforms.unwrapNodes(editor, {
         at: childPath,
@@ -122,7 +126,7 @@ const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
       return true
     }
 
-    if (n === 1 && !TextbitElement.isOfType(child, 'core/image/text')) {
+    if (n === 1 && !TBElement.isOfType(child, 'core/image/text')) {
       Transforms.setNodes(
         editor,
         { type: 'core/image/text' },
@@ -131,7 +135,7 @@ const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
       return true
     }
 
-    if (n === 2 && !TextbitElement.isOfType(child, 'core/image/altText')) {
+    if (n === 2 && !TBElement.isOfType(child, 'core/image/altText')) {
       Transforms.setNodes(
         editor,
         { type: 'core/image/altText' },
@@ -157,7 +161,7 @@ const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
   }
 }
 
-const actionHandler = ({ editor }: TBActionHandlerProps): boolean => {
+const actionHandler = ({ editor }: { editor: TBEditor }): boolean => {
   let fileSelector: HTMLInputElement | undefined = document.createElement('input')
 
   fileSelector.accept = "image/jpg, image/gif, image/png";
@@ -168,7 +172,7 @@ const actionHandler = ({ editor }: TBActionHandlerProps): boolean => {
     const event: ChangeEvent<HTMLInputElement> = e as ChangeEvent<HTMLInputElement>
 
     if (event.target.files?.length) {
-      pipeFromFileInput(editor, event)
+      handleFileInputChangeEvent(editor, event)
     }
 
     setTimeout(() => {
@@ -181,7 +185,7 @@ const actionHandler = ({ editor }: TBActionHandlerProps): boolean => {
   return true
 }
 
-const consumes: TBConsumesFunction = ({ input }) => {
+const consumes: Plugin.ConsumesFunction = ({ input }) => {
   if (!(input.data instanceof File)) {
     return [false]
   }
@@ -204,7 +208,7 @@ const consumes: TBConsumesFunction = ({ input }) => {
 /**
  * Consume a FileList and produce an array of core/image objects
  */
-const consume: TBConsumeFunction = ({ input }) => {
+const consume: Plugin.ConsumeFunction = ({ input }) => {
   if (Array.isArray(input)) {
     throw new Error('Image plugin expected File for consumation, not a list/array')
   }
@@ -269,7 +273,7 @@ const consume: TBConsumeFunction = ({ input }) => {
   return readerPromise
 }
 
-export const Image: TBPlugin = {
+export const Image: Plugin.Definition = {
   class: 'block',
   name: 'core/image',
   consumer: {
@@ -279,7 +283,7 @@ export const Image: TBPlugin = {
   actions: [
     {
       title: 'Image',
-      tool: <BsImage />,
+      tool: () => <BsImage />,
       handler: actionHandler,
       visibility: (element, rootElement) => {
         return [
@@ -290,9 +294,9 @@ export const Image: TBPlugin = {
       }
     }
   ],
-  component: {
+  componentEntry: {
     class: 'block',
-    render,
+    component: Figure,
     constraints: {
       normalizeNode: normalizeImage
     },
@@ -300,17 +304,17 @@ export const Image: TBPlugin = {
       {
         type: 'image',
         class: 'void',
-        render: renderImage
+        component: FigureImage
       },
       {
         type: 'altText',
         class: 'text',
-        render: renderAltText
+        component: FigureAltText
       },
       {
         type: 'text',
         class: 'text',
-        render: renderText
+        component: FigureText
       }
     ]
   }

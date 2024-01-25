@@ -16,9 +16,7 @@ export interface TextbitElementInterface extends ElementInterface {
   isTextLeaf: (value: any) => value is SlateText
 }
 
-export declare type TextbitElement = TextbitElementInterface
-
-export const TextbitElement: TextbitElement = {
+export const TBElement: TextbitElementInterface = {
   isTextLeaf: (value: any): value is SlateText => {
     return SlateText.isText(value)
   },

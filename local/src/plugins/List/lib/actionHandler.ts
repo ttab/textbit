@@ -1,30 +1,30 @@
 import * as uuid from 'uuid'
 import { Editor, Transforms } from 'slate'
 
-import { TextbitEditor, TextbitElement } from '../../../../../src/lib'
-import { TBElement } from '../../../../../src'
+import { TBEditor, TBElement } from '../../../../../src/lib'
+import { TBElement as TBElementType } from '../../../../../src/types'
 
 export const actionHandler = (editor: Editor, type: string) => {
   const listType = ['core/bullet-list', 'core/number-list'].includes(type) ? type : 'core/bullet-list'
-  const isActive = TextbitEditor.includes(editor, listType)
+  const isActive = TBEditor.includes(editor, listType)
 
   Transforms.unwrapNodes(editor, {
     match: (n) =>
-      !TextbitEditor.isEditor(n)
-      && TextbitElement.isElement(n)
+      !TBEditor.isEditor(n)
+      && TBElement.isElement(n)
       && ['core/bullet-list', 'core/number-list'].includes(n.type),
     split: true
   })
 
-  const newProperties: Partial<TBElement> = {
+  const newProperties: Partial<TBElementType> = {
     type: isActive ? 'core/text' : `${listType}/list-item`,
     properties: {}
   }
 
-  Transforms.setNodes<TBElement>(editor, newProperties, {
+  Transforms.setNodes<TBElementType>(editor, newProperties, {
     match: (n) => {
-      return !TextbitEditor.isEditor(n) &&
-        TextbitElement.isElement(n) &&
+      return !TBEditor.isEditor(n) &&
+        TBElement.isElement(n) &&
         n.class === 'text'
     }
   })

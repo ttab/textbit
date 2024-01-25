@@ -1,5 +1,5 @@
 import { Editor, Range, Transforms } from 'slate'
-import { TBConsumeFunction, TBConsumesFunction, TBPlugin } from '../../types'
+import { Plugin } from '../../types'
 
 
 const AllQuotes = {
@@ -14,7 +14,7 @@ const AllQuotes = {
   'fr': ['‹ ', ' ›', '« ', '»']
 }
 
-const consumes: TBConsumesFunction = ({ input }) => {
+const consumes: Plugin.ConsumesFunction = ({ input }) => {
   const { data, type, source } = input
   if (type !== 'text/plain') {
     return [false]
@@ -30,7 +30,7 @@ const consumes: TBConsumesFunction = ({ input }) => {
   return [true]
 }
 
-const consume: TBConsumeFunction = async ({ editor, input }) => {
+const consume: Plugin.ConsumeFunction = async ({ editor, input }) => {
   const { data } = Array.isArray(input) ? input[0] : input
 
   // FIXME: Walk the tree to get the real full text offset, this does not take into account leafs...
@@ -101,7 +101,7 @@ const consume: TBConsumeFunction = async ({ editor, input }) => {
   return false // Suppress default behaviour as we have taken care of it
 }
 
-export const Quotes: TBPlugin = {
+export const Quotes: Plugin.Definition = {
   class: 'generic',
   name: 'quotes',
   consumer: {

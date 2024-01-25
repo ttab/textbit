@@ -15,18 +15,6 @@ const Portal = ({ children }: PropsWithChildren) => {
     : null
 }
 
-type InlineToolbarProps = {
-  actions: RegistryAction[]
-}
-
-type InlineToolProps = {
-  action: RegistryAction
-}
-
-type AlternateInlineToolProps = {
-  action: RegistryAction,
-  node: NodeEntry<Node>
-}
 
 function handleVisibility(el: HTMLDivElement | null, editor: Editor, inFocus: boolean) {
   const selection = editor.selection
@@ -88,7 +76,7 @@ function handleVisibility(el: HTMLDivElement | null, editor: Editor, inFocus: bo
 /**
  * Inline toolbar component
  */
-export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
+export const InlineToolbar = ({ actions = [] }: { actions: RegistryAction[] }) => {
   const ref = useRef<HTMLDivElement>(null)
   const editor = useSlate()
   const inFocus = useFocused()
@@ -119,18 +107,18 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
   const range = Editor.unhangRange(editor, editor.selection as BaseRange)
   const isCollapsed = Range.isCollapsed(range)
 
-  const [inlineNode] = Array.from(Editor.nodes(editor, {
+  const [inlineNodeEntry] = Array.from(Editor.nodes(editor, {
     at: editor.selection,
     match: n => SlateElement.isElement(n) && n.class === 'inline'
   }))
 
-  const inlineEl = inlineNode && inlineNode.length ? inlineNode[0] : null
+  const inlineEl = inlineNodeEntry && inlineNodeEntry.length ? inlineNodeEntry[0] : null
   const leafActions = actions.filter((action: RegistryAction) => action.tool && action.plugin.class === 'leaf')
   const inlineActions = actions.filter((action: RegistryAction) => action.tool && action.plugin.class === 'inline')
   const inlineNodeAction = actions.find((action: RegistryAction) => action.tool && SlateElement.isElement(inlineEl) && action.plugin.name === inlineEl?.type)
 
   const showCurrentTool = !!inlineNodeAction && isCollapsed && Array.isArray(inlineNodeAction?.tool)
-  const showInlineTools = !isCollapsed && !inlineNode && inlineActions.length > 0
+  const showInlineTools = !isCollapsed && !inlineNodeEntry && inlineActions.length > 0
   const showLeafTools = !isCollapsed && leafActions.length > 0
 
   return <Portal>
@@ -144,7 +132,7 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
     >
       {(showLeafTools || showInlineTools || showCurrentTool) &&
         <>
-          {(!isCollapsed || inlineNode) &&
+          {(!isCollapsed || inlineNodeEntry) &&
             <>
               {/* First group contains normal leafs, but only if it is not collapsed */}
               {showLeafTools &&
@@ -177,7 +165,7 @@ export const InlineToolbar = ({ actions = [] }: InlineToolbarProps) => {
                   <InlineTool
                     key={`${inlineNodeAction.plugin.class}-${inlineNodeAction.plugin.name}`}
                     action={inlineNodeAction}
-                    node={inlineNode}
+                    entry={inlineNodeEntry}
                   />
                 </ToolGroup>
               }
@@ -198,9 +186,10 @@ export const ToolGroup = ({ children }: PropsWithChildren) => {
 /**
  * Inline toolbar button component
  */
-const ToolButton = ({ action }: InlineToolProps) => {
+const ToolButton = ({ action }: { action: RegistryAction }) => {
   const editor = useSlate()
   const isActive = hasMark(editor, action.plugin.name)
+  const Tool = !Array.isArray(action.tool) ? action.tool : action.tool[0]
 
   return <div
     className={`textbit-tool`}
@@ -212,7 +201,7 @@ const ToolButton = ({ action }: InlineToolProps) => {
     }}
   >
     <>
-      {!Array.isArray(action.tool) ? action.tool : action.tool[0]}
+      {!!Tool && <Tool editor={editor} />}
       <em className={`${isActive ? 'active' : ''}`}></em>
     </>
   </div>
@@ -222,16 +211,16 @@ const ToolButton = ({ action }: InlineToolProps) => {
 /**
  * Alternative inline toolbar button component (handles tool 1 and 2 in tool array)
  */
-const InlineTool = ({ action, node }: AlternateInlineToolProps) => {
+const InlineTool = ({ action, entry }: {
+  action: RegistryAction,
+  entry: NodeEntry<Node>
+}) => {
   const editor = useSlate()
 
-  if (!Array.isArray(action.tool)) {
+  if (!Array.isArray(action.tool) || action.tool.length < 2) {
     return <></>
   }
 
-  return <>
-    {action.tool[1] && typeof action.tool[1] === 'function' &&
-      <>{action.tool[1](editor, node)}</>
-    }
-  </>
+  const Tool = action.tool[1]
+  return <Tool editor={editor} entry={entry} />
 }
