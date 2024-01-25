@@ -67,7 +67,7 @@
     "slate": "^0.101.5",
     "slate-history": "^0.100.0",
     "slate-hyperscript": "^0.77.0",
-    "slate-react": "^0.91.11",
+    "slate-react": "^0.101.6",
     "uuid": "^9.0.1"
   }
 }
