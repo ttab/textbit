@@ -26,8 +26,8 @@ import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 import { PresenceOverlay } from './components/PresenceOverlay/PresenceOverlay'
-import { TBPlugin } from '../../types'
-import { useTextbitContext } from '../Textbit'
+import { Plugin } from '../../types'
+import { useTextbit } from '../Textbit'
 import { debounce } from '@/lib/debounce'
 
 /**
@@ -37,7 +37,7 @@ import { debounce } from '@/lib/debounce'
 export interface TextbitEditableProps {
   onChange?: (value: Descendant[]) => void
   value: Descendant[]
-  plugins?: TBPlugin[]
+  plugins?: Plugin.Definition[]
   yjsEditor?: SlateEditor
   verbose?: boolean
 }
@@ -68,7 +68,7 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
       verbose)
   }, [])
 
-  const { dispatch } = useTextbitContext()
+  const { dispatch } = useTextbit()
 
   const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
     const e = SlateEditor.isEditor(yjsEditor) ? yjsEditor : createEditor()
@@ -180,7 +180,7 @@ function handleDecoration(editor: SlateEditor, node: Node, path: Path) {
     return [
       {
         ...editor.selection,
-        placeholder: entry?.component?.placeholder || '',
+        placeholder: entry?.componentEntry?.placeholder || '',
       }
     ]
   }

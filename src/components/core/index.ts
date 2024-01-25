@@ -1,6 +1,6 @@
 import { TextElement } from './TextElement'
 import { Bold, Italic, Underline } from "./Leafs"
-import { Blockquote } from "./Blockquote"
+import { BlockquotePlugin } from "./Blockquote"
 import { Navigation } from "./Navigation"
 import { OEmbed } from "./OEmbed"
 import { Image } from "./Image"
@@ -11,7 +11,7 @@ import { Link } from './Link'
 
 export const StandardPlugins = [
   TextElement,
-  Blockquote,
+  BlockquotePlugin,
   Bold,
   Italic,
   Underline,

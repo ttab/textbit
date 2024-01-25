@@ -1,9 +1,9 @@
 import React from 'react'
-import { TBRenderElementFunction } from '../../../../../src/types'
-import { TextbitElement } from '../../../../../src'
+import { Plugin } from '../../../../../src/types'
+import { TBElement } from '../../../../../src/index'
 
-export const List: TBRenderElementFunction = ({ element, children }) => {
-  const { properties = {} } = TextbitElement.isElement(element) ? element : {}
+export const List: Plugin.Component = ({ element, children }) => {
+  const { properties = {} } = TBElement.isElement(element) ? element : {}
 
   const style = {
     margin: 0,

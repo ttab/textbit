@@ -1,33 +1,25 @@
 import isHotKey from 'is-hotkey'
+import { Plugin } from '@/types'
 
-import { TBActionHandlerProps, TBComponent, TBPlugin, TBToolFunction } from '@/types'
-import { Element } from 'slate'
-
-export type Registry = {
+export type RegistryComponent = {
   type: string
   class: string
-  component: TBComponent
-  parent: TBComponent | null
+  componentEntry: Plugin.ComponentEntry
+  parent: Plugin.ComponentEntry | null
 }
 
-export type RegistryAction = {
-  plugin: TBPlugin
-  hotkey: string
+export type RegistryAction = Plugin.Action & {
+  plugin: Plugin.Definition
   isHotkey: (action: any) => boolean
-  title: string
-  description: string
-  tool: JSX.Element | Array<JSX.Element | TBToolFunction> | null
-  handler: (props: TBActionHandlerProps) => void | boolean,
-  visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean]
 }
 
 export interface RegistryInterface {
   // Main registry of plugins
-  plugins: TBPlugin[]
+  plugins: Plugin.Definition[]
 
   // Provides faster access in rendering cycles
-  leafComponents: Map<string, Registry>
-  elementComponents: Map<string, Registry>
+  leafComponents: Map<string, RegistryComponent>
+  elementComponents: Map<string, RegistryComponent>
 
   // Provides faster access to actions and keyboard shortcuts
   actions: RegistryAction[]
@@ -36,10 +28,10 @@ export interface RegistryInterface {
   verbose: boolean
 
   // Add one plugin
-  addPlugin: (plugin: TBPlugin) => void
+  addPlugin: (plugin: Plugin.Definition) => void
 
   // Initialize Registry and add all incoming plugins
-  initialize: (Registry: RegistryInterface, plugins: TBPlugin[], verbose: boolean) => void
+  initialize: (Registry: RegistryInterface, plugins: Plugin.Definition[], verbose: boolean) => void
 }
 
 export const Registry: RegistryInterface = {
@@ -55,7 +47,7 @@ export const Registry: RegistryInterface = {
 /**
  * Initalize a clean registry and register all plugins
  */
-export function initialize(registry: RegistryInterface, plugins: TBPlugin[], verbose: boolean) {
+export function initialize(registry: RegistryInterface, plugins: Plugin.Definition[], verbose: boolean) {
   Registry.actions.length = 0
   Registry.plugins.length = 0
   Registry.leafComponents.clear()
@@ -71,7 +63,7 @@ export function initialize(registry: RegistryInterface, plugins: TBPlugin[], ver
  *
  * @param plugin
  */
-function addPlugin(plugin: TBPlugin) {
+function addPlugin(plugin: Plugin.Definition) {
   if (Registry.verbose) {
     console.info(`Registering plugin ${plugin.name}`)
   }
@@ -107,40 +99,39 @@ function addPlugin(plugin: TBPlugin) {
  * Register a plugins components render functions for faster access in the rendering functionality.
  * Type and class of the topmost component can be derived from name and class of the plugin
  */
-const registerComponents = (plugin: TBPlugin) => {
-  const { component = null } = plugin
-  if (component === null) {
+const registerComponents = (plugin: Plugin.Definition) => {
+  const { componentEntry: entry = null } = plugin
+  if (entry === null) {
     return
   }
 
-  component.type = component?.type || plugin.name
-  component.class = component?.class || plugin.class
+  entry.type = entry?.type || plugin.name
+  entry.class = entry?.class || plugin.class
 
   registerComponent(
-    (component.class === 'leaf') ? Registry.leafComponents : Registry.elementComponents,
-    component.type,
-    component
+    (entry.class === 'leaf') ? Registry.leafComponents : Registry.elementComponents,
+    entry.type,
+    entry
   )
 }
 
-const registerComponent = (components: Map<string, Registry>, compType: string, component: TBComponent, parent?: TBComponent) => {
-  const { children = [] } = component
-
+const registerComponent = (components: Map<string, RegistryComponent>, compType: string, entry: Plugin.ComponentEntry, parent?: Plugin.ComponentEntry) => {
   if (components.has(compType)) {
     console.warn(`Already registered component ${compType} render function was replaced by another component render function with the same type!`)
   }
 
-  if (!component.class) {
+  if (!entry.class) {
     console.warn(`Component ${compType} is missing a class, using "text" as fallback type!`)
   }
 
   components.set(compType, {
     type: compType,
-    class: component.class || 'text',
-    component: component,
+    class: entry.class || 'text',
+    componentEntry: entry,
     parent: parent || null
   })
 
+  const { children = [] } = entry
   children.forEach(childComponent => {
     if (!childComponent.type) {
       throw (new Error(`Child component of ${compType} is missing mandatory type!`))
@@ -150,7 +141,7 @@ const registerComponent = (components: Map<string, Registry>, compType: string, 
       components,
       `${compType}/${childComponent.type}`, // Aggregated type identifier (e.g. core/image/caption)
       childComponent,
-      component
+      entry
     )
   })
 }
@@ -159,24 +150,19 @@ const registerComponent = (components: Map<string, Registry>, compType: string, 
 /**
  * Register actions in an iterable array
  */
-const registerActions = (plugins: TBPlugin[]) => {
+const registerActions = (plugins: Plugin.Definition[]) => {
   const actions: RegistryAction[] = []
 
   plugins
     .filter(plugin => Array.isArray(plugin.actions) && plugin.actions.length)
     .forEach((plugin) => {
-      actions.push(...(plugin.actions || []).map(action => {
-        return {
+      plugin.actions?.forEach(action => {
+        actions.push({
           plugin,
-          hotkey: action.hotkey || '',
           isHotkey: action.hotkey ? isHotKey(action.hotkey) : () => false,
-          title: action?.title || '',
-          description: action?.title || '',
-          tool: action.tool || null,
-          handler: action.handler,
-          visibility: action.visibility
-        }
-      }))
+          ...action
+        })
+      })
     })
 
   return actions

@@ -1,8 +1,8 @@
 import { Editor, Text } from 'slate'
-import { TextbitEditor } from '@/lib/textbit-editor'
+import { TBEditor } from '@/lib/textbit-editor'
 
 export const hasMark = (editor: Editor, format: string) => {
-  const nodes = TextbitEditor.selectedTextEntries(editor)
+  const nodes = TBEditor.selectedTextEntries(editor)
 
   if (!nodes.length) {
     return false

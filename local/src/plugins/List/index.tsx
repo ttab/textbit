@@ -1,20 +1,20 @@
 import React from 'react'
 import { BsListUl, BsListOl } from 'react-icons/bs'
 
-import { TBPlugin } from '../../../../src/types'
+import { Plugin } from '../../../../src/types'
 
 import { List, ListItem } from './components'
 import { actionHandler } from './lib/actionHandler'
 import { normalizeNode } from './lib/normalizeNode'
 import { Editor, NodeEntry } from 'slate'
 
-export const BulletList: TBPlugin = {
+export const BulletList: Plugin.Definition = {
   class: 'text',
   name: 'core/bullet-list',
   actions: [
     {
       title: 'Bullet list',
-      tool: <BsListUl />,
+      tool: () => <BsListUl />,
       hotkey: 'mod+shift+8',
       handler: ({ editor }) => {
         actionHandler(editor, 'core/bullet-list')
@@ -28,9 +28,9 @@ export const BulletList: TBPlugin = {
       }
     }
   ],
-  component: {
+  componentEntry: {
     class: 'text',
-    render: List,
+    component: List,
     constraints: {
       normalizeNode: (editor: Editor, nodeEntry: NodeEntry) => {
         return normalizeNode(editor, nodeEntry, 'core/bullet-list')
@@ -40,19 +40,19 @@ export const BulletList: TBPlugin = {
       {
         type: 'list-item',
         class: 'text',
-        render: ListItem
+        component: ListItem
       }
     ]
   }
 }
 
-export const NumberList: TBPlugin = {
+export const NumberList: Plugin.Definition = {
   class: 'text',
   name: 'core/number-list',
   actions: [
     {
       title: 'Number list',
-      tool: <BsListOl />,
+      tool: () => <BsListOl />,
       hotkey: 'mod+shift+7',
       handler: ({ editor }) => {
         actionHandler(editor, 'core/number-list')
@@ -66,9 +66,9 @@ export const NumberList: TBPlugin = {
       }
     }
   ],
-  component: {
+  componentEntry: {
     class: 'text',
-    render: List,
+    component: List,
     constraints: {
       normalizeNode: (editor: Editor, nodeEntry: NodeEntry) => {
         return normalizeNode(editor, nodeEntry, 'core/number-list')
@@ -78,7 +78,7 @@ export const NumberList: TBPlugin = {
       {
         type: 'list-item',
         class: 'text',
-        render: ListItem
+        component: ListItem
       }
     ]
   }

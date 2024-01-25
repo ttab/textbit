@@ -1,6 +1,6 @@
 import { Editor, Node, BaseRange, Path, Transforms, Descendant, Element as SlateElement, NodeEntry } from "slate"
 import * as uuid from 'uuid'
-import { TextbitElement } from "@/lib/textbit-element"
+import { TBElement } from "@/lib/textbit-element"
 import { Registry } from "../components/Registry"
 
 
@@ -83,19 +83,19 @@ export function convertToText(editor: Editor, type: string, subtype?: string, no
 
   // Not allowed (as it crashes if last element is a block) if any element is not text/textblock
   for (const [node] of targetNodes) {
-    if (!TextbitElement.isText(node) && !TextbitElement.isTextblock(node)) {
+    if (!TBElement.isText(node) && !TBElement.isTextblock(node)) {
       return
     }
   }
 
   Editor.withoutNormalizing(editor, () => {
     for (const [node, [position]] of targetNodes) {
-      if (!TextbitElement.isText(node) && !TextbitElement.isTextblock(node)) {
+      if (!TBElement.isText(node) && !TBElement.isTextblock(node)) {
         continue
       }
 
       // Convert regular text element
-      if (TextbitElement.isText(node)) {
+      if (TBElement.isText(node)) {
         const nodeAttribs: any = {
           type,
           properties: subtype ? { type: subtype } : {}
@@ -109,7 +109,7 @@ export function convertToText(editor: Editor, type: string, subtype?: string, no
         continue
       }
 
-      if (TextbitElement.isTextblock(node)) {
+      if (TBElement.isTextblock(node)) {
         const texts = Node.texts(node)
         const strings: Node[] = []
 

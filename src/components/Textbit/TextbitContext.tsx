@@ -6,7 +6,7 @@ import React, {
 } from 'react'
 
 
-interface TextbitProviderState {
+export interface TextbitProviderState {
   words: number
   characters: number
   dispatch: React.Dispatch<Partial<TextbitProviderState>>
@@ -20,7 +20,7 @@ const initialState: TextbitProviderState = {
 
 
 // Create the context
-const TextbitContext = createContext(initialState)
+export const TextbitContext = createContext(initialState)
 
 
 // Define the reducer function
@@ -52,16 +52,4 @@ export const TextbitContextProvider = ({ children }: PropsWithChildren): JSX.Ele
       {children}
     </TextbitContext.Provider>
   )
-}
-
-
-// Hook to consume the context
-export const useTextbitContext = () => {
-  const context = useContext(TextbitContext)
-
-  if (!context) {
-    throw new Error('useTextbitContext must be used within a TextbitContextProvider')
-  }
-
-  return context
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Textbit, TextbitEditable, TextbitFooter, useTextbitContext } from '../../src'
+import { Textbit, TextbitEditable, TextbitFooter, useTextbit } from '../../src'
 import { TBDescendant } from '../../src/types'
 import { ThemeSwitcher } from './themeSwitcher'
 import { BulletList, NumberList } from './plugins'
@@ -129,7 +129,7 @@ function App() {
 
 function Editor({ initialValue }: { initialValue: TBDescendant[] }) {
   const [, setValue] = useState<TBDescendant[]>(initialValue)
-  const { characters } = useTextbitContext()
+  const { characters } = useTextbit()
 
   return (
     <>

@@ -3,35 +3,31 @@ import { Transforms, Node, Editor, NodeEntry } from 'slate'
 import { BsChatQuote } from 'react-icons/bs'
 import * as uuid from 'uuid'
 
-import {
-  TBActionHandlerProps,
-  TBPlugin,
-  TBRenderElementProps
-} from '@/types'
+import { Plugin, TBEditor as TBEditorType } from '@/types'
 
-import { TextbitEditor, TextbitElement } from '@/lib/index'
+import { TBEditor, TBElement } from '@/lib/index'
 import { getSelectedText, insertAt } from '@/lib/utils'
 import './style.css'
 
-const render = ({ children }: TBRenderElementProps): JSX.Element => {
+const Blockquote: Plugin.Component = ({ children }): JSX.Element => {
   return <>
     {children}
   </>
 }
 
-const renderBody = ({ children }: TBRenderElementProps) => {
-  return <div className="textbit-body">
+const Body: Plugin.Component = ({ children }) => {
+  return <div className="core/blockquote/body">
     {children}
   </div>
 }
 
-const renderCaption = ({ children }: TBRenderElementProps) => {
-  return <div className="textbit-caption">
+const Caption: Plugin.Component = ({ children }) => {
+  return <div className="core/blockquote/caption">
     {children}
   </div>
 }
 
-const actionHandler = ({ editor }: TBActionHandlerProps) => {
+const actionHandler = ({ editor }: { editor: TBEditorType }) => {
   const text = getSelectedText(editor)
   const node = [{
     id: uuid.v4(),
@@ -51,7 +47,7 @@ const actionHandler = ({ editor }: TBActionHandlerProps) => {
     ]
   }]
 
-  const position = TextbitEditor.position(editor) + (!!text ? 0 : 1)
+  const position = TBEditor.position(editor) + (!!text ? 0 : 1)
   insertAt(editor, position, node)
 
   const atChild = !!text ? 0 : 1
@@ -82,7 +78,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
     }
 
     // Add missing body or caption
-    const [addType, atPos] = TextbitElement.isOfType(children[0][0], 'core/blockquote/caption') ? ['core/blockquote/body', 0] : ['core/blockquote/caption', 1]
+    const [addType, atPos] = TBElement.isOfType(children[0][0], 'core/blockquote/caption') ? ['core/blockquote/body', 0] : ['core/blockquote/caption', 1]
 
     Transforms.insertNodes(
       editor,
@@ -99,7 +95,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
 
   let n = 1
   for (const [child, childPath] of children) {
-    if (TextbitElement.isBlock(child) || TextbitElement.isTextblock(child)) {
+    if (TBElement.isBlock(child) || TBElement.isTextblock(child)) {
       // Unwrap block node children (move text element children upwards in tree)
       Transforms.unwrapNodes(editor, {
         at: childPath,
@@ -108,7 +104,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
       return true
     }
 
-    if (n < children.length && TextbitElement.isText(child) && !TextbitElement.isOfType(child, 'core/blockquote/body')) {
+    if (n < children.length && TBElement.isText(child) && !TBElement.isOfType(child, 'core/blockquote/body')) {
       // Turn unknown text elements to /core/blockquote/body
       Transforms.setNodes(
         editor,
@@ -119,7 +115,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
     }
 
     // Make sure last element is a caption
-    if (n === children.length && !TextbitElement.isOfType(child, 'core/blockquote/caption')) {
+    if (n === children.length && !TBElement.isOfType(child, 'core/blockquote/caption')) {
       Transforms.setNodes(
         editor,
         { type: 'core/blockquote/caption' },
@@ -144,13 +140,13 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
   }
 }
 
-export const Blockquote: TBPlugin = {
+export const BlockquotePlugin: Plugin.Definition = {
   class: 'textblock',
   name: 'core/blockquote',
   actions: [
     {
       title: 'Blockquote',
-      tool: <BsChatQuote />,
+      tool: () => <BsChatQuote />,
       hotkey: 'mod+shift+2',
       handler: actionHandler,
       visibility: (element, rootElement) => {
@@ -162,9 +158,9 @@ export const Blockquote: TBPlugin = {
       }
     }
   ],
-  component: {
+  componentEntry: {
     class: 'textblock',
-    render,
+    component: Blockquote,
     constraints: {
       normalizeNode: normalizeBlockquote
     },
@@ -172,12 +168,12 @@ export const Blockquote: TBPlugin = {
       {
         type: 'body',
         class: 'text',
-        render: renderBody
+        component: Body
       },
       {
         type: 'caption',
         class: 'text',
-        render: renderCaption
+        component: Caption
       }
     ]
   }

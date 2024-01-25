@@ -182,7 +182,11 @@ const ToolGroup = ({ children }: PropsWithChildren) => {
 const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
   const editor = useSlate()
   const isActive = isBlockActive(editor, action)
-  const tool = React.isValidElement(action.tool) ? action.tool : undefined
+  const Tool = !Array.isArray(action.tool) ? action.tool : action.tool[0]
+
+  if (typeof Tool === 'undefined') {
+    return null
+  }
 
   return (
     <a
@@ -193,14 +197,11 @@ const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
         action.handler({ editor })
       }}
     >
-      {isActive &&
-        <span className="textbit-content-menu-item-icon active"><MdCheck /></span>
-      }
-      {!isActive && tool &&
-        <span className="textbit-content-menu-item-icon">{tool}</span>
-      }
-      {!isActive && !tool &&
-        <span></span>
+      {(isActive)
+        ? <span className="textbit-content-menu-item-icon active"><MdCheck /></span>
+        : <span className="textbit-content-menu-item-icon">
+          <Tool editor={editor} />
+        </span>
       }
 
       <span>{action.title}</span>

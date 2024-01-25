@@ -1,4 +1,4 @@
-import { TextbitElement } from './textbit-element'
+import { TBElement } from './textbit-element'
 import {
   Editor as SlateEditor,
   Node,
@@ -7,18 +7,17 @@ import {
   EditorInterface,
   Path
 } from "slate"
-import { TBEditor } from '../types'
+import { TBEditor as TBEditorType } from '../types'
 
 interface TextbitEditorInterface extends EditorInterface {
-  position: (editor: TBEditor) => number
-  length: (editor: TBEditor) => number
-  parents: <T extends Node>(editor: TBEditor) => Generator<NodeEntry<T>, void, undefined>
-  selectedTextEntries: (editor: TBEditor) => NodeEntry<Node>[]
-  includes: (editor: TBEditor, type: string) => boolean
+  position: (editor: TBEditorType) => number
+  length: (editor: TBEditorType) => number
+  parents: <T extends Node>(editor: TBEditorType) => Generator<NodeEntry<T>, void, undefined>
+  selectedTextEntries: (editor: TBEditorType) => NodeEntry<Node>[]
+  includes: (editor: TBEditorType, type: string) => boolean
 }
-export declare type TextbitEditor = TextbitEditorInterface
 
-export const TextbitEditor: TextbitEditor = {
+export const TBEditor: TextbitEditorInterface = {
   ...SlateEditor,
 
   /** Return start position of the starting element of the current selection (collapsed or not collapsed) in the editor */
@@ -39,7 +38,7 @@ export const TextbitEditor: TextbitEditor = {
       SlateEditor.nodes(editor, {
         at: [],
         mode: 'highest',
-        match: n => TextbitElement.isElement(n)
+        match: n => TBElement.isElement(n)
       })).length
   },
 
@@ -48,7 +47,7 @@ export const TextbitEditor: TextbitEditor = {
     return SlateEditor.nodes(editor, {
       at: [],
       mode: 'highest',
-      match: n => TextbitElement.isElement(n)
+      match: n => TBElement.isElement(n)
     })
   },
 
@@ -66,7 +65,7 @@ export const TextbitEditor: TextbitEditor = {
       }
 
       const [parentNode] = SlateEditor.parent(editor, path)
-      return TextbitElement.isElement(parentNode) && (!editor.isVoid(parentNode) || editor.markableVoid(parentNode))
+      return TBElement.isElement(parentNode) && (!editor.isVoid(parentNode) || editor.markableVoid(parentNode))
     }
 
     return Array.from(
@@ -96,7 +95,7 @@ export const TextbitEditor: TextbitEditor = {
         at: SlateEditor.unhangRange(editor, selection),
         match: node =>
           !SlateEditor.isEditor(node) &&
-          TextbitElement.isElement(node) &&
+          TBElement.isElement(node) &&
           node.type === type
       })
     )
