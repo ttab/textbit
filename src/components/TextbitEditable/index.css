@@ -45,6 +45,10 @@
   border-radius: calc(var(--radius) * 0.5);
 }
 
+.textbit-editor .slate-root:focus {
+  outline: none;
+}
+
 /**
  * Droppable styling
  */

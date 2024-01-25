@@ -134,7 +134,7 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
   return (
     <DragAndDrop>
 
-      <Slate editor={textbitEditor} value={inValue} onChange={(value) => {
+      <Slate editor={textbitEditor} initialValue={inValue} onChange={(value) => {
         handleOnChange(value)
       }}>
 
@@ -147,6 +147,7 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
 
         <PresenceOverlay isCollaborative={!!yjsEditor}>
           <Editable
+            className="slate-root"
             renderElement={renderSlateElement}
             renderLeaf={renderLeafComponent}
             onKeyDown={event => handleOnKeyDown(event, textbitEditor)}
