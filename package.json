@@ -36,7 +36,7 @@
     "@types/escape-html": "^1.0.4",
     "@types/is-url": "^1.2.32",
     "@types/jest": "^29.5.11",
-    "@types/react": "^18.2.48",
+    "@types/react": "^18.2.51",
     "@types/uuid": "^9.0.7",
     "esbuild": "^0.19.12",
     "esbuild-serve": "^1.0.1",
