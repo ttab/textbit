@@ -3,9 +3,9 @@ import { Transforms, Node, Editor, NodeEntry } from 'slate'
 import { BsChatQuote } from 'react-icons/bs'
 import * as uuid from 'uuid'
 
-import { Plugin, TBEditor as TBEditorType } from '@/types'
+import { Plugin } from '@/types'
 
-import { TBEditor, TBElement } from '@/lib/index'
+import { TextbitEditor, TextbitElement } from '@/lib/index'
 import { getSelectedText, insertAt } from '@/lib/utils'
 import './style.css'
 
@@ -27,7 +27,7 @@ const Caption: Plugin.Component = ({ children }) => {
   </div>
 }
 
-const actionHandler = ({ editor }: { editor: TBEditorType }) => {
+const actionHandler = ({ editor }: { editor: Editor }) => {
   const text = getSelectedText(editor)
   const node = [{
     id: uuid.v4(),
@@ -47,7 +47,7 @@ const actionHandler = ({ editor }: { editor: TBEditorType }) => {
     ]
   }]
 
-  const position = TBEditor.position(editor) + (!!text ? 0 : 1)
+  const position = TextbitEditor.position(editor) + (!!text ? 0 : 1)
   insertAt(editor, position, node)
 
   const atChild = !!text ? 0 : 1
@@ -78,7 +78,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
     }
 
     // Add missing body or caption
-    const [addType, atPos] = TBElement.isOfType(children[0][0], 'core/blockquote/caption') ? ['core/blockquote/body', 0] : ['core/blockquote/caption', 1]
+    const [addType, atPos] = TextbitElement.isOfType(children[0][0], 'core/blockquote/caption') ? ['core/blockquote/body', 0] : ['core/blockquote/caption', 1]
 
     Transforms.insertNodes(
       editor,
@@ -95,7 +95,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
 
   let n = 1
   for (const [child, childPath] of children) {
-    if (TBElement.isBlock(child) || TBElement.isTextblock(child)) {
+    if (TextbitElement.isBlock(child) || TextbitElement.isTextblock(child)) {
       // Unwrap block node children (move text element children upwards in tree)
       Transforms.unwrapNodes(editor, {
         at: childPath,
@@ -104,7 +104,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
       return true
     }
 
-    if (n < children.length && TBElement.isText(child) && !TBElement.isOfType(child, 'core/blockquote/body')) {
+    if (n < children.length && TextbitElement.isText(child) && !TextbitElement.isOfType(child, 'core/blockquote/body')) {
       // Turn unknown text elements to /core/blockquote/body
       Transforms.setNodes(
         editor,
@@ -115,7 +115,7 @@ const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
     }
 
     // Make sure last element is a caption
-    if (n === children.length && !TBElement.isOfType(child, 'core/blockquote/caption')) {
+    if (n === children.length && !TextbitElement.isOfType(child, 'core/blockquote/caption')) {
       Transforms.setNodes(
         editor,
         { type: 'core/blockquote/caption' },

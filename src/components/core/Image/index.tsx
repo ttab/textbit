@@ -5,14 +5,11 @@ import * as uuid from 'uuid'
 
 import './style.css'
 import { BsImage } from 'react-icons/bs'
-import {
-  Plugin,
-  TBEditor
-} from '@/types'
+import { Plugin } from '@/types'
 
 import { handleFileInputChangeEvent } from '@/lib'
 import { Node } from 'slate'
-import { TBElement } from '@/lib/textbit-element'
+import { TextbitElement } from '@/lib/textbit-element'
 
 const Figure: Plugin.Component = ({ children }) => {
   const style = {
@@ -117,7 +114,7 @@ const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
 
   let n = 0
   for (const [child, childPath] of children) {
-    if (TBElement.isBlock(child) || TBElement.isTextblock(child)) {
+    if (TextbitElement.isBlock(child) || TextbitElement.isTextblock(child)) {
       // Unwrap block node children (move text element children upwards in tree)
       Transforms.unwrapNodes(editor, {
         at: childPath,
@@ -126,7 +123,7 @@ const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
       return true
     }
 
-    if (n === 1 && !TBElement.isOfType(child, 'core/image/text')) {
+    if (n === 1 && !TextbitElement.isOfType(child, 'core/image/text')) {
       Transforms.setNodes(
         editor,
         { type: 'core/image/text' },
@@ -135,7 +132,7 @@ const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
       return true
     }
 
-    if (n === 2 && !TBElement.isOfType(child, 'core/image/altText')) {
+    if (n === 2 && !TextbitElement.isOfType(child, 'core/image/altText')) {
       Transforms.setNodes(
         editor,
         { type: 'core/image/altText' },
@@ -161,7 +158,7 @@ const normalizeImage = (editor: Editor, nodeEntry: NodeEntry) => {
   }
 }
 
-const actionHandler = ({ editor }: { editor: TBEditor }): boolean => {
+const actionHandler = ({ editor }: { editor: Editor }): boolean => {
   let fileSelector: HTMLInputElement | undefined = document.createElement('input')
 
   fileSelector.accept = "image/jpg, image/gif, image/png";

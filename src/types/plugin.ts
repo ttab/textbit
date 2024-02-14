@@ -1,7 +1,7 @@
 import { ReactNode } from "react"
 import { Node, NodeEntry } from "slate"
 import { RenderElementProps } from "slate-react"
-import { TBEditor, TBElement } from './index'
+import { Editor, Element } from 'slate'
 
 export namespace Plugin {
   /**
@@ -18,7 +18,7 @@ export namespace Plugin {
    */
   export interface Component extends Renderable<{
     rootNode?: Node
-  } & RenderElementProps> {}
+  } & RenderElementProps> { }
 
   /**
    * @interface
@@ -34,7 +34,7 @@ export namespace Plugin {
    * Tool component type
    */
   export type ToolComponent<Props = {
-    editor: TBEditor
+    editor: Editor
     entry?: NodeEntry<Node>
   }> = React.ComponentType<Props>
 
@@ -47,8 +47,8 @@ export namespace Plugin {
     description?: string
     hotkey?: string
     tool?: ToolComponent | [ToolComponent, ToolComponent]
-    handler: (options: { editor: TBEditor }) => boolean | void
-    visibility?: (element: TBElement, rootElement?: TBElement) => [boolean, boolean, boolean] // visible, enabled, active
+    handler: (options: { editor: Editor }) => boolean | void
+    visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean] // visible, enabled, active
   }
 
 
@@ -88,7 +88,7 @@ export namespace Plugin {
       allowSoftBreak?: boolean
 
       /** Normalizer function, optional */
-      normalizeNode?: (editor: TBEditor, nodeEntry: NodeEntry) => boolean | void
+      normalizeNode?: (editor: Editor, nodeEntry: NodeEntry) => boolean | void
     }
   }
 
@@ -131,7 +131,7 @@ export namespace Plugin {
    *
    * @returns any | undefined
    */
-  export type ConsumeFunction = ({ editor, input }: { editor: TBEditor, input: Resource | Resource[] }) => Promise<any | undefined>
+  export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resource | Resource[] }) => Promise<any | undefined>
 
   /**
    * @interface
@@ -159,8 +159,8 @@ export namespace Plugin {
      * Event handlers
      */
     events?: {
-      onInsertText?: (editor: TBEditor, text: string) => true | void
-      onNormalizeNode?: (editor: TBEditor, entry: NodeEntry) => true | void
+      onInsertText?: (editor: Editor, text: string) => true | void
+      onNormalizeNode?: (editor: Editor, entry: NodeEntry) => true | void
     }
 
     /**

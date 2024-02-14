@@ -4,7 +4,7 @@ import { Editor, Element, Node, NodeEntry, Transforms } from 'slate'
 import * as uuid from 'uuid'
 
 import { Plugin } from '../../../types'
-import { TBElement } from '@/lib/textbit-element'
+import { TextbitElement } from '@/lib/textbit-element'
 
 import './index.css'
 
@@ -273,7 +273,7 @@ const normalizeOembed = (editor: Editor, nodeEndtry: NodeEntry) => {
 
   let n = 0
   for (const [child, childPath] of children) {
-    if (TBElement.isBlock(child) || TBElement.isTextblock(child)) {
+    if (TextbitElement.isBlock(child) || TextbitElement.isTextblock(child)) {
       // Unwrap block node children (move text element children upwards in tree)
       Transforms.unwrapNodes(editor, {
         at: childPath,
@@ -282,7 +282,7 @@ const normalizeOembed = (editor: Editor, nodeEndtry: NodeEntry) => {
       return true
     }
 
-    if (n === 1 && !TBElement.isOfType(child, 'core/oembed/title')) {
+    if (n === 1 && !TextbitElement.isOfType(child, 'core/oembed/title')) {
       Transforms.setNodes(
         editor,
         { type: 'core/oembed/text' },

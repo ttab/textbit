@@ -72,9 +72,7 @@ function addPlugin(plugin: Plugin.Definition) {
   const plugins = [...Registry.plugins]
   const idx = plugins.findIndex((existingPlugin => existingPlugin.name === plugin.name))
   if (idx !== -1) {
-    if (Registry.verbose) {
-      console.warn(`Overriding already registered plugin ${plugin.name}`)
-    }
+    console.info(`Overriding already registered plugin ${plugin.name}`)
     plugins[idx] = plugin
   }
   else {
@@ -86,7 +84,7 @@ function addPlugin(plugin: Plugin.Definition) {
     registerComponents(plugin)
   }
   catch (ex: any) {
-    console.log(`Failed registering plugin <${plugin.name}>: ${ex?.message || 'unknown reason'}`)
+    console.warn(`Failed registering plugin <${plugin.name}>: ${ex?.message || 'unknown reason'}`)
     return
   }
 
@@ -116,12 +114,15 @@ const registerComponents = (plugin: Plugin.Definition) => {
 }
 
 const registerComponent = (components: Map<string, RegistryComponent>, compType: string, entry: Plugin.ComponentEntry, parent?: Plugin.ComponentEntry) => {
+
   if (components.has(compType)) {
-    console.warn(`Already registered component ${compType} render function was replaced by another component render function with the same type!`)
+    if (Registry.verbose) {
+      console.info(`Already registered component ${compType} render function was replaced by another component render function with the same type!`)
+    }
   }
 
   if (!entry.class) {
-    console.warn(`Component ${compType} is missing a class, using "text" as fallback type!`)
+    console.info(`Component ${compType} is missing a class, using "text" as fallback type!`)
   }
 
   components.set(compType, {

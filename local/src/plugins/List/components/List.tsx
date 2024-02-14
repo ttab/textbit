@@ -1,9 +1,9 @@
 import React from 'react'
 import { Plugin } from '../../../../../src/types'
-import { TBElement } from '../../../../../src/index'
+import { TextbitElement } from '../../../../../src/index'
 
 export const List: Plugin.Component = ({ element, children }) => {
-  const { properties = {} } = TBElement.isElement(element) ? element : {}
+  const { properties = {} } = TextbitElement.isElement(element) ? element : {}
 
   const style = {
     margin: 0,

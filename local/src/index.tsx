@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
+import { Descendant } from 'slate'
 import { createRoot } from 'react-dom/client'
 import { Textbit, TextbitEditable, TextbitFooter, useTextbit } from '../../src'
-import { TBDescendant } from '../../src/types'
 import { ThemeSwitcher } from './themeSwitcher'
 import { BulletList, NumberList } from './plugins'
 
 import './editor-variables.css'
 
-const initialValue: TBDescendant[] = [
+const initialValue: Descendant[] = [
   {
     type: 'core/text',
     id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
@@ -127,8 +127,8 @@ function App() {
   )
 }
 
-function Editor({ initialValue }: { initialValue: TBDescendant[] }) {
-  const [, setValue] = useState<TBDescendant[]>(initialValue)
+function Editor({ initialValue }: { initialValue: Descendant[] }) {
+  const [, setValue] = useState<Descendant[]>(initialValue)
   const { characters } = useTextbit()
 
   return (

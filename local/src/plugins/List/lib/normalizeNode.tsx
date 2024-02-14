@@ -1,5 +1,5 @@
 import { Editor, NodeEntry, Transforms, Node } from 'slate'
-import { TBElement } from '../../../../../src'
+import { TextbitElement } from '../../../../../src'
 import { hasText } from '../../../../../src/lib/utils'
 
 export const normalizeNode = (editor: Editor, nodeEntry: NodeEntry, listType: string) => {
@@ -9,7 +9,7 @@ export const normalizeNode = (editor: Editor, nodeEntry: NodeEntry, listType: st
 
   let n = 1
   for (const [child, childPath] of children) {
-    if (TBElement.isBlock(child) || TBElement.isTextblock(child)) {
+    if (TextbitElement.isBlock(child) || TextbitElement.isTextblock(child)) {
       // Unwrap block node children (move text element children upwards in tree)
       Transforms.unwrapNodes(editor, {
         at: childPath,
@@ -18,7 +18,7 @@ export const normalizeNode = (editor: Editor, nodeEntry: NodeEntry, listType: st
       return true
     }
 
-    if (n < children.length && TBElement.isText(child) && !TBElement.isOfType(child, `${listType}/list-item`)) {
+    if (n < children.length && TextbitElement.isText(child) && !TextbitElement.isOfType(child, `${listType}/list-item`)) {
       // Turn unknown text elements to core/number-list/list-item or core/bullet-list/list-item
       Transforms.setNodes(
         editor,
@@ -31,7 +31,7 @@ export const normalizeNode = (editor: Editor, nodeEntry: NodeEntry, listType: st
     // If the two last elements are empty, remove last node and then convert
     // the remaining last node to normal text. This gives the appearance that
     // <enter> on a last empty list item converts it to a text node.
-    if (n === children.length && children.length > 1 && TBElement.isOfType(child, `${listType}/list-item`)) {
+    if (n === children.length && children.length > 1 && TextbitElement.isOfType(child, `${listType}/list-item`)) {
       if (!hasText([children[n - 2], children[n - 1]])) {
 
         const removePath = [childPath[0], n - 2]

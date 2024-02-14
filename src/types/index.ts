@@ -1,10 +1,3 @@
-export {
-  TBEditor,
-  TBElement,
-  TBText,
-  TBDescendant
-} from './editor'
-
-export {
-  Plugin,
-} from './plugin'
+export * from '../lib'
+export { Plugin, } from './plugin'
+export * from './extends'
