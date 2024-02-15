@@ -5,7 +5,6 @@ import { OEmbed } from "./OEmbed"
 import { Image } from "./Image"
 import { Quotes } from "./Quotes"
 import { Loader } from "./Loader"
-import { Link } from './Link'
 
 
 export const StandardPlugins = [
@@ -17,6 +16,5 @@ export const StandardPlugins = [
   OEmbed,
   Quotes,
   Image,
-  Loader,
-  Link
+  Loader
 ]
