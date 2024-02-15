@@ -4,21 +4,20 @@ import { RenderElementProps } from "slate-react"
 import { Editor, Element } from 'slate'
 
 export namespace Plugin {
+
   /**
    * @interface
-   * Textbit component for rendering a root parent element
+   * Textbit Component props
    */
-  interface Renderable<Props = RenderElementProps> {
-    (props: Props): ReactNode
+  export interface TBRenderElementProps extends RenderElementProps {
+    rootNode?: Node
   }
 
   /**
    * @interface
-   * Component for rendering a textbit component
+   * Textbit Component for rendering a textbit/slate element in the editor
    */
-  export interface Component extends Renderable<{
-    rootNode?: Node
-  } & RenderElementProps> { }
+  export type Component = (props: TBRenderElementProps) => ReactNode
 
   /**
    * @interface
