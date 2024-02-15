@@ -62,27 +62,6 @@ const initialValue: Descendant[] = [
     ],
   },
   {
-    type: 'core/blockquote',
-    class: 'textblock',
-    id: '538345e5-bacc-48f9-8ef1-1214443a32da',
-    children: [
-      {
-        type: 'core/blockquote/body',
-        class: 'text',
-        children: [
-          { text: 'Just a regular paragraph that contains some nonsensical writing' }
-        ]
-      },
-      {
-        type: 'core/blockquote/caption',
-        class: 'text',
-        children: [
-          { text: 'Mr Smith' }
-        ]
-      }
-    ]
-  },
-  {
     type: 'core/text',
     class: 'text',
     id: '538345e5-bacc-48f9-8ef1-1215892b61ed',

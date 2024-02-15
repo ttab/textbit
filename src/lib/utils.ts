@@ -134,29 +134,6 @@ export function convertToText(editor: Editor, type: string, subtype?: string, no
   })
 }
 
-export function insertAt(editor: Editor, position: number, nodes: Node | Node[]): void {
-  const nodeArray: Node[] = Array.isArray(nodes) ? nodes : [nodes]
-
-  if (!nodeArray.length) {
-    return
-  }
-
-  // Ensure all nodes have an id
-  nodeArray.forEach((node: any) => {
-    if (!node.id) {
-      node.id = uuid.v4()
-    }
-  })
-
-  Transforms.insertNodes(
-    editor,
-    nodes,
-    {
-      at: [position]
-    }
-  )
-}
-
 export function getNodeById(editor: Editor, id: string): NodeEntry<Node> | undefined {
   const matches = Array.from(
     Editor.nodes(editor, {
@@ -190,11 +167,6 @@ export function getSelectedNodes(editor: Editor): Node[] {
   return getSelectedNodeEntries(editor).map(nodeEntry => nodeEntry[0])
 }
 
-export function getSelectedText(editor: Editor, range?: BaseRange): string | undefined {
-  const useRange = range || Editor.unhangRange(editor, editor.selection as BaseRange)
-  return Editor.string(editor, useRange)
-}
-
 export function cloneChildren(children: Descendant[]): Descendant[] {
   return children.map((node) => {
     if (SlateElement.isElement(node)) {
@@ -206,30 +178,4 @@ export function cloneChildren(children: Descendant[]): Descendant[] {
 
     return { ...node }
   })
-}
-
-/**
- * Check if a list of node entries has text in them. Useful in normalizers.
- *
- * @example
- * const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
- *   const [node, path] = nodeEntry
- *   const children = Array.from(Node.children(editor, path))
- *   const isEmpty = !hasText(children)
- *   // ...
- * }
- *
- * @param nodes
- * @returns
- */
-export function hasText(nodes: NodeEntry<Descendant>[]): boolean {
-  for (const [node] of nodes) {
-    for (const textNode of Node.texts(node)) {
-      if (textNode[0].text.trim() !== '') {
-        return true
-      }
-    }
-  }
-
-  return false
 }

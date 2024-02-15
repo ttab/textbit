@@ -5,15 +5,22 @@ import {
   Text,
   NodeEntry,
   EditorInterface,
-  Path
+  Path,
+  BaseRange,
+  Transforms,
+  Descendant
 } from "slate"
+import * as uuid from 'uuid'
 
 interface TextbitEditorInterface extends EditorInterface {
   position: (editor: Editor) => number
   length: (editor: Editor) => number
   parents: <T extends Node>(editor: Editor) => Generator<NodeEntry<T>, void, undefined>
   selectedTextEntries: (editor: Editor) => NodeEntry<Node>[]
-  includes: (editor: Editor, type: string) => boolean
+  includes: (editor: Editor, type: string) => boolean,
+  getSelectedText: (editor: Editor, range?: BaseRange) => string | undefined,
+  insertAt: (editor: Editor, position: number, nodes: Node | Node[]) => void,
+  hasText: (nodes: NodeEntry<Descendant>[]) => boolean
 }
 
 export const TextbitEditor: TextbitEditorInterface = {
@@ -100,5 +107,74 @@ export const TextbitEditor: TextbitEditorInterface = {
     )
 
     return !!match
+  },
+
+  /**
+   * Get selected text either from selected text in editor or from a range in an editor
+   *
+   * @param editor Editor
+   * @param range  Optional Range
+   * @returns string
+   */
+  getSelectedText: (editor, range) => {
+    const useRange = range || Editor.unhangRange(editor, editor.selection as BaseRange)
+    return Editor.string(editor, useRange)
+  },
+
+  /**
+   * Insert a node at the specified position
+   *
+   * @param editor Editor
+   * @param position number
+   * @param nodes Node or Nodes to insert
+   * @returns void
+   */
+  insertAt(editor: Editor, position: number, nodes: Node | Node[]): void {
+    const nodeArray: Node[] = Array.isArray(nodes) ? nodes : [nodes]
+
+    if (!nodeArray.length) {
+      return
+    }
+
+    // Ensure all nodes have an id
+    nodeArray.forEach((node: any) => {
+      if (!node.id) {
+        node.id = uuid.v4()
+      }
+    })
+
+    Transforms.insertNodes(
+      editor,
+      nodes,
+      {
+        at: [position]
+      }
+    )
+  },
+
+  /**
+   * Check if a list of node entries has text in them. Useful in normalizers.
+   *
+   * @example
+   * const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
+   *   const [node, path] = nodeEntry
+   *   const children = Array.from(Node.children(editor, path))
+   *   const isEmpty = !hasText(children)
+   *   // ...
+   * }
+   *
+   * @param nodes
+   * @returns
+   */
+  hasText(nodes) {
+    for (const [node] of nodes) {
+      for (const textNode of Node.texts(node)) {
+        if (textNode[0].text.trim() !== '') {
+          return true
+        }
+      }
+    }
+
+    return false
   }
 }
