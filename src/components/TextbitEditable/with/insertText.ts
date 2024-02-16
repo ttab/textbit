@@ -23,16 +23,17 @@ export const withInsertText = (editor: Editor, plugins: Plugin.Definition[]) => 
     }
 
     const handle = pasteToConsumers(editor, consumers, input)
-    if (handle instanceof Promise) {
-      handle.then(response => {
-        const newText = typeof response === 'string' ? response : text
-        insertText(text)
-      })
+    if (handle instanceof Promise === false) {
+      // Fallback to Slate
+      insertText(text)
       return
     }
 
-    // Fallback to Slate
-    insertText(text)
+    handle.then(response => {
+      const newText = typeof response === 'string' ? response : text
+      insertText(newText)
+    })
+    return
   }
 
   return editor
