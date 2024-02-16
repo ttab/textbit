@@ -122,10 +122,6 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
       <div style={{ flex: '1', display: 'flex', flexDirection: 'column' }}>
         <TextbitEditable
           value={initialValue}
-          plugins={[
-            BulletList,
-            NumberList
-          ]}
           onChange={value => {
             console.log(value, null, 2)
             setValue(value)
