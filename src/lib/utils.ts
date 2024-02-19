@@ -1,8 +1,4 @@
 import { Editor, Node, BaseRange, Path, Transforms, Descendant, Element as SlateElement, NodeEntry } from "slate"
-import * as uuid from 'uuid'
-import { TextbitElement } from "@/lib/textbit-element"
-import { Registry } from "../components/Registry"
-
 
 /**
  * Helper function to find siblings of the same type and convert the last to a new text element.
@@ -59,80 +55,6 @@ export function convertLastSibling(editor: Editor, node: Node, path: Path, fromT
   }
 }
 
-
-/**
- * Convert nodes to a specified text node type
- *
- * @todo Allow even when one or several elements are not text/text blocks.
- * @todo Store selection and restore it after transforms
- *
- * @param editor Editor
- * @param type string i.e core/text
- * @param subtype string e.g heading-1, preamble (or even undefined for body text)
- * @param nodes Node[]
- */
-export function convertToText(editor: Editor, type: string, subtype?: string, nodes?: NodeEntry<Node>[]) {
-  const plugin = Registry.plugins.find(p => p.name === type)
-  const className = plugin?.class
-  const targetNodes = nodes || getSelectedNodeEntries(editor)
-
-
-  if (!className || !targetNodes.length) {
-    return
-  }
-
-  // Not allowed (as it crashes if last element is a block) if any element is not text/textblock
-  for (const [node] of targetNodes) {
-    if (!TextbitElement.isText(node) && !TextbitElement.isTextblock(node)) {
-      return
-    }
-  }
-
-  Editor.withoutNormalizing(editor, () => {
-    for (const [node, [position]] of targetNodes) {
-      if (!TextbitElement.isText(node) && !TextbitElement.isTextblock(node)) {
-        continue
-      }
-
-      // Convert regular text element
-      if (TextbitElement.isText(node)) {
-        const nodeAttribs: any = {
-          type,
-          properties: subtype ? { type: subtype } : {}
-        }
-
-        Transforms.setNodes(
-          editor,
-          nodeAttribs,
-          { match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n) && n?.properties?.type !== subtype }
-        )
-        continue
-      }
-
-      if (TextbitElement.isTextblock(node)) {
-        const texts = Node.texts(node)
-        const strings: Node[] = []
-
-        for (let val of texts) {
-          if (Array.isArray(val) && val.length && val[0]?.text !== '') {
-            strings.push({
-              id: uuid.v4(),
-              class: className,
-              type: type,
-              properties: subtype ? { type: subtype } : {},
-              children: [{
-                text: val[0].text
-              }]
-            })
-          }
-        }
-
-        Transforms.removeNodes(editor, { at: [position] })
-        Transforms.insertNodes(editor, strings, { at: [position] })
-      }
-    }
-  })
-}
 
 export function getNodeById(editor: Editor, id: string): NodeEntry<Node> | undefined {
   const matches = Array.from(

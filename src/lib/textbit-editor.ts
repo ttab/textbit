@@ -1,3 +1,4 @@
+import { Registry } from "../components/Registry"
 import { TextbitElement } from './textbit-element'
 import {
   Editor,
@@ -11,6 +12,8 @@ import {
   Descendant
 } from "slate"
 import * as uuid from 'uuid'
+import { getSelectedNodeEntries } from './utils'
+
 
 interface TextbitEditorInterface extends EditorInterface {
   position: (editor: Editor) => number
@@ -20,7 +23,8 @@ interface TextbitEditorInterface extends EditorInterface {
   includes: (editor: Editor, type: string) => boolean,
   getSelectedText: (editor: Editor, range?: BaseRange) => string | undefined,
   insertAt: (editor: Editor, position: number, nodes: Node | Node[]) => void,
-  hasText: (nodes: NodeEntry<Descendant>[]) => boolean
+  hasText: (nodes: NodeEntry<Descendant>[]) => boolean,
+  convertToTextNode: (editor: Editor, type: string, subtype?: string, nodes?: NodeEntry<Node>[]) => void
 }
 
 export const TextbitEditor: TextbitEditorInterface = {
@@ -176,5 +180,80 @@ export const TextbitEditor: TextbitEditorInterface = {
     }
 
     return false
+  },
+
+  /**
+ * Convert nodes to a specified text node type
+ *
+ * @todo Allow even when one or several elements are not text/text blocks.
+ * @todo Store selection and restore it after transforms
+ *
+ * @param editor Editor
+ * @param type string i.e core/text
+ * @param subtype string e.g heading-1, preamble (or even undefined for body text) - Optional
+ * @param nodes Node[] - Optional
+ */
+  convertToTextNode(editor, type, subtype = undefined, nodes = undefined) {
+    const plugin = Registry.plugins.find(p => p.name === type)
+    const className = plugin?.class
+    const targetNodes = nodes || getSelectedNodeEntries(editor)
+
+
+    if (!className || !targetNodes.length) {
+      return
+    }
+
+    // Not allowed (as it crashes if last element is a block) if any element is not text/textblock
+    for (const [node] of targetNodes) {
+      if (!TextbitElement.isText(node) && !TextbitElement.isTextblock(node)) {
+        return
+      }
+    }
+
+    Editor.withoutNormalizing(editor, () => {
+      for (const [node, [position]] of targetNodes) {
+        if (!TextbitElement.isText(node) && !TextbitElement.isTextblock(node)) {
+          continue
+        }
+
+        // Convert regular text element
+        if (TextbitElement.isText(node)) {
+          const nodeAttribs: any = {
+            type,
+            properties: subtype ? { type: subtype } : {}
+          }
+
+          Transforms.setNodes(
+            editor,
+            nodeAttribs,
+            { match: n => TextbitElement.isElement(n) && Editor.isBlock(editor, n) && n?.properties?.type !== subtype }
+          )
+          continue
+        }
+
+        if (TextbitElement.isTextblock(node)) {
+          const texts = Node.texts(node)
+          const strings: Node[] = []
+
+          for (let val of texts) {
+            if (Array.isArray(val) && val.length && val[0]?.text !== '') {
+              strings.push({
+                id: uuid.v4(),
+                class: className,
+                type: type,
+                properties: subtype ? { type: subtype } : {},
+                children: [{
+                  text: val[0].text
+                }]
+              })
+            }
+          }
+
+          Transforms.removeNodes(editor, { at: [position] })
+          Transforms.insertNodes(editor, strings, { at: [position] })
+        }
+      }
+    })
   }
+
 }

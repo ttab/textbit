@@ -8,7 +8,10 @@ import { YHistoryEditor } from '@slate-yjs/core'
 
 import './index.css'
 
-import { StandardPlugins } from '@/components/core'
+import {
+  basePlugins,
+  StandardPlugins
+} from '@/components/core'
 
 import { DragAndDrop } from './components/DragAndDrop'
 import { withInline } from './with/inline'
@@ -62,8 +65,8 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
     Registry.initialize(
       Registry,
       [
-        ...StandardPlugins,
-        ...(Array.isArray(plugins) ? plugins : [])
+        ...basePlugins,
+        ...Array.isArray(plugins) ? plugins : StandardPlugins
       ],
       verbose)
   }, [])
