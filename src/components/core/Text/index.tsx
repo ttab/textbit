@@ -4,7 +4,7 @@ import { Plugin, TextbitEditor } from '../../../types'
 
 import './style.css'
 
-export const TextElement: Plugin.Definition = {
+export const Text: Plugin.Definition = {
   class: 'text',
   name: 'core/text',
   componentEntry: {

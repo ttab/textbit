@@ -1,11 +1,15 @@
-import { TextElement } from './TextElement'
-import { Bold, Italic, Underline } from "./Leafs"
+import { Text } from './Text'
+import {
+  Bold,
+  Italic,
+  Underline
+} from "./Leafs"
 import { Navigation } from "./Navigation"
 import { Loader } from "./Loader"
 
 
 export const StandardPlugins = [
-  TextElement,
+  Text,
   Bold,
   Italic,
   Underline
