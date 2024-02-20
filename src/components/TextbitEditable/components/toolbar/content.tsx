@@ -8,10 +8,11 @@ import { modifier } from '@/lib/modifier'
 import { HiDotsVertical } from 'react-icons/hi'
 import { MdCheck } from 'react-icons/md'
 import { isFromTarget } from '@/lib/target'
-import { RegistryAction } from '@/components/Registry'
 
 import './content.css'
-
+import { PluginRegistryAction } from '@/components/PluginRegistry/lib/types'
+import { pipeFromFileInput } from '@/lib/pipes'
+import { usePluginRegistry } from '@/components/PluginRegistry/usePluginRegistry'
 
 const Portal = ({ children }: PropsWithChildren) => {
   return typeof document === 'object'
@@ -19,16 +20,10 @@ const Portal = ({ children }: PropsWithChildren) => {
     : null
 }
 
-type ContentToolbarProps = {
-  actions: RegistryAction[]
-}
 
-type ContentToolProps = {
-  action: RegistryAction
-  toggleIsOpen: (newState: boolean) => void
-}
-
-export const ContentToolbar = ({ actions = [] }: ContentToolbarProps) => {
+export const ContentToolbar = ({ actions }: {
+  actions: PluginRegistryAction[]
+}) => {
   const ref = useRef<HTMLDivElement>(null)
   const inFocus = useFocused()
   const selection = useSlateSelection()
@@ -179,8 +174,12 @@ const ToolGroup = ({ children }: PropsWithChildren) => {
   </div>
 }
 
-const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
+const MenuItem = ({ action, toggleIsOpen }: {
+  action: PluginRegistryAction
+  toggleIsOpen: (newState: boolean) => void
+}) => {
   const editor = useSlate()
+  const { plugins } = usePluginRegistry()
   const isActive = isBlockActive(editor, action)
   const Tool = !Array.isArray(action.tool) ? action.tool : action.tool[0]
 
@@ -194,7 +193,17 @@ const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
       onMouseDown={(e) => {
         e.preventDefault()
         toggleIsOpen(false)
-        action.handler({ editor })
+        action.handler({
+          editor,
+          api: {
+            consumeFileInputChangeEvent: (
+              editor: Editor,
+              e: React.ChangeEvent<HTMLInputElement>
+            ) => {
+              pipeFromFileInput(editor, plugins, e)
+            }
+          }
+        })
       }}
     >
       {(isActive)
@@ -206,7 +215,7 @@ const MenuItem = ({ action, toggleIsOpen }: ContentToolProps) => {
 
       <span>{action.title}</span>
       <span className="weaker">{modifier(action?.hotkey || '')}</span>
-    </a>
+    </a >
   )
 }
 

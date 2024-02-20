@@ -4,13 +4,14 @@ import { ChildElement } from './ChildElement'
 import { ParentElement } from './ParentElement'
 import { InlineElement } from './InlineElement'
 import { UnknownElement } from './UnknownElement'
-import { RegistryComponent } from '@/components/Registry'
+import { usePluginRegistry } from '@/components/PluginRegistry'
 
 /**
  * Render a custom Slate element
  */
-export const ElementComponent = (props: RenderElementProps, components: Map<string, RegistryComponent>) => {
+export const ElementComponent = (props: RenderElementProps) => {
   const { element } = props
+  const { elementComponents: components } = usePluginRegistry()
   const component = components.get(element.type)
 
   if (!component) {

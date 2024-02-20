@@ -55,7 +55,7 @@ export namespace Plugin {
     description?: string
     hotkey?: string
     tool?: ToolComponent | [ToolComponent, ToolComponent]
-    handler: (options: { editor: Editor }) => boolean | void
+    handler: (options: { editor: Editor, api?: unknown }) => boolean | void
     visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean] // visible, enabled, active
   }
 

@@ -5,6 +5,7 @@ import { useSlateStatic } from 'slate-react'
 
 import { DragstateContext } from '../DragAndDrop'
 import { pipeFromDrop } from '../../../../lib/pipes'
+import { usePluginRegistry } from '@/components/PluginRegistry'
 
 type DroppableProps = {
   element?: Element
@@ -14,6 +15,7 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
   const droppableRef = useRef<HTMLDivElement>(null)
   const ctx = useContext(DragstateContext)
   const editor = useSlateStatic()
+  const { plugins } = usePluginRegistry()
 
   const dataId = element?.id || ''
   const draggable = ['block', 'void'].includes(element?.class || '') ? 'true' : 'false'
@@ -119,7 +121,7 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
       // const name = droppableRef.current?.dataset?.name || null
       const [position /*, node */] = getDropPosition(editor, e, container, id)
 
-      pipeFromDrop(editor, e, position)
+      pipeFromDrop(editor, plugins, e, position)
     }}>
     <div className="droppable-area">
       {children}

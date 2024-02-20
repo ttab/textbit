@@ -1,6 +1,5 @@
 import { Editor } from "slate"
 import { Plugin } from "../../../types"
-import { pasteToParagraphs } from "@/lib/pasteToParagraphs"
 import { pasteToConsumers } from "@/lib/pasteToConsumer"
 
 type Consumers = {

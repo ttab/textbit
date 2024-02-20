@@ -8,16 +8,10 @@ import { YHistoryEditor } from '@slate-yjs/core'
 
 import './index.css'
 
-import {
-  basePlugins,
-  StandardPlugins
-} from '@/components/core'
-
 import { DragAndDrop } from './components/DragAndDrop'
 import { withInline } from './with/inline'
-import { calculateStats } from '../../lib/index'
+import { calculateStats } from '@/lib/index'
 
-import { Registry } from '../Registry'
 import { ElementComponent } from './components/Element'
 import { Leaf } from './components/Leaf'
 import { toggleLeaf } from '@/lib/toggleLeaf'
@@ -29,9 +23,10 @@ import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 import { PresenceOverlay } from './components/PresenceOverlay/PresenceOverlay'
-import { Plugin } from '../../types'
 import { useTextbit } from '../Textbit'
 import { debounce } from '@/lib/debounce'
+import { usePluginRegistry } from '../PluginRegistry'
+import { PluginRegistryAction, PluginRegistryComponent } from '../PluginRegistry/lib/types'
 
 /**
  * @interface
@@ -40,18 +35,11 @@ import { debounce } from '@/lib/debounce'
 export interface TextbitEditableProps {
   onChange?: (value: Descendant[]) => void
   value: Descendant[]
-  plugins?: Plugin.Definition[]
   yjsEditor?: SlateEditor
-  verbose?: boolean
 }
 
-// FIXME: This rerenders everytime value is changed. Might be that we want to
-//
-// 1. use value as initialValue
-// 2. store value in a state?
-// 2. memoize rendering
 
-export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose = false }: TextbitEditableProps) => {
+export const TextbitEditable = ({ value, onChange, yjsEditor }: TextbitEditableProps) => {
   const inValue = value || [{
     id: uuid.v4(),
     name: "core/paragraph",
@@ -61,17 +49,12 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
     ]
   }]
 
-  useMemo(() => {
-    Registry.initialize(
-      Registry,
-      [
-        ...basePlugins,
-        ...Array.isArray(plugins) ? plugins : StandardPlugins
-      ],
-      verbose)
-  }, [])
-
   const { dispatch } = useTextbit()
+  const {
+    plugins,
+    elementComponents,
+    actions
+  } = usePluginRegistry()
 
   const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
     const e = SlateEditor.isEditor(yjsEditor) ? yjsEditor : createEditor()
@@ -82,12 +65,12 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
     withReact(e)
 
     withInline(e)
-    withInsertText(e, Registry.plugins)
-    withNormalizeNode(e, Registry.plugins, Registry.elementComponents)
+    withInsertText(e, plugins)
+    withNormalizeNode(e, plugins, elementComponents)
 
-    withEditableVoids(e, Registry)
-    withInsertBreak(e, Registry.elementComponents)
-    withInsertHtml(e, Registry.plugins)
+    withEditableVoids(e, elementComponents)
+    withInsertBreak(e, elementComponents)
+    withInsertHtml(e, elementComponents, plugins)
 
     return e
   }, [])
@@ -102,7 +85,7 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
 
 
   const renderSlateElement = useCallback((props: RenderElementProps) => {
-    return ElementComponent(props, Registry.elementComponents)
+    return ElementComponent(props)
 
   }, [])
 
@@ -142,10 +125,10 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
       }}>
 
         <InlineToolbar
-          actions={Registry.actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
+          actions={actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
         />
         <ContentToolbar
-          actions={Registry.actions.filter(action => action.plugin.class !== 'leaf')}
+          actions={actions.filter(action => action.plugin.class !== 'leaf')}
         />
 
         <PresenceOverlay isCollaborative={!!yjsEditor}>
@@ -153,8 +136,8 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
             className="slate-root"
             renderElement={renderSlateElement}
             renderLeaf={renderLeafComponent}
-            onKeyDown={event => handleOnKeyDown(event, textbitEditor)}
-            decorate={([node, path]) => handleDecoration(textbitEditor, node, path)}
+            onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
+            decorate={([node, path]) => handleDecoration(textbitEditor, elementComponents, node, path)}
           />
         </PresenceOverlay>
       </Slate>
@@ -170,7 +153,7 @@ export const TextbitEditable = ({ value, plugins, onChange, yjsEditor, verbose =
  * 3. selection is on this node
  * 4. selection is collapsed (it does not span more nodes)
  */
-function handleDecoration(editor: SlateEditor, node: Node, path: Path) {
+function handleDecoration(editor: SlateEditor, elementComponents: Map<string, PluginRegistryComponent>, node: Node, path: Path) {
   if (
     editor.selection != null &&
     !SlateEditor.isEditor(node) &&
@@ -179,7 +162,7 @@ function handleDecoration(editor: SlateEditor, node: Node, path: Path) {
     Range.isCollapsed(editor.selection) &&
     SlateElement.isElement(node)
   ) {
-    const entry = Registry.elementComponents.get(node.type)
+    const entry = elementComponents.get(node.type)
 
     return [
       {
@@ -198,8 +181,8 @@ function handleDecoration(editor: SlateEditor, node: Node, path: Path) {
  * 2. toggle leafs on or off
  * 3. transform text nodes to another type
  */
-function handleOnKeyDown(event: React.KeyboardEvent<HTMLDivElement>, editor: SlateEditor) {
-  for (const action of Registry.actions) {
+function handleOnKeyDown(editor: SlateEditor, actions: PluginRegistryAction[], event: React.KeyboardEvent<HTMLDivElement>) {
+  for (const action of actions) {
     if (!action.isHotkey(event)) {
       continue
     }

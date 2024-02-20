@@ -1,4 +1,3 @@
-import { Registry } from "../components/Registry"
 import { TextbitElement } from './textbit-element'
 import {
   Editor,
@@ -183,23 +182,20 @@ export const TextbitEditor: TextbitEditorInterface = {
   },
 
   /**
- * Convert nodes to a specified text node type
- *
- * @todo Allow even when one or several elements are not text/text blocks.
- * @todo Store selection and restore it after transforms
- *
- * @param editor Editor
- * @param type string i.e core/text
- * @param subtype string e.g heading-1, preamble (or even undefined for body text) - Optional
- * @param nodes Node[] - Optional
- */
+   * Convert nodes to a specified text node type
+   *
+   * @todo Allow even when one or several elements are not text/text blocks.
+   * @todo Store selection and restore it after transforms
+   *
+   * @param editor Editor
+   * @param type string i.e core/text
+   * @param subtype string e.g heading-1, preamble (or even undefined for body text) - Optional
+   * @param nodes Node[] - Optional
+   */
   convertToTextNode(editor, type, subtype = undefined, nodes = undefined) {
-    const plugin = Registry.plugins.find(p => p.name === type)
-    const className = plugin?.class
     const targetNodes = nodes || getSelectedNodeEntries(editor)
 
-
-    if (!className || !targetNodes.length) {
+    if (!targetNodes.length) {
       return
     }
 
@@ -239,7 +235,7 @@ export const TextbitEditor: TextbitEditorInterface = {
             if (Array.isArray(val) && val.length && val[0]?.text !== '') {
               strings.push({
                 id: uuid.v4(),
-                class: className,
+                class: 'text',
                 type: type,
                 properties: subtype ? { type: subtype } : {},
                 children: [{

@@ -99,7 +99,7 @@ function App() {
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <Textbit>
+      <Textbit verbose={true}>
         <Editor initialValue={initialValue} />
       </Textbit >
     </div >
@@ -126,7 +126,6 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             console.log(value, null, 2)
             setValue(value)
           }}
-          verbose={true}
         />
         <TextbitFooter />
       </div>
