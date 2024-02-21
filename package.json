@@ -64,7 +64,7 @@
     "escape-html": "^1.0.3",
     "is-hotkey": "^0.2.0",
     "is-url": "^1.2.4",
-    "react-icons": "^4.12.0",
+    "react-icons": "^5.0.1",
     "slate": "^0.101.5",
     "slate-history": "^0.100.0",
     "slate-hyperscript": "^0.77.0",
