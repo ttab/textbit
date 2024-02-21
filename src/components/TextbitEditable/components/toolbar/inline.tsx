@@ -51,7 +51,7 @@ function handleVisibility(el: HTMLDivElement | null, editor: Editor, inFocus: bo
   }
 
   const domSelection = window.getSelection()
-  if (!domSelection) {
+  if (!domSelection || domSelection.type === 'None') {
     return hide()
   }
 

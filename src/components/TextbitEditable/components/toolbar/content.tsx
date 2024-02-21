@@ -63,7 +63,7 @@ export const ContentToolbar = ({ actions }: {
       return
     }
 
-    if (!el || !selection || !inFocus || !domSelection) {
+    if (!el || !selection || !inFocus || !domSelection || domSelection.type === 'None') {
       el.style.display = 'none'
       return
     }
