@@ -42,7 +42,7 @@ export interface TextbitEditableProps {
 export const TextbitEditable = ({ value, onChange, yjsEditor }: TextbitEditableProps) => {
   const inValue = value || [{
     id: uuid.v4(),
-    name: "core/paragraph",
+    type: "core/text",
     class: "text",
     children: [
       { text: "" }
