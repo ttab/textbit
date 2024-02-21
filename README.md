@@ -65,13 +65,12 @@ const initialValue: TBDescendant[] = [
 
 function MyEditor() {
   return (
-    <Textbit>
+    <Textbit verbose={true}>
       <TextbitEditable
         value={initialValue}
         onChange={value => {
           console.log(value, null, 2)
         }}
-        verbose={true}
       />
       <TextbitFooter />
     </Textbit>

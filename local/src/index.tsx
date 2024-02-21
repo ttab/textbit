@@ -99,9 +99,17 @@ function App() {
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <Textbit verbose={true}>
-        <Editor initialValue={initialValue} />
-      </Textbit >
+      <div style={{ height: '50vh' }}>
+        <Textbit verbose={true} plugins={[BulletList, NumberList]}>
+          <Editor initialValue={initialValue} />
+        </Textbit >
+      </div>
+
+      <div style={{ height: '50vh' }}>
+        <Textbit verbose={true}>
+          <Editor initialValue={initialValue} />
+        </Textbit>
+      </div>
     </div >
   )
 }
