@@ -20,15 +20,17 @@ import { useTextbit } from '../Textbit'
 /*
  * Empty plugin registry state
 */
-const initialState: PluginRegistryProviderState = {
-  plugins: [],
-  leafComponents: new Map(),
-  elementComponents: new Map(),
-  actions: [],
-  dispatch: () => { }
+const initialState = (): PluginRegistryProviderState => {
+  return {
+    plugins: [],
+    leafComponents: new Map(),
+    elementComponents: new Map(),
+    actions: [],
+    dispatch: () => { }
+  }
 }
 
-export const PluginRegistryContext = createContext(initialState)
+export const PluginRegistryContext = createContext(initialState())
 
 
 /**
@@ -56,9 +58,9 @@ const reducer = (state: PluginRegistryProviderState, message: PluginRegistryRedu
 // Create the context provider component
 export const PluginRegistryContextProvider = ({ children, plugins }: PropsWithChildren & { plugins: Plugin.Definition[] }): JSX.Element => {
   const { verbose } = useTextbit()
-  const initPlugins = initializePlugins(initialState, plugins, { verbose })
+  const initPlugins = initializePlugins(initialState(), plugins, { verbose })
   const [state, dispatch] = useReducer(reducer, {
-    ...initialState,
+    ...initialState(),
     ...initPlugins
   })
 
