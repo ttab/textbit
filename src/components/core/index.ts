@@ -1,24 +1,21 @@
-import { TextElement } from './TextElement'
-import { Bold, Italic, Underline } from "./Leafs"
-import { BlockquotePlugin } from "./Blockquote"
+import { Text } from './Text'
+import {
+  Bold,
+  Italic,
+  Underline
+} from "./Leafs"
 import { Navigation } from "./Navigation"
-import { OEmbed } from "./OEmbed"
-import { Image } from "./Image"
-import { Quotes } from "./Quotes"
 import { Loader } from "./Loader"
-import { Link } from './Link'
 
 
 export const StandardPlugins = [
-  TextElement,
-  BlockquotePlugin,
+  Text,
   Bold,
   Italic,
-  Underline,
+  Underline
+]
+
+export const basePlugins = [
   Navigation,
-  OEmbed,
-  Quotes,
-  Image,
-  Loader,
-  Link
+  Loader
 ]

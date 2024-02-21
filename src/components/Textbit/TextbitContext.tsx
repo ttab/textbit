@@ -1,7 +1,6 @@
 import React, {
   createContext,
   useReducer,
-  useContext,
   PropsWithChildren
 } from 'react'
 
@@ -9,13 +8,15 @@ import React, {
 export interface TextbitProviderState {
   words: number
   characters: number
+  verbose: boolean
   dispatch: React.Dispatch<Partial<TextbitProviderState>>
 }
 
 const initialState: TextbitProviderState = {
   words: 0,
   characters: 0,
-  dispatch: () => {}
+  verbose: false,
+  dispatch: () => { }
 }
 
 
@@ -25,7 +26,11 @@ export const TextbitContext = createContext(initialState)
 
 // Define the reducer function
 const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderState>): TextbitProviderState => {
-  const { words, characters } = action
+  const {
+    words,
+    characters,
+    verbose,
+  } = action
   const partialState: Partial<TextbitProviderState> = {}
 
   if (typeof words === 'number') {
@@ -36,6 +41,10 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
     partialState.characters = characters
   }
 
+  if (typeof verbose === 'boolean') {
+    partialState.verbose = verbose
+  }
+
   return {
     ...state,
     ...partialState
@@ -44,8 +53,11 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
 
 
 // Create the context provider component
-export const TextbitContextProvider = ({ children }: PropsWithChildren): JSX.Element => {
-  const [state, dispatch] = useReducer(reducer, initialState)
+export const TextbitContextProvider = ({ children, verbose }: PropsWithChildren & { verbose: boolean }): JSX.Element => {
+  const [state, dispatch] = useReducer(reducer, {
+    ...initialState,
+    verbose
+  })
 
   return (
     <TextbitContext.Provider value={{ ...state, dispatch }}>

@@ -2,14 +2,14 @@ import { Editor, Transforms, Range, Path, Node } from "slate"
 import * as uuid from 'uuid'
 
 import { Element as SlateElement, BaseRange } from 'slate'
-import { RegistryComponent } from "../../Registry"
+import { PluginRegistryComponent } from '@/components/PluginRegistry/lib/types'
 
 /**
  * FIXME: Important bugs!
  * BUG: When hitting <enter> in the middle of a text block an empty paragraph is inserted.
  * BUG: When hitting <enter> in the middle of a text block the split paragraphs both get the same id.
  */
-export const withInsertBreak = (editor: Editor, components: Map<string, RegistryComponent>) => {
+export const withInsertBreak = (editor: Editor, components: Map<string, PluginRegistryComponent>) => {
   const { insertBreak } = editor
 
   editor.insertBreak = () => {

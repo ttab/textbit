@@ -5,7 +5,7 @@ import {
   ElementInterface,
 } from "slate"
 
-export interface TextbitElementInterface extends ElementInterface {
+interface TextbitElementInterface extends ElementInterface {
   isBlock: (value: any) => value is Ancestor
   isTextblock: (value: any) => value is SlateElement
   isText: (value: any) => value is SlateElement
@@ -16,7 +16,7 @@ export interface TextbitElementInterface extends ElementInterface {
   isTextLeaf: (value: any) => value is SlateText
 }
 
-export const TBElement: TextbitElementInterface = {
+export const TextbitElement: TextbitElementInterface = {
   isTextLeaf: (value: any): value is SlateText => {
     return SlateText.isText(value)
   },

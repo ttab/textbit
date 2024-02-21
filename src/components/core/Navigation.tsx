@@ -1,6 +1,6 @@
 import { Transforms } from 'slate'
 import { Plugin } from '@/types'
-import { TBEditor } from '@/lib/index'
+import { TextbitEditor } from '@/lib/index'
 
 export const Navigation: Plugin.Definition = {
   class: 'generic',
@@ -9,7 +9,7 @@ export const Navigation: Plugin.Definition = {
     {
       hotkey: 'mod+option+up',
       handler: ({ editor }) => {
-        const position = TBEditor.position(editor)
+        const position = TextbitEditor.position(editor)
 
         if (position < 1) {
           return
@@ -27,8 +27,8 @@ export const Navigation: Plugin.Definition = {
     {
       hotkey: 'mod+option+down',
       handler: ({ editor }) => {
-        const position = TBEditor.position(editor)
-        const positions = TBEditor.length(editor)
+        const position = TextbitEditor.position(editor)
+        const positions = TextbitEditor.length(editor)
 
         if (position < 0 || position + 1 === positions) {
           return

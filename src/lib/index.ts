@@ -1,5 +1,8 @@
 export { default as calculateStats } from './calculateStats'
-export { isValidLink } from './isValidLink'
-export { TBEditor } from './textbit-editor'
-export { TBElement } from './textbit-element'
-export { pipeFromFileInput as handleFileInputChangeEvent } from './pipes'
+export { TextbitEditor } from './textbit-editor'
+export { TextbitElement } from './textbit-element'
+
+export {
+  pipeFromDrop as consumeFileDropEvent,
+  pipeFromFileInput as consumeFileInputChangeEvent
+} from './pipes'

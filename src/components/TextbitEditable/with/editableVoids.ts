@@ -1,15 +1,14 @@
 import { Editor, Element } from 'slate'
-import { RegistryInterface } from '../../Registry'
+import { PluginRegistryComponent } from '@/components/PluginRegistry/lib/types'
 
-const types: string[] = []
 
-export const withEditableVoids = (editor: Editor, Registry: RegistryInterface) => {
+export const withEditableVoids = (editor: Editor, elementComponents: Map<string, PluginRegistryComponent>) => {
   const { isVoid } = editor
 
   const allComponents: string[] = []
   const voidComponents: string[] = []
 
-  Registry.elementComponents.forEach(elemComponent => {
+  elementComponents.forEach(elemComponent => {
     allComponents.push(elemComponent.type)
 
     if (elemComponent.class === 'void') {

@@ -1,24 +1,25 @@
 import { ReactNode } from "react"
 import { Node, NodeEntry } from "slate"
 import { RenderElementProps } from "slate-react"
-import { TBEditor, TBElement } from './index'
+import { Editor, Element } from 'slate'
 
 export namespace Plugin {
   /**
    * @interface
-   * Textbit component for rendering a root parent element
+   * Textbit component props
    */
-  interface Renderable<Props = RenderElementProps> {
-    (props: Props): ReactNode
+  export interface ComponentProps extends RenderElementProps {
+    rootNode?: Node
   }
 
   /**
    * @interface
-   * Component for rendering a textbit component
+   * Textbit component for rendering a TBElement (Slate Element)
    */
-  export interface Component extends Renderable<{
-    rootNode?: Node
-  } & RenderElementProps> {}
+  export type Component<Props = { rootNode?: Node } & RenderElementProps> = {
+    (props: Props): ReactNode
+  }
+
 
   /**
    * @interface
@@ -30,13 +31,20 @@ export namespace Plugin {
 
 
   /**
-   * @type
-   * Tool component type
+   * @interface
+   * Textbit tool component props
    */
-  export type ToolComponent<Props = {
-    editor: TBEditor
+  export type ToolComponentProps = {
+    editor: Editor
     entry?: NodeEntry<Node>
-  }> = React.ComponentType<Props>
+  }
+
+  /**
+   * @type
+   * ToolComponent for rendering a tool
+   */
+  export type ToolComponent<Props = ToolComponentProps> = React.ComponentType<Props>
+
 
   /**
    * @interface
@@ -47,8 +55,8 @@ export namespace Plugin {
     description?: string
     hotkey?: string
     tool?: ToolComponent | [ToolComponent, ToolComponent]
-    handler: (options: { editor: TBEditor }) => boolean | void
-    visibility?: (element: TBElement, rootElement?: TBElement) => [boolean, boolean, boolean] // visible, enabled, active
+    handler: (options: { editor: Editor, api?: unknown }) => boolean | void
+    visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean] // visible, enabled, active
   }
 
 
@@ -88,7 +96,7 @@ export namespace Plugin {
       allowSoftBreak?: boolean
 
       /** Normalizer function, optional */
-      normalizeNode?: (editor: TBEditor, nodeEntry: NodeEntry) => boolean | void
+      normalizeNode?: (editor: Editor, nodeEntry: NodeEntry) => boolean | void
     }
   }
 
@@ -131,7 +139,7 @@ export namespace Plugin {
    *
    * @returns any | undefined
    */
-  export type ConsumeFunction = ({ editor, input }: { editor: TBEditor, input: Resource | Resource[] }) => Promise<any | undefined>
+  export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resource | Resource[] }) => Promise<any | undefined>
 
   /**
    * @interface
@@ -159,8 +167,8 @@ export namespace Plugin {
      * Event handlers
      */
     events?: {
-      onInsertText?: (editor: TBEditor, text: string) => true | void
-      onNormalizeNode?: (editor: TBEditor, entry: NodeEntry) => true | void
+      onInsertText?: (editor: Editor, text: string) => true | void
+      onNormalizeNode?: (editor: Editor, entry: NodeEntry) => true | void
     }
 
     /**

@@ -6,8 +6,9 @@ import { Editor, Range, Element as SlateElement, BaseRange, NodeEntry, Node } fr
 import { toggleLeaf } from '@/lib/toggleLeaf'
 import { isFromTarget } from '@/lib/target'
 import './inline.css'
-import { RegistryAction } from '@/components/Registry'
 import { hasMark } from '@/lib/hasMark'
+import { PluginRegistryAction } from '@/components/PluginRegistry/lib/types'
+import { Plugin } from '@/types'
 
 const Portal = ({ children }: PropsWithChildren) => {
   return typeof document === 'object'
@@ -50,7 +51,7 @@ function handleVisibility(el: HTMLDivElement | null, editor: Editor, inFocus: bo
   }
 
   const domSelection = window.getSelection()
-  if (!domSelection) {
+  if (!domSelection || domSelection.type === 'None') {
     return hide()
   }
 
@@ -76,7 +77,9 @@ function handleVisibility(el: HTMLDivElement | null, editor: Editor, inFocus: bo
 /**
  * Inline toolbar component
  */
-export const InlineToolbar = ({ actions = [] }: { actions: RegistryAction[] }) => {
+export const InlineToolbar = ({ actions }: {
+  actions: PluginRegistryAction[]
+}) => {
   const ref = useRef<HTMLDivElement>(null)
   const editor = useSlate()
   const inFocus = useFocused()
@@ -113,9 +116,9 @@ export const InlineToolbar = ({ actions = [] }: { actions: RegistryAction[] }) =
   }))
 
   const inlineEl = inlineNodeEntry && inlineNodeEntry.length ? inlineNodeEntry[0] : null
-  const leafActions = actions.filter((action: RegistryAction) => action.tool && action.plugin.class === 'leaf')
-  const inlineActions = actions.filter((action: RegistryAction) => action.tool && action.plugin.class === 'inline')
-  const inlineNodeAction = actions.find((action: RegistryAction) => action.tool && SlateElement.isElement(inlineEl) && action.plugin.name === inlineEl?.type)
+  const leafActions = actions.filter((action: PluginRegistryAction) => action.tool && action.plugin.class === 'leaf')
+  const inlineActions = actions.filter((action: PluginRegistryAction) => action.tool && action.plugin.class === 'inline')
+  const inlineNodeAction = actions.find((action: PluginRegistryAction) => action.tool && SlateElement.isElement(inlineEl) && action.plugin.name === inlineEl?.type)
 
   const showCurrentTool = !!inlineNodeAction && isCollapsed && Array.isArray(inlineNodeAction?.tool)
   const showInlineTools = !isCollapsed && !inlineNodeEntry && inlineActions.length > 0
@@ -186,7 +189,9 @@ export const ToolGroup = ({ children }: PropsWithChildren) => {
 /**
  * Inline toolbar button component
  */
-const ToolButton = ({ action }: { action: RegistryAction }) => {
+const ToolButton = ({ action }: {
+  action: PluginRegistryAction
+}) => {
   const editor = useSlate()
   const isActive = hasMark(editor, action.plugin.name)
   const Tool = !Array.isArray(action.tool) ? action.tool : action.tool[0]
@@ -204,7 +209,7 @@ const ToolButton = ({ action }: { action: RegistryAction }) => {
       {!!Tool && <Tool editor={editor} />}
       <em className={`${isActive ? 'active' : ''}`}></em>
     </>
-  </div>
+  </div >
 }
 
 
@@ -212,7 +217,7 @@ const ToolButton = ({ action }: { action: RegistryAction }) => {
  * Alternative inline toolbar button component (handles tool 1 and 2 in tool array)
  */
 const InlineTool = ({ action, entry }: {
-  action: RegistryAction,
+  action: PluginRegistryAction,
   entry: NodeEntry<Node>
 }) => {
   const editor = useSlate()

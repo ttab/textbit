@@ -1,12 +1,12 @@
 import { Editor, Element, Node, NodeEntry, Transforms } from "slate"
 import { Plugin } from "@/types"
-import { RegistryComponent } from "../../Registry"
+import { PluginRegistryComponent } from '@/components/PluginRegistry/lib/types'
 //import { componentConstraints } from "@/lib/componentConstraints"
 
 type NormalizerFunc = (editor: Editor, entry: NodeEntry) => true | void
 type NormalizerMap = Map<string, NormalizerFunc>
 
-export const withNormalizeNode = (editor: Editor, plugins: Plugin.Definition[], components: Map<string, RegistryComponent>) => {
+export const withNormalizeNode = (editor: Editor, plugins: Plugin.Definition[], components: Map<string, PluginRegistryComponent>) => {
   const { normalizeNode } = editor
 
   editor.normalizeNode = (nodeEntry) => {

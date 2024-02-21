@@ -2,13 +2,18 @@ import { Editor } from 'slate'
 import { pasteToParagraphs } from '@/lib/pasteToParagraphs'
 import { Plugin } from '@/types'
 import { pasteToConsumers } from '@/lib/pasteToConsumer'
+import { PluginRegistryComponent } from '@/components/PluginRegistry/lib/types'
 
 type Consumers = {
   consumes: Plugin.ConsumesFunction
   consume: Plugin.ConsumeFunction
 }[]
 
-export const withInsertHtml = (editor: Editor, plugins: Plugin.Definition[]) => {
+export const withInsertHtml = (
+  editor: Editor,
+  elementComponents: Map<string, PluginRegistryComponent>,
+  plugins: Plugin.Definition[]
+) => {
   const { insertData, insertText } = editor
 
   const consumers: Consumers = plugins
@@ -48,7 +53,7 @@ export const withInsertHtml = (editor: Editor, plugins: Plugin.Definition[]) => 
     // which often produces excessive amounts of newlines.
     if (types.includes('text/plain') && types.includes('text/html')) {
       const text = data.getData('text/plain')
-      if (text && true === pasteToParagraphs(text, editor)) {
+      if (text && true === pasteToParagraphs(editor, elementComponents, text)) {
         return
       }
     }

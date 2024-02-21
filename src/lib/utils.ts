@@ -1,8 +1,4 @@
 import { Editor, Node, BaseRange, Path, Transforms, Descendant, Element as SlateElement, NodeEntry } from "slate"
-import * as uuid from 'uuid'
-import { TBElement } from "@/lib/textbit-element"
-import { Registry } from "../components/Registry"
-
 
 /**
  * Helper function to find siblings of the same type and convert the last to a new text element.
@@ -60,103 +56,6 @@ export function convertLastSibling(editor: Editor, node: Node, path: Path, fromT
 }
 
 
-/**
- * Convert nodes to a specified text node type
- *
- * @todo Allow even when one or several elements are not text/text blocks.
- * @todo Store selection and restore it after transforms
- *
- * @param editor Editor
- * @param type string i.e core/text
- * @param subtype string e.g heading-1, preamble (or even undefined for body text)
- * @param nodes Node[]
- */
-export function convertToText(editor: Editor, type: string, subtype?: string, nodes?: NodeEntry<Node>[]) {
-  const plugin = Registry.plugins.find(p => p.name === type)
-  const className = plugin?.class
-  const targetNodes = nodes || getSelectedNodeEntries(editor)
-
-
-  if (!className || !targetNodes.length) {
-    return
-  }
-
-  // Not allowed (as it crashes if last element is a block) if any element is not text/textblock
-  for (const [node] of targetNodes) {
-    if (!TBElement.isText(node) && !TBElement.isTextblock(node)) {
-      return
-    }
-  }
-
-  Editor.withoutNormalizing(editor, () => {
-    for (const [node, [position]] of targetNodes) {
-      if (!TBElement.isText(node) && !TBElement.isTextblock(node)) {
-        continue
-      }
-
-      // Convert regular text element
-      if (TBElement.isText(node)) {
-        const nodeAttribs: any = {
-          type,
-          properties: subtype ? { type: subtype } : {}
-        }
-
-        Transforms.setNodes(
-          editor,
-          nodeAttribs,
-          { match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n) && n?.properties?.type !== subtype }
-        )
-        continue
-      }
-
-      if (TBElement.isTextblock(node)) {
-        const texts = Node.texts(node)
-        const strings: Node[] = []
-
-        for (let val of texts) {
-          if (Array.isArray(val) && val.length && val[0]?.text !== '') {
-            strings.push({
-              id: uuid.v4(),
-              class: className,
-              type: type,
-              properties: subtype ? { type: subtype } : {},
-              children: [{
-                text: val[0].text
-              }]
-            })
-          }
-        }
-
-        Transforms.removeNodes(editor, { at: [position] })
-        Transforms.insertNodes(editor, strings, { at: [position] })
-      }
-    }
-  })
-}
-
-export function insertAt(editor: Editor, position: number, nodes: Node | Node[]): void {
-  const nodeArray: Node[] = Array.isArray(nodes) ? nodes : [nodes]
-
-  if (!nodeArray.length) {
-    return
-  }
-
-  // Ensure all nodes have an id
-  nodeArray.forEach((node: any) => {
-    if (!node.id) {
-      node.id = uuid.v4()
-    }
-  })
-
-  Transforms.insertNodes(
-    editor,
-    nodes,
-    {
-      at: [position]
-    }
-  )
-}
-
 export function getNodeById(editor: Editor, id: string): NodeEntry<Node> | undefined {
   const matches = Array.from(
     Editor.nodes(editor, {
@@ -190,11 +89,6 @@ export function getSelectedNodes(editor: Editor): Node[] {
   return getSelectedNodeEntries(editor).map(nodeEntry => nodeEntry[0])
 }
 
-export function getSelectedText(editor: Editor, range?: BaseRange): string | undefined {
-  const useRange = range || Editor.unhangRange(editor, editor.selection as BaseRange)
-  return Editor.string(editor, useRange)
-}
-
 export function cloneChildren(children: Descendant[]): Descendant[] {
   return children.map((node) => {
     if (SlateElement.isElement(node)) {
@@ -206,30 +100,4 @@ export function cloneChildren(children: Descendant[]): Descendant[] {
 
     return { ...node }
   })
-}
-
-/**
- * Check if a list of node entries has text in them. Useful in normalizers.
- *
- * @example
- * const normalizeBlockquote = (editor: Editor, nodeEntry: NodeEntry) => {
- *   const [node, path] = nodeEntry
- *   const children = Array.from(Node.children(editor, path))
- *   const isEmpty = !hasText(children)
- *   // ...
- * }
- *
- * @param nodes
- * @returns
- */
-export function hasText(nodes: NodeEntry<Descendant>[]): boolean {
-  for (const [node] of nodes) {
-    for (const textNode of Node.texts(node)) {
-      if (textNode[0].text.trim() !== '') {
-        return true
-      }
-    }
-  }
-
-  return false
 }

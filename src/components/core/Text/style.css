@@ -1,0 +1,23 @@
+.core\/text {
+  font-family: var(--font-family-serif, "Source Serif Pro", Georgia, serif);
+  font-size: 1.1rem;
+  line-height: 1.5;
+  letter-spacing: -0.003em;
+}
+
+.core\/text .core\/text-unknown {
+  font-style: italic;
+  text-decoration: line-through;
+  opacity: 0.7;
+  background-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+.core\/text .textbit-h1 .core\/bold,
+.core\/text .textbit-h2 .core\/bold,
+.core\/text .textbit-preamble .core\/bold,
+.core\/text .textbit-dateline .core\/bold {
+  font-weight: bolder;
+}

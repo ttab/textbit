@@ -1,10 +1,10 @@
+import { ChangeEvent } from 'react'
 import { Editor, Transforms, Element } from "slate"
-import { Registry } from "../components/Registry"
 import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
 import { getNodeById, getSelectedNodeEntries } from "./utils"
-import { Plugin } from "@/types"
-import { ChangeEvent } from "react"
+import { Plugin } from '../types'
+
 
 export type PipeConsumer = {
   name: string,
@@ -35,7 +35,7 @@ export type AggregatedPipe = Array<AggregatedPipeItem>
 /**
  * Create and execute a consumer pipe from a file input change event
  */
-export function pipeFromFileInput(editor: Editor, e: ChangeEvent<HTMLInputElement>) {
+export function pipeFromFileInput(editor: Editor, plugins: Plugin.Definition[], e: ChangeEvent<HTMLInputElement>) {
   const pipe = []
   const files = e.target.files
 
@@ -56,7 +56,7 @@ export function pipeFromFileInput(editor: Editor, e: ChangeEvent<HTMLInputElemen
     pipe.push(item)
   }
 
-  initConsumersForPipe(pipe)
+  initConsumersForPipe(plugins, pipe)
 
   // TODO: Implement user choice of consumer when there are multiple consumers for items
 
@@ -78,22 +78,22 @@ export function pipeFromFileInput(editor: Editor, e: ChangeEvent<HTMLInputElemen
     position = nodes.length
   }
 
-  executeAggregatedPipe(aggregatedPipe, e, editor, position)
+  executeAggregatedPipe(editor, aggregatedPipe, plugins, e, position)
 }
 
 /**
  * Create and execute a consumer pipe from a drop event
  */
-export function pipeFromDrop(editor: Editor, e: React.DragEvent, position: number) {
+export function pipeFromDrop(editor: Editor, plugins: Plugin.Definition[], e: React.DragEvent, position: number) {
   const dt = e.dataTransfer
   const pipe = initPipeForDrop(dt)
-  initConsumersForPipe(pipe)
+  initConsumersForPipe(plugins, pipe)
 
   const aggregatedPipe = aggregateConsumersInPipe(pipe)
 
   // TODO: Implement user choice of consumer when there are multiple consumers for items
 
-  executeAggregatedPipe(aggregatedPipe, e, editor, position)
+  executeAggregatedPipe(editor, aggregatedPipe, plugins, e, position)
 }
 
 
@@ -124,11 +124,11 @@ function aggregateConsumersInPipe(origPipe: Pipe) {
   return aggregatedPipe
 }
 
-function initConsumersForPipe(pipe: Pipe) {
+function initConsumersForPipe(plugins: Plugin.Definition[], pipe: Pipe) {
   for (const item of pipe) {
     const { source, type, input } = item
 
-    Registry.plugins.forEach(plugin => {
+    plugins.forEach(plugin => {
       if (typeof plugin.consumer?.consumes !== 'function') {
         return false
       }
@@ -202,7 +202,7 @@ function initPipeForDrop(dt: DataTransfer) {
  * +---+    +---+---+
  *   ^
  */
-async function executeAggregatedPipe(aggregatedPipe: AggregatedPipe, e: React.DragEvent | React.ChangeEvent, editor: Editor, position: number) {
+async function executeAggregatedPipe(editor: Editor, aggregatedPipe: AggregatedPipe, plugins: Plugin.Definition[], e: React.DragEvent | React.ChangeEvent, position: number) {
   if (aggregatedPipe.length) {
     e.preventDefault()
     e.stopPropagation()
@@ -223,7 +223,7 @@ async function executeAggregatedPipe(aggregatedPipe: AggregatedPipe, e: React.Dr
       }
 
       // FIXME: Should be aynchronous
-      offset += await executePipe(pipe, editor, position, offset)
+      offset += await executePipe(pipe, editor, plugins, position, offset)
     }
   }
 }
@@ -231,9 +231,9 @@ async function executeAggregatedPipe(aggregatedPipe: AggregatedPipe, e: React.Dr
 /**
  * Execute a pipe with items in an aggregated pipe
  */
-async function executePipe(pipe: AggregatedPipeItem, editor: Editor, position: number, offset: number): Promise<number> {
+async function executePipe(pipe: AggregatedPipeItem, editor: Editor, plugins: Plugin.Definition[], position: number, offset: number): Promise<number> {
   const consumer = pipe.consumer[0] // Alternative consumers should have been removed previously
-  const plugin = Registry.plugins.find(plugin => plugin.name === consumer.name)
+  const plugin = plugins.find(plugin => plugin.name === consumer.name)
   const consume = plugin?.consumer?.consume || undefined
   const produces = consumer?.produces
 

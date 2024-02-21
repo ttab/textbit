@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
+import { Descendant } from 'slate'
 import { createRoot } from 'react-dom/client'
 import { Textbit, TextbitEditable, TextbitFooter, useTextbit } from '../../src'
-import { TBDescendant } from '../../src/types'
 import { ThemeSwitcher } from './themeSwitcher'
 import { BulletList, NumberList } from './plugins'
 
 import './editor-variables.css'
 
-const initialValue: TBDescendant[] = [
+const initialValue: Descendant[] = [
   {
     type: 'core/text',
     id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
@@ -62,27 +62,6 @@ const initialValue: TBDescendant[] = [
     ],
   },
   {
-    type: 'core/blockquote',
-    class: 'textblock',
-    id: '538345e5-bacc-48f9-8ef1-1214443a32da',
-    children: [
-      {
-        type: 'core/blockquote/body',
-        class: 'text',
-        children: [
-          { text: 'Just a regular paragraph that contains some nonsensical writing' }
-        ]
-      },
-      {
-        type: 'core/blockquote/caption',
-        class: 'text',
-        children: [
-          { text: 'Mr Smith' }
-        ]
-      }
-    ]
-  },
-  {
     type: 'core/text',
     class: 'text',
     id: '538345e5-bacc-48f9-8ef1-1215892b61ed',
@@ -120,15 +99,23 @@ function App() {
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <Textbit>
-        <Editor initialValue={initialValue} />
-      </Textbit >
+      <div style={{ height: '50vh' }}>
+        <Textbit verbose={true} plugins={[BulletList, NumberList]}>
+          <Editor initialValue={initialValue} />
+        </Textbit >
+      </div>
+
+      <div style={{ height: '50vh' }}>
+        <Textbit verbose={true}>
+          <Editor initialValue={initialValue} />
+        </Textbit>
+      </div>
     </div >
   )
 }
 
-function Editor({ initialValue }: { initialValue: TBDescendant[] }) {
-  const [, setValue] = useState<TBDescendant[]>(initialValue)
+function Editor({ initialValue }: { initialValue: Descendant[] }) {
+  const [, setValue] = useState<Descendant[]>(initialValue)
   const { characters } = useTextbit()
 
   return (
@@ -143,15 +130,10 @@ function Editor({ initialValue }: { initialValue: TBDescendant[] }) {
       <div style={{ flex: '1', display: 'flex', flexDirection: 'column' }}>
         <TextbitEditable
           value={initialValue}
-          plugins={[
-            BulletList,
-            NumberList
-          ]}
           onChange={value => {
             console.log(value, null, 2)
             setValue(value)
           }}
-          verbose={true}
         />
         <TextbitFooter />
       </div>

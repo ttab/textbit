@@ -1,11 +1,15 @@
 import { Editor, Transforms, Range, Path, Element, Node } from "slate"
 import * as uuid from 'uuid'
 import { componentConstraints } from "./componentConstraints"
-import { Registry } from "@/components/Registry"
-import { TBEditor } from "@/lib"
+import { TextbitEditor } from "@/lib"
+import { PluginRegistryComponent } from '@/components/PluginRegistry/lib/types'
 
 
-export function pasteToParagraphs(text: string, editor: Editor): boolean | void {
+export function pasteToParagraphs(
+  editor: Editor,
+  elementComponents: Map<string, PluginRegistryComponent>,
+  text: string
+): boolean | void {
   const { selection } = editor
   if (!selection) {
     return false
@@ -26,9 +30,9 @@ export function pasteToParagraphs(text: string, editor: Editor): boolean | void 
   }
 
   // Find node and which component this is related to
-  const parent = TBEditor.parent(editor, selection)
+  const parent = TextbitEditor.parent(editor, selection)
   const node = parent[0] as Element
-  const { componentEntry: tbComponent = undefined } = Registry.elementComponents.get(node.type) || {}
+  const { componentEntry: tbComponent = undefined } = elementComponents.get(node.type) || {}
   if (!tbComponent) {
     return false
   }

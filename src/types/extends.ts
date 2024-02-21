@@ -8,11 +8,13 @@ import {
 import { ReactEditor } from "slate-react"
 import { HistoryEditor } from 'slate-history'
 
+export type TBEditor = BaseEditor & ReactEditor & HistoryEditor
+
 /**
- * @interface
+ * @type
  * TBElement extended from Slates BaseElement
  */
-export interface TBElement extends BaseElement {
+export type TBElement = BaseElement & {
   id?: string
   class?: string
   type: string
@@ -26,26 +28,14 @@ export interface TBElement extends BaseElement {
 }
 
 /**
- * @interface
+ * @type
  * TBText extended from Slates BaseText
  */
-export interface TBText extends BaseText {
+export type TBText = BaseText & {
   text: string
   placeholder?: string
   [key: string]: boolean | string | undefined
 }
-
-/**
- * @interface
- * TBDescendant
- */
-export type TBDescendant = TBElement | TBText
-
-/**
- * @interface
- * TBElditor combined from Slates BaseEditor & ReactEditor & HistoryEditor
- */
-export type TBEditor = BaseEditor & ReactEditor & HistoryEditor
 
 /**
  * @module
