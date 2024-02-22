@@ -31,10 +31,10 @@ a.textbit-contenttools-trigger {
 div.textbit-contenttools-popover {
   margin: -0.5rem 0 0 1.6rem;
   min-width: 16rem;
-  padding: 0 3px;
   border-radius: calc(var(--radius) * 0.8);
   background-color: hsl(var(--popover));
   box-shadow: 0px 3px 10px -6px hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
 }
 
 .dark .textbit-contenttools-popover {
@@ -42,18 +42,26 @@ div.textbit-contenttools-popover {
   border: 1px solid hsl(var(--border))
 }
 
-div.textbit-contenttools-item {
+a.textbit-contenttools-item {
   display: grid;
-  grid-template-columns: 35px minmax(max-content, 220px) 90px;
-  grid-column-gap: 4px;
-  grid-row-gap: 0px;
+  user-select: none;
+  grid-template-columns: 2rem minmax(max-content, 220px) 90px;
+  grid-column-gap: 0;
+  grid-row-gap: 0;
   font-family: var(--font-family-ui);
   color: hsl(var(--popover-foreground));
-  border-radius: calc(var(--radius) * 0.8 - 3px);
+  border-radius: calc(var(--radius) * 0.8 - 1px);
   cursor: pointer;
+  border: 1px solid hsl(var(--popover));
+  border-width: 1px 2px;
 }
-
-div.textbit-contenttools-item:hover {
+a.textbit-contenttools-item:first-child {
+  border-top-width: 2px;
+}
+a.textbit-contenttools-item:last-child {
+  border-bottom-width: 2px;
+}
+a.textbit-contenttools-item:hover {
   background: hsl(var(--secondary));
 }
 

@@ -146,13 +146,11 @@ export const TextbitEditable = ({ value, onChange, yjsEditor }: TextbitEditableP
           <TextbitUI.Gutter>
             <ContentTools.Menu>
               {actions.filter(action => !['leaf', 'generic'].includes(action.plugin.class)).map(action => {
-                const tool = Array.isArray(action.tool) ? action.tool[0] || null : action.tool || null
-
                 return (
                   <ContentTools.Item
                     key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
                     active={false} // FIXME: Should be check as in old
-                    tool={tool}
+                    action={action}
                   >
                     <ContentTools.Label>{action.title}</ContentTools.Label>
                     <ContentTools.Hotkey>{modifier(action?.hotkey || '')}</ContentTools.Hotkey>

@@ -1,13 +1,15 @@
 import React, { PropsWithChildren, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { GutterContext } from '../TextbitUI'
-import { useSlateStatic } from 'slate-react'
+import { useSlateSelection, useSlateStatic } from 'slate-react'
 import { MdCheck } from 'react-icons/md'
 
 import './index.css'
-import { Transforms } from 'slate'
+import { BaseSelection, Editor, Element, Transforms } from 'slate'
 import { useClickGlobal } from '@/hooks/useClickGlobal'
 import { Plugin } from '@/types'
+import { pipeFromFileInput } from '@/lib/pipes'
+import { usePluginRegistry } from '@/components/PluginRegistry'
 
 const Menu = ({ children }: PropsWithChildren) => {
   const [offset] = useContext(GutterContext)
@@ -53,31 +55,76 @@ const MenuPopover = ({ children }: PropsWithChildren) => {
   )
 }
 
-const Item = ({ children, tool, active }: PropsWithChildren & {
-  tool: Plugin.ToolComponent<Plugin.ToolComponentProps> | null,
+const Item = ({ children, action, active }: PropsWithChildren & {
+  // tool: Plugin.ToolComponent<Plugin.ToolComponentProps> | null,
+  action: Plugin.Action,
   active: boolean
 }) => {
+  const { plugins } = usePluginRegistry()
   const editor = useSlateStatic()
-  const Tool = Array.isArray(tool) ? tool[0] || null : tool || null
+  const selection = useSlateSelection()
+  const isActive = isBlockActive(editor, selection, action)
+  const Tool = Array.isArray(action.tool) ? action.tool[0] || null : action.tool || null
 
-  return <div className="textbit-contenttools-item">
-    <div className={`textbit-contenttools-icon ${active ? 'active' : ''}`}>
-      {active
-        ? <MdCheck />
-        : <Tool editor={editor} />
-      }
+  return <a
+    className="textbit-contenttools-item"
+    onMouseDown={(e) => {
+      e.preventDefault()
+      action.handler({
+        editor,
+        api: {
+          // FIXME: This is not a good way to give access to an api...
+          consumeFileInputChangeEvent: (
+            editor: Editor,
+            e: React.ChangeEvent<HTMLInputElement>
+          ) => {
+            pipeFromFileInput(editor, plugins, e)
+          }
+        }
+      })
+    }}
+  >
+    <div className={`textbit-contenttools-icon ${isActive ? 'active' : ''}`}>
+      {isActive && <MdCheck />}
+      {!isActive && Tool && <Tool editor={editor} />}
     </div>
     {children}
-  </div>
+  </a>
 }
 
 const Label = ({ children }: PropsWithChildren) => {
   return <div className="textbit-contenttools-label">{children}</div>
 }
 
-
 const Hotkey = ({ children }: PropsWithChildren) => {
   return <div className="textbit-contenttools-hotkey">{children}</div>
+}
+
+const isBlockActive = (editor: Editor, selection: BaseSelection, action: any): [boolean, boolean, boolean] => {
+  if (!selection) {
+    return [false, false, false]
+  }
+
+  const [match] = Array.from(
+    Editor.nodes(editor, {
+      at: Editor.unhangRange(editor, selection),
+      match: el => {
+        return !Editor.isEditor(el) &&
+          Element.isElement(el)
+      }
+    })
+  )
+
+  if (!match.length) {
+    return [false, false, false]
+  }
+
+  if (!action?.visibility) {
+    return [false, false, false]
+  }
+
+  const status = action?.visibility(match[0]) // [visible, enabled, active]
+  return status[2]
 }
 
 export const ContentTools = {
