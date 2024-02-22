@@ -50,16 +50,16 @@ a.textbit-contenttools-item {
   grid-row-gap: 0;
   font-family: var(--font-family-ui);
   color: hsl(var(--popover-foreground));
-  border-radius: calc(var(--radius) * 0.8 - 1px);
+  border-radius: calc(var(--radius) * 0.85);
   cursor: pointer;
   border: 1px solid hsl(var(--popover));
-  border-width: 1px 2px;
+  border-width: 0 3px;
 }
 a.textbit-contenttools-item:first-child {
-  border-top-width: 2px;
+  border-top-width: 3px;
 }
 a.textbit-contenttools-item:last-child {
-  border-bottom-width: 2px;
+  border-bottom-width: 3px;
 }
 a.textbit-contenttools-item:hover {
   background: hsl(var(--secondary));
