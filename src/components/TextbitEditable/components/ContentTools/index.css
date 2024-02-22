@@ -1,0 +1,84 @@
+div.textbit-contenttools-menu {
+  position:absolute;
+  user-select: none;
+  left: 0.5rem;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+  line-height: 2.3rem;
+  letter-spacing: 0.03rem;
+}
+
+a.textbit-contenttools-trigger {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 2rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.05s cubic-bezier(.25, .8, .25, 1);
+  font-weight: bold;
+  background-color: hsl(var(--popup));
+  color: hsl(var(--popup-foreground));
+  border: 1px solid hsl(var(--border));
+
+  /* Centering svg child */
+  display: flex;
+  flex-direction: row;
+  flex-basis: fit-content;
+  align-items: center;
+  justify-content: center;
+}
+
+div.textbit-contenttools-popover {
+  margin: -0.5rem 0 0 1.6rem;
+  min-width: 16rem;
+  padding: 0 3px;
+  border-radius: calc(var(--radius) * 0.8);
+  background-color: hsl(var(--popover));
+  box-shadow: 0px 3px 10px -6px hsl(var(--foreground));
+}
+
+.dark .textbit-contenttools-popover {
+  box-shadow: none;
+  border: 1px solid hsl(var(--border))
+}
+
+div.textbit-contenttools-item {
+  display: grid;
+  grid-template-columns: 35px minmax(max-content, 220px) 90px;
+  grid-column-gap: 4px;
+  grid-row-gap: 0px;
+  font-family: var(--font-family-ui);
+  color: hsl(var(--popover-foreground));
+  border-radius: calc(var(--radius) * 0.8 - 3px);
+  cursor: pointer;
+}
+
+div.textbit-contenttools-item:hover {
+  background: hsl(var(--secondary));
+}
+
+
+div.textbit-contenttools-icon {
+  flex-shrink: 0;
+  width: 2rem;
+  opacity: 0.8;
+  font-weight: bold;
+
+  /* All for centering svg child */
+  display: flex;
+  flex-direction: row;
+  flex-basis: fit-content;
+  align-items: center;
+  justify-content: center;
+}
+
+div.active ~ div.textbit-contenttools-label {
+  opacity: 0.8;
+  font-weight: bold;
+}
+
+div.textbit-contenttools-hotkey {
+  text-align: right;
+  padding-right: 0.5rem;
+  opacity: 0.8;
+}

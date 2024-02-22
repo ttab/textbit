@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect, PropsWithChildren } from 'react'
+import React, { useRef, useEffect, PropsWithChildren, useContext } from 'react'
 import ReactDOM from 'react-dom'
 import { useFocused, useSlate, useSlateSelection } from 'slate-react'
 import { Editor, Element as SlateElement } from 'slate'
@@ -13,6 +13,7 @@ import './content.css'
 import { PluginRegistryAction } from '@/components/PluginRegistry/lib/types'
 import { pipeFromFileInput } from '@/lib/pipes'
 import { usePluginRegistry } from '@/components/PluginRegistry/usePluginRegistry'
+import { GutterContext } from '../ContentTools'
 
 const Portal = ({ children }: PropsWithChildren) => {
   return typeof document === 'object'
@@ -27,6 +28,7 @@ export const ContentToolbar = ({ actions }: {
   const ref = useRef<HTMLDivElement>(null)
   const inFocus = useFocused()
   const selection = useSlateSelection()
+  const [offset] = useContext(GutterContext)
 
   const toggleIsOpen = () => {
     const cls = ref.current?.classList
@@ -105,8 +107,9 @@ export const ContentToolbar = ({ actions }: {
     const newLeft = rect.left + offsetLeft
 
     el.style.display = 'block'
-    el.style.top = `${newTop}px`
-    el.style.left = `${newLeft}px`
+    el.style.top = `${offset}px`
+    // el.style.top = `${newTop}px`
+    //   el.style.left = `${newLeft}px`
   })
 
   const textActions = actions.filter(action => 'text' === action.plugin.class)
