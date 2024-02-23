@@ -19,8 +19,8 @@ export { TextbitObj as Editor }
 export { TextbitEditable as Editable }
 export { TextbitFooter as Footer }
 
-export const Gutter = {
-  Menu: ContentTools.Menu,
+export const Menu = {
+  Wrapper: ContentTools.Menu,
   Group: ContentTools.Group,
   Item: ContentTools.Item,
   Label: ContentTools.Label
