@@ -1,12 +1,11 @@
 import React, { PropsWithChildren, useContext, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSlateStatic } from 'slate-react'
-import { useClickGlobal } from '@/hooks/useClickGlobal'
+import { useKeydownGlobal, useClickGlobal } from '../../hooks'
 import { GutterContext } from '@/components/GutterProvider/GutterProvider'
 
 import { Popover } from './Popover'
 import './index.css'
-import { useKeydownGlobal } from '@/hooks/useKeyGlobal'
 
 export const Menu = ({ children }: PropsWithChildren) => {
   const { offset } = useContext(GutterContext)

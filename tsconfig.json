@@ -30,6 +30,9 @@
       ],
       "@/with/*": [
         "src/with/*"
+      ],
+      "@/hooks/*": [
+        "src/hooks/*"
       ]
     },
     "typeRoots": [
@@ -47,8 +50,7 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "include": [
-    "src/**/*",
-    "src/components/TextbitEditable/TextbitEditable.test.tsx"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
