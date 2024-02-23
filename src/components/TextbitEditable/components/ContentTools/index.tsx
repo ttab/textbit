@@ -1,8 +1,7 @@
-import React, { PropsWithChildren, ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import React, { PropsWithChildren, useContext, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { GutterContext } from '../TextbitUI'
 import { useSlateSelection, useSlateStatic } from 'slate-react'
-import { MdCheck } from 'react-icons/md'
 
 import './index.css'
 import { BaseSelection, Editor, Element, Transforms } from 'slate'
@@ -56,7 +55,6 @@ const MenuPopover = ({ children }: PropsWithChildren) => {
 }
 
 const Item = ({ children, action, active }: PropsWithChildren & {
-  // tool: Plugin.ToolComponent<Plugin.ToolComponentProps> | null,
   action: Plugin.Action,
   active: boolean
 }) => {
@@ -73,7 +71,7 @@ const Item = ({ children, action, active }: PropsWithChildren & {
       action.handler({
         editor,
         api: {
-          // FIXME: This is not a good way to give access to an api...
+          // FIXME: This is just to expose some functionality, but it is not a good way to give access to an api...
           consumeFileInputChangeEvent: (
             editor: Editor,
             e: React.ChangeEvent<HTMLInputElement>
@@ -85,7 +83,7 @@ const Item = ({ children, action, active }: PropsWithChildren & {
     }}
   >
     <div className={`textbit-contenttools-icon ${isActive ? 'active' : ''}`}>
-      {isActive && <MdCheck />}
+      {isActive && "✓"}
       {!isActive && Tool && <Tool editor={editor} />}
     </div>
     {children}
