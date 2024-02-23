@@ -1,4 +1,4 @@
-import { type Plugin } from '@/types'
+import { type Plugin } from '../../../types'
 
 /**
  * @type
@@ -45,5 +45,6 @@ export interface PluginRegistryProviderState {
   // Hotkey registry provides faster access to plugin actions
   actions: Array<PluginRegistryAction>
 
+  verbose: boolean
   dispatch: React.Dispatch<PluginRegistryReducerAction>
 }

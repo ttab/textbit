@@ -1,62 +1,14 @@
-import React, { PropsWithChildren, useContext, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { GutterContext } from '../TextbitUI'
+import React, { PropsWithChildren } from 'react'
 import { useSlateSelection, useSlateStatic } from 'slate-react'
-
-import './index.css'
-import { BaseSelection, Editor, Element, Transforms } from 'slate'
-import { useClickGlobal } from '@/hooks/useClickGlobal'
+import { BaseSelection, Editor, Element } from 'slate'
 import { Plugin } from '@/types'
 import { pipeFromFileInput } from '@/lib/pipes'
 import { usePluginRegistry } from '@/components/PluginRegistry'
+import { modifier } from '@/lib/modifier'
 
-const Menu = ({ children }: PropsWithChildren) => {
-  const { offset } = useContext(GutterContext)
-  const editor = useSlateStatic()
-  const [isOpen, setIsOpen] = useState(false)
-  const { selection } = editor
-  const ref = useRef<HTMLDivElement>(null)
 
-  const triggerRef = useClickGlobal<HTMLAnchorElement>((e) => {
-    setIsOpen(false)
-  })
-
-  if (!selection) {
-    return
-  }
-
-  return (
-    <div ref={ref} style={{ top: `${offset}px` }} className='textbit-contenttools-menu'>
-      <a
-        ref={triggerRef}
-        className="textbit-contenttools-trigger"
-        onMouseDown={(e) => {
-          e.preventDefault()
-          setIsOpen(!isOpen)
-        }}
-      >
-        ⋮
-      </a>
-
-      {isOpen && ref?.current && createPortal(
-        <MenuPopover>{children}</MenuPopover>,
-        ref.current
-      )}
-    </div>
-  )
-}
-
-const MenuPopover = ({ children }: PropsWithChildren) => {
-  return (
-    <div className="textbit-contenttools-popover">
-      {children}
-    </div >
-  )
-}
-
-const Item = ({ children, action, active }: PropsWithChildren & {
-  action: Plugin.Action,
-  active: boolean
+export const Item = ({ children, action }: PropsWithChildren & {
+  action: Plugin.Action
 }) => {
   const { plugins } = usePluginRegistry()
   const editor = useSlateStatic()
@@ -87,16 +39,12 @@ const Item = ({ children, action, active }: PropsWithChildren & {
       {!isActive && Tool && <Tool editor={editor} />}
     </div>
     {children}
+    <div className="textbit-contenttools-hotkey">
+      {modifier(action?.hotkey || '')}
+    </div>
   </a>
 }
 
-const Label = ({ children }: PropsWithChildren) => {
-  return <div className="textbit-contenttools-label">{children}</div>
-}
-
-const Hotkey = ({ children }: PropsWithChildren) => {
-  return <div className="textbit-contenttools-hotkey">{children}</div>
-}
 
 const isBlockActive = (editor: Editor, selection: BaseSelection, action: any): [boolean, boolean, boolean] => {
   if (!selection) {
@@ -123,11 +71,4 @@ const isBlockActive = (editor: Editor, selection: BaseSelection, action: any): [
 
   const status = action?.visibility(match[0]) // [visible, enabled, active]
   return status[2]
-}
-
-export const ContentTools = {
-  Menu,
-  Item,
-  Label,
-  Hotkey
 }

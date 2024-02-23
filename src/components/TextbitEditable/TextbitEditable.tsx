@@ -1,4 +1,4 @@
-import React from 'react' // Necessary for esbuild
+import React, { PropsWithChildren } from 'react' // Necessary for esbuild
 import { useEffect, useMemo, useCallback } from 'react'
 import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
@@ -26,12 +26,12 @@ import { useTextbit } from '../Textbit'
 import { debounce } from '@/lib/debounce'
 import { usePluginRegistry } from '../PluginRegistry'
 import { PluginRegistryAction, PluginRegistryComponent } from '../PluginRegistry/lib/types'
-import { TextbitUI } from './components/TextbitUI'
-import { ContentTools } from './components/ContentTools'
+import { GutterProvider } from '../GutterProvider/GutterProvider'
+import { ContentTools } from '../ContentTools'
 import { modifier } from '@/lib/modifier'
 
 
-export const TextbitEditable = ({ value, onChange, yjsEditor, gutter = true, dir = 'ltr' }: {
+export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter = true, dir = 'ltr' }: PropsWithChildren & {
   onChange?: (value: Descendant[]) => void
   value: Descendant[]
   yjsEditor?: SlateEditor
@@ -120,13 +120,13 @@ export const TextbitEditable = ({ value, onChange, yjsEditor, gutter = true, dir
       <Slate editor={textbitEditor} initialValue={inValue} onChange={(value) => {
         handleOnChange(value)
       }}>
-        <TextbitUI.Wrapper dir={dir} gutter={gutter}>
+        <GutterProvider.Wrapper dir={dir} gutter={gutter}>
 
           <InlineToolbar
             actions={actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
           />
 
-          <TextbitUI.Content>
+          <GutterProvider.Content>
             <PresenceOverlay isCollaborative={!!yjsEditor}>
               <Editable
                 className="slate-root"
@@ -136,27 +136,26 @@ export const TextbitEditable = ({ value, onChange, yjsEditor, gutter = true, dir
                 decorate={([node, path]) => handleDecoration(textbitEditor, elementComponents, node, path)}
               />
             </PresenceOverlay>
-          </TextbitUI.Content>
+          </GutterProvider.Content>
 
-          <TextbitUI.Gutter>
-            <ContentTools.Menu>
-              {actions.filter(action => !['leaf', 'generic'].includes(action.plugin.class)).map(action => {
-                return (
-                  <ContentTools.Item
-                    key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
-                    active={false} // FIXME: Should be check as in old
-                    action={action}
-                  >
-                    <ContentTools.Label>{action.title}</ContentTools.Label>
-                    <ContentTools.Hotkey>{modifier(action?.hotkey || '')}</ContentTools.Hotkey>
-                  </ContentTools.Item>
-                )
-              })}
-            </ContentTools.Menu>
-            {/* actions={actions.filter(action => action.plugin.class !== 'leaf')} */}
-          </TextbitUI.Gutter>
+          <GutterProvider.Gutter>
+            {children ||
+              <ContentTools.Menu>
+                {actions.filter(action => !['leaf', 'generic'].includes(action.plugin.class)).map(action => {
+                  return (
+                    <ContentTools.Item
+                      key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                      action={action}
+                    >
+                      <ContentTools.Label>{action.title}</ContentTools.Label>
+                    </ContentTools.Item>
+                  )
+                })}
+              </ContentTools.Menu>
+            }
+          </GutterProvider.Gutter>
 
-        </TextbitUI.Wrapper>
+        </GutterProvider.Wrapper>
       </Slate>
     </DragAndDrop >
   )

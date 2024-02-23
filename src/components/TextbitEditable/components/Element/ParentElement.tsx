@@ -2,7 +2,7 @@ import React, { useContext, useLayoutEffect, useRef } from 'react' // Necessary 
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
 import { Droppable } from './Droppable'
 import { Plugin } from '@/types'
-import { GutterContext } from '../TextbitUI'
+import { GutterContext } from '../../../GutterProvider/GutterProvider'
 
 
 interface ParentElementProps extends RenderElementProps {

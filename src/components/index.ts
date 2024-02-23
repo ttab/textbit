@@ -1,3 +1,5 @@
-export { TextbitEditable } from './TextbitEditable'
-export { TextbitFooter } from './TextbitFooter'
-export { Textbit, useTextbit } from './Textbit'
+export * from './Textbit'
+export * from './TextbitEditable'
+export * from './TextbitFooter'
+export * from './PluginRegistry'
+export * from './ContentTools'

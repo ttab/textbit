@@ -1,8 +1,4 @@
-import React, {
-  createContext,
-  useReducer,
-  PropsWithChildren
-} from 'react'
+import React, { createContext, useReducer, PropsWithChildren } from 'react'
 
 import { registerPlugin } from './lib/registerPlugin'
 import { registerComponents } from './lib/registerComponents'
@@ -15,7 +11,6 @@ import type {
 } from './lib/types'
 import { registerActions } from './lib/registerAction'
 import { Plugin } from '@/types'
-import { useTextbit } from '../Textbit'
 
 /*
  * Empty plugin registry state
@@ -26,6 +21,7 @@ const initialState = (): PluginRegistryProviderState => {
     leafComponents: new Map(),
     elementComponents: new Map(),
     actions: [],
+    verbose: false,
     dispatch: () => { }
   }
 }
@@ -41,7 +37,6 @@ export const PluginRegistryContext = createContext(initialState())
  */
 const reducer = (state: PluginRegistryProviderState, message: PluginRegistryReducerAction): PluginRegistryProviderState => {
   const { action, plugin } = message
-  const { verbose } = useTextbit()
 
   if (action === 'delete') {
     console.warn('Deleting plugins from plugin registry not implemented')
@@ -50,14 +45,16 @@ const reducer = (state: PluginRegistryProviderState, message: PluginRegistryRedu
 
   return {
     ...state,
-    ...addPlugin(state, plugin, { verbose })
+    ...addPlugin(state, plugin, { verbose: state.verbose })
   }
 }
 
 
 // Create the context provider component
-export const PluginRegistryContextProvider = ({ children, plugins }: PropsWithChildren & { plugins: Plugin.Definition[] }): JSX.Element => {
-  const { verbose } = useTextbit()
+export const PluginRegistryContextProvider = ({ children, verbose, plugins }: PropsWithChildren & {
+  verbose: boolean
+  plugins: Plugin.Definition[]
+}): JSX.Element => {
   const initPlugins = initializePlugins(initialState(), plugins, { verbose })
   const [state, dispatch] = useReducer(reducer, {
     ...initialState(),

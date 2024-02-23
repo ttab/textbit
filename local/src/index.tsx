@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Descendant } from 'slate'
 import { createRoot } from 'react-dom/client'
-import { Textbit, TextbitEditable, TextbitFooter, useTextbit } from '../../src'
+import Textbit, { useTextbit } from '../../src'
 import { ThemeSwitcher } from './themeSwitcher'
 import { BulletList, NumberList } from './plugins'
 
@@ -100,15 +100,15 @@ function App() {
       flexDirection: 'column'
     }}>
       <div style={{ height: '50vh' }}>
-        <Textbit verbose={true} plugins={[BulletList, NumberList]}>
+        <Textbit.Editor verbose={true} plugins={[BulletList, NumberList]}>
           <Editor initialValue={initialValue} />
-        </Textbit >
+        </Textbit.Editor >
       </div>
 
       <div style={{ height: '50vh' }}>
-        <Textbit verbose={true}>
+        <Textbit.Editor verbose={true}>
           <Editor initialValue={initialValue} />
-        </Textbit>
+        </Textbit.Editor>
       </div>
     </div >
   )
@@ -128,14 +128,14 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
       </div>
 
       <div style={{ flex: '1', display: 'flex', flexDirection: 'column' }}>
-        <TextbitEditable
+        <Textbit.Editable
           value={initialValue}
           onChange={value => {
             console.log(value, null, 2)
             setValue(value)
           }}
         />
-        <TextbitFooter />
+        <Textbit.Footer />
       </div>
     </>
   )

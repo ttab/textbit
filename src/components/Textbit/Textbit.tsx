@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react' // Necessary for esbuild
 import './style.css'
 import { TextbitContextProvider } from './TextbitContext'
-import { PluginRegistryContextProvider } from '../PluginRegistry'
+import { PluginRegistryContextProvider } from '../PluginRegistry/PluginRegistryContext'
 import { Plugin } from '../../types'
 
 import {
@@ -17,7 +17,7 @@ export const Textbit = ({ children, verbose, plugins }: PropsWithChildren & {
   return (
     <div className="textbit textbit-editor">
       <TextbitContextProvider verbose={!!verbose}>
-        <PluginRegistryContextProvider plugins={[
+        <PluginRegistryContextProvider verbose={!!verbose} plugins={[
           ...basePlugins,
           ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins
         ]}>

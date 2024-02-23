@@ -70,7 +70,7 @@ const Content = ({ children }: PropsWithChildren) => {
   return <div style={{ flexGrow: 1 }}>{children}</div>
 }
 
-export const TextbitUI = {
+export const GutterProvider = {
   Wrapper,
   Gutter,
   Content
