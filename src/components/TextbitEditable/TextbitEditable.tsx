@@ -30,18 +30,14 @@ import { TextbitUI } from './components/TextbitUI'
 import { ContentTools } from './components/ContentTools'
 import { modifier } from '@/lib/modifier'
 
-/**
- * @interface
- * TextbitEditable props
- */
-export interface TextbitEditableProps {
+
+export const TextbitEditable = ({ value, onChange, yjsEditor, gutter = true, dir = 'ltr' }: {
   onChange?: (value: Descendant[]) => void
   value: Descendant[]
   yjsEditor?: SlateEditor
-}
-
-
-export const TextbitEditable = ({ value, onChange, yjsEditor }: TextbitEditableProps) => {
+  gutter?: boolean
+  dir?: 'ltr' | 'rtl'
+}) => {
   const inValue = value || [{
     id: uuid.v4(),
     type: "core/text",
@@ -124,12 +120,11 @@ export const TextbitEditable = ({ value, onChange, yjsEditor }: TextbitEditableP
       <Slate editor={textbitEditor} initialValue={inValue} onChange={(value) => {
         handleOnChange(value)
       }}>
-        <TextbitUI.Wrapper dir="ltr">
+        <TextbitUI.Wrapper dir={dir} gutter={gutter}>
 
           <InlineToolbar
             actions={actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
           />
-
 
           <TextbitUI.Content>
             <PresenceOverlay isCollaborative={!!yjsEditor}>

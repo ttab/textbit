@@ -12,7 +12,7 @@ import { pipeFromFileInput } from '@/lib/pipes'
 import { usePluginRegistry } from '@/components/PluginRegistry'
 
 const Menu = ({ children }: PropsWithChildren) => {
-  const [offset] = useContext(GutterContext)
+  const { offset } = useContext(GutterContext)
   const editor = useSlateStatic()
   const [isOpen, setIsOpen] = useState(false)
   const { selection } = editor

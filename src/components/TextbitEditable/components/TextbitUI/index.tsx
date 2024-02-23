@@ -5,20 +5,25 @@ import React, {
   createContext,
   useState,
   Dispatch,
-  SetStateAction
+  SetStateAction,
+  useContext
 } from 'react' // Necessary for esbuild
 
-type GutterContextInterface = [
-  number,
-  Dispatch<SetStateAction<number>>
-]
+type GutterContextInterface = {
+  offset: number,  // content menu y offset in gutter
+  gutter: boolean, // has gutter
+  setOffset: Dispatch<SetStateAction<number>>
+}
 
-export const GutterContext = createContext<GutterContextInterface>([0, () => { }])
+export const GutterContext = createContext<GutterContextInterface>({ offset: 0, gutter: false, setOffset: () => { } })
 
 /**
  * Set prop dir to "rtl" to put gutter on right hand side
  */
-export const Wrapper = ({ dir, children }: PropsWithChildren & { dir?: 'ltr' | 'rtl' }) => {
+export const Wrapper = ({ dir = 'ltr', gutter = true, children }: PropsWithChildren & {
+  dir?: 'ltr' | 'rtl',
+  gutter?: boolean
+}) => {
   const ref = useRef<HTMLDivElement>(null)
   const [offset, setOffset] = useState(0)
   const [top, setTop] = useState(0)
@@ -31,7 +36,7 @@ export const Wrapper = ({ dir, children }: PropsWithChildren & { dir?: 'ltr' | '
   })
 
   return (
-    <GutterContext.Provider value={[offset - top, setOffset]}>
+    <GutterContext.Provider value={{ offset: offset - top, gutter: gutter, setOffset }}>
       <div
         contentEditable={false}
         style={{
@@ -47,8 +52,11 @@ export const Wrapper = ({ dir, children }: PropsWithChildren & { dir?: 'ltr' | '
 }
 
 const Gutter = ({ children }: PropsWithChildren) => {
+  const { gutter } = useContext(GutterContext)
+
   return <div
     style={{
+      display: gutter ? 'block' : 'none',
       position: 'relative',
       width: '3rem',
       flexShrink: 0

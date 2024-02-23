@@ -18,7 +18,7 @@ interface ParentElementProps extends RenderElementProps {
 export const ParentElement = (renderProps: ParentElementProps) => {
   const selected = useSelected()
   const focused = useFocused()
-  const [, setOffset] = useContext(GutterContext)
+  const { setOffset } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
