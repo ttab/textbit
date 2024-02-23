@@ -37,7 +37,7 @@ export const Menu = ({ children }: PropsWithChildren) => {
       </a>
 
       {isOpen && ref?.current && createPortal(
-        <MenuPopover>
+        <MenuPopover setIsOpen={setIsOpen}>
           {children}
         </MenuPopover>,
         ref.current
@@ -47,9 +47,14 @@ export const Menu = ({ children }: PropsWithChildren) => {
 }
 
 
-const MenuPopover = ({ children }: PropsWithChildren) => {
+const MenuPopover = ({ children, setIsOpen }: PropsWithChildren & {
+  setIsOpen: (open: boolean) => void
+}) => {
   const keyTriggerRef = useKeydownGlobal<HTMLDivElement>((e) => {
-    e.preventDefault()
+    if (e.key === 'Escape' || e.key === 'Tab') {
+      e.preventDefault()
+      setIsOpen(false)
+    }
   })
 
   return <div ref={keyTriggerRef}>

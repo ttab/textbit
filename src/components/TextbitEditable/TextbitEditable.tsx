@@ -28,7 +28,6 @@ import { usePluginRegistry } from '../PluginRegistry'
 import { PluginRegistryAction, PluginRegistryComponent } from '../PluginRegistry/lib/types'
 import { GutterProvider } from '../GutterProvider/GutterProvider'
 import { ContentTools } from '../ContentTools'
-import { modifier } from '@/lib/modifier'
 
 
 export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter = true, dir = 'ltr' }: PropsWithChildren & {

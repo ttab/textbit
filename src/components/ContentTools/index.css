@@ -90,3 +90,24 @@ div.textbit-contenttools-hotkey {
   padding-right: 0.5rem;
   opacity: 0.8;
 }
+
+
+/* Tool groups */
+div.textbit-contenttools-group {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Separator between tool groups */
+div.textbit-contenttools-group::after {
+  content: "";
+  background-color: hsl(var(--border));
+  align-self: stretch;
+  margin: 0 3px;
+  height: 1px;
+}
+
+div.textbit-contenttools-group:last-child::after {
+  display: none;
+}
