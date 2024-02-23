@@ -4,7 +4,7 @@
       "node",
       "jest"
     ],
-    "target": "es2020",
+    "target": "esnext",
     "lib": [
       "ES2020",
       "DOM",

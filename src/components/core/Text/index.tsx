@@ -1,6 +1,7 @@
 import React from 'react' // Necessary for esbuild
 import { BsTextParagraph } from 'react-icons/bs'
-import { Plugin, TextbitEditor } from '../../../types'
+import { TextbitEditor } from '@/lib'
+import { Plugin } from '@/types'
 
 import './style.css'
 

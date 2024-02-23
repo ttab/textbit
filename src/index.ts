@@ -14,6 +14,7 @@ const Textbit = {
 }
 
 export default Textbit
+export { Textbit }
 export { TextbitObj as Editor }
 export { TextbitEditable as Editable }
 export { TextbitFooter as Footer }
@@ -27,11 +28,5 @@ export const Gutter = {
 
 export { useTextbit }
 export { usePluginRegistry }
-export {
-  TextbitEditor,
-  TextbitElement,
-  consumeFileDropEvent,
-  consumeFileInputChangeEvent
-} from './lib'
-
+export * from './lib'
 export * from './types'
