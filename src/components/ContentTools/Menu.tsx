@@ -6,6 +6,7 @@ import { GutterContext } from '@/components/GutterProvider/GutterProvider'
 
 import { Popover } from './Popover'
 import './index.css'
+import { useKeydownGlobal } from '@/hooks/useKeyGlobal'
 
 export const Menu = ({ children }: PropsWithChildren) => {
   const { offset } = useContext(GutterContext)
@@ -14,7 +15,7 @@ export const Menu = ({ children }: PropsWithChildren) => {
   const { selection } = editor
   const ref = useRef<HTMLDivElement>(null)
 
-  const triggerRef = useClickGlobal<HTMLAnchorElement>((e) => {
+  const mouseTriggerRef = useClickGlobal<HTMLAnchorElement>((e) => {
     setIsOpen(false)
   })
 
@@ -25,7 +26,7 @@ export const Menu = ({ children }: PropsWithChildren) => {
   return (
     <div ref={ref} style={{ top: `${offset}px` }} className='textbit-contenttools-menu'>
       <a
-        ref={triggerRef}
+        ref={mouseTriggerRef}
         className="textbit-contenttools-trigger"
         onMouseDown={(e) => {
           e.preventDefault()
@@ -36,9 +37,22 @@ export const Menu = ({ children }: PropsWithChildren) => {
       </a>
 
       {isOpen && ref?.current && createPortal(
-        <Popover>{children}</Popover>,
+        <MenuPopover>
+          {children}
+        </MenuPopover>,
         ref.current
       )}
     </div>
   )
+}
+
+
+const MenuPopover = ({ children }: PropsWithChildren) => {
+  const keyTriggerRef = useKeydownGlobal<HTMLDivElement>((e) => {
+    e.preventDefault()
+  })
+
+  return <div ref={keyTriggerRef}>
+    <Popover>{children}</Popover>
+  </div>
 }
