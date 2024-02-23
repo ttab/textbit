@@ -1,0 +1,113 @@
+div.textbit-contenttools-menu {
+  position:absolute;
+  user-select: none;
+  left: 0.5rem;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+  line-height: 2.3rem;
+  letter-spacing: 0.03rem;
+}
+
+a.textbit-contenttools-trigger {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 2rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.05s cubic-bezier(.25, .8, .25, 1);
+  font-weight: bold;
+  background-color: hsl(var(--popup));
+  color: hsl(var(--popup-foreground));
+  border: 1px solid hsl(var(--border));
+
+  /* Centering svg child */
+  display: flex;
+  flex-direction: row;
+  flex-basis: fit-content;
+  align-items: center;
+  justify-content: center;
+}
+
+div.textbit-contenttools-popover {
+  margin: -0.5rem 0 0 1.6rem;
+  min-width: 16rem;
+  border-radius: calc(var(--radius) * 0.8);
+  background-color: hsl(var(--popover));
+  box-shadow: 0px 3px 10px -6px hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+.dark .textbit-contenttools-popover {
+  box-shadow: none;
+  border: 1px solid hsl(var(--border))
+}
+
+a.textbit-contenttools-item {
+  display: grid;
+  user-select: none;
+  grid-template-columns: 2rem minmax(max-content, 220px) 90px;
+  grid-column-gap: 0;
+  grid-row-gap: 0;
+  font-family: var(--font-family-ui);
+  color: hsl(var(--popover-foreground));
+  border-radius: calc(var(--radius) * 0.85);
+  cursor: pointer;
+  border: 1px solid hsl(var(--popover));
+  border-width: 0 3px;
+}
+a.textbit-contenttools-item:first-child {
+  border-top-width: 3px;
+}
+a.textbit-contenttools-item:last-child {
+  border-bottom-width: 3px;
+}
+a.textbit-contenttools-item:hover {
+  background: hsl(var(--secondary));
+}
+
+
+div.textbit-contenttools-icon {
+  flex-shrink: 0;
+  width: 2rem;
+  opacity: 0.8;
+  font-weight: bold;
+
+  /* All for centering svg child */
+  display: flex;
+  flex-direction: row;
+  flex-basis: fit-content;
+  align-items: center;
+  justify-content: center;
+}
+
+div.active ~ div.textbit-contenttools-label {
+  opacity: 0.8;
+  font-weight: bold;
+}
+
+div.textbit-contenttools-hotkey {
+  text-align: right;
+  padding-right: 0.5rem;
+  opacity: 0.8;
+}
+
+
+/* Tool groups */
+div.textbit-contenttools-group {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Separator between tool groups */
+div.textbit-contenttools-group::after {
+  content: "";
+  background-color: hsl(var(--border));
+  align-self: stretch;
+  margin: 0 3px;
+  height: 1px;
+}
+
+div.textbit-contenttools-group:last-child::after {
+  display: none;
+}

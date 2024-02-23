@@ -1,4 +1,4 @@
-import React from 'react' // Necessary for esbuild
+import React, { PropsWithChildren } from 'react' // Necessary for esbuild
 import { useEffect, useMemo, useCallback } from 'react'
 import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
@@ -18,7 +18,6 @@ import { toggleLeaf } from '@/lib/toggleLeaf'
 import { withInsertText } from './with/insertText'
 import { withNormalizeNode } from './with/normalizeNode'
 import { withEditableVoids } from './with/editableVoids'
-import { ContentToolbar } from './components/toolbar/content'
 import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
@@ -27,19 +26,17 @@ import { useTextbit } from '../Textbit'
 import { debounce } from '@/lib/debounce'
 import { usePluginRegistry } from '../PluginRegistry'
 import { PluginRegistryAction, PluginRegistryComponent } from '../PluginRegistry/lib/types'
+import { GutterProvider } from '../GutterProvider/GutterProvider'
+import { ContentTools } from '../ContentTools'
 
-/**
- * @interface
- * TextbitEditable props
- */
-export interface TextbitEditableProps {
+
+export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter = true, dir = 'ltr' }: PropsWithChildren & {
   onChange?: (value: Descendant[]) => void
   value: Descendant[]
   yjsEditor?: SlateEditor
-}
-
-
-export const TextbitEditable = ({ value, onChange, yjsEditor }: TextbitEditableProps) => {
+  gutter?: boolean
+  dir?: 'ltr' | 'rtl'
+}) => {
   const inValue = value || [{
     id: uuid.v4(),
     type: "core/text",
@@ -119,30 +116,47 @@ export const TextbitEditable = ({ value, onChange, yjsEditor }: TextbitEditableP
 
   return (
     <DragAndDrop>
-
       <Slate editor={textbitEditor} initialValue={inValue} onChange={(value) => {
         handleOnChange(value)
       }}>
+        <GutterProvider.Wrapper dir={dir} gutter={gutter}>
 
-        <InlineToolbar
-          actions={actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
-        />
-        <ContentToolbar
-          actions={actions.filter(action => action.plugin.class !== 'leaf')}
-        />
-
-        <PresenceOverlay isCollaborative={!!yjsEditor}>
-          <Editable
-            className="slate-root"
-            renderElement={renderSlateElement}
-            renderLeaf={renderLeafComponent}
-            onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-            decorate={([node, path]) => handleDecoration(textbitEditor, elementComponents, node, path)}
+          <InlineToolbar
+            actions={actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
           />
-        </PresenceOverlay>
-      </Slate>
 
-    </DragAndDrop>
+          <GutterProvider.Content>
+            <PresenceOverlay isCollaborative={!!yjsEditor}>
+              <Editable
+                className="slate-root"
+                renderElement={renderSlateElement}
+                renderLeaf={renderLeafComponent}
+                onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
+                decorate={([node, path]) => handleDecoration(textbitEditor, elementComponents, node, path)}
+              />
+            </PresenceOverlay>
+          </GutterProvider.Content>
+
+          <GutterProvider.Gutter>
+            {children ||
+              <ContentTools.Menu>
+                {actions.filter(action => !['leaf', 'generic'].includes(action.plugin.class)).map(action => {
+                  return (
+                    <ContentTools.Item
+                      key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                      action={action}
+                    >
+                      <ContentTools.Label>{action.title}</ContentTools.Label>
+                    </ContentTools.Item>
+                  )
+                })}
+              </ContentTools.Menu>
+            }
+          </GutterProvider.Gutter>
+
+        </GutterProvider.Wrapper>
+      </Slate>
+    </DragAndDrop >
   )
 }
 

@@ -1,7 +1,9 @@
-import React from 'react' // Necessary for esbuild
+import React, { useContext, useLayoutEffect, useRef } from 'react' // Necessary for esbuild
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
 import { Droppable } from './Droppable'
 import { Plugin } from '@/types'
+import { GutterContext } from '../../../GutterProvider/GutterProvider'
+
 
 interface ParentElementProps extends RenderElementProps {
   entry: Plugin.ComponentEntry
@@ -16,6 +18,15 @@ interface ParentElementProps extends RenderElementProps {
 export const ParentElement = (renderProps: ParentElementProps) => {
   const selected = useSelected()
   const focused = useFocused()
+  const { setOffset } = useContext(GutterContext)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    if (focused && selected && ref?.current) {
+      const { top } = ref.current.getBoundingClientRect()
+      setOffset(top + window.scrollY)
+    }
+  }, [focused, selected, ref])
 
   const { element, attributes, entry } = renderProps
   const style = {
@@ -31,7 +42,7 @@ export const ParentElement = (renderProps: ParentElementProps) => {
         data-id={element.id}
         {...attributes}
       >
-        <div className={`textbit-block ${borderClass}`} style={style} >
+        <div className={`textbit-block ${borderClass}`} style={style} ref={ref}>
           {entry.component(renderProps)}
         </div>
       </div>
