@@ -30,9 +30,6 @@
       ],
       "@/with/*": [
         "src/with/*"
-      ],
-      "@/hooks/*": [
-        "src/hooks/*"
       ]
     },
     "typeRoots": [

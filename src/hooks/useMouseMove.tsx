@@ -15,7 +15,7 @@ export type MousePosition = {
 }
 
 
-export function useMouse<T extends Element>(): [
+export function useMouseMove<T extends Element>(): [
   MousePosition,
   React.MutableRefObject<T | undefined>
 ] {
