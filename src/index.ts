@@ -7,10 +7,13 @@ import {
   usePluginRegistry
 } from './components'
 
+import { GutterProvider } from './components/GutterProvider/GutterProvider'
+
 const Textbit = {
   Editor: TextbitObj,
   Editable: TextbitEditable,
-  Footer: TextbitFooter
+  Footer: TextbitFooter,
+  Gutter: GutterProvider.Gutter
 }
 
 export default Textbit

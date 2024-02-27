@@ -1,8 +1,8 @@
-import React, { PropsWithChildren } from 'react' // Necessary for esbuild
+import React, { PropsWithChildren, useContext, useState } from 'react' // Necessary for esbuild
 import { useEffect, useMemo, useCallback } from 'react'
-import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor } from "slate"
+import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor, Editor } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
-import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
+import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, useFocused, useSelected, useSlateSelection, useSlateStatic, withReact } from "slate-react"
 import * as uuid from 'uuid'
 import { YHistoryEditor } from '@slate-yjs/core'
 
@@ -26,8 +26,10 @@ import { useTextbit } from '../Textbit'
 import { debounce } from '@/lib/debounce'
 import { usePluginRegistry } from '../PluginRegistry'
 import { PluginRegistryAction, PluginRegistryComponent } from '../PluginRegistry/lib/types'
-import { GutterProvider } from '../GutterProvider/GutterProvider'
+import { GutterContext, GutterProvider } from '../GutterProvider/GutterProvider'
 import { ContentTools } from '../ContentTools'
+import { PositionContext, PositionProvider } from '../ContextTools/PositionProvider'
+import { ContextTools } from '../ContextTools'
 
 
 export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter = true, dir = 'ltr' }: PropsWithChildren & {
@@ -119,44 +121,126 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
       <Slate editor={textbitEditor} initialValue={inValue} onChange={(value) => {
         handleOnChange(value)
       }}>
-        <GutterProvider.Wrapper dir={dir} gutter={gutter}>
+        <PositionProvider inline={true}>
+          <GutterProvider.Wrapper dir={dir} gutter={gutter}>
 
-          <InlineToolbar
-            actions={actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
-          />
 
-          <GutterProvider.Content>
-            <PresenceOverlay isCollaborative={!!yjsEditor}>
-              <Editable
-                className="slate-root"
-                renderElement={renderSlateElement}
-                renderLeaf={renderLeafComponent}
-                onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-                decorate={([node, path]) => handleDecoration(textbitEditor, elementComponents, node, path)}
-              />
-            </PresenceOverlay>
-          </GutterProvider.Content>
+            <GutterProvider.Content>
+              <PresenceOverlay isCollaborative={!!yjsEditor}>
+                <Editable
+                  className="slate-root"
+                  renderElement={renderSlateElement}
+                  renderLeaf={renderLeafComponent}
+                  onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
+                  decorate={([node, path]) => handleDecoration(textbitEditor, elementComponents, node, path)}
+                />
+              </PresenceOverlay>
+            </GutterProvider.Content>
 
-          <GutterProvider.Gutter>
-            {children ||
-              <ContentTools.Menu>
-                {actions.filter(action => !['leaf', 'generic'].includes(action.plugin.class)).map(action => {
-                  return (
-                    <ContentTools.Item
-                      key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
-                      action={action}
-                    >
-                      <ContentTools.Label>{action.title}</ContentTools.Label>
-                    </ContentTools.Item>
-                  )
-                })}
-              </ContentTools.Menu>
-            }
-          </GutterProvider.Gutter>
+            {/* {children} */}
 
-        </GutterProvider.Wrapper>
+            <GutterProvider.Gutter>
+              {children ||
+                <ContentTools.Menu>
+                  {actions.filter(action => !['leaf', 'generic'].includes(action.plugin.class)).map(action => {
+                    return (
+                      <ContentTools.Item
+                        key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                        action={action}
+                      >
+                        <ContentTools.Label>{action.title}</ContentTools.Label>
+                      </ContentTools.Item>
+                    )
+                  })}
+                </ContentTools.Menu>
+              }
+            </GutterProvider.Gutter>
+
+            {/* <InlineToolbar actions={actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))} /> */}
+            <ContextTools.Menu>
+              {actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class)).map(action => {
+                return (
+                  <ContextTools.Group>
+                    <ContextTools.Item action={action}>
+                      {action.title}
+                    </ContextTools.Item>
+                  </ContextTools.Group>
+                )
+              })}
+            </ContextTools.Menu>
+
+          </GutterProvider.Wrapper>
+        </PositionProvider>
       </Slate>
     </DragAndDrop >
+  )
+}
+
+function InlineMenu({ children }: PropsWithChildren) {
+  // const editor = useSlateStatic()
+  // const focused = useFocused()
+  // const selection = useSlateSelection()
+  // const [offset, setOffset] = useState<{
+  //   x: Number
+  //   y: number
+  // } | undefined>()
+
+  // useEffect(() => {
+  //   const { scrollX, scrollY } = window
+  //   const domSelection = window.getSelection()
+  //   if (!domSelection || domSelection.type === 'None') {
+  //     setOffset(undefined)
+  //     return
+  //   }
+
+  //   const domRange = domSelection?.getRangeAt(0)
+  //   const rect = domRange?.getBoundingClientRect()
+
+  //   if (!rect) {
+  //     setOffset(undefined)
+  //   }
+  //   else {
+  //     setOffset({
+  //       y: rect.top + scrollY,
+  //       x: rect.left + scrollX + rect.width / 2
+  //     })
+  //   }
+  // }, [selection])
+
+  // if (!Range.isRange(selection) || !focused) {
+  //   return
+  // }
+
+  // if (Range.isCollapsed(selection)) {
+  //   const nodes = Array.from(Editor.nodes(editor, {
+  //     at: selection,
+  //     match: n => SlateElement.isElement(n) && n.class === 'inline'
+  //   }))
+
+  //   if (!nodes.length) {
+  //     return
+  //   }
+  // }
+
+  // if (!offset) {
+  //   return
+  // }
+  const { inline, offset } = useContext(PositionContext)
+  console.log(offset)
+  if (!inline || !offset) {
+    return
+  }
+
+  return (
+    <div style={{
+      position: 'absolute',
+      left: `${offset.x}px`,
+      top: `${offset.y}px`,
+      backgroundColor: 'pink'
+    }}
+    >
+      {children}
+    </div>
   )
 }
 

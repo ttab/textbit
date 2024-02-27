@@ -22,10 +22,17 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   const ref = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
-    if (focused && selected && ref?.current) {
-      const { top } = ref.current.getBoundingClientRect()
-      setOffset(top + window.scrollY)
+    if (!focused || !selected || !ref?.current) {
+      return
     }
+
+    const { top, left } = ref.current.getBoundingClientRect()
+
+    setOffset({
+      top: top + window.scrollY,
+      left: left + window.scrollX
+    })
+
   }, [focused, selected, ref])
 
   const { element, attributes, entry } = renderProps

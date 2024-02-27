@@ -2,13 +2,13 @@ import React, { PropsWithChildren, useContext, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useFocused, useSlateStatic } from 'slate-react'
 import { useKeydownGlobal, useClickGlobal } from '../../hooks'
-import { GutterContext } from '@/components/GutterProvider/GutterProvider'
 
 import { Popover } from './Popover'
 import './index.css'
+import { PositionContext } from './PositionProvider'
 
 export const Menu = ({ children }: PropsWithChildren) => {
-  const { offset } = useContext(GutterContext)
+  const { offset } = useContext(PositionContext)
   const editor = useSlateStatic()
   const [isOpen, setIsOpen] = useState(false)
   const { selection } = editor
@@ -24,10 +24,10 @@ export const Menu = ({ children }: PropsWithChildren) => {
   }
 
   return (
-    <div ref={ref} style={{ top: `${offset.top}px` }} className='textbit-contenttools-menu'>
+    <div ref={ref} style={{ left: `${offset.x}`, top: `${offset.y} px` }} className='textbit-contexttools-menu'>
       <a
         ref={mouseTriggerRef}
-        className="textbit-contenttools-trigger"
+        className="textbit-contexttools-trigger"
         onMouseDown={(e) => {
           e.preventDefault()
           setIsOpen(!isOpen)

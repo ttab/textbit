@@ -9,13 +9,18 @@ import React, {
   useContext
 } from 'react' // Necessary for esbuild
 
-type GutterContextInterface = {
-  offset: number,  // content menu y offset in gutter
-  gutter: boolean, // has gutter
-  setOffset: Dispatch<SetStateAction<number>>
+type Offset = {
+  left: number
+  top: number
 }
 
-export const GutterContext = createContext<GutterContextInterface>({ offset: 0, gutter: false, setOffset: () => { } })
+type GutterContextInterface = {
+  offset?: Offset,  // content menu y offset in gutter
+  gutter: boolean // has gutter
+  setOffset: Dispatch<SetStateAction<Offset | undefined>>
+}
+
+export const GutterContext = createContext<GutterContextInterface>({ gutter: false, setOffset: () => { } })
 
 /**
  * Set prop dir to "rtl" to put gutter on right hand side
@@ -25,18 +30,19 @@ export const Wrapper = ({ dir = 'ltr', gutter = true, children }: PropsWithChild
   gutter?: boolean
 }) => {
   const ref = useRef<HTMLDivElement>(null)
-  const [offset, setOffset] = useState(0)
-  const [top, setTop] = useState(0)
-
-  useLayoutEffect(() => {
-    if (ref?.current) {
-      const { top } = ref.current.getBoundingClientRect()
-      setTop(top + window.scrollY)
-    }
-  })
+  const [offset, setOffset] = useState<Offset | undefined>(undefined)
+  const { scrollX, scrollY } = window
+  const { top, left } = ref?.current?.getBoundingClientRect() || { top: 0, left: 0 }
 
   return (
-    <GutterContext.Provider value={{ offset: offset - top, gutter: gutter, setOffset }}>
+    <GutterContext.Provider value={{
+      gutter,
+      setOffset,
+      offset: offset ? {
+        left: offset.left - left - scrollX,
+        top: offset.top - top - scrollY
+      } : undefined
+    }}>
       <div
         contentEditable={false}
         style={{
@@ -67,7 +73,7 @@ const Gutter = ({ children }: PropsWithChildren) => {
 }
 
 const Content = ({ children }: PropsWithChildren) => {
-  return <div style={{ flexGrow: 1 }}>{children}</div>
+  return <div style={{ flexGrow: 1, position: 'relative' }}>{children}</div>
 }
 
 export const GutterProvider = {
