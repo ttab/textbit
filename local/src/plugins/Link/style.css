@@ -12,7 +12,6 @@
 .core\/link-input input[type="text"] {
   font-family: var(--font-family-ui);
   padding: 6px 10px;
-  margin: 3px;
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) * 0.8 - 3px);
   color: hsl(var(--foreground));

@@ -8,7 +8,7 @@ import { PositionContext } from './PositionProvider'
 import { Editor, Element, Range } from 'slate'
 
 export const Menu = ({ children }: PropsWithChildren) => {
-  const { offset } = useContext(PositionContext)
+  const { position: offset } = useContext(PositionContext)
   const editor = useSlateStatic()
   const [display, setDisplay] = useState<[boolean, number, number]>([false, 0, 0])
   const selection = useSlateSelection()

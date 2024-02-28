@@ -19,7 +19,7 @@ export const Link: Plugin.Definition = {
   actions: [{
     tool: [
       () => <BsLink />,
-      EditLinkComponent
+      ({ editor, entry, active }) => <EditLinkComponent editor={editor} entry={entry} active={active} />
     ],
     hotkey: 'mod+k',
     handler: ({ editor }) => {

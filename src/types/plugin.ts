@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { PropsWithChildren, ReactNode } from "react"
 import { Node, NodeEntry } from "slate"
 import { RenderElementProps } from "slate-react"
 import { Editor, Element } from 'slate'
@@ -37,7 +37,8 @@ export namespace Plugin {
   export type ToolComponentProps = {
     editor: Editor
     entry?: NodeEntry<Node>
-  }
+    active?: boolean
+  } & PropsWithChildren
 
   /**
    * @type
