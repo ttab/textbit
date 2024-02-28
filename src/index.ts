@@ -4,29 +4,39 @@ import {
   TextbitFooter,
   ContentTools,
   useTextbit,
-  usePluginRegistry
+  usePluginRegistry,
+  ContextTools,
+  StandardPlugins
 } from './components'
 
 import { GutterProvider } from './components/GutterProvider/GutterProvider'
 
-const Textbit = {
+export const Textbit = {
   Editor: TextbitObj,
   Editable: TextbitEditable,
   Footer: TextbitFooter,
-  Gutter: GutterProvider.Gutter
+  Gutter: GutterProvider.Gutter,
+  Plugins: StandardPlugins
 }
-
 export default Textbit
-export { Textbit }
+
 export { TextbitObj as Editor }
 export { TextbitEditable as Editable }
 export { TextbitFooter as Footer }
+export { StandardPlugins as Plugins }
+export const Gutter = GutterProvider.Gutter
 
 export const Menu = {
   Wrapper: ContentTools.Menu,
   Group: ContentTools.Group,
   Item: ContentTools.Item,
   Label: ContentTools.Label
+}
+
+export const Toolbar = {
+  Wrapper: ContextTools.Menu,
+  Group: ContextTools.Group,
+  Item: ContextTools.Item
 }
 
 export { useTextbit }

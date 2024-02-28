@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
 import { Descendant } from 'slate'
 import { createRoot } from 'react-dom/client'
-import Textbit, { useTextbit } from '../../src'
+import Textbit, { Menu, Toolbar, usePluginRegistry, useTextbit } from '../../src'
 import { ThemeSwitcher } from './themeSwitcher'
-import { BulletList, NumberList } from './plugins'
+import {
+  BulletList,
+  NumberList,
+  Link
+} from './plugins'
 
 import './editor-variables.css'
 
@@ -100,13 +104,19 @@ function App() {
       flexDirection: 'column'
     }}>
       <div style={{ height: '50vh' }}>
-        <Textbit.Editor verbose={true} plugins={[BulletList, NumberList]}>
+        <Textbit.Editor
+          verbose={true}
+          plugins={[...Textbit.Plugins, BulletList, NumberList, Link]}
+        >
           <Editor initialValue={initialValue} />
         </Textbit.Editor >
       </div>
 
       <div style={{ height: '50vh' }}>
-        <Textbit.Editor verbose={true}>
+        <Textbit.Editor
+          verbose={true}
+          plugins={[...Textbit.Plugins]}
+        >
           <Editor initialValue={initialValue} />
         </Textbit.Editor>
       </div>
@@ -115,8 +125,9 @@ function App() {
 }
 
 function Editor({ initialValue }: { initialValue: Descendant[] }) {
-  const [, setValue] = useState<Descendant[]>(initialValue)
+  const [value, setValue] = useState<Descendant[]>(initialValue)
   const { characters } = useTextbit()
+  const { actions } = usePluginRegistry()
 
   return (
     <>
@@ -129,12 +140,41 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
 
       <div style={{ flex: '1', display: 'flex', flexDirection: 'column' }}>
         <Textbit.Editable
-          value={initialValue}
+          value={value}
           onChange={value => {
             console.log(value, null, 2)
             setValue(value)
           }}
-        />
+        >
+          <Textbit.Gutter>
+            <Menu.Wrapper>
+              {actions.filter(action => !['leaf', 'generic'].includes(action.plugin.class)).map(action => {
+                return (
+                  <Menu.Item
+                    key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                    action={action}
+                  >
+                    <Menu.Label>{action.title}</Menu.Label>
+                  </Menu.Item>
+                )
+              })}
+            </Menu.Wrapper>
+          </Textbit.Gutter>
+
+          <Toolbar.Wrapper>
+            <Toolbar.Group>
+              {actions.filter(action => ['leaf'].includes(action.plugin.class)).map(action => {
+                return <Toolbar.Item action={action} />
+              })}
+            </Toolbar.Group>
+            <Toolbar.Group>
+              {actions.filter(action => ['inline'].includes(action.plugin.class)).map(action => {
+                return <Toolbar.Item action={action} />
+              })}
+            </Toolbar.Group>
+          </Toolbar.Wrapper>
+
+        </Textbit.Editable>
         <Textbit.Footer />
       </div>
     </>

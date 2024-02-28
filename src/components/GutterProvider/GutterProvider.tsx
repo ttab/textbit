@@ -1,5 +1,4 @@
 import React, {
-  useLayoutEffect,
   useRef,
   PropsWithChildren,
   createContext,
@@ -46,6 +45,7 @@ export const Wrapper = ({ dir = 'ltr', gutter = true, children }: PropsWithChild
       <div
         contentEditable={false}
         style={{
+          position: 'absolute',
           display: 'flex',
           flexDirection: dir === 'rtl' ? 'row' : 'row-reverse'
         }}

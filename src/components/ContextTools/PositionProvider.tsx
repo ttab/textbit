@@ -5,6 +5,7 @@ import React, {
   createContext,
   useState
 } from 'react' // Necessary for esbuild
+
 import { useSlateSelection } from 'slate-react'
 
 type Offset = {
@@ -36,9 +37,9 @@ export const PositionProvider = ({ inline = true, children }: PropsWithChildren 
       const domRange = domSelection?.getRangeAt(0)
       const rect = domRange.getBoundingClientRect()
 
-      setOffset(!rect ? undefined : {
+      setOffset(!rect || !rect.width ? undefined : {
         x: rect.left - left + (rect.width / 2),
-        y: rect.top - top - (rect.height || 0),
+        y: rect.top - top,
         w: rect.width,
         h: rect.height
       })
