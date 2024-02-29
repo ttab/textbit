@@ -1,11 +1,22 @@
 import React, { useState } from 'react'
 import { Descendant } from 'slate'
 import { createRoot } from 'react-dom/client'
-import Textbit, { useTextbit } from '../../src'
+import Textbit, {
+  Menu,
+  Toolbar,
+  usePluginRegistry,
+  useTextbit
+} from '../../src'
 import { ThemeSwitcher } from './themeSwitcher'
-import { BulletList, NumberList } from './plugins'
+import {
+  BulletList,
+  NumberList,
+  Link
+} from './plugins'
 
 import './editor-variables.css'
+import './toolmenu.css'
+import './toolbox.css'
 
 const initialValue: Descendant[] = [
   {
@@ -100,13 +111,19 @@ function App() {
       flexDirection: 'column'
     }}>
       <div style={{ height: '50vh' }}>
-        <Textbit.Editor verbose={true} plugins={[BulletList, NumberList]}>
+        <Textbit.Editor
+          verbose={true}
+          plugins={[...Textbit.Plugins, BulletList, NumberList, Link]}
+        >
           <Editor initialValue={initialValue} />
         </Textbit.Editor >
       </div>
 
       <div style={{ height: '50vh' }}>
-        <Textbit.Editor verbose={true}>
+        <Textbit.Editor
+          verbose={true}
+          plugins={[...Textbit.Plugins]}
+        >
           <Editor initialValue={initialValue} />
         </Textbit.Editor>
       </div>
@@ -115,8 +132,9 @@ function App() {
 }
 
 function Editor({ initialValue }: { initialValue: Descendant[] }) {
-  const [, setValue] = useState<Descendant[]>(initialValue)
+  const [value, setValue] = useState<Descendant[]>(initialValue)
   const { characters } = useTextbit()
+  const { actions } = usePluginRegistry()
 
   return (
     <>
@@ -129,12 +147,56 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
 
       <div style={{ flex: '1', display: 'flex', flexDirection: 'column' }}>
         <Textbit.Editable
-          value={initialValue}
+          value={value}
           onChange={value => {
             console.log(value, null, 2)
             setValue(value)
           }}
-        />
+        >
+          <Textbit.Gutter>
+            <Menu.Root className="textbit-contenttools-menu">
+
+              <Menu.Trigger className="textbit-contenttools-trigger">⋮</Menu.Trigger>
+              <Menu.Content className="textbit-contenttools-popover">
+                <Menu.Group className="textbit-contenttools-group">
+                  {actions.filter(action => !['leaf', 'generic', 'inline'].includes(action.plugin.class)).map(action => {
+                    return (
+                      <Menu.Item
+                        className="textbit-contenttools-item"
+                        key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                        action={action}
+                      >
+                        <Menu.Icon className="textbit-contenttools-icon" />
+                        <Menu.Label className="textbit-contenttools-label">{action.title}</Menu.Label>
+                        <Menu.Hotkey hotkey={action.hotkey} className="textbit-contenttools-hotkey" />
+                      </Menu.Item>
+                    )
+                  })}
+                </Menu.Group>
+              </Menu.Content>
+            </Menu.Root>
+          </Textbit.Gutter>
+
+          <Toolbar.Root className='textbit-contexttools-menu'>
+            <Toolbar.Group key="leafs" className="textbit-contexttools-group">
+              {actions.filter(action => ['leaf'].includes(action.plugin.class)).map(action => {
+                return <Toolbar.Item
+                  className="textbit-contexttools-item"
+                  action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                />
+              })}
+            </Toolbar.Group>
+            <Toolbar.Group key="inlines" className="textbit-contexttools-group">
+              {actions.filter(action => ['inline'].includes(action.plugin.class)).map(action => {
+                return <Toolbar.Item
+                  className="textbit-contexttools-item"
+                  action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                />
+              })}
+            </Toolbar.Group>
+          </Toolbar.Root>
+
+        </Textbit.Editable>
         <Textbit.Footer />
       </div>
     </>

@@ -1,5 +1,9 @@
-import React, { PropsWithChildren } from 'react' // Necessary for esbuild
-import { useEffect, useMemo, useCallback } from 'react'
+import React, { // Necessary for esbuild
+  PropsWithChildren,
+  useEffect,
+  useMemo,
+  useCallback
+} from 'react'
 import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
 import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
@@ -18,7 +22,6 @@ import { toggleLeaf } from '@/lib/toggleLeaf'
 import { withInsertText } from './with/insertText'
 import { withNormalizeNode } from './with/normalizeNode'
 import { withEditableVoids } from './with/editableVoids'
-import { InlineToolbar } from './components/toolbar/inline'
 import { withInsertBreak } from './with/insertBreak'
 import { withInsertHtml } from './with/insertHtml'
 import { PresenceOverlay } from './components/PresenceOverlay/PresenceOverlay'
@@ -26,8 +29,8 @@ import { useTextbit } from '../Textbit'
 import { debounce } from '@/lib/debounce'
 import { usePluginRegistry } from '../PluginRegistry'
 import { PluginRegistryAction, PluginRegistryComponent } from '../PluginRegistry/lib/types'
+import { PositionProvider } from '../ContextTools/PositionProvider'
 import { GutterProvider } from '../GutterProvider/GutterProvider'
-import { ContentTools } from '../ContentTools'
 
 
 export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter = true, dir = 'ltr' }: PropsWithChildren & {
@@ -119,42 +122,25 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
       <Slate editor={textbitEditor} initialValue={inValue} onChange={(value) => {
         handleOnChange(value)
       }}>
-        <GutterProvider.Wrapper dir={dir} gutter={gutter}>
+        <PositionProvider inline={true}>
+          <GutterProvider.Wrapper dir={dir} gutter={gutter}>
 
-          <InlineToolbar
-            actions={actions.filter(action => ['leaf', 'inline'].includes(action.plugin.class))}
-          />
+            <GutterProvider.Content>
+              <PresenceOverlay isCollaborative={!!yjsEditor}>
+                <Editable
+                  className="slate-root"
+                  renderElement={renderSlateElement}
+                  renderLeaf={renderLeafComponent}
+                  onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
+                  decorate={([node, path]) => handleDecoration(textbitEditor, elementComponents, node, path)}
+                />
+              </PresenceOverlay>
+            </GutterProvider.Content>
 
-          <GutterProvider.Content>
-            <PresenceOverlay isCollaborative={!!yjsEditor}>
-              <Editable
-                className="slate-root"
-                renderElement={renderSlateElement}
-                renderLeaf={renderLeafComponent}
-                onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-                decorate={([node, path]) => handleDecoration(textbitEditor, elementComponents, node, path)}
-              />
-            </PresenceOverlay>
-          </GutterProvider.Content>
+            {children}
 
-          <GutterProvider.Gutter>
-            {children ||
-              <ContentTools.Menu>
-                {actions.filter(action => !['leaf', 'generic'].includes(action.plugin.class)).map(action => {
-                  return (
-                    <ContentTools.Item
-                      key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
-                      action={action}
-                    >
-                      <ContentTools.Label>{action.title}</ContentTools.Label>
-                    </ContentTools.Item>
-                  )
-                })}
-              </ContentTools.Menu>
-            }
-          </GutterProvider.Gutter>
-
-        </GutterProvider.Wrapper>
+          </GutterProvider.Wrapper>
+        </PositionProvider>
       </Slate>
     </DragAndDrop >
   )

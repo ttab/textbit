@@ -1,62 +1,35 @@
-import React, { PropsWithChildren, useContext, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { useSlateStatic } from 'slate-react'
-import { useKeydownGlobal, useClickGlobal } from '../../hooks'
+import React, {
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  createContext,
+  useContext,
+  useRef,
+  useState
+} from 'react'
+
 import { GutterContext } from '@/components/GutterProvider/GutterProvider'
+import { useFocused } from 'slate-react'
 
-import { Popover } from './Popover'
-import './index.css'
+export const MenuContext = createContext<[boolean, Dispatch<SetStateAction<boolean>>]>([false, () => { }])
 
-export const Menu = ({ children }: PropsWithChildren) => {
+export const Menu = ({ children, className }: PropsWithChildren & {
+  className?: string
+}) => {
   const { offset } = useContext(GutterContext)
-  const editor = useSlateStatic()
   const [isOpen, setIsOpen] = useState(false)
-  const { selection } = editor
   const ref = useRef<HTMLDivElement>(null)
+  const focused = useFocused()
 
-  const mouseTriggerRef = useClickGlobal<HTMLAnchorElement>((e) => {
-    setIsOpen(false)
-  })
-
-  if (!selection) {
-    return
+  if (!focused || !offset?.top) {
+    return <></>
   }
 
   return (
-    <div ref={ref} style={{ top: `${offset}px` }} className='textbit-contenttools-menu'>
-      <a
-        ref={mouseTriggerRef}
-        className="textbit-contenttools-trigger"
-        onMouseDown={(e) => {
-          e.preventDefault()
-          setIsOpen(!isOpen)
-        }}
-      >
-        ⋮
-      </a>
-
-      {isOpen && ref?.current && createPortal(
-        <MenuPopover setIsOpen={setIsOpen}>
-          {children}
-        </MenuPopover>,
-        ref.current
-      )}
-    </div>
+    <MenuContext.Provider value={[isOpen, setIsOpen]}>
+      <div ref={ref} style={{ position: 'absolute', top: `${offset.top}px` }} className={className} data-state={isOpen ? 'open' : 'closed'}>
+        {children}
+      </div>
+    </MenuContext.Provider>
   )
-}
-
-
-const MenuPopover = ({ children, setIsOpen }: PropsWithChildren & {
-  setIsOpen: (open: boolean) => void
-}) => {
-  const keyTriggerRef = useKeydownGlobal<HTMLDivElement>((e) => {
-    if (e.key === 'Escape' || e.key === 'Tab') {
-      e.preventDefault()
-      setIsOpen(false)
-    }
-  })
-
-  return <div ref={keyTriggerRef}>
-    <Popover>{children}</Popover>
-  </div>
 }
