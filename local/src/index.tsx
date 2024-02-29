@@ -162,14 +162,14 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
           </Textbit.Gutter>
 
           <Toolbar.Wrapper>
-            <Toolbar.Group>
+            <Toolbar.Group key="leafs">
               {actions.filter(action => ['leaf'].includes(action.plugin.class)).map(action => {
-                return <Toolbar.Item action={action} />
+                return <Toolbar.Item action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`} />
               })}
             </Toolbar.Group>
-            <Toolbar.Group>
+            <Toolbar.Group key="inlines">
               {actions.filter(action => ['inline'].includes(action.plugin.class)).map(action => {
-                return <Toolbar.Item action={action} />
+                return <Toolbar.Item action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`} />
               })}
             </Toolbar.Group>
           </Toolbar.Wrapper>
