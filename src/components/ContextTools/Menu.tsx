@@ -49,7 +49,7 @@ export const Menu = ({ children, className }: PropsWithChildren & {
     el.style.top = `${position.y - height}px`
     setVisibility('1', 'auto')
   }, [ref, position, focused])
-  console.log(className)
+
   if (!position) {
     return
   }
