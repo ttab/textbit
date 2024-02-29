@@ -11,8 +11,9 @@ import { PositionContext } from './PositionProvider'
 import { Element } from 'slate'
 
 
-export const Item = ({ action, children }: PropsWithChildren & {
+export const Item = ({ action, className, children }: PropsWithChildren & {
   action: PluginRegistryAction
+  className?: string
 }) => {
   const editor = useSlateStatic()
   const isActive = hasMark(editor, action.plugin.name)
@@ -40,7 +41,8 @@ export const Item = ({ action, children }: PropsWithChildren & {
   }
 
   return <div
-    className={`textbit-contexttools-item`}
+    data-state={isActive ? 'active' : 'inactive'}
+    className={className || ''}
     onMouseDown={(e) => {
       e.preventDefault()
       if (true === action.handler({ editor })) {
@@ -48,12 +50,9 @@ export const Item = ({ action, children }: PropsWithChildren & {
       }
     }}
   >
-    <>
-      {!Children.count
-        ? <Tool editor={editor} active={isActive} entry={nodeEntry} />
-        : <Tool editor={editor} active={isActive} entry={nodeEntry}>{children}</Tool>
-      }
-      <em className={`${isActive ? 'active' : ''}`}></em>
-    </>
+    {!Children.count
+      ? <Tool editor={editor} active={isActive} entry={nodeEntry}>{children}</Tool>
+      : <Tool editor={editor} active={isActive} entry={nodeEntry}>{children}</Tool>
+    }
   </div >
 }

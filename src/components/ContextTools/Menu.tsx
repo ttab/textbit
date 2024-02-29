@@ -2,11 +2,12 @@ import React, { PropsWithChildren, useCallback, useContext, useLayoutEffect, use
 import { createPortal } from 'react-dom'
 import { useFocused, useSlateStatic } from 'slate-react'
 
-import './index.css'
 import { PositionContext } from './PositionProvider'
 import { Editor, Element, Range } from 'slate'
 
-export const Menu = ({ children }: PropsWithChildren) => {
+export const Menu = ({ children, className }: PropsWithChildren & {
+  className?: string
+}) => {
   const { position } = useContext(PositionContext)
   const editor = useSlateStatic()
   const focused = useFocused()
@@ -48,16 +49,17 @@ export const Menu = ({ children }: PropsWithChildren) => {
     el.style.top = `${position.y - height}px`
     setVisibility('1', 'auto')
   }, [ref, position, focused])
-
+  console.log(className)
   if (!position) {
     return
   }
 
   return (
-    <div ref={ref} style={{
+    <div ref={ref} className={className || ''} style={{
       opacity: '0',
-      zIndex: '-1'
-    }} className='textbit-contexttools-menu'>
+      zIndex: '-1',
+      position: 'absolute'
+    }}>
 
       {ref?.current && createPortal(
         <>{children}</>,

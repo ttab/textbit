@@ -10,6 +10,7 @@ import {
 } from './plugins'
 
 import './editor-variables.css'
+import './toolbox.css'
 
 const initialValue: Descendant[] = [
   {
@@ -161,15 +162,21 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             </Menu.Wrapper>
           </Textbit.Gutter>
 
-          <Toolbar.Wrapper>
-            <Toolbar.Group key="leafs">
+          <Toolbar.Wrapper className='textbit-contexttools-menu'>
+            <Toolbar.Group key="leafs" className="textbit-contexttools-group">
               {actions.filter(action => ['leaf'].includes(action.plugin.class)).map(action => {
-                return <Toolbar.Item action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`} />
+                return <Toolbar.Item
+                  className="textbit-contexttools-item"
+                  action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                />
               })}
             </Toolbar.Group>
-            <Toolbar.Group key="inlines">
+            <Toolbar.Group key="inlines" className="textbit-contexttools-group">
               {actions.filter(action => ['inline'].includes(action.plugin.class)).map(action => {
-                return <Toolbar.Item action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`} />
+                return <Toolbar.Item
+                  className="textbit-contexttools-item"
+                  action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                />
               })}
             </Toolbar.Group>
           </Toolbar.Wrapper>

@@ -8,7 +8,9 @@ import React, {
 import { PositionContext } from './PositionProvider'
 import { useSlateSelection } from 'slate-react'
 
-export const Group = ({ children }: PropsWithChildren) => {
+export const Group = ({ children, className }: PropsWithChildren & {
+  className?: string
+}) => {
   const { nodeEntry, expanded } = useContext(PositionContext)
   const selection = useSlateSelection()
 
@@ -30,7 +32,7 @@ export const Group = ({ children }: PropsWithChildren) => {
 
   return <>
     {hasChildren
-      ? <div className="textbit-contexttools-group">{children}</div>
+      ? <div className={className || ''}>{children}</div>
       : <></>
     }
   </>
