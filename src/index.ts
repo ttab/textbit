@@ -27,7 +27,7 @@ export { StandardPlugins as Plugins }
 export const Gutter = GutterProvider.Gutter
 
 export const Menu = {
-  Wrapper: ContentTools.Menu,
+  Root: ContentTools.Menu,
   Trigger: ContentTools.Trigger,
   Content: ContentTools.Content,
   Group: ContentTools.Group,
@@ -38,7 +38,7 @@ export const Menu = {
 }
 
 export const Toolbar = {
-  Wrapper: ContextTools.Menu,
+  Root: ContextTools.Menu,
   Group: ContextTools.Group,
   Item: ContextTools.Item
 }

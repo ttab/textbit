@@ -154,7 +154,7 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
           }}
         >
           <Textbit.Gutter>
-            <Menu.Wrapper className="textbit-contenttools-menu">
+            <Menu.Root className="textbit-contenttools-menu">
 
               <Menu.Trigger className="textbit-contenttools-trigger">⋮</Menu.Trigger>
               <Menu.Content className="textbit-contenttools-popover">
@@ -174,10 +174,10 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
                   })}
                 </Menu.Group>
               </Menu.Content>
-            </Menu.Wrapper>
+            </Menu.Root>
           </Textbit.Gutter>
 
-          <Toolbar.Wrapper className='textbit-contexttools-menu'>
+          <Toolbar.Root className='textbit-contexttools-menu'>
             <Toolbar.Group key="leafs" className="textbit-contexttools-group">
               {actions.filter(action => ['leaf'].includes(action.plugin.class)).map(action => {
                 return <Toolbar.Item
@@ -194,7 +194,7 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
                 />
               })}
             </Toolbar.Group>
-          </Toolbar.Wrapper>
+          </Toolbar.Root>
 
         </Textbit.Editable>
         <Textbit.Footer />
