@@ -1,9 +1,10 @@
 import React, {
-  useLayoutEffect,
   useRef,
   PropsWithChildren,
   createContext,
-  useState
+  useState,
+  useEffect,
+  useLayoutEffect
 } from 'react' // Necessary for esbuild
 import { BaseSelection, Editor, Element, Node, NodeEntry, Range } from 'slate'
 
@@ -58,9 +59,6 @@ export const PositionProvider = ({ inline = true, children }: PropsWithChildren 
         nodeEntry,
         expanded: Range.isRange(selection) && Range.isExpanded(selection)
       })
-    }
-    else {
-      setMetaData(undefined)
     }
   }, [selection])
 

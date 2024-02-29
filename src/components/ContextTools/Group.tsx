@@ -6,9 +6,11 @@ import React, {
   ReactNode
 } from 'react'
 import { PositionContext } from './PositionProvider'
+import { useSlateSelection } from 'slate-react'
 
 export const Group = ({ children }: PropsWithChildren) => {
   const { nodeEntry, expanded } = useContext(PositionContext)
+  const selection = useSlateSelection()
 
   const filter = useCallback((children: ReactNode) => {
     if (!nodeEntry) {
@@ -21,7 +23,7 @@ export const Group = ({ children }: PropsWithChildren) => {
       return isInline !== expanded
     })
 
-  }, [nodeEntry, expanded])
+  }, [nodeEntry, expanded, selection])
 
   const filteredChildren = filter(children)
   const hasChildren = Children.count(filteredChildren) > 0

@@ -1,31 +1,35 @@
-import React, { PropsWithChildren, useContext, useEffect, useRef, useState } from 'react'
+import React, { PropsWithChildren, useCallback, useContext, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { useFocused, useSlateSelection, useSlateStatic } from 'slate-react'
-import { useClickGlobal } from '../../hooks'
+import { useFocused, useSlateStatic } from 'slate-react'
 
 import './index.css'
 import { PositionContext } from './PositionProvider'
 import { Editor, Element, Range } from 'slate'
 
 export const Menu = ({ children }: PropsWithChildren) => {
-  const { position: offset } = useContext(PositionContext)
+  const { position } = useContext(PositionContext)
   const editor = useSlateStatic()
-  const [display, setDisplay] = useState<[boolean, number, number]>([false, 0, 0])
-  const selection = useSlateSelection()
   const focused = useFocused()
   const ref = useRef<HTMLDivElement>(null)
 
-  const mouseTriggerRef = useClickGlobal<HTMLDivElement>(() => {
-    setDisplay([false, display[1], display[2]])
-  })
+  const setVisibility = useCallback((opacity: string, zIndex: string): void => {
+    setTimeout(() => {
+      if (ref?.current) {
+        ref.current.style.opacity = opacity
+        ref.current.style.zIndex = zIndex
+      }
+    }, 0)
+  }, [])
 
-  useEffect(() => {
-    const currWidth = display[1]
-    const currHeight = display[2]
-
-    if (!selection || !Range.isRange(selection) || !offset || !focused) {
-      setDisplay([false, currWidth, currHeight])
+  useLayoutEffect(() => {
+    const el = ref?.current
+    if (!el) {
       return
+    }
+
+    const { selection } = editor
+    if (!focused || !selection || !Range.isRange(selection) || !position || !focused) {
+      return setVisibility('0', '-1')
     }
 
     if (Range.isCollapsed(selection)) {
@@ -35,33 +39,30 @@ export const Menu = ({ children }: PropsWithChildren) => {
       }))
 
       if (!nodes.length) {
-        setDisplay([false, currWidth, currHeight])
-        return
+        return setVisibility('0', '-1')
       }
     }
 
     const { width, height } = ref?.current?.getBoundingClientRect() || { width: 0 }
-    setDisplay([true, width ? width / 2 : 0, height || 0])
-  }, [selection, focused])
+    el.style.left = `${position.x - (width ? width / 2 : 0)}px`
+    el.style.top = `${position.y - height}px`
+    setVisibility('1', 'auto')
+  }, [ref, position, focused])
 
-  if (!offset) {
+  if (!position) {
     return
   }
 
   return (
-    <div ref={mouseTriggerRef}>
-      <div ref={ref} style={{
-        left: `${offset.x - display[1]}px`,
-        top: `${offset.y - display[2]}px`,
-        opacity: display[0] ? '1' : '0',
-        zIndex: display[0] ? 'auto' : '-1'
-      }} className='textbit-contexttools-menu'>
+    <div ref={ref} style={{
+      opacity: '0',
+      zIndex: '-1'
+    }} className='textbit-contexttools-menu'>
 
-        {ref?.current && createPortal(
-          <>{children}</>,
-          ref.current
-        )}
-      </div>
-    </div >
+      {ref?.current && createPortal(
+        <>{children}</>,
+        ref.current
+      )}
+    </div>
   )
 }
