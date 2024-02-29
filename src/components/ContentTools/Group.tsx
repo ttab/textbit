@@ -3,12 +3,14 @@ import React, {
   Children
 } from 'react'
 
-export const Group = ({ children }: PropsWithChildren) => {
+export const Group = ({ children, className }: PropsWithChildren & {
+  className?: string
+}) => {
   const hasChildren = Children.count(children) > 0
 
   return <>
     {hasChildren
-      ? <div className="textbit-contenttools-group">{children}</div>
+      ? <div className={className}>{children}</div>
       : <></>
     }
   </>

@@ -1,7 +1,12 @@
 import React, { useState } from 'react'
 import { Descendant } from 'slate'
 import { createRoot } from 'react-dom/client'
-import Textbit, { Menu, Toolbar, usePluginRegistry, useTextbit } from '../../src'
+import Textbit, {
+  Menu,
+  Toolbar,
+  usePluginRegistry,
+  useTextbit
+} from '../../src'
 import { ThemeSwitcher } from './themeSwitcher'
 import {
   BulletList,
@@ -10,6 +15,7 @@ import {
 } from './plugins'
 
 import './editor-variables.css'
+import './toolmenu.css'
 import './toolbox.css'
 
 const initialValue: Descendant[] = [
@@ -148,17 +154,26 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
           }}
         >
           <Textbit.Gutter>
-            <Menu.Wrapper>
-              {actions.filter(action => !['leaf', 'generic'].includes(action.plugin.class)).map(action => {
-                return (
-                  <Menu.Item
-                    key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
-                    action={action}
-                  >
-                    <Menu.Label>{action.title}</Menu.Label>
-                  </Menu.Item>
-                )
-              })}
+            <Menu.Wrapper className="textbit-contenttools-menu">
+
+              <Menu.Trigger className="textbit-contenttools-trigger">⋮</Menu.Trigger>
+              <Menu.Content className="textbit-contenttools-popover">
+                <Menu.Group className="textbit-contenttools-group">
+                  {actions.filter(action => !['leaf', 'generic', 'inline'].includes(action.plugin.class)).map(action => {
+                    return (
+                      <Menu.Item
+                        className="textbit-contenttools-item"
+                        key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                        action={action}
+                      >
+                        <Menu.Icon className="textbit-contenttools-icon" />
+                        <Menu.Label className="textbit-contenttools-label">{action.title}</Menu.Label>
+                        <Menu.Hotkey hotkey={action.hotkey} className="textbit-contenttools-hotkey" />
+                      </Menu.Item>
+                    )
+                  })}
+                </Menu.Group>
+              </Menu.Content>
             </Menu.Wrapper>
           </Textbit.Gutter>
 

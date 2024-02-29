@@ -28,9 +28,13 @@ export const Gutter = GutterProvider.Gutter
 
 export const Menu = {
   Wrapper: ContentTools.Menu,
+  Trigger: ContentTools.Trigger,
+  Content: ContentTools.Content,
   Group: ContentTools.Group,
   Item: ContentTools.Item,
-  Label: ContentTools.Label
+  Icon: ContentTools.Icon,
+  Label: ContentTools.Label,
+  Hotkey: ContentTools.Hotkey
 }
 
 export const Toolbar = {

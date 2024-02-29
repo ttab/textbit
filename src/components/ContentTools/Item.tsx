@@ -1,48 +1,47 @@
-import React, { PropsWithChildren } from 'react'
+import React, { PropsWithChildren, createContext } from 'react'
 import { useSlateSelection, useSlateStatic } from 'slate-react'
 import { BaseSelection, Editor, Element } from 'slate'
 import { Plugin } from '@/types'
 import { pipeFromFileInput } from '@/lib/pipes'
 import { usePluginRegistry } from '@/components/PluginRegistry'
-import { modifier } from '@/lib/modifier'
 
 
-export const Item = ({ children, action }: PropsWithChildren & {
+export const ItemContext = createContext<{ isActive: boolean, action?: Plugin.Action }>({ isActive: false })
+
+export const Item = ({ children, className, action }: PropsWithChildren & {
+  className?: string
   action: Plugin.Action
 }) => {
   const { plugins } = usePluginRegistry()
   const editor = useSlateStatic()
   const selection = useSlateSelection()
   const isActive = isBlockActive(editor, selection, action)
-  const Tool = Array.isArray(action.tool) ? action.tool[0] || null : action.tool || null
 
-  return <a
-    className="textbit-contenttools-item"
-    onMouseDown={(e) => {
-      e.preventDefault()
-      action.handler({
-        editor,
-        api: {
-          // FIXME: This is just to expose some functionality, but it is not a good way to give access to an api...
-          consumeFileInputChangeEvent: (
-            editor: Editor,
-            e: React.ChangeEvent<HTMLInputElement>
-          ) => {
-            pipeFromFileInput(editor, plugins, e)
-          }
-        }
-      })
-    }}
-  >
-    <div className={`textbit-contenttools-icon ${isActive ? 'active' : ''}`}>
-      {isActive && "✓"}
-      {!isActive && Tool && <Tool editor={editor} />}
-    </div>
-    {children}
-    <div className="textbit-contenttools-hotkey">
-      {modifier(action?.hotkey || '')}
-    </div>
-  </a>
+  return (
+    <ItemContext.Provider value={{ isActive: isActive ? true : false, action }}>
+      <a
+        className={className}
+        data-state={isActive ? 'active' : 'inactive'}
+        onMouseDown={(e) => {
+          e.preventDefault()
+          action.handler({
+            editor,
+            api: {
+              // FIXME: This is just to expose some functionality, but it is not a good way to give access to an api...
+              consumeFileInputChangeEvent: (
+                editor: Editor,
+                e: React.ChangeEvent<HTMLInputElement>
+              ) => {
+                pipeFromFileInput(editor, plugins, e)
+              }
+            }
+          })
+        }}
+      >
+        {children}
+      </a>
+    </ItemContext.Provider>
+  )
 }
 
 
