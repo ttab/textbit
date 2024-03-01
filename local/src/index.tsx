@@ -153,7 +153,7 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             setValue(value)
           }}
         >
-          <Textbit.Gutter>
+          <Textbit.Gutter className="textbit-contenttools-gutter">
             <Menu.Root className="textbit-contenttools-menu">
 
               <Menu.Trigger className="textbit-contenttools-trigger">⋮</Menu.Trigger>

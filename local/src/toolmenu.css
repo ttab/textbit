@@ -1,3 +1,7 @@
+div.textbit-contenttools-gutter {
+  width: 3em;
+}
+
 div.textbit-contenttools-menu {
   position:absolute;
   user-select: none;

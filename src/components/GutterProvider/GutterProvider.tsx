@@ -57,14 +57,17 @@ export const Wrapper = ({ dir = 'ltr', gutter = true, children }: PropsWithChild
   )
 }
 
-const Gutter = ({ children }: PropsWithChildren) => {
+const Gutter = ({ children, className }: PropsWithChildren & {
+  className?: string
+}) => {
   const { gutter } = useContext(GutterContext)
 
   return <div
+    className={className}
     style={{
       display: gutter ? 'block' : 'none',
       position: 'relative',
-      width: '3rem',
+      // width: '3rem',
       flexShrink: 0
     }}
   >
