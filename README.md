@@ -39,16 +39,16 @@ npm i @ttab/textbit
 
 ### Basic usage
 
-Below is the minimum needed for basic usage. Clone the repo and see the directory `local/` for a more thorough example including a local list item plugin.
+Below is the basic structure of the components and their usage. The example is lacking necessary styling and actions. Gutter, Menu and Toolbar components all receive a `className` property for styling. Clone the repo and see the directory `local/` for a more thorough example including additional link, list item plugins and example CSS.
 
 **MyEditor.tsx**
 ```javascript
 import React, { useState } from 'react'
-import {
-  Textbit,
-  TextbitEditable,
-  TextbitFooter,
-  type TBDescendant
+import Textbit, {
+  Menu,
+  Toolbar,
+  usePluginRegistry,
+  useTextbit
 } from '@ttab/textbit'
 import './editor-variables.css'
 
@@ -65,15 +65,42 @@ const initialValue: TBDescendant[] = [
 
 function MyEditor() {
   return (
-    <Textbit verbose={true}>
-      <TextbitEditable
+    <Textbit.Editor verbose={true} plugins={Textbit.Plugins}>
+      <Textbit.Editable
         value={initialValue}
         onChange={value => {
           console.log(value, null, 2)
         }}
-      />
-      <TextbitFooter />
-    </Textbit>
+      >
+        <Textbit.Gutter>
+          <Menu.Root>
+             <Menu.Trigger>⋮</Menu.Trigger>
+             <Menu.Content>
+              <Menu.Group>
+                  <Menu.Item key="title" action={}>
+                    <Menu.Icon/>
+                    <Menu.Label>Text</Menu.Label>
+                    <Menu.Hotkey hotkey="mod+0"/>
+                  </Menu.Item>
+                  <Menu.Item key="bodytext" action={}>
+                    <Menu.Icon/>
+                    <Menu.Label>Text</Menu.Label>
+                    <Menu.Hotkey hotkey="mod+0"/>
+                  </Menu.Item>
+              </Menu.Group>
+            </Menu.Content>
+          <Menu.Root>
+        </Textbit.Gutter>
+
+        <Toolbar.Root>
+          <Toolbar.Group>
+            <Toolbar.Item key="bold" action={}/>
+            <Toolbar.Item key="italic" action={}/>
+          </Toolbar.Group>
+        </Toolbar.Root>
+
+      </Textbit.Editable>
+    </Textbit.Editor>
   )
 }
 ```
@@ -130,4 +157,215 @@ function MyEditor() {
   --input: 240 3.7% 15.9%;
   --ring: 346.8 77.2% 49.8%;
 }
+```
+
+## Component Reference
+
+### Textbit.Textbit
+
+Top level Texbit component. Receives all plugins. Base plugins is exported from Textbit as `Textbit.Plugins`.
+
+#### Props
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| verbose | boolean | |
+| plugins | Plugin.Definition[] | |
+
+#### Provides context
+Access through convenience hook `usePluginRegistry()`.
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| plugins | Plugin.Definition[] | All registered plugins |
+| leafComponents | Map<string, PluginRegistryComponent> | Slate leaf render components |
+| elementComponents | Map<string, PluginRegistryComponent> | Slate element render components |
+| actions | PluginRegistryAction[] | Convenience structure |
+| verbose | boolean | Output extra info on console |
+| dispatch | Dispatch<PluginRegistryReducerAction> | Add or delete plugins |
+
+### Textbit.Editable
+
+Editable area component, acts as wrapper around Slate.
+
+#### Props
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| value | Descendant[] | Optional, initial content |
+| onChange | (Descendant[] => void) | Function to receive all changes |
+| dir | "ltr" \| "rtl" | Optional, defaults to _ltr_ |
+| yjsEditor | BaseEditor | BaseEditor created with `withYjs()` and `withCursors()`|
+| gutter | boolean | Optional, defaults to true (render gutter). |
+
+#### Provides GutterContext (_used internally_)
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| gutter | boolean | |
+| setOffset | ({ left: number, top: number }) => void | |
+| offset | { left: number, top: number } | |
+
+### Example
+
+Basic, not complete, example of using it with Yjs.
+
+```javascript
+const editor = useMemo(() => {
+  return withYHistory(
+    withCursors(
+      withYjs(
+        createEditor(),
+        provider.document.get('content', Y.XmlText)
+      ),
+      provider.awareness,
+      { data: user as unknown as Record<string, unknown> }
+    )
+  )
+}, [provider.awareness, provider.document, user])
+```
+
+```jsx
+<Textbit.Editable yjsEditor={editor} />
+```
+
+### Textbit.Gutter
+
+Provides a gutter for the content tool menu. Handles positioning automatically. Allows placement to the left or right of the content area. Context is used internally. Has inline styling for size and relative positioning of children.
+
+### Menu.Root
+
+Root component for the Menu structure.
+
+#### Props
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string | |
+
+#### Data attribute
+| Name | Value | Description |
+| ----------- | ----------- | ----------- |
+| [data-state] | "open" \| "closed" | |
+
+#### Provides context (_used internally_)
+| Name | Value | Description |
+| ----------- | ----------- | ----------- |
+| isOpen | boolean | |
+| setIsOpen: | (boolean) => void | |
+
+### Menu.Trigger
+
+#### Props
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string | |
+
+### Menu.Content
+
+#### Props
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string | |
+
+### Menu.Group
+
+#### Props
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string | |
+
+### Menu.Item
+
+#### Props
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+| action | PluginRegistryAction | _Retrieved from hook usePluginRegistry()_ |
+
+#### Data attribute
+| Name | Value | Description |
+| ----------- | ----------- | ----------- |
+| [data-state] | "active" \| "inactive" | Cursor or selection on content type. |
+
+#### Provides context (_used internally_)
+| Name | Type |
+| ----------- | ----------- |
+| active | boolean |
+| action | PluginRegistryAction |
+
+#### Example
+
+```jsx
+const { actions } = usePluginRegistry()
+
+// ...
+
+{actions.filter(action => !['leaf', 'generic', 'inline'].includes(action.plugin.class)).map(action => {
+  <Menu.Item
+    className="ct-item"
+    key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+    action={action}
+  >
+    <Menu.Icon className="ct-icon" />
+    <Menu.Label className="ct-label">{action.title}</Menu.Label>
+    <Menu.Hotkey hotkey={action.hotkey} className="ct-hotkey" />
+  </Menu.Item>
+  })}
+```
+
+### Menu.Icon
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+
+### Menu.Label
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+
+### Menu.Hotkey
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+| hotkey | string | Exmple `mod+b`. Translated per platform to `ctrl+b` or `cmd+b`  |
+
+### Toolbar.Root
+
+Root component around the context toolbox in the editor area providing access to tools like bold, links etc. Handles some style inline for hiding/showing the toolbox through manipulating _position_, _z-index_, _opacity_, _top_ and _left_.
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+
+### Toolbar.Group
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+
+### Toolbar.Item
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+| action | PluginRegistryAction | _Retrieved from hook usePluginRegistry()_ |
+
+#### Data attribute
+| Name | Value | Description |
+| ----------- | ----------- | ----------- |
+| [data-state] | "active" \| "inactive" | Cursor or selection on leaf or inline like bold, italic, link. |
+
+#### Example
+
+```jsx
+const { actions } = usePluginRegistry()
+
+// ...
+
+{actions.filter(action => ['inline'].includes(action.plugin.class)).map(action => {
+  <Toolbar.Item
+    className="ctx-item"
+    action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+  />
+})}
 ```
