@@ -197,7 +197,6 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
           </Toolbar.Root>
 
         </Textbit.Editable>
-        <Textbit.Footer />
       </div>
     </>
   )
