@@ -159,20 +159,21 @@ function MyEditor() {
 }
 ```
 
-## Component Reference
+# Component Reference
 
-### Textbit.Textbit
+## Textbit.Textbit
 
 Top level Texbit component. Receives all plugins. Base plugins is exported from Textbit as `Textbit.Plugins`.
 
-#### Props
+### Props
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | verbose | boolean | |
 | plugins | Plugin.Definition[] | |
 
-#### Provides context
-Access through convenience hook `usePluginRegistry()`.
+### Provides PluginRegistryContext
+
+PluginRegistryContext: access through convenience hook `usePluginRegistry()`.
 
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
@@ -183,11 +184,24 @@ Access through convenience hook `usePluginRegistry()`.
 | verbose | boolean | Output extra info on console |
 | dispatch | Dispatch<PluginRegistryReducerAction> | Add or delete plugins |
 
-### Textbit.Editable
+### Provides TextbitContext
+
+TextbitContext: access through convenience hook `useTextbit()`.
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| characters | number | Number of characters in article |
+| words | number | Number of words in article |
+| verbose | boolean | Output extra info on console |
+
+---
+---
+
+## Textbit.Editable
 
 Editable area component, acts as wrapper around Slate.
 
-#### Props
+### Props
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | value | Descendant[] | Optional, initial content |
@@ -196,14 +210,14 @@ Editable area component, acts as wrapper around Slate.
 | yjsEditor | BaseEditor | BaseEditor created with `withYjs()` and `withCursors()`|
 | gutter | boolean | Optional, defaults to true (render gutter). |
 
-#### Provides GutterContext (_used internally_)
+### Provides GutterContext (_used internally_)
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | gutter | boolean | |
 | setOffset | ({ left: number, top: number }) => void | |
 | offset | { left: number, top: number } | |
 
-### Example
+## Example
 
 Basic, not complete, example of using it with Yjs.
 
@@ -226,71 +240,74 @@ const editor = useMemo(() => {
 <Textbit.Editable yjsEditor={editor} />
 ```
 
-### Textbit.Gutter
+## Textbit.Gutter
 
 Provides a gutter for the content tool menu. Handles positioning automatically. Allows placement to the left or right of the content area. Context is used internally. Has inline styling for size and relative positioning of children.
 
-### Menu.Root
+---
+---
+
+## Menu.Root
 
 Root component for the Menu structure.
 
-#### Props
+### Props
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string | |
 
-#### Data attribute
+### Data attribute
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | [data-state] | "open" \| "closed" | |
 
-#### Provides context (_used internally_)
+### Provides context (_used internally_)
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | isOpen | boolean | |
 | setIsOpen: | (boolean) => void | |
 
-### Menu.Trigger
+## Menu.Trigger
 
-#### Props
+### Props
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string | |
 
-### Menu.Content
+## Menu.Content
 
-#### Props
+### Props
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string | |
 
-### Menu.Group
+## Menu.Group
 
-#### Props
+### Props
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string | |
 
-### Menu.Item
+## Menu.Item
 
-#### Props
+### Props
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
 | action | PluginRegistryAction | _Retrieved from hook usePluginRegistry()_ |
 
-#### Data attribute
+### Data attribute
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | [data-state] | "active" \| "inactive" | Cursor or selection on content type. |
 
-#### Provides context (_used internally_)
+### Provides context (_used internally_)
 | Name | Type |
 | ----------- | ----------- |
 | active | boolean |
 | action | PluginRegistryAction |
 
-#### Example
+### Example
 
 ```jsx
 const { actions } = usePluginRegistry()
@@ -310,26 +327,29 @@ const { actions } = usePluginRegistry()
   })}
 ```
 
-### Menu.Icon
+## Menu.Icon
 
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
 
-### Menu.Label
+## Menu.Label
 
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
 
-### Menu.Hotkey
+## Menu.Hotkey
 
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
 | hotkey | string | Exmple `mod+b`. Translated per platform to `ctrl+b` or `cmd+b`  |
 
-### Toolbar.Root
+---
+---
+
+## Toolbar.Root
 
 Root component around the context toolbox in the editor area providing access to tools like bold, links etc. Handles some style inline for hiding/showing the toolbox through manipulating _position_, _z-index_, _opacity_, _top_ and _left_.
 
@@ -337,25 +357,25 @@ Root component around the context toolbox in the editor area providing access to
 | ----------- | ----------- | ----------- |
 | className | string |  |
 
-### Toolbar.Group
+## Toolbar.Group
 
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
 
-### Toolbar.Item
+## Toolbar.Item
 
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
 | action | PluginRegistryAction | _Retrieved from hook usePluginRegistry()_ |
 
-#### Data attribute
+### Data attribute
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | [data-state] | "active" \| "inactive" | Cursor or selection on leaf or inline like bold, italic, link. |
 
-#### Example
+### Example
 
 ```jsx
 const { actions } = usePluginRegistry()
