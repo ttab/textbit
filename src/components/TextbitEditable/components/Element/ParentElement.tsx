@@ -2,7 +2,7 @@ import React, { useContext, useLayoutEffect, useRef } from 'react' // Necessary 
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
 import { Droppable } from './Droppable'
 import { Plugin } from '@/types'
-import { GutterContext } from '../../../GutterProvider/GutterProvider'
+import { GutterContext } from '../../../GutterProvider'
 
 
 interface ParentElementProps extends RenderElementProps {
@@ -26,10 +26,12 @@ export const ParentElement = (renderProps: ParentElementProps) => {
       return
     }
 
-    const { top, left } = ref.current.getBoundingClientRect()
+    const { top, right, bottom, left } = ref.current.getBoundingClientRect()
 
     setOffset({
       top: top + window.scrollY,
+      right: right + window.scrollX,
+      bottom: bottom + window.scrollX,
       left: left + window.scrollX
     })
 

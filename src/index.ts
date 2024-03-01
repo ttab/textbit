@@ -9,13 +9,13 @@ import {
   StandardPlugins
 } from './components'
 
-import { GutterProvider } from './components/GutterProvider/GutterProvider'
+import { Gutter as Gutter$1 } from './components/GutterProvider'
 
 export const Textbit = {
   Editor: TextbitObj,
   Editable: TextbitEditable,
   Footer: TextbitFooter,
-  Gutter: GutterProvider.Gutter,
+  Gutter: Gutter$1.Gutter,
   Plugins: StandardPlugins
 }
 export default Textbit
@@ -24,7 +24,7 @@ export { TextbitObj as Editor }
 export { TextbitEditable as Editable }
 export { TextbitFooter as Footer }
 export { StandardPlugins as Plugins }
-export const Gutter = GutterProvider.Gutter
+export const Gutter = Gutter$1.Gutter
 
 export const Menu = {
   Root: ContentTools.Menu,
