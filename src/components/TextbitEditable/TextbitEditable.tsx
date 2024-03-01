@@ -35,7 +35,7 @@ import { GutterProvider } from '../GutterProvider/GutterProvider'
 
 export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter = true, dir = 'ltr' }: PropsWithChildren & {
   onChange?: (value: Descendant[]) => void
-  value: Descendant[]
+  value?: Descendant[]
   yjsEditor?: SlateEditor
   gutter?: boolean
   dir?: 'ltr' | 'rtl'
