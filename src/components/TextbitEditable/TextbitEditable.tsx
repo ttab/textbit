@@ -12,7 +12,7 @@ import { YHistoryEditor } from '@slate-yjs/core'
 
 import './index.css'
 
-import { DragAndDrop } from './components/DragAndDrop'
+import { DragStateProvider } from './DragStateProvider'
 import { withInline } from './with/inline'
 import { calculateStats } from '@/lib/index'
 
@@ -118,7 +118,7 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
   }, [])
 
   return (
-    <DragAndDrop>
+    <DragStateProvider>
       <Slate editor={textbitEditor} initialValue={inValue} onChange={(value) => {
         handleOnChange(value)
       }}>
@@ -142,7 +142,7 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
           </Gutter.Provider>
         </PositionProvider>
       </Slate>
-    </DragAndDrop >
+    </DragStateProvider >
   )
 }
 

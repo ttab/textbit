@@ -76,8 +76,11 @@ export namespace Plugin {
      */
     type?: string
 
+    /** Whether this component accepts drops or not, only applicable to top parent */
+    droppable?: boolean
+
     /** Placeholder text for an empty text node, optional */
-    placeholder?: string,
+    placeholder?: string
 
     /** Render function for the element, mandatory */
     component: Component

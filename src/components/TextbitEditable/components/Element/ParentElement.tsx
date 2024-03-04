@@ -18,7 +18,7 @@ interface ParentElementProps extends RenderElementProps {
 export const ParentElement = (renderProps: ParentElementProps) => {
   const selected = useSelected()
   const focused = useFocused()
-  const { setOffset } = useContext(GutterContext)
+  const { setOffsetY } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
@@ -26,15 +26,9 @@ export const ParentElement = (renderProps: ParentElementProps) => {
       return
     }
 
-    const { top, right, bottom, left } = ref.current.getBoundingClientRect()
+    const { top } = ref.current.getBoundingClientRect()
 
-    setOffset({
-      top: top + window.scrollY,
-      right: right + window.scrollX,
-      bottom: bottom + window.scrollX,
-      left: left + window.scrollX
-    })
-
+    setOffsetY(top)
   }, [focused, selected, ref])
 
   const { element, attributes, entry } = renderProps
