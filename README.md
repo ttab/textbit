@@ -72,6 +72,8 @@ function MyEditor() {
           console.log(value, null, 2)
         }}
       >
+        <Textbit.DropMarker />
+
         <Textbit.Gutter>
           <Menu.Root>
              <Menu.Trigger>⋮</Menu.Trigger>
@@ -195,7 +197,6 @@ TextbitContext: access through convenience hook `useTextbit()`.
 | verbose | boolean | Output extra info on console |
 
 ---
----
 
 ## Textbit.Editable
 
@@ -240,11 +241,27 @@ const editor = useMemo(() => {
 <Textbit.Editable yjsEditor={editor} />
 ```
 
+---
+
+## Textbit.DropMarker
+
+Provides a drop marker indicator. Handles positioning automatically. Provides a html data attribute to use for styling when dragOver is true. Drop marker is positioned as a line as default. It is expanded to encompass the whole active element when a plugin root component has the property `droppable` set to `true`.
+
+### Props
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+
+### Data attribute
+| Name | Value | Description |
+| ----------- | ----------- | ----------- |
+| [data-dragover] | boolean | True when dragover is active |
+
+
 ## Textbit.Gutter
 
 Provides a gutter for the content tool menu. Handles positioning automatically. Allows placement to the left or right of the content area. Context is used internally. Has inline styling for size and relative positioning of children.
 
----
 ---
 
 ## Menu.Root
@@ -346,7 +363,6 @@ const { actions } = usePluginRegistry()
 | className | string |  |
 | hotkey | string | Exmple `mod+b`. Translated per platform to `ctrl+b` or `cmd+b`  |
 
----
 ---
 
 ## Toolbar.Root
