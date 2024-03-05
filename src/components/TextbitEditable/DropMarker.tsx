@@ -16,25 +16,27 @@ export const DropMarker = ({ className }: { className?: string }) => {
 
   const pos: React.CSSProperties = {}
   if (!!position[1]) {
+    // Position around element
     const xPos = top - (gutterBox?.top || 0)
     pos.top = `${xPos}px`
     pos.left = `${offsetX || 0}px`
     pos.width = `${(gutterBox?.right || 0) - (gutterBox?.left || 0) - (offsetX)}px`
     pos.height = `${bottom - top}px`
     if (!className) {
-      pos.display = 'block'
       pos.backgroundColor = 'rgba(191, 191, 191, 0.4)'
-      pos.borderRadius = '4px;'
+      pos.borderRadius = '4px'
     }
   }
   else {
+    // Position above or below element
     const xPos = (position[0] === 'above' ? top : bottom) - (gutterBox?.top || 0)
     pos.top = `${xPos}px`
     pos.left = `${offsetX || 0}px`
     pos.width = `${(gutterBox?.right || 0) - (gutterBox?.left || 0) - (offsetX)}px`
-    if (!className) {
-      pos.display = dragOver ? 'block' : 'none'
-    }
+  }
+
+  if (!className) {
+    pos.display = dragOver ? 'block' : 'none'
   }
 
   return <div

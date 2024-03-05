@@ -45,7 +45,6 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
 
   return <div
     ref={ref}
-    className="droppable-block"
     draggable={draggable}
     data-id={dataId}
     onDragEnd={() => {
@@ -140,9 +139,7 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
 
       pipeFromDrop(editor, plugins, e, position)
     }}>
-    <div className="droppable-area">
-      {children}
-    </div>
+    {children}
   </div >
 }
 
