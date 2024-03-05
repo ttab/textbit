@@ -8,7 +8,9 @@ import {
   Path,
   BaseRange,
   Transforms,
-  Descendant
+  Descendant,
+  Location,
+  Range
 } from "slate"
 import * as uuid from 'uuid'
 import { getSelectedNodeEntries } from './utils'
@@ -60,29 +62,20 @@ export const TextbitEditor: TextbitEditorInterface = {
     })
   },
 
-  /** Return all text nodes in selection */
+  /** Return all text nodes in current selection */
   selectedTextEntries: (editor) => {
-    const { selection } = editor
-
-    if (!selection) {
+    if (!Range.isRange(editor.selection)) {
       return []
     }
 
-    const matcherFunc = (node: Node, path: Path) => {
-      if (!Text.isText(node)) {
-        return false
+    const nodeItr = Editor.nodes(editor, {
+      at: editor.selection,
+      match: (node) => {
+        return Text.isText(node)
       }
+    })
 
-      const [parentNode] = Editor.parent(editor, path)
-      return TextbitElement.isElement(parentNode) && (!editor.isVoid(parentNode) || editor.markableVoid(parentNode))
-    }
-
-    return Array.from(
-      Editor.nodes(editor, {
-        match: matcherFunc,
-        voids: false
-      })
-    )
+    return Array.from(nodeItr)
   },
 
   /**
