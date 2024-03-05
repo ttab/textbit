@@ -2,7 +2,7 @@ import React, { useContext, useLayoutEffect, useRef } from 'react' // Necessary 
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
 import { Droppable } from './Droppable'
 import { Plugin } from '@/types'
-import { GutterContext } from '../../../GutterProvider/GutterProvider'
+import { GutterContext } from '../../../GutterProvider'
 
 
 interface ParentElementProps extends RenderElementProps {
@@ -18,7 +18,7 @@ interface ParentElementProps extends RenderElementProps {
 export const ParentElement = (renderProps: ParentElementProps) => {
   const selected = useSelected()
   const focused = useFocused()
-  const { setOffset } = useContext(GutterContext)
+  const { setOffsetY } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
@@ -26,13 +26,9 @@ export const ParentElement = (renderProps: ParentElementProps) => {
       return
     }
 
-    const { top, left } = ref.current.getBoundingClientRect()
+    const { top } = ref.current.getBoundingClientRect()
 
-    setOffset({
-      top: top + window.scrollY,
-      left: left + window.scrollX
-    })
-
+    setOffsetY(top)
   }, [focused, selected, ref])
 
   const { element, attributes, entry } = renderProps

@@ -1,6 +1,5 @@
 export * from './Textbit'
 export * from './TextbitEditable'
-export * from './TextbitFooter'
 export * from './PluginRegistry'
 export * from './ContentTools'
 export * from './ContextTools'

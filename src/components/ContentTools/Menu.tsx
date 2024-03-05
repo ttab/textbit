@@ -16,18 +16,19 @@ export const MenuContext = createContext<[boolean, Dispatch<SetStateAction<boole
 export const Menu = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
-  const { offset } = useContext(GutterContext)
+  const { offsetY, box } = useContext(GutterContext)
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const focused = useFocused()
 
-  if (!focused || !offset?.top) {
+  if (!focused || !offsetY || !box?.top) {
     return <></>
   }
 
+  const top = offsetY - box.top
   return (
     <MenuContext.Provider value={[isOpen, setIsOpen]}>
-      <div ref={ref} style={{ position: 'absolute', top: `${offset.top}px` }} className={className} data-state={isOpen ? 'open' : 'closed'}>
+      <div ref={ref} style={{ position: 'absolute', top: `${top}px` }} className={className} data-state={isOpen ? 'open' : 'closed'}>
         {children}
       </div>
     </MenuContext.Provider>

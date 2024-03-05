@@ -153,6 +153,8 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             setValue(value)
           }}
         >
+          <Textbit.DropMarker />
+
           <Textbit.Gutter className="textbit-contenttools-gutter">
             <Menu.Root className="textbit-contenttools-menu">
 
@@ -197,7 +199,6 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
           </Toolbar.Root>
 
         </Textbit.Editable>
-        <Textbit.Footer />
       </div>
     </>
   )

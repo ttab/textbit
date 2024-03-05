@@ -12,7 +12,7 @@ import { YHistoryEditor } from '@slate-yjs/core'
 
 import './index.css'
 
-import { DragAndDrop } from './components/DragAndDrop'
+import { DragStateProvider } from './DragStateProvider'
 import { withInline } from './with/inline'
 import { calculateStats } from '@/lib/index'
 
@@ -30,7 +30,7 @@ import { debounce } from '@/lib/debounce'
 import { usePluginRegistry } from '../PluginRegistry'
 import { PluginRegistryAction, PluginRegistryComponent } from '../PluginRegistry/lib/types'
 import { PositionProvider } from '../ContextTools/PositionProvider'
-import { GutterProvider } from '../GutterProvider/GutterProvider'
+import { Gutter } from '../GutterProvider'
 
 
 export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter = true, dir = 'ltr' }: PropsWithChildren & {
@@ -118,14 +118,14 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
   }, [])
 
   return (
-    <DragAndDrop>
+    <DragStateProvider>
       <Slate editor={textbitEditor} initialValue={inValue} onChange={(value) => {
         handleOnChange(value)
       }}>
         <PositionProvider inline={true}>
-          <GutterProvider.Wrapper dir={dir} gutter={gutter}>
+          <Gutter.Provider dir={dir} gutter={gutter}>
 
-            <GutterProvider.Content>
+            <Gutter.Content>
               <PresenceOverlay isCollaborative={!!yjsEditor}>
                 <Editable
                   className="slate-root"
@@ -135,14 +135,14 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
                   decorate={([node, path]) => handleDecoration(textbitEditor, elementComponents, node, path)}
                 />
               </PresenceOverlay>
-            </GutterProvider.Content>
+            </Gutter.Content>
 
             {children}
 
-          </GutterProvider.Wrapper>
+          </Gutter.Provider>
         </PositionProvider>
       </Slate>
-    </DragAndDrop >
+    </DragStateProvider >
   )
 }
 

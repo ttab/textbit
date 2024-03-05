@@ -3,7 +3,6 @@ import React, {
   PropsWithChildren,
   createContext,
   useState,
-  useEffect,
   useLayoutEffect
 } from 'react' // Necessary for esbuild
 import { BaseSelection, Editor, Element, Node, NodeEntry, Range } from 'slate'
