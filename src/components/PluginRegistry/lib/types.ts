@@ -16,6 +16,7 @@ export type PluginRegistryComponent = {
  * Hotkey registry
  */
 export type PluginRegistryAction = Plugin.Action & {
+  key: string
   plugin: Plugin.Definition
   isHotkey: (action: any) => boolean
 }

@@ -16,6 +16,7 @@ export const registerActions = (plugins: Plugin.Definition[]) => {
     .forEach((plugin) => {
       plugin.actions?.forEach(action => {
         actions.push({
+          key: crypto.randomUUID(),
           plugin,
           isHotkey: action.hotkey ? isHotkey(action.hotkey) : () => false,
           ...action
