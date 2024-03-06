@@ -18,8 +18,6 @@ export function useKeydownGlobal<T extends HTMLElement>(cb: (e: KeyboardEvent) =
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      e.stopPropagation()
-
       const element = ref?.current
       if (!element?.contains(e.target as Node)) {
         refCb.current(e)
