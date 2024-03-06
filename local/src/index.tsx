@@ -165,12 +165,12 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
                     return (
                       <Menu.Item
                         className="textbit-contenttools-item"
-                        key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                        key={`${action.key}`}
                         action={action}
                       >
                         <Menu.Icon className="textbit-contenttools-icon" />
-                        <Menu.Label className="textbit-contenttools-label">{action.title}</Menu.Label>
-                        <Menu.Hotkey hotkey={action.hotkey} className="textbit-contenttools-hotkey" />
+                        <Menu.Label className="textbit-contenttools-label" />
+                        <Menu.Hotkey className="textbit-contenttools-hotkey" />
                       </Menu.Item>
                     )
                   })}

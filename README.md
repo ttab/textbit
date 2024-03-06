@@ -82,12 +82,12 @@ function MyEditor() {
                   <Menu.Item key="title" action={}>
                     <Menu.Icon/>
                     <Menu.Label>Text</Menu.Label>
-                    <Menu.Hotkey hotkey="mod+0"/>
+                    <Menu.Hotkey>mod+0</Menu.Hotkey>
                   </Menu.Item>
                   <Menu.Item key="bodytext" action={}>
                     <Menu.Icon/>
-                    <Menu.Label>Text</Menu.Label>
-                    <Menu.Hotkey hotkey="mod+0"/>
+                    <Menu.Label/>
+                    <Menu.Hotkey/>
                   </Menu.Item>
               </Menu.Group>
             </Menu.Content>
@@ -339,29 +339,37 @@ const { actions } = usePluginRegistry()
   >
     <Menu.Icon className="ct-icon" />
     <Menu.Label className="ct-label">{action.title}</Menu.Label>
-    <Menu.Hotkey hotkey={action.hotkey} className="ct-hotkey" />
+    <Menu.Hotkey className="ct-hotkey" />
   </Menu.Item>
   })}
 ```
 
 ## Menu.Icon
 
+Display an icon in the menu item. Can be automatic or overridden by children.
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
+| children |  | Optional. Overrides default action tool icon |
 
 ## Menu.Label
 
+Display a label for the menu item. Can be automatic or overridden by children when for example different translations are needed.
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
+| children |  | Optional. Overrides default label |
 
 ## Menu.Hotkey
 
+Displays a keyboard shortcut. If no children are provided it will automatically transform shortcuts from, for example, `mod+b` per platform to `ctrl+b` or `cmd+b`.
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
-| hotkey | string | Exmple `mod+b`. Translated per platform to `ctrl+b` or `cmd+b`  |
+| children |  | Optional. Overrides default "translation" of action keyboard shortcut |
 
 ---
 
