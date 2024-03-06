@@ -111,21 +111,21 @@ function App() {
       flexDirection: 'column'
     }}>
       <div style={{ height: '50vh' }}>
-        <Textbit.Editor
+        <Textbit.Root
           verbose={true}
           plugins={[...Textbit.Plugins, BulletList, NumberList, Link]}
         >
           <Editor initialValue={initialValue} />
-        </Textbit.Editor >
+        </Textbit.Root >
       </div>
 
       <div style={{ height: '50vh' }}>
-        <Textbit.Editor
+        <Textbit.Root
           verbose={true}
           plugins={[...Textbit.Plugins]}
         >
           <Editor initialValue={initialValue} />
-        </Textbit.Editor>
+        </Textbit.Root>
       </div>
     </div >
   )

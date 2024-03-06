@@ -1,5 +1,5 @@
 import {
-  Textbit as TextbitObj,
+  TextbitRoot,
   TextbitEditable,
   DropMarker,
   ContentTools,
@@ -12,7 +12,7 @@ import {
 import { Gutter as Gutter$1 } from './components/GutterProvider'
 
 export const Textbit = {
-  Editor: TextbitObj,
+  Root: TextbitRoot,
   Editable: TextbitEditable,
   Gutter: Gutter$1.Gutter,
   DropMarker: DropMarker,
@@ -20,7 +20,7 @@ export const Textbit = {
 }
 export default Textbit
 
-export { TextbitObj as Editor }
+export { TextbitRoot as Root }
 export { TextbitEditable as Editable }
 export { DropMarker }
 export { StandardPlugins as Plugins }
