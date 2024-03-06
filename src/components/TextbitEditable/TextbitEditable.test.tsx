@@ -5,6 +5,14 @@ import 'jest'
 import { Descendant } from 'slate'
 import { TextbitRoot } from '../TextbitRoot/TextbitRoot'
 
+import crypto from 'crypto'
+
+Object.defineProperty(global, 'crypto', {
+  value: {
+    randomUUID: () => crypto.randomUUID()
+  }
+})
+
 describe("TextbitEditor", () => {
   const initialValue: Descendant[] = [
     {
@@ -27,6 +35,7 @@ describe("TextbitEditor", () => {
   ]
 
   test("renders the TextbitEditor component", () => {
+
     const { unmount, container } = render(
       <TextbitRoot>
         <TextbitEditable value={initialValue} onChange={() => { return }} />

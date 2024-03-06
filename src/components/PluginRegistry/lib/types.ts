@@ -1,4 +1,4 @@
-import { type Plugin } from '../../../types'
+import { Plugin } from '../../../types'
 
 /**
  * @type
