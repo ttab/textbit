@@ -6,7 +6,8 @@ import {
   useTextbit,
   usePluginRegistry,
   ContextTools,
-  StandardPlugins
+  StandardPlugins,
+  type PluginRegistryAction
 } from './components'
 
 import { Gutter as Gutter$1 } from './components/GutterProvider'
@@ -44,6 +45,9 @@ export const Toolbar = {
 }
 
 export { useTextbit }
-export { usePluginRegistry }
+export {
+  usePluginRegistry,
+  type PluginRegistryAction
+}
 export * from './lib'
 export * from './types'
