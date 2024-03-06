@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useContext } from 'react'
+import React, { Children, PropsWithChildren, useContext } from 'react'
 import { ItemContext } from './Item'
 
 export const Label = ({ children, className }: PropsWithChildren & {
@@ -7,7 +7,7 @@ export const Label = ({ children, className }: PropsWithChildren & {
   const { action } = useContext(ItemContext)
 
   return <div className={className}>
-    {!!children
+    {Children.count(children)
       ? children
       : action?.title || ''
     }
