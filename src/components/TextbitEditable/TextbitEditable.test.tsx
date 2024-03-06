@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react"
 import { TextbitEditable } from "./TextbitEditable"
 import 'jest'
 import { Descendant } from 'slate'
-import { Textbit } from '../Textbit/Textbit'
+import { TextbitRoot } from '../TextbitRoot/TextbitRoot'
 
 describe("TextbitEditor", () => {
   const initialValue: Descendant[] = [
@@ -28,9 +28,9 @@ describe("TextbitEditor", () => {
 
   test("renders the TextbitEditor component", () => {
     const { unmount, container } = render(
-      <Textbit>
+      <TextbitRoot>
         <TextbitEditable value={initialValue} onChange={() => { return }} />
-      </Textbit>
+      </TextbitRoot>
     )
 
     expect(screen.getByRole('textbox'))

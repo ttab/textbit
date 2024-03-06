@@ -10,7 +10,7 @@ import {
 } from '@/components/core'
 
 
-export const Textbit = ({ children, verbose, plugins }: PropsWithChildren & {
+export const TextbitRoot = ({ children, verbose, plugins }: PropsWithChildren & {
   verbose?: boolean
   plugins?: Plugin.Definition[]
 }) => {

@@ -1,4 +1,4 @@
-export * from './Textbit'
+export * from './TextbitRoot'
 export * from './TextbitEditable'
 export * from './PluginRegistry'
 export * from './ContentTools'
