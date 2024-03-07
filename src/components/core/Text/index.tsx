@@ -1,9 +1,7 @@
 import React from 'react' // Necessary for esbuild
-import { BsTextParagraph } from 'react-icons/bs'
 import { TextbitEditor } from '@/lib'
 import { Plugin } from '@/types'
 
-import './style.css'
 
 export const Text: Plugin.Definition = {
   class: 'text',
@@ -16,7 +14,6 @@ export const Text: Plugin.Definition = {
   actions: [{
     title: 'Text',
     hotkey: 'mod+0',
-    tool: () => <BsTextParagraph style={{ width: '1em', height: '1em' }} />,
     handler: ({ editor }) => {
       TextbitEditor.convertToTextNode(editor, 'core/text')
     },
@@ -37,7 +34,12 @@ function TextComponent(props: Plugin.ComponentProps): JSX.Element {
     <>
       {element?.properties?.type === undefined
         ? children
-        : <div className="core/text-unknown">{children}</div>
+        : <div style={{
+          fontStyle: 'italic',
+          textDecoration: 'line-through',
+          padding: '0.25rem',
+          opacity: '0.6'
+        }}>{children}</div>
       }
     </>
   )

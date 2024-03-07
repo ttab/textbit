@@ -32,20 +32,15 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   }, [focused, selected, ref])
 
   const { element, attributes, entry } = renderProps
-  const style = {
-    overflow: 'hidden',
-    padding: ['block', 'textblock'].includes(entry.class) ? '8px' : '0 8px',
-  }
-  const borderClass = ['block', 'textblock'].includes(entry.class) && selected && focused ? 'textbit-active' : ''
 
   return (
     <Droppable element={element}>
       <div
-        className={`textbit-parent ${element.class} ${element.type}`}
+        className={`${element.class} ${element.type} ${entry.class}`}
         data-id={element.id}
-        {...attributes}
+        ref={ref}
       >
-        <div className={`textbit-block ${borderClass}`} style={style} ref={ref}>
+        <div {...attributes}>
           {entry.component(renderProps)}
         </div>
       </div>

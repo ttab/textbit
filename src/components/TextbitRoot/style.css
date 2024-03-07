@@ -4,8 +4,6 @@
   flex-direction: column;
   position: relative;
   height: 100%;
-  background-color: var(--background);
-  color: hsl(var(--foreground));
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

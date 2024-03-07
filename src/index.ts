@@ -7,7 +7,8 @@ import {
   usePluginRegistry,
   ContextTools,
   StandardPlugins,
-  PluginRegistryAction
+  PluginRegistryAction,
+  TextbitEditableElement
 } from './components'
 
 import { Gutter as Gutter$1 } from './components/GutterProvider'
@@ -17,7 +18,8 @@ export const Textbit = {
   Editable: TextbitEditable,
   Gutter: Gutter$1.Gutter,
   DropMarker: DropMarker,
-  Plugins: StandardPlugins
+  Plugins: StandardPlugins,
+  Element: TextbitEditableElement
 }
 export default Textbit
 
@@ -26,6 +28,7 @@ export { TextbitEditable as Editable }
 export { DropMarker }
 export { StandardPlugins as Plugins }
 export const Gutter = Gutter$1.Gutter
+export { TextbitEditableElement as Element }
 
 export const Menu = {
   Root: ContentTools.Menu,

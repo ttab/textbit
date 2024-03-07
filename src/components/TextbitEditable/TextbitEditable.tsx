@@ -10,8 +10,6 @@ import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, with
 import * as uuid from 'uuid'
 import { YHistoryEditor } from '@slate-yjs/core'
 
-import './index.css'
-
 import { DragStateProvider } from './DragStateProvider'
 import { withInline } from './with/inline'
 import { calculateStats } from '@/lib/index'
@@ -33,12 +31,13 @@ import { PositionProvider } from '../ContextTools/PositionProvider'
 import { Gutter } from '../GutterProvider'
 
 
-export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter = true, dir = 'ltr' }: PropsWithChildren & {
+export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter = true, dir = 'ltr', className = '' }: PropsWithChildren & {
   onChange?: (value: Descendant[]) => void
   value?: Descendant[]
   yjsEditor?: SlateEditor
   gutter?: boolean
   dir?: 'ltr' | 'rtl'
+  className?: string
 }) => {
   const inValue = value || [{
     id: uuid.v4(),
@@ -128,7 +127,7 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
             <Gutter.Content>
               <PresenceOverlay isCollaborative={!!yjsEditor}>
                 <Editable
-                  className="slate-root"
+                  className={className}
                   renderElement={renderSlateElement}
                   renderLeaf={renderLeafComponent}
                   onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}

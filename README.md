@@ -210,6 +210,8 @@ Editable area component, acts as wrapper around Slate.
 | dir | "ltr" \| "rtl" | Optional, defaults to _ltr_ |
 | yjsEditor | BaseEditor | BaseEditor created with `withYjs()` and `withCursors()`|
 | gutter | boolean | Optional, defaults to true (render gutter). |
+| className | string |  |
+| children |  |
 
 ### Provides GutterContext (_used internally_)
 | Name | Type | Description |
@@ -240,6 +242,25 @@ const editor = useMemo(() => {
 ```jsx
 <Textbit.Editable yjsEditor={editor} />
 ```
+
+---
+
+## Textbit.Element
+
+Can be used to wrap all elements in plugin components. Provides data state attribute used for styling.
+
+### Props
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+| children |  |  |
+
+
+### Data attribute
+| Name | Value | Description |
+| ----------- | ----------- | ----------- |
+| [data-state] | "active" \| "inactive" | Indicate that cursor is in element or element is part of a selection. |
+
 
 ---
 

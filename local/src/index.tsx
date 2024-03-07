@@ -7,7 +7,7 @@ import Textbit, {
   usePluginRegistry,
   useTextbit
 } from '../../src'
-import { ThemeSwitcher } from './themeSwitcher'
+
 import {
   BulletList,
   NumberList,
@@ -138,11 +138,8 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
 
   return (
     <>
-      <div style={{ height: '47px', display: 'flex', justifyItems: 'center', alignItems: 'center' }}>
-        <ThemeSwitcher />
-        <div>
-          Characters: {characters}
-        </div>
+      <div style={{ lineHeight: '47px', marginLeft: '3.25rem' }}>
+        Characters: {characters}
       </div>
 
       <div style={{ flex: '1', display: 'flex', flexDirection: 'column' }}>

@@ -1,5 +1,4 @@
 import React from 'react' // Necessary for esbuild
-import { MdFormatBold, MdFormatItalic, MdFormatUnderlined } from 'react-icons/md'
 import { Plugin } from '@/types'
 import './style.css'
 
@@ -7,7 +6,7 @@ const Bold: Plugin.Definition = {
   class: 'leaf',
   name: 'core/bold',
   actions: [{
-    tool: () => <MdFormatBold />,
+    tool: () => <div style={{ fontWeight: 'bold' }}>B</div>,
     hotkey: 'mod+b',
     handler: () => true
   }]
@@ -17,7 +16,7 @@ const Italic: Plugin.Definition = {
   class: 'leaf',
   name: 'core/italic',
   actions: [{
-    tool: () => <MdFormatItalic />,
+    tool: () => <div style={{ fontStyle: 'italic' }}>I</div>,
     hotkey: 'mod+i',
     handler: () => true
   }]
@@ -28,7 +27,7 @@ const Underline: Plugin.Definition = {
   name: 'core/underline',
   actions: [{
     hotkey: 'mod+u',
-    tool: () => <MdFormatUnderlined />,
+    tool: () => <div style={{ textDecoration: 'line-through' }}>U</div>,
     handler: () => true
   }]
 }
