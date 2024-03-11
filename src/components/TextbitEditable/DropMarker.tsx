@@ -14,9 +14,16 @@ export const DropMarker = ({ className }: { className?: string }) => {
     borderRadius: '2px'
   }
 
-  const pos: React.CSSProperties = {}
+  const pos: React.CSSProperties = {
+    display: 'none'
+  }
+
+  let dragOverState: 'none' | 'around' | 'between' = 'none'
+
   if (!!position[1]) {
     // Position around element
+    dragOverState = 'around'
+
     const xPos = top - (gutterBox?.top || 0)
     pos.top = `${xPos}px`
     pos.left = `${offsetX || 0}px`
@@ -29,20 +36,20 @@ export const DropMarker = ({ className }: { className?: string }) => {
   }
   else {
     // Position above or below element
+    dragOverState = 'between'
+
     const xPos = (position[0] === 'above' ? top : bottom) - (gutterBox?.top || 0)
     pos.top = `${xPos}px`
     pos.left = `${offsetX || 0}px`
     pos.width = `${(gutterBox?.right || 0) - (gutterBox?.left || 0) - (offsetX)}px`
   }
 
-  if (!className) {
-    pos.display = dragOver ? 'block' : 'none'
-  }
+  pos.display = dragOver ? 'block' : 'none'
 
   return <div
     ref={ref}
     className={className}
-    data-dragover={dragOver && !!position[1]}
+    data-dragover={dragOver ? dragOverState : 'none'}
     style={{
       pointerEvents: 'none',
       position: 'absolute',

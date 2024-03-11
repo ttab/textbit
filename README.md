@@ -266,7 +266,7 @@ Can be used to wrap all elements in plugin components. Provides data state attri
 
 ## Textbit.DropMarker
 
-Provides a drop marker indicator. Handles positioning automatically. Provides a html data attribute to use for styling when dragOver is true. Drop marker is positioned as a line as default. It is expanded to encompass the whole active element when a plugin root component has the property `droppable` set to `true`.
+Provides a drop marker indicator. Handles positioning and displaying automatically. Provides a html data attribute to use for styling when dragOver is happening and what type of dragOver is wanted. If `data-dragover` is `between` a line should be displayed between elements. This is the default behaviour. If a plugin component has property `droppable` set to `true` the droppable marker will encompass the whole element component. The `data-dragover` attribute will be set to `around`.
 
 ### Props
 | Name | Type | Description |
@@ -276,7 +276,7 @@ Provides a drop marker indicator. Handles positioning automatically. Provides a 
 ### Data attribute
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
-| [data-dragover] | boolean | True when dragover is active |
+| [data-dragover] | "none" \| "between" \| "around" | True when dragover is active |
 
 
 ## Textbit.Gutter
