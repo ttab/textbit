@@ -17,14 +17,8 @@ interface ChildElementProps extends RenderElementProps {
  */
 export const ChildElement = ({ attributes, children, element, entry, rootNode }: ChildElementProps) => {
   return (
-    <div
-      className={`child ${entry.type}`}
-      data-id={element.id}
-      {...attributes}
-    >
-      <div>
-        {entry.component({ element, attributes, children, rootNode })}
-      </div>
+    <div className={`child`} data-id={element.id} {...attributes}>
+      {entry.component({ element, attributes, children, rootNode })}
     </div>
   )
 }

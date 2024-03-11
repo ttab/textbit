@@ -2,7 +2,7 @@ import React,  // Necessary for esbuild
 {
   PropsWithChildren
 } from 'react'
-import { useFocused, useSelected } from 'slate-react'
+import { useSelected } from 'slate-react'
 
 /**
  * Exported Element component that should wrap all parent components in plugins
