@@ -23,7 +23,7 @@ export function RemoteCursorOverlay({ children }: PropsWithChildren): React.Reac
   })
 
   return (
-    <div className="textbit-y-overlay" ref={containerRef}>
+    <div style={{ height: '100%' }} className="textbit-y-overlay" ref={containerRef}>
       {children}
       {cursors.map((cursor) => (
         <RemoteSelection key={cursor.clientId} {...cursor} />
