@@ -62,7 +62,7 @@ export const PositionProvider = ({ inline = true, children }: PropsWithChildren 
   }, [selection])
 
   return (
-    <div style={{ position: 'relative' }} ref={ref}>
+    <div style={{ position: 'relative', height: '100%' }} ref={ref}>
       <PositionContext.Provider value={{
         inline,
         position: metaData?.position,

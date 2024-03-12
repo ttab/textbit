@@ -19,7 +19,7 @@ export const TextbitRoot = ({ children, verbose, plugins, className }: PropsWith
     boxSizing: "border-box",
     textRendering: "optimizeLegibility",
     WebkitFontSmoothing: "antialiased",
-    MozOsxFontSmoothing: "grayscale"
+    MozOsxFontSmoothing: "grayscale",
   }
 
   return (
