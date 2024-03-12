@@ -16,6 +16,7 @@ export const TextbitRoot = ({ children, verbose, plugins, className }: PropsWith
 }) => {
   const style: React.CSSProperties = {
     position: "relative",
+    boxSizing: "border-box",
     textRendering: "optimizeLegibility",
     WebkitFontSmoothing: "antialiased",
     MozOsxFontSmoothing: "grayscale"
