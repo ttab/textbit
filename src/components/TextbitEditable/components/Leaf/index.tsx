@@ -23,7 +23,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
     return leaf[current] === true ? [...previous, current] : previous
   }, [] as string[])
 
-  let className = ''
+  let className = 'leaf'
   let style: CSSProperties = {}
   for (const plugin of plugins) {
     if (pluginNames.includes(plugin.name) && TextbitPlugin.isLeafPlugin(plugin)) {
@@ -40,7 +40,6 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
     }
   }
 
-
   // The following is a workaround for a Chromium bug where, if you have an inline at
   // the end of a block, clicking the end of a block puts the cursor inside the inline
   // instead of inside the final {text: ''} node.
@@ -52,7 +51,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
   return <>
     <span
       style={style}
-      className={`leaf ${pluginNames.join(' ')}`}
+      className={className}
       {...attributes}>
       {children}
     </span>
