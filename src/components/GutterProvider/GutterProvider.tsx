@@ -70,6 +70,7 @@ export const GutterProvider = ({ dir = 'ltr', gutter = true, children }: PropsWi
       <div
         contentEditable={false}
         style={{
+          height: '100%',
           position: 'relative',
           display: 'flex',
           flexDirection: dir === 'rtl' ? 'row' : 'row-reverse'
