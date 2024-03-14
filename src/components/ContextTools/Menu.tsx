@@ -4,11 +4,13 @@ import { useFocused, useSlateStatic } from 'slate-react'
 
 import { PositionContext } from './PositionProvider'
 import { Editor, Element, Range } from 'slate'
+import { GutterContext } from '../GutterProvider'
 
 export const Menu = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
   const { position } = useContext(PositionContext)
+  const { box } = useContext(GutterContext)
   const editor = useSlateStatic()
   const focused = useFocused()
   const ref = useRef<HTMLDivElement>(null)
@@ -45,14 +47,21 @@ export const Menu = ({ children, className }: PropsWithChildren & {
     }
 
     const { width, height } = ref?.current?.getBoundingClientRect() || { width: 0 }
-    el.style.left = `${position.x - (width ? width / 2 : 0)}px`
-    el.style.top = `${position.y - height}px`
+    let left = position.x - (width ? width / 2 : 0)
+
+    if (left < 0) {
+      left = 0
+    }
+    else if (left + width > position.offset.x + position.offset.w) {
+      left = position.offset.w - width
+    }
+
+    el.style.left = `${left}px`
+    el.style.top = (height <= position.y + position.offset.y) ? `${position.y - height}px` : `${position.y + height}px`
+
     setVisibility('1', 'auto')
   }, [ref, position, focused])
 
-  if (!position) {
-    return
-  }
 
   return (
     <div ref={ref} className={className || ''} style={{
@@ -60,7 +69,6 @@ export const Menu = ({ children, className }: PropsWithChildren & {
       zIndex: '-1',
       position: 'absolute'
     }}>
-
       {ref?.current && createPortal(
         <>{children}</>,
         ref.current

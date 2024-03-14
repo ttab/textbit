@@ -14,6 +14,12 @@ type Position = {
   y: number
   w: number
   h: number
+  offset: {
+    y: number
+    x: number
+    w: number
+    h: number
+  }
 }
 
 type MetaData = {
@@ -41,7 +47,7 @@ export const PositionProvider = ({ inline = true, children }: PropsWithChildren 
 
   useLayoutEffect(() => {
     const nodeEntry = getSelectedInlineNode(editor, selection)
-    const { top, left } = ref?.current?.getBoundingClientRect() || { top: 0, left: 0 }
+    const { top, left, width, height } = ref?.current?.getBoundingClientRect() || { top: 0, left: 0, width: 0, height: 0 }
     const domSelection = window.getSelection()
 
     if (domSelection && domSelection.type !== 'None') {
@@ -53,7 +59,13 @@ export const PositionProvider = ({ inline = true, children }: PropsWithChildren 
           x: rect.left - left + (rect.width / 2),
           y: rect.top - top,
           w: rect.width,
-          h: rect.height
+          h: rect.height,
+          offset: {
+            y: top,
+            x: left,
+            w: width,
+            h: height
+          }
         },
         nodeEntry,
         expanded: Range.isRange(selection) && Range.isExpanded(selection)
