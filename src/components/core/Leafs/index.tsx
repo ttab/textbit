@@ -1,6 +1,5 @@
 import React from 'react' // Necessary for esbuild
 import { Plugin } from '@/types'
-import './style.css'
 
 const Bold: Plugin.LeafDefinition = {
   class: 'leaf',
