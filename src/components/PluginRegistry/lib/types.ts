@@ -40,8 +40,7 @@ export interface PluginRegistryProviderState {
   plugins: Array<Plugin.Definition>
 
   // Component registries provide faster access in rendering cycles
-  leafComponents: Map<string, PluginRegistryComponent>
-  elementComponents: Map<string, PluginRegistryComponent>
+  components: Map<string, PluginRegistryComponent>
 
   // Hotkey registry provides faster access to plugin actions
   actions: Array<PluginRegistryAction>

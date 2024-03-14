@@ -11,7 +11,7 @@ import { usePluginRegistry } from '@/components/PluginRegistry'
  */
 export const ElementComponent = (props: RenderElementProps) => {
   const { element } = props
-  const { elementComponents: components } = usePluginRegistry()
+  const { components } = usePluginRegistry()
   const component = components.get(element.type)
 
   if (!component) {

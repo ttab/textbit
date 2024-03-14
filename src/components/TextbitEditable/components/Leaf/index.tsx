@@ -1,5 +1,7 @@
-import React from 'react' // Necessary for esbuild
+import React, { CSSProperties } from 'react' // Necessary for esbuild
+import { usePluginRegistry } from '@/components/PluginRegistry'
 import { RenderLeafProps } from 'slate-react'
+import { TextbitPlugin } from '@/lib'
 
 /**
  * Render a leaf
@@ -11,20 +13,38 @@ import { RenderLeafProps } from 'slate-react'
  */
 export const Leaf = (props: RenderLeafProps): JSX.Element => {
   const { leaf, attributes, children } = props
+  const { plugins } = usePluginRegistry()
 
   if (!leaf) {
     return <></>
   }
 
-  const classNames = Object.keys(leaf).reduce((previous, current) => {
+  const pluginNames = Object.keys(leaf).reduce((previous, current) => {
     return leaf[current] === true ? [...previous, current] : previous
   }, [] as string[])
+
+  let className = ''
+  let style: CSSProperties = {}
+  for (const plugin of plugins) {
+    if (pluginNames.includes(plugin.name) && TextbitPlugin.isLeafPlugin(plugin)) {
+      const leafStyle = plugin.getStyle()
+      if (typeof leafStyle === 'string') {
+        className += leafStyle ? ` ${leafStyle}` : ''
+      }
+      else {
+        style = {
+          ...style,
+          ...leafStyle
+        }
+      }
+    }
+  }
+
 
   // The following is a workaround for a Chromium bug where, if you have an inline at
   // the end of a block, clicking the end of a block puts the cursor inside the inline
   // instead of inside the final {text: ''} node.
   // https://github.com/ianstormtaylor/slate/issues/4704#issuecomment-1006696364
-  const style: any = {}
   if (leaf.text === '') {
     style.paddingLeft = '0.1px'
   }
@@ -32,7 +52,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
   return <>
     <span
       style={style}
-      className={`leaf ${classNames.join(' ')}`}
+      className={`leaf ${pluginNames.join(' ')}`}
       {...attributes}>
       {children}
     </span>

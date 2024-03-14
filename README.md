@@ -180,8 +180,7 @@ PluginRegistryContext: access through convenience hook `usePluginRegistry()`.
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | plugins | Plugin.Definition[] | All registered plugins |
-| leafComponents | Map<string, PluginRegistryComponent> | Slate leaf render components |
-| elementComponents | Map<string, PluginRegistryComponent> | Slate element render components |
+| components | Map<string, PluginRegistryComponent> | Slate element render components |
 | actions | PluginRegistryAction[] | Convenience structure |
 | verbose | boolean | Output extra info on console |
 | dispatch | Dispatch<PluginRegistryReducerAction> | Add or delete plugins |

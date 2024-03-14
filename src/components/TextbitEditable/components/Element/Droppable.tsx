@@ -6,6 +6,7 @@ import { useSlateSelection, useSlateStatic } from 'slate-react'
 import { DragstateContext } from '../../DragStateProvider'
 import { pipeFromDrop } from '../../../../lib/pipes'
 import { usePluginRegistry } from '@/components/PluginRegistry'
+import { TextbitPlugin } from '@/lib'
 
 type Box = {
   top: number
@@ -28,7 +29,7 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
   const dataId = element?.id || ''
   const draggable = ['block', 'void'].includes(element?.class || '') ? 'true' : 'false'
   const plugin = plugins.find(p => p.name === element?.type)
-  const isDroppable = !!plugin?.componentEntry?.droppable
+  const isDroppable = TextbitPlugin.isElementPlugin(plugin) && !!plugin?.componentEntry?.droppable
   const calculateBox = useCallback(() => {
     const { top, right, bottom, left } = ref?.current?.getBoundingClientRect() || { top: 0, right: 0, bottom: 0, left: 0 }
     setBox({ top, right, bottom, left })

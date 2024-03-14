@@ -1,6 +1,7 @@
 import { Editor } from "slate"
 import { Plugin } from "../../../types"
 import { pasteToConsumers } from "@/lib/pasteToConsumer"
+import { TextbitPlugin } from '@/lib'
 
 type Consumers = {
   consumes: Plugin.ConsumesFunction
@@ -11,7 +12,7 @@ export const withInsertText = (editor: Editor, plugins: Plugin.Definition[]) => 
   const { insertText } = editor
 
   const consumers: Consumers = plugins
-    .filter(({ consumer }) => consumer?.consume && consumer?.consumes)
+    .filter((plugin): plugin is Plugin.ElementDefinition => TextbitPlugin.isElementPlugin(plugin) && !!plugin.consumer?.consume && !!plugin.consumer?.consumes)
     .map(({ consumer }) => consumer) as Consumers
 
   editor.insertText = (text) => {

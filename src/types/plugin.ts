@@ -20,16 +20,6 @@ export namespace Plugin {
     (props: Props): ReactNode
   }
 
-
-  /**
-   * @interface
-   * Textbit leaf render props interface
-   */
-  // export interface TextbitLeafComponent<Props = SlateRenderLeafProps> {
-  //   (props: Props): ReactNode;
-  // }
-
-
   /**
    * @interface
    * Textbit tool component props
@@ -120,6 +110,13 @@ export namespace Plugin {
     data: any
   }
 
+  /**
+   * @type GetLeafStyle
+   * Return either React.CSSProperties object or a class name string
+   *
+   * @return React.CSSProperties | string
+   */
+  export type GetLeafStyle = () => React.CSSProperties | string
 
   /**
    * @type ConsumesFunction
@@ -145,11 +142,7 @@ export namespace Plugin {
    */
   export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resource | Resource[] }) => Promise<any | undefined>
 
-  /**
-   * @interface
-   * Textbit plugin interface
-   */
-  export interface Definition {
+  interface BaseDefinition {
     /**
      * Class of the plugin, inherited to default component. Must be one of
      * 'leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic'
@@ -159,6 +152,17 @@ export namespace Plugin {
     /** Name of plugin, should be in the form of <prefix>/<plugin> */
     name: string
 
+    /**
+     * Action definitions array, specifies tool, hotkey, title, description, handler and visibility.
+     */
+    actions?: Action[]
+  }
+
+  /**
+   * @interface
+   * Textbit element plugin interface
+   */
+  export interface ElementDefinition extends BaseDefinition {
     /**
      * Optional consumer definition. One for each consumes() and consume() functions.
      */
@@ -175,12 +179,22 @@ export namespace Plugin {
       onNormalizeNode?: (editor: Editor, entry: NodeEntry) => true | void
     }
 
-    /**
-     * Action definitions array, specifies tool, hotkey, title, description, handler and visibility.
-     */
-    actions?: Action[]
-
-    /** Default component */
+    /** Default component entries for elements */
     componentEntry?: ComponentEntry
   }
+
+  /**
+   * @interface
+   * Textbit leaf plugin interface
+  */
+  export interface LeafDefinition extends BaseDefinition {
+    /** Styling object or class name string for leaf components */
+    getStyle: GetLeafStyle
+  }
+
+  /**
+   * @interface
+   * Textbit plugin definition interface
+   */
+  export type Definition = ElementDefinition | LeafDefinition
 }

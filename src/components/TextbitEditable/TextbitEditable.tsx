@@ -51,7 +51,7 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
   const { dispatch } = useTextbit()
   const {
     plugins,
-    elementComponents,
+    components,
     actions
   } = usePluginRegistry()
 
@@ -65,11 +65,11 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
 
     withInline(e)
     withInsertText(e, plugins)
-    withNormalizeNode(e, plugins, elementComponents)
+    withNormalizeNode(e, plugins, components)
 
-    withEditableVoids(e, elementComponents)
-    withInsertBreak(e, elementComponents)
-    withInsertHtml(e, elementComponents, plugins)
+    withEditableVoids(e, components)
+    withInsertBreak(e, components)
+    withInsertHtml(e, components, plugins)
 
     return e
   }, [])
@@ -131,7 +131,7 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
                   renderElement={renderSlateElement}
                   renderLeaf={renderLeafComponent}
                   onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-                  decorate={([node, path]) => handleDecoration(textbitEditor, elementComponents, node, path)}
+                  decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path)}
                 />
               </PresenceOverlay>
             </Gutter.Content>
@@ -152,7 +152,7 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
  * 3. selection is on this node
  * 4. selection is collapsed (it does not span more nodes)
  */
-function handleDecoration(editor: SlateEditor, elementComponents: Map<string, PluginRegistryComponent>, node: Node, path: Path) {
+function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path) {
   if (
     editor.selection != null &&
     !SlateEditor.isEditor(node) &&
@@ -161,7 +161,7 @@ function handleDecoration(editor: SlateEditor, elementComponents: Map<string, Pl
     Range.isCollapsed(editor.selection) &&
     SlateElement.isElement(node)
   ) {
-    const entry = elementComponents.get(node.type)
+    const entry = components.get(node.type)
 
     return [
       {

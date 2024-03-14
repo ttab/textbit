@@ -3,6 +3,7 @@ import { pasteToParagraphs } from '@/lib/pasteToParagraphs'
 import { Plugin } from '@/types'
 import { pasteToConsumers } from '@/lib/pasteToConsumer'
 import { PluginRegistryComponent } from '@/components/PluginRegistry/lib/types'
+import { TextbitPlugin } from '@/lib'
 
 type Consumers = {
   consumes: Plugin.ConsumesFunction
@@ -11,13 +12,13 @@ type Consumers = {
 
 export const withInsertHtml = (
   editor: Editor,
-  elementComponents: Map<string, PluginRegistryComponent>,
+  components: Map<string, PluginRegistryComponent>,
   plugins: Plugin.Definition[]
 ) => {
   const { insertData, insertText } = editor
 
   const consumers: Consumers = plugins
-    .filter(({ consumer }) => consumer?.consume && consumer?.consumes)
+    .filter((plugin): plugin is Plugin.ElementDefinition => TextbitPlugin.isElementPlugin(plugin) && !!plugin.consumer?.consume && !!plugin.consumer?.consumes)
     .map(({ consumer }) => consumer) as Consumers
 
   editor.insertData = (data) => {
@@ -53,7 +54,7 @@ export const withInsertHtml = (
     // which often produces excessive amounts of newlines.
     if (types.includes('text/plain') && types.includes('text/html')) {
       const text = data.getData('text/plain')
-      if (text && true === pasteToParagraphs(editor, elementComponents, text)) {
+      if (text && true === pasteToParagraphs(editor, components, text)) {
         return
       }
     }

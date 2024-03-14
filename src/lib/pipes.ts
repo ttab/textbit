@@ -4,6 +4,7 @@ import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
 import { getNodeById, getSelectedNodeEntries } from "./utils"
 import { Plugin } from '../types'
+import { TextbitPlugin } from './textbit-plugin'
 
 
 export type PipeConsumer = {
@@ -129,7 +130,7 @@ function initConsumersForPipe(plugins: Plugin.Definition[], pipe: Pipe) {
     const { source, type, input } = item
 
     plugins.forEach(plugin => {
-      if (typeof plugin.consumer?.consumes !== 'function') {
+      if (!TextbitPlugin.isElementPlugin(plugin) || typeof plugin.consumer?.consumes !== 'function') {
         return false
       }
 
@@ -233,7 +234,7 @@ async function executeAggregatedPipe(editor: Editor, aggregatedPipe: AggregatedP
  */
 async function executePipe(pipe: AggregatedPipeItem, editor: Editor, plugins: Plugin.Definition[], position: number, offset: number): Promise<number> {
   const consumer = pipe.consumer[0] // Alternative consumers should have been removed previously
-  const plugin = plugins.find(plugin => plugin.name === consumer.name)
+  const plugin = plugins.find((plugin): plugin is Plugin.ElementDefinition => TextbitPlugin.isElementPlugin(plugin) && plugin.name === consumer.name)
   const consume = plugin?.consumer?.consume || undefined
   const produces = consumer?.produces
 

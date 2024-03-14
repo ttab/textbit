@@ -11,6 +11,7 @@ import type {
 } from './lib/types'
 import { registerActions } from './lib/registerAction'
 import { Plugin } from '@/types'
+import { TextbitPlugin } from '@/lib'
 
 /*
  * Empty plugin registry state
@@ -18,8 +19,7 @@ import { Plugin } from '@/types'
 const initialState = (): PluginRegistryProviderState => {
   return {
     plugins: [],
-    leafComponents: new Map(),
-    elementComponents: new Map(),
+    components: new Map(),
     actions: [],
     verbose: false,
     dispatch: () => { }
@@ -73,25 +73,19 @@ export const PluginRegistryContextProvider = ({ children, verbose, plugins }: Pr
 function addPlugin(state: PluginRegistryProviderState, newPlugin: Plugin.Definition, options?: { verbose: boolean }): {
   plugins: Plugin.Definition[]
   actions: PluginRegistryAction[]
-  leafComponents: Map<string, PluginRegistryComponent>
-  elementComponents: Map<string, PluginRegistryComponent>
+  components: Map<string, PluginRegistryComponent>
 } {
   const plugins = registerPlugin(state.plugins, newPlugin, options)
   const actions = registerActions(plugins)
 
-  const ceClass = newPlugin?.componentEntry?.class
-  const leafComponents = (newPlugin?.componentEntry && ceClass === 'leaf')
-    ? registerComponents(state.leafComponents, newPlugin.componentEntry?.type || newPlugin.name, newPlugin.componentEntry, options)
-    : state.leafComponents
-  const elementComponents = (newPlugin?.componentEntry && ceClass !== 'leaf')
-    ? registerComponents(state.elementComponents, newPlugin.componentEntry?.type || newPlugin.name, newPlugin.componentEntry, options)
-    : state.elementComponents
+  const components = (TextbitPlugin.isElementPlugin(newPlugin) && newPlugin?.componentEntry)
+    ? registerComponents(state.components, newPlugin.componentEntry?.type || newPlugin.name, newPlugin.componentEntry, options)
+    : state.components
 
   return {
     plugins,
     actions,
-    leafComponents,
-    elementComponents
+    components
   }
 }
 
@@ -100,19 +94,15 @@ function addPlugin(state: PluginRegistryProviderState, newPlugin: Plugin.Definit
 function initializePlugins(state: PluginRegistryProviderState, plugins: Plugin.Definition[], options?: { verbose: boolean }): {
   plugins: Plugin.Definition[]
   actions: PluginRegistryAction[]
-  leafComponents: Map<string, PluginRegistryComponent>
-  elementComponents: Map<string, PluginRegistryComponent>
+  components: Map<string, PluginRegistryComponent>
 } {
   plugins.forEach(p => {
     state.plugins = registerPlugin(state.plugins, p, options)
     state.actions = registerActions(state.plugins)
 
-    const ceClass = p?.componentEntry?.class
-
-    if (p?.componentEntry && ceClass === 'leaf') {
-      state.leafComponents = registerComponents(state.leafComponents, p.componentEntry?.type || p.name, p.componentEntry, options)
-    } else if (p?.componentEntry && ceClass !== 'leaf') {
-      state.elementComponents = registerComponents(state.elementComponents, p.componentEntry?.type || p.name, p.componentEntry, options)
+    if (TextbitPlugin.isElementPlugin(p) && p?.componentEntry) {
+      const comp = registerComponents(state.components, p.componentEntry?.type || p.name, p.componentEntry, options)
+      state.components = comp
     }
   })
 

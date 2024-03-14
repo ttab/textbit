@@ -2,17 +2,17 @@ import { Editor, Element } from 'slate'
 import { PluginRegistryComponent } from '@/components/PluginRegistry/lib/types'
 
 
-export const withEditableVoids = (editor: Editor, elementComponents: Map<string, PluginRegistryComponent>) => {
+export const withEditableVoids = (editor: Editor, components: Map<string, PluginRegistryComponent>) => {
   const { isVoid } = editor
 
   const allComponents: string[] = []
   const voidComponents: string[] = []
 
-  elementComponents.forEach(elemComponent => {
-    allComponents.push(elemComponent.type)
+  components.forEach(comp => {
+    allComponents.push(comp.type)
 
-    if (elemComponent.class === 'void') {
-      voidComponents.push(elemComponent.type)
+    if (comp.class === 'void') {
+      voidComponents.push(comp.type)
     }
   })
 

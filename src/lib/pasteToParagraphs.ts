@@ -7,7 +7,7 @@ import { PluginRegistryComponent } from '@/components/PluginRegistry/lib/types'
 
 export function pasteToParagraphs(
   editor: Editor,
-  elementComponents: Map<string, PluginRegistryComponent>,
+  components: Map<string, PluginRegistryComponent>,
   text: string
 ): boolean | void {
   const { selection } = editor
@@ -32,7 +32,7 @@ export function pasteToParagraphs(
   // Find node and which component this is related to
   const parent = TextbitEditor.parent(editor, selection)
   const node = parent[0] as Element
-  const { componentEntry: tbComponent = undefined } = elementComponents.get(node.type) || {}
+  const { componentEntry: tbComponent = undefined } = components.get(node.type) || {}
   if (!tbComponent) {
     return false
   }
@@ -51,7 +51,7 @@ export function pasteToParagraphs(
   // If we have a longer path, paste happens in a child node, all
   // new nodes should be of the same type then
   let nodeType = 'core/text'
-  let properties: { [key: string]: string | number; } | undefined = {}
+  let properties: { [key: string]: string | number } | undefined = {}
 
   if (parent[1].length > 1) {
     nodeType = node.type
