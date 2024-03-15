@@ -4,9 +4,9 @@ import React, { // Necessary for esbuild
   useMemo,
   useCallback
 } from 'react'
-import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor } from "slate"
+import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor, Editor } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
-import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
+import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, useFocused, withReact } from "slate-react"
 import * as uuid from 'uuid'
 import { YHistoryEditor } from '@slate-yjs/core'
 
@@ -118,20 +118,23 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
 
   return (
     <DragStateProvider>
-      <Slate editor={textbitEditor} initialValue={inValue} onChange={(value) => {
-        handleOnChange(value)
-      }}>
+      <Slate
+        editor={textbitEditor}
+        initialValue={inValue}
+        onChange={(value) => { handleOnChange(value) }}
+      >
         <PositionProvider inline={true}>
           <Gutter.Provider dir={dir} gutter={gutter}>
 
             <Gutter.Content>
               <PresenceOverlay isCollaborative={!!yjsEditor}>
-                <Editable
+                <SlateEditable
                   className={className}
-                  renderElement={renderSlateElement}
-                  renderLeaf={renderLeafComponent}
-                  onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-                  decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path)}
+                  renderSlateElement={renderSlateElement}
+                  renderLeafComponent={renderLeafComponent}
+                  textbitEditor={textbitEditor}
+                  actions={actions}
+                  components={components}
                 />
               </PresenceOverlay>
             </Gutter.Content>
@@ -142,6 +145,28 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
         </PositionProvider>
       </Slate>
     </DragStateProvider >
+  )
+}
+
+const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components }: {
+  className: string
+  renderSlateElement: (props: RenderElementProps) => JSX.Element
+  renderLeafComponent: (props: RenderLeafProps) => JSX.Element
+  textbitEditor: Editor
+  actions: PluginRegistryAction[]
+  components: Map<string, PluginRegistryComponent>
+}): JSX.Element => {
+  const focused = useFocused()
+
+  return (
+    <Editable
+      data-state={focused ? 'focused' : ''}
+      className={className}
+      renderElement={renderSlateElement}
+      renderLeaf={renderLeafComponent}
+      onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
+      decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path)}
+    />
   )
 }
 

@@ -219,6 +219,11 @@ Editable area component, acts as wrapper around Slate.
 | setOffset | ({ left: number, top: number }) => void | |
 | offset | { left: number, top: number } | |
 
+### Data attribute
+| Name | Value | Description |
+| ----------- | ----------- | ----------- |
+| [data-state] | "focused" \| "" | Indicate whether editor has focus or not. |
+
 ## Example
 
 Basic, not complete, example of using it with Yjs.
