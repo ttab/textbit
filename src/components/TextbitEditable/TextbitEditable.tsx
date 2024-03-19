@@ -207,7 +207,7 @@ function handleDecoration(editor: SlateEditor, components: Map<string, PluginReg
     SlateElement.isElement(node)
   ) {
     const entry = components.get(node.type)
-    console.log('Display: ', displayPlaceholders)
+
     return [
       {
         ...editor.selection,
