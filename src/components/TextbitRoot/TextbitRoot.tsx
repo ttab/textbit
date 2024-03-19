@@ -9,8 +9,10 @@ import {
 } from '@/components/core'
 
 
-export const TextbitRoot = ({ children, verbose, plugins, className }: PropsWithChildren & {
+export const TextbitRoot = ({ children, verbose, debounce, placeholders, plugins, className }: PropsWithChildren & {
   verbose?: boolean
+  debounce?: number
+  placeholders?: boolean
   plugins?: Plugin.Definition[]
   className?: string
 }) => {
@@ -24,7 +26,7 @@ export const TextbitRoot = ({ children, verbose, plugins, className }: PropsWith
 
   return (
     <div className={className} style={style}>
-      <TextbitContextProvider verbose={!!verbose}>
+      <TextbitContextProvider verbose={!!verbose} debounce={debounce} placeholders={placeholders}>
         <PluginRegistryContextProvider verbose={!!verbose} plugins={[
           ...basePlugins,
           ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins

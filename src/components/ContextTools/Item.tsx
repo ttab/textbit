@@ -40,6 +40,7 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
     </>
   }
 
+  // FIXME: Here is an weird logic error (Children.count without func call or parameter) and both ways is always the same output...
   return <div
     data-state={isActive ? 'active' : 'inactive'}
     className={className || ''}
