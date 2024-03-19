@@ -48,7 +48,12 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
     ]
   }]
 
-  const { dispatch } = useTextbit()
+  const {
+    dispatch,
+    debounce: debounceTimeout,
+    placeholders: displayPlaceholders
+  } = useTextbit()
+
   const {
     plugins,
     components,
@@ -92,27 +97,40 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
     return Leaf(props)
   }, [])
 
+  // Non debounce onChange handler
+  const directOnChange = (value: Descendant[]) => {
+    if (onChange) {
+      onChange(value)
+    }
+
+    const [words, characters] = calculateStats(textbitEditor)
+
+    dispatch({
+      words,
+      characters
+    })
+  }
+
+  // Debounce onChange handler
   const debouncedOnchange = useMemo(() => {
     return debounce((value: Descendant[]) => {
-      if (onChange) {
-        onChange(value)
-      }
-
-      const [words, characters] = calculateStats(textbitEditor)
-
-      dispatch({
-        words,
-        characters
-      })
-    }, 250)
+      directOnChange(value)
+    }, debounceTimeout)
   }, [])
 
+  // Handle onchange and use direct or debounced handler
   const handleOnChange = useCallback((value: Descendant[]) => {
     const isAstChange = textbitEditor.operations.some(
       op => 'set_selection' !== op.type
     )
+
     if (isAstChange) {
-      debouncedOnchange(value)
+      if (debounceTimeout !== 0) {
+        debouncedOnchange(value)
+      }
+      else {
+        directOnChange(value)
+      }
     }
   }, [])
 
@@ -135,6 +153,7 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
                   textbitEditor={textbitEditor}
                   actions={actions}
                   components={components}
+                  displayPlaceholders={displayPlaceholders}
                 />
               </PresenceOverlay>
             </Gutter.Content>
@@ -148,13 +167,14 @@ export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter =
   )
 }
 
-const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components }: {
+const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components, displayPlaceholders }: {
   className: string
   renderSlateElement: (props: RenderElementProps) => JSX.Element
   renderLeafComponent: (props: RenderLeafProps) => JSX.Element
   textbitEditor: Editor
   actions: PluginRegistryAction[]
   components: Map<string, PluginRegistryComponent>
+  displayPlaceholders: boolean
 }): JSX.Element => {
   const focused = useFocused()
 
@@ -165,7 +185,7 @@ const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, tex
       renderElement={renderSlateElement}
       renderLeaf={renderLeafComponent}
       onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-      decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path)}
+      decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path, displayPlaceholders)}
     />
   )
 }
@@ -177,7 +197,7 @@ const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, tex
  * 3. selection is on this node
  * 4. selection is collapsed (it does not span more nodes)
  */
-function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path) {
+function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path, displayPlaceholders: boolean) {
   if (
     editor.selection != null &&
     !SlateEditor.isEditor(node) &&
@@ -191,7 +211,7 @@ function handleDecoration(editor: SlateEditor, components: Map<string, PluginReg
     return [
       {
         ...editor.selection,
-        placeholder: entry?.componentEntry?.placeholder || '',
+        placeholder: (entry?.componentEntry?.placeholder && displayPlaceholders) ? entry.componentEntry.placeholder : ''
       }
     ]
   }

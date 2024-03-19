@@ -113,6 +113,8 @@ function App() {
       <div style={{ height: '50vh' }}>
         <Textbit.Root
           verbose={true}
+          debounce={1000}
+          placeholders={false}
           plugins={[...Textbit.Plugins, BulletList, NumberList, Link]}
         >
           <Editor initialValue={initialValue} />
@@ -122,6 +124,7 @@ function App() {
       <div style={{ height: '50vh' }}>
         <Textbit.Root
           verbose={true}
+          debounce={0}
           plugins={[...Textbit.Plugins]}
         >
           <Editor initialValue={initialValue} />

@@ -9,6 +9,8 @@ export interface TextbitProviderState {
   words: number
   characters: number
   verbose: boolean
+  debounce: number
+  placeholders: boolean
   dispatch: React.Dispatch<Partial<TextbitProviderState>>
 }
 
@@ -16,6 +18,8 @@ const initialState: TextbitProviderState = {
   words: 0,
   characters: 0,
   verbose: false,
+  debounce: 250,
+  placeholders: true,
   dispatch: () => { }
 }
 
@@ -30,6 +34,8 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
     words,
     characters,
     verbose,
+    debounce,
+    placeholders
   } = action
   const partialState: Partial<TextbitProviderState> = {}
 
@@ -45,6 +51,14 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
     partialState.verbose = verbose
   }
 
+  if (typeof debounce === 'number') {
+    partialState.debounce = debounce
+  }
+
+  if (typeof placeholders === 'boolean') {
+    partialState.placeholders = placeholders
+  }
+
   return {
     ...state,
     ...partialState
@@ -53,10 +67,16 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
 
 
 // Create the context provider component
-export const TextbitContextProvider = ({ children, verbose }: PropsWithChildren & { verbose: boolean }): JSX.Element => {
+export const TextbitContextProvider = ({ children, verbose, debounce, placeholders }: PropsWithChildren & {
+  verbose: boolean
+  debounce?: number
+  placeholders?: boolean
+}): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
-    verbose
+    verbose,
+    debounce: typeof (debounce) === 'number' ? debounce : initialState.debounce,
+    placeholders: typeof (placeholders) === 'boolean' ? placeholders : initialState.placeholders
   })
 
   return (
