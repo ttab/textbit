@@ -183,9 +183,11 @@ PluginRegistryContext: access through convenience hook `usePluginRegistry()`.
 | components | Map<string, PluginRegistryComponent> | Slate element render components |
 | actions | PluginRegistryAction[] | Convenience structure |
 | verbose | boolean | Output extra info on console |
+| debounce | number | Optional, set debounce value for onChange(), default 250ms |
+| placeholders | boolean | Optional, whether to show text plugins placeholders, default true |
 | dispatch | Dispatch<PluginRegistryReducerAction> | Add or delete plugins |
 
-### Provides TextbitContext
+### Provides TextbitContext, useTextbit()
 
 TextbitContext: access through convenience hook `useTextbit()`.
 
@@ -194,6 +196,12 @@ TextbitContext: access through convenience hook `useTextbit()`.
 | characters | number | Number of characters in article |
 | words | number | Number of words in article |
 | verbose | boolean | Output extra info on console |
+
+### useFocused()
+
+Convenience hook to get current focused state for the textbit editor. Styling should normally be controlled using css and the data attribute of `Textbit.Editable`.
+
+`useFocused() => boolean`
 
 ---
 

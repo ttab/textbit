@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Descendant } from 'slate'
 import { createRoot } from 'react-dom/client'
 import Textbit, {
   Menu,
   Toolbar,
   usePluginRegistry,
-  useTextbit
+  useTextbit,
+  useFocused
 } from '../../src'
 
 import {

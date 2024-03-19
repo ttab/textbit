@@ -2,7 +2,8 @@ import React, { // Necessary for esbuild
   PropsWithChildren,
   useEffect,
   useMemo,
-  useCallback
+  useCallback,
+  useContext
 } from 'react'
 import { createEditor, Editor as SlateEditor, Descendant, Transforms, Element as SlateElement, Range, Path, Node, BaseEditor, Editor } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
@@ -29,6 +30,7 @@ import { usePluginRegistry } from '../PluginRegistry'
 import { PluginRegistryAction, PluginRegistryComponent } from '../PluginRegistry/lib/types'
 import { PositionProvider } from '../ContextTools/PositionProvider'
 import { Gutter } from '../GutterProvider'
+import { FocusContext } from '../TextbitRoot/FocusContext'
 
 
 export const TextbitEditable = ({ children, value, onChange, yjsEditor, gutter = true, dir = 'ltr', className = '' }: PropsWithChildren & {
@@ -177,6 +179,11 @@ const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, tex
   displayPlaceholders: boolean
 }): JSX.Element => {
   const focused = useFocused()
+  const { setFocused } = useContext(FocusContext)
+
+  useEffect(() => {
+    setFocused(focused)
+  }, [focused])
 
   return (
     <Editable
