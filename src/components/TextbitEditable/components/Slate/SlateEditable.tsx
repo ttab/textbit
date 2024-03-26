@@ -1,5 +1,4 @@
 import React, { // Necessary for esbuild
-  useEffect,
   useContext
 } from 'react'
 import { Editor as SlateEditor, Transforms, Element as SlateElement, Range, Path, Node, Editor } from "slate"
@@ -20,12 +19,11 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
   const focused = useFocused()
   const { setFocused } = useContext(FocusContext)
 
-  useEffect(() => {
-    setFocused(focused)
-  }, [focused])
-
   return (
     <Editable
+      onFocus={() => {
+        setFocused(focused)
+      }}
       data-state={focused ? 'focused' : ''}
       className={className}
       renderElement={renderSlateElement}
