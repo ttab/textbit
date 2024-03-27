@@ -1,13 +1,12 @@
 import React, { // Necessary for esbuild
   PropsWithChildren,
-  useEffect,
   useMemo,
   useCallback
 } from 'react'
-import { createEditor, Editor as SlateEditor, Descendant, BaseEditor } from "slate"
+import { createEditor, Editor as SlateEditor, Descendant, BaseEditor, Editor } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
 import { ReactEditor, RenderElementProps, RenderLeafProps, withReact } from "slate-react"
-import { WithCursorsOptions, YHistoryEditor } from '@slate-yjs/core'
+import { YHistoryEditor } from '@slate-yjs/core'
 
 import { DragStateProvider } from './DragStateProvider'
 import { withInline } from './with/inline'
@@ -24,52 +23,27 @@ import { useTextbit } from '../TextbitRoot'
 import { usePluginRegistry } from '../PluginRegistry'
 import { PositionProvider } from '../ContextTools/PositionProvider'
 import { Gutter } from '../GutterProvider'
-import { Awareness } from 'y-protocols/awareness'
-import * as Y from 'yjs'
 import { SlateEditable } from './components/Slate/SlateEditable'
 import { SlateSlate } from './components/Slate/SlateSlate'
-import { useYjsEditor } from '@/hooks'
 
-interface TextbitEditableProps extends PropsWithChildren {
+export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
   value?: Descendant[]
-  gutter?: boolean // FIXME: This might not be used no longer
+  yjsEditor?: Editor
+  gutter?: boolean
   dir?: 'ltr' | 'rtl'
   className?: string
-  sharedRoot?: Y.XmlText
-  awareness?: Awareness
-  cursorOptions?: WithCursorsOptions
-}
-
-interface TextbitEditableBaseProps extends PropsWithChildren {
-  onChange: (value: Descendant[]) => void
-  value: Descendant[]
-}
-
-interface TextbitEditableYjsProps extends PropsWithChildren {
-  sharedRoot: Y.XmlText
-}
-
-interface TextbitEditableYjsAwarenessProps extends PropsWithChildren {
-  sharedRoot: Y.XmlText
-  awareness: Awareness
-  cursorOptions: WithCursorsOptions
 }
 
 export const TextbitEditable = ({
   children,
   value,
   onChange,
-  sharedRoot,
-  awareness,
-  cursorOptions,
+  yjsEditor,
   gutter = true,
   dir = 'ltr',
   className = ''
-}:
-  TextbitEditableProps & (TextbitEditableBaseProps | TextbitEditableYjsProps | TextbitEditableYjsAwarenessProps)
-) => {
-  const yjsEditor = useYjsEditor({ sharedRoot, awareness, cursorOptions })
+}: TextbitEditableProps) => {
   const { placeholders } = useTextbit()
   const { plugins, components, actions } = usePluginRegistry()
 
@@ -109,7 +83,7 @@ export const TextbitEditable = ({
           <Gutter.Provider dir={dir} gutter={gutter}>
 
             <Gutter.Content>
-              <PresenceOverlay isCollaborative={!!awareness}>
+              <PresenceOverlay isCollaborative={!!yjsEditor}>
                 <SlateEditable
                   className={className}
                   renderSlateElement={renderSlateElement}

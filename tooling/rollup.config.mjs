@@ -44,7 +44,7 @@ export default [
   {
     input: "dist/esm/types/index.d.ts",
     output: [{ file: "dist/index.d.ts", format: "esm" }],
-    external: [/\.(sass|scss|css)$/, '@slate-yjs/core', '@slate-yjs/react'],
+    external: [/\.(sass|scss|css)$/, '@slate-yjs/core'],
     plugins: [dts()]
   },
 ]

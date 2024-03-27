@@ -1,5 +1,5 @@
 import React, { // Necessary for esbuild
-  useContext
+  useContext, useLayoutEffect
 } from 'react'
 import { Editor as SlateEditor, Transforms, Element as SlateElement, Range, Path, Node, Editor } from "slate"
 import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
@@ -16,14 +16,17 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
   components: Map<string, PluginRegistryComponent>
   displayPlaceholders: boolean
 }): JSX.Element => {
-  const focused = useFocused()
-  const { setFocused } = useContext(FocusContext)
+  const slateIsFocused = useFocused()
+  const { focused, setFocused } = useContext(FocusContext)
+
+  useLayoutEffect(() => {
+    if (focused !== slateIsFocused) {
+      setFocused(slateIsFocused)
+    }
+  })
 
   return (
     <Editable
-      onFocus={() => {
-        setFocused(focused)
-      }}
       data-state={focused ? 'focused' : ''}
       className={className}
       renderElement={renderSlateElement}

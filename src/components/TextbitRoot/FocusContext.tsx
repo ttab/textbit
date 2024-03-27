@@ -11,12 +11,10 @@ export interface FocusProviderState {
   setFocused: Dispatch<SetStateAction<boolean>>
 }
 
-const initialState: FocusProviderState = {
+export const FocusContext = createContext<FocusProviderState>({
   focused: false,
   setFocused: () => { }
-}
-
-export const FocusContext = createContext(initialState)
+})
 
 export const FocusContextProvider = ({ children }: PropsWithChildren): JSX.Element => {
   const [focused, setFocused] = useState<boolean>(false)

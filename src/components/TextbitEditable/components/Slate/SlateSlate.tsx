@@ -53,7 +53,14 @@ export const SlateSlate = ({ editor, value, onChange, children }: PropsWithChild
       op => 'set_selection' !== op.type
     )
 
-    if (isAstChange) {
+    if (!isAstChange) {
+      return
+    }
+
+    if (!debounceTimeout) {
+      directOnChange(value)
+    }
+    else {
       debouncedOnchange(value)
     }
   }, [])
