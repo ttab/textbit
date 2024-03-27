@@ -22,8 +22,15 @@ export function RemoteCursorOverlay({ children }: PropsWithChildren): React.Reac
     containerRef
   })
 
+  const overlayStyle: CSSProperties = {
+    height: '100%',
+    display: 'flex',
+    position: 'relative',
+    justifyContent: 'center'
+  }
+
   return (
-    <div style={{ height: '100%' }} className="textbit-y-overlay" ref={containerRef}>
+    <div style={overlayStyle} className="textbit-y-overlay" ref={containerRef}>
       {children}
       {cursors.map((cursor) => (
         <RemoteSelection key={cursor.clientId} {...cursor} />
@@ -39,8 +46,10 @@ function RemoteSelection({ data, selectionRects, caretPosition }: CursorOverlayD
   }
 
   const selectionStyle: CSSProperties = {
+    position: 'absolute',
+    pointerEvents: 'none',
     backgroundColor: data?.color || 'gray',
-    opacity: 0.5
+    opacity: 0.5,
   }
 
   return (
@@ -60,13 +69,25 @@ function RemoteSelection({ data, selectionRects, caretPosition }: CursorOverlayD
 
 function Caret({ caretPosition, data }: CaretProps): React.ReactElement {
   const caretStyle: CSSProperties = {
+    position: 'absolute',
     ...caretPosition,
     background: data?.color || 'gray',
     width: '2px'
   }
 
   const labelStyle: CSSProperties = {
-    backgroundColor: data?.color || 'gray'
+    backgroundColor: data?.color?.trim() || 'gray',
+    position: 'absolute',
+    fontFamily: 'sans-serif',
+    fontSize: '80%',
+    borderRadius: '2px',
+    transform: 'translateY(-91%)',
+    width: 'max-content',
+    padding: '0px 6px 1px 6px',
+    opacity: '0.9',
+    whiteSpace: 'nowrap',
+    top: 0,
+    borderBottomLeftRadius: 0
   }
 
   return (

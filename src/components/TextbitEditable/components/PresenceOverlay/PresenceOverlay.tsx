@@ -1,6 +1,5 @@
 import React, { PropsWithChildren } from "react"
 import { RemoteCursorOverlay } from "./RemoteCursorOverlay"
-import './style.css'
 
 type PresenceOverylayProps = PropsWithChildren<{ isCollaborative: boolean }>
 
