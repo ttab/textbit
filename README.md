@@ -215,9 +215,7 @@ Editable area component, acts as wrapper around Slate.
 | value | Descendant[] | Optional, initial content |
 | onChange | (Descendant[] => void) | Function to receive all changes |
 | dir | "ltr" \| "rtl" | Optional, defaults to _ltr_ |
-| sharedRoot | Y.XmlText | Optional Yjs shared root for collaborative editing setup |
-| awareness | Awareness | Optional, Awareness handling object, requires a sharedRoot |
-| cursorOptions | WithCursorOptions | Optional, Awareness cursor data, requires a sharedRoot and awareness object |
+| yjsEditor | BaseEditor | BaseEditor created with `withYjs()` and `withCursors()` |
 | gutter | boolean | Optional, defaults to true (render gutter). |
 | className | string |  |
 | children |  |
