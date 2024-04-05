@@ -66,24 +66,5 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
       }
       {children}
     </span>
-
-    {/* Render placeholder if applicable */}
-    {/* {leaf.placeholder &&
-      <div
-        className="editor-block">
-        <span
-          className="parent leaf decoration"
-          style={{
-            ...style,
-            opacity: 0.2,
-            position: "absolute",
-            top: '0'
-          }}
-          contentEditable={false}
-        >
-          {leaf.placeholder}
-        </span>
-      </div>
-    } */}
   </>
 }
