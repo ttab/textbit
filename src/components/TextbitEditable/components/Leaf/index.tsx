@@ -62,7 +62,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
       {...attributes}
     >
       {leaf.placeholder && placeholders &&
-        <span style={{ ...style, position: 'absolute', opacity: 0.2 }} contentEditable={false}>{leaf.placeholder}</span>
+        <span style={{ ...style, position: 'absolute', opacity: 0.333 }} contentEditable={false}>{leaf.placeholder}</span>
       }
       {children}
     </span>
