@@ -184,8 +184,8 @@ PluginRegistryContext: access through convenience hook `usePluginRegistry()`.
 | actions | PluginRegistryAction[] | Convenience structure |
 | verbose | boolean | Output extra info on console |
 | debounce | number | Optional, set debounce value for onChange(), default 250ms |
-| placeholder | string | Optional, placeholder text for entire editor, default is empty |
-| placeholders | boolean | Optional, whether to show text plugins placeholders, default false |
+| placeholder | string | Optional, placeholder text for entire editor, default is empty. Should not be combined with _placeholders_. |
+| placeholders | boolean | Optional, whether to show text plugins placeholders, default false. Should not be combined with _placeholder_. |
 | dispatch | Dispatch<PluginRegistryReducerAction> | Add or delete plugins |
 
 ### Provides TextbitContext, useTextbit()

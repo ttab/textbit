@@ -1,7 +1,7 @@
 import React, { // Necessary for esbuild
   useContext, useLayoutEffect
 } from 'react'
-import { Editor as SlateEditor, Transforms, Element as SlateElement, Range, Path, Node, Editor } from "slate"
+import { Editor as SlateEditor, Transforms, Element as SlateElement, Range, Path, Node, Editor, Text, Element } from "slate"
 import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
 import { toggleLeaf } from '@/lib/toggleLeaf'
 import { PluginRegistryAction, PluginRegistryComponent } from '../../../PluginRegistry/lib/types'
@@ -41,32 +41,25 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
 }
 
 /*
- * Display decoration when node is
- * 1. not the editor
- * 2. node is empty
- * 3. selection is on this node
- * 4. selection is collapsed (it does not span more nodes)
+ * Display placeholder as decoration when node is an empty text node
  */
-function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path, displayPlaceholders: boolean) {
-  if (
-    editor.selection != null &&
-    !SlateEditor.isEditor(node) &&
-    SlateEditor.string(editor, [path[0]]) === "" &&
-    Range.includes(editor.selection, path) &&
-    Range.isCollapsed(editor.selection) &&
-    SlateElement.isElement(node)
-  ) {
-    const entry = components.get(node.type)
-
-    return [
-      {
-        ...editor.selection,
-        placeholder: (entry?.componentEntry?.placeholder && displayPlaceholders) ? entry.componentEntry.placeholder : ''
-      }
-    ]
+function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path, placeholders: boolean) {
+  if (!Text.isText(node) || !path.length || node.text !== '') {
+    return []
   }
 
-  return []
+  const parent = Node.parent(editor, path)
+  if (!Element.isElement(parent)) {
+    return []
+  }
+
+  const entry = components.get(parent.type)
+
+  return [{
+    anchor: { path, offset: 0 },
+    focus: { path, offset: 0 },
+    placeholder: (entry?.componentEntry?.placeholder && placeholders) ? entry.componentEntry.placeholder : ''
+  }]
 }
 
 /*

@@ -79,6 +79,11 @@ export const TextbitContextProvider = ({ children, verbose, debounce, placeholde
   placeholder?: string
   placeholders?: boolean
 }): JSX.Element => {
+  if (!!placeholder && placeholders) {
+    const log = verbose ? console.warn : console.info
+    log('Warning: Setting a "placeholder" text and setting "placeholders" to true can lead to display and focus issues')
+  }
+
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     verbose,
