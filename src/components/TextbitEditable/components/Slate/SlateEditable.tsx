@@ -6,18 +6,19 @@ import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate
 import { toggleLeaf } from '@/lib/toggleLeaf'
 import { PluginRegistryAction, PluginRegistryComponent } from '../../../PluginRegistry/lib/types'
 import { FocusContext } from '../../../TextbitRoot/FocusContext'
+import { useTextbit } from '@/components/TextbitRoot'
 
-export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components, displayPlaceholders }: {
+export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components }: {
   className: string
   renderSlateElement: (props: RenderElementProps) => JSX.Element
   renderLeafComponent: (props: RenderLeafProps) => JSX.Element
   textbitEditor: Editor
   actions: PluginRegistryAction[]
   components: Map<string, PluginRegistryComponent>
-  displayPlaceholders: boolean
 }): JSX.Element => {
   const slateIsFocused = useFocused()
   const { focused, setFocused } = useContext(FocusContext)
+  const { placeholder, placeholders } = useTextbit()
 
   useLayoutEffect(() => {
     // FIXME: This might be unnecessary if we use dependency array correctly...
@@ -28,12 +29,13 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
 
   return (
     <Editable
+      placeholder={placeholder}
       data-state={focused ? 'focused' : ''}
       className={className}
       renderElement={renderSlateElement}
       renderLeaf={renderLeafComponent}
       onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-      decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path, displayPlaceholders)}
+      decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path, placeholders)}
     />
   )
 }

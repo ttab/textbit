@@ -106,26 +106,43 @@ function App() {
   return (
     <div style={{
       margin: '0 auto',
-      height: '100vh',
       maxWidth: '800px',
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <div style={{ height: '50vh' }}>
+      <div style={{ margin: '20px 0', border: '1px solid gray', padding: '5px' }}>
         <Textbit.Root
           verbose={true}
-          debounce={1000}
-          placeholders={false}
+          debounce={0}
+          plugins={[]}
+          placeholder="Add text here..."
+        >
+          <Textbit.Editable value={[{
+            type: 'core/text',
+            id: '0',
+            class: 'text',
+            children: [{
+              text: ''
+            }]
+          }]} />
+        </Textbit.Root>
+      </div>
+
+      <div style={{ margin: '20px 0', border: '1px solid gray' }}>
+        <Textbit.Root
+          verbose={true}
+          debounce={0}
+          placeholders={true}
           plugins={[...Textbit.Plugins, BulletList, NumberList, Link]}
         >
           <Editor initialValue={initialValue} />
         </Textbit.Root >
       </div>
 
-      <div style={{ height: '50vh' }}>
+      <div style={{ margin: '20px 0', border: '1px solid gray' }}>
         <Textbit.Root
           verbose={true}
-          debounce={0}
+          debounce={1000}
           plugins={[...Textbit.Plugins]}
         >
           <Editor initialValue={initialValue} />

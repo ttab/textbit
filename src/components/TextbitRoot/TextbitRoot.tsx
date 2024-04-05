@@ -10,10 +10,11 @@ import {
 import { FocusContextProvider } from './FocusContext'
 
 
-export const TextbitRoot = ({ children, verbose, debounce, placeholders, plugins, className }: PropsWithChildren & {
+export const TextbitRoot = ({ children, verbose, debounce, placeholder, placeholders, plugins, className }: PropsWithChildren & {
   verbose?: boolean
   debounce?: number
   placeholders?: boolean
+  placeholder?: string
   plugins?: Plugin.Definition[]
   className?: string
 }) => {
@@ -27,7 +28,7 @@ export const TextbitRoot = ({ children, verbose, debounce, placeholders, plugins
 
   return (
     <div className={className} style={style}>
-      <TextbitContextProvider verbose={!!verbose} debounce={debounce} placeholders={placeholders}>
+      <TextbitContextProvider verbose={!!verbose} debounce={debounce} placeholder={placeholder} placeholders={placeholders}>
         <PluginRegistryContextProvider verbose={!!verbose} plugins={[
           ...basePlugins,
           ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins

@@ -44,7 +44,6 @@ export const TextbitEditable = ({
   dir = 'ltr',
   className = ''
 }: TextbitEditableProps) => {
-  const { placeholders } = useTextbit()
   const { plugins, components, actions } = usePluginRegistry()
 
   const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
@@ -91,7 +90,6 @@ export const TextbitEditable = ({
                   textbitEditor={textbitEditor}
                   actions={actions}
                   components={components}
-                  displayPlaceholders={placeholders}
                 />
               </PresenceOverlay>
             </Gutter.Content>
