@@ -24,9 +24,7 @@ export function RemoteCursorOverlay({ children }: PropsWithChildren): React.Reac
 
   const overlayStyle: CSSProperties = {
     height: '100%',
-    display: 'flex',
-    position: 'relative',
-    justifyContent: 'center'
+    position: 'relative'
   }
 
   return (

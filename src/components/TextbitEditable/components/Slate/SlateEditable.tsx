@@ -20,6 +20,7 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
   const { focused, setFocused } = useContext(FocusContext)
 
   useLayoutEffect(() => {
+    // FIXME: This might be unnecessary if we use dependency array correctly...
     if (focused !== slateIsFocused) {
       setFocused(slateIsFocused)
     }
