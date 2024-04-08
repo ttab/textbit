@@ -33,10 +33,11 @@ export const ParentElement = (renderProps: ParentElementProps) => {
 
   const { element, attributes, entry } = renderProps
 
+  // Relative position is needed for slate default placeholder to be positioned correctly
   return (
     <Droppable element={element}>
       <div
-        className={`${element.class} ${element.type} ${entry.class}`}
+        className={`${element.class} ${element.type} ${entry.class} relative`}
         data-id={element.id}
         ref={ref}
       >

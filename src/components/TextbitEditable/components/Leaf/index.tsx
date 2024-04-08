@@ -2,6 +2,7 @@ import React, { CSSProperties } from 'react' // Necessary for esbuild
 import { usePluginRegistry } from '@/components/PluginRegistry'
 import { RenderLeafProps } from 'slate-react'
 import { TextbitPlugin } from '@/lib'
+import { useTextbit } from '@/components/TextbitRoot'
 
 /**
  * Render a leaf
@@ -14,6 +15,7 @@ import { TextbitPlugin } from '@/lib'
 export const Leaf = (props: RenderLeafProps): JSX.Element => {
   const { leaf, attributes, children } = props
   const { plugins } = usePluginRegistry()
+  const { placeholders } = useTextbit()
 
   if (!leaf) {
     return <></>
@@ -40,39 +42,29 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
     }
   }
 
-  // The following is a workaround for a Chromium bug where, if you have an inline at
-  // the end of a block, clicking the end of a block puts the cursor inside the inline
-  // instead of inside the final {text: ''} node.
-  // https://github.com/ianstormtaylor/slate/issues/4704#issuecomment-1006696364
   if (leaf.text === '') {
+    // The following is a workaround for a Chromium bug where, if you have an inline at
+    // the end of a block, clicking the end of a block puts the cursor inside the inline
+    // instead of inside the final {text: ''} node.
+    // https://github.com/ianstormtaylor/slate/issues/4704#issuecomment-1006696364
     style.paddingLeft = '0.1px'
+
+    if (placeholders === 'multiple' && leaf.placeholder) {
+      style.position = 'relative'
+      style.width = '100%'
+    }
   }
 
   return <>
     <span
-      style={style}
+      style={{ ...style }}
       className={className}
-      {...attributes}>
+      {...attributes}
+    >
+      {leaf.placeholder && placeholders === 'multiple' &&
+        <span style={{ ...style, position: 'absolute', opacity: 0.333 }} contentEditable={false}>{leaf.placeholder}</span>
+      }
       {children}
     </span>
-
-    {/* Render placeholder if applicable */}
-    {leaf.placeholder &&
-      <div
-        className="editor-block">
-        <span
-          className="parent leaf decoration"
-          style={{
-            ...style,
-            opacity: 0.2,
-            position: "absolute",
-            top: '0'
-          }}
-          contentEditable={false}
-        >
-          {leaf.placeholder}
-        </span>
-      </div>
-    }
   </>
 }

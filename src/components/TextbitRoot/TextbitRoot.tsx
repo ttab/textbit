@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react' // Necessary for esbuild
-import { TextbitContextProvider } from './TextbitContext'
+import { PlaceholdersVisibility, TextbitContextProvider } from './TextbitContext'
 import { PluginRegistryContextProvider } from '../PluginRegistry/PluginRegistryContext'
 import { Plugin } from '../../types'
 
@@ -10,10 +10,11 @@ import {
 import { FocusContextProvider } from './FocusContext'
 
 
-export const TextbitRoot = ({ children, verbose, debounce, placeholders, plugins, className }: PropsWithChildren & {
+export const TextbitRoot = ({ children, verbose, debounce, placeholder, placeholders, plugins, className }: PropsWithChildren & {
   verbose?: boolean
   debounce?: number
-  placeholders?: boolean
+  placeholders?: PlaceholdersVisibility
+  placeholder?: string
   plugins?: Plugin.Definition[]
   className?: string
 }) => {
@@ -27,7 +28,7 @@ export const TextbitRoot = ({ children, verbose, debounce, placeholders, plugins
 
   return (
     <div className={className} style={style}>
-      <TextbitContextProvider verbose={!!verbose} debounce={debounce} placeholders={placeholders}>
+      <TextbitContextProvider verbose={!!verbose} debounce={debounce} placeholder={placeholder} placeholders={placeholders}>
         <PluginRegistryContextProvider verbose={!!verbose} plugins={[
           ...basePlugins,
           ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins

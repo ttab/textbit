@@ -4,13 +4,15 @@ import React, {
   PropsWithChildren
 } from 'react'
 
+export type PlaceholdersVisibility = 'none' | 'single' | 'multiple'
 
 export interface TextbitProviderState {
   words: number
   characters: number
   verbose: boolean
   debounce: number
-  placeholders: boolean
+  placeholder?: string
+  placeholders: PlaceholdersVisibility
   dispatch: React.Dispatch<Partial<TextbitProviderState>>
 }
 
@@ -19,7 +21,7 @@ const initialState: TextbitProviderState = {
   characters: 0,
   verbose: false,
   debounce: 250,
-  placeholders: true,
+  placeholders: 'none',
   dispatch: () => { }
 }
 
@@ -35,6 +37,7 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
     characters,
     verbose,
     debounce,
+    placeholder,
     placeholders
   } = action
   const partialState: Partial<TextbitProviderState> = {}
@@ -55,7 +58,11 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
     partialState.debounce = debounce
   }
 
-  if (typeof placeholders === 'boolean') {
+  if (typeof placeholder === 'string') {
+    partialState.placeholder = placeholder || undefined
+  }
+
+  if (['none', 'single', 'multiple'].includes(partialState.placeholders || '')) {
     partialState.placeholders = placeholders
   }
 
@@ -67,16 +74,34 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
 
 
 // Create the context provider component
-export const TextbitContextProvider = ({ children, verbose, debounce, placeholders }: PropsWithChildren & {
+export const TextbitContextProvider = ({ children, verbose, debounce, placeholder, placeholders }: PropsWithChildren & {
   verbose: boolean
   debounce?: number
-  placeholders?: boolean
+  placeholder?: string
+  placeholders?: PlaceholdersVisibility
 }): JSX.Element => {
+  const initialPlaceholders: PlaceholdersVisibility = (!placeholders && !!placeholder)
+    ? 'single'
+    : (!placeholders)
+      ? 'none'
+      : placeholders
+
+  if (verbose) {
+    if (initialPlaceholders === 'none') {
+      console.info('Setting placeholders to "none", no visible placeholders')
+    } else if (initialPlaceholders === 'single') {
+      console.info('Setting placeholders to "single", one visible placeholder for entire editor')
+    } else {
+      console.info('Setting placeholders to "multiple", one placeholder per text line')
+    }
+  }
+
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     verbose,
     debounce: typeof (debounce) === 'number' ? debounce : initialState.debounce,
-    placeholders: typeof (placeholders) === 'boolean' ? placeholders : initialState.placeholders
+    placeholders: initialPlaceholders,
+    placeholder: placeholder || undefined
   })
 
   return (
