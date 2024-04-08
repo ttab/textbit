@@ -182,10 +182,10 @@ PluginRegistryContext: access through convenience hook `usePluginRegistry()`.
 | plugins | Plugin.Definition[] | All registered plugins |
 | components | Map<string, PluginRegistryComponent> | Slate element render components |
 | actions | PluginRegistryAction[] | Convenience structure |
-| verbose | boolean | Output extra info on console |
+| verbose | boolean | Output extra info about plugins and settings in the browsers developer console |
 | debounce | number | Optional, set debounce value for onChange(), default 250ms |
 | placeholder | string | Optional, placeholder text for entire editor, default is empty. Should not be combined with _placeholders_. |
-| placeholders | boolean | Optional, whether to show text plugins placeholders, default false. Should not be combined with _placeholder_. |
+| placeholders | 'none' | 'single' | 'multiple' | Optional, controls how placeholders are used. Single will display one placeholder for entire editor. Multiple will display plugins placeholders on each textline. Default is 'single' if the _placeholder_ property is set, otherwise 'none'. |
 | dispatch | Dispatch<PluginRegistryReducerAction> | Add or delete plugins |
 
 ### Provides TextbitContext, useTextbit()

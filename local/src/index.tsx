@@ -132,7 +132,7 @@ function App() {
         <Textbit.Root
           verbose={true}
           debounce={0}
-          placeholders={true}
+          placeholders="multiple"
           plugins={[...Textbit.Plugins, BulletList, NumberList, Link]}
         >
           <Editor initialValue={initialValue} />

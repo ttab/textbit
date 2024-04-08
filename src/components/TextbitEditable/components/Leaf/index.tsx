@@ -49,7 +49,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
     // https://github.com/ianstormtaylor/slate/issues/4704#issuecomment-1006696364
     style.paddingLeft = '0.1px'
 
-    if (placeholders && leaf.placeholder) {
+    if (placeholders === 'multiple' && leaf.placeholder) {
       style.position = 'relative'
       style.width = '100%'
     }
@@ -61,7 +61,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
       className={className}
       {...attributes}
     >
-      {leaf.placeholder && placeholders &&
+      {leaf.placeholder && placeholders === 'multiple' &&
         <span style={{ ...style, position: 'absolute', opacity: 0.333 }} contentEditable={false}>{leaf.placeholder}</span>
       }
       {children}

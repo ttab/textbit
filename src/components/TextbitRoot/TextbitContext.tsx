@@ -4,6 +4,7 @@ import React, {
   PropsWithChildren
 } from 'react'
 
+export type PlaceholdersVisibility = 'none' | 'single' | 'multiple'
 
 export interface TextbitProviderState {
   words: number
@@ -11,7 +12,7 @@ export interface TextbitProviderState {
   verbose: boolean
   debounce: number
   placeholder?: string
-  placeholders: boolean
+  placeholders: PlaceholdersVisibility
   dispatch: React.Dispatch<Partial<TextbitProviderState>>
 }
 
@@ -20,7 +21,7 @@ const initialState: TextbitProviderState = {
   characters: 0,
   verbose: false,
   debounce: 250,
-  placeholders: false,
+  placeholders: 'none',
   dispatch: () => { }
 }
 
@@ -61,7 +62,7 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
     partialState.placeholder = placeholder || undefined
   }
 
-  if (typeof placeholders === 'boolean') {
+  if (['none', 'single', 'multiple'].includes(partialState.placeholders || '')) {
     partialState.placeholders = placeholders
   }
 
@@ -77,18 +78,29 @@ export const TextbitContextProvider = ({ children, verbose, debounce, placeholde
   verbose: boolean
   debounce?: number
   placeholder?: string
-  placeholders?: boolean
+  placeholders?: PlaceholdersVisibility
 }): JSX.Element => {
-  if (!!placeholder && placeholders) {
-    const log = verbose ? console.warn : console.info
-    log('Warning: Setting a "placeholder" text and setting "placeholders" to true can lead to display and focus issues')
+  const initialPlaceholders: PlaceholdersVisibility = (!placeholders && !!placeholder)
+    ? 'single'
+    : (!placeholders)
+      ? 'none'
+      : placeholders
+
+  if (verbose) {
+    if (initialPlaceholders === 'none') {
+      console.info('Setting placeholders to "none", no visible placeholders')
+    } else if (initialPlaceholders === 'single') {
+      console.info('Setting placeholders to "single", one visible placeholder for entire editor')
+    } else {
+      console.info('Setting placeholders to "multiple", one placeholder per text line')
+    }
   }
 
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     verbose,
     debounce: typeof (debounce) === 'number' ? debounce : initialState.debounce,
-    placeholders: typeof (placeholders) === 'boolean' ? placeholders : initialState.placeholders,
+    placeholders: initialPlaceholders,
     placeholder: placeholder || undefined
   })
 

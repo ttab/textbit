@@ -7,6 +7,7 @@ import { toggleLeaf } from '@/lib/toggleLeaf'
 import { PluginRegistryAction, PluginRegistryComponent } from '../../../PluginRegistry/lib/types'
 import { FocusContext } from '../../../TextbitRoot/FocusContext'
 import { useTextbit } from '@/components/TextbitRoot'
+import { PlaceholdersVisibility } from '@/components/TextbitRoot/TextbitContext'
 
 export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components }: {
   className: string
@@ -43,7 +44,11 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
 /*
  * Display placeholder as decoration when node is an empty text node
  */
-function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path, placeholders: boolean) {
+function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path, placeholders: PlaceholdersVisibility) {
+  if (placeholders !== 'multiple') {
+    return []
+  }
+
   if (!Text.isText(node) || !path.length || node.text !== '') {
     return []
   }
@@ -58,7 +63,7 @@ function handleDecoration(editor: SlateEditor, components: Map<string, PluginReg
   return [{
     anchor: { path, offset: 0 },
     focus: { path, offset: 0 },
-    placeholder: (entry?.componentEntry?.placeholder && placeholders) ? entry.componentEntry.placeholder : ''
+    placeholder: (entry?.componentEntry?.placeholder) ? entry.componentEntry.placeholder : ''
   }]
 }
 
