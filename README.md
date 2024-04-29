@@ -411,6 +411,7 @@ Plugins can be either
 
 ### Examples
 
+**Bold example**
 ```
 import { BoldIcon } from 'lucide-react'
 
@@ -428,6 +429,7 @@ const Bold: Plugin.LeafDefinition = {
 }
 ```
 
+**Blockquote example**
 ```
 const Blockquote: Plugin.Definition = {
   class: 'textblock',
@@ -471,8 +473,73 @@ const Blockquote: Plugin.Definition = {
 
 ### TextbitElement
 
-The format of an element, or content object, in Texbit.
+The format of an element, or content object, in Texbit is obviously based on Slate Elements. Note the use of `properties` used to carry data about the element and how leaf format is added directly on the text node.
 
+**A text element of type 'h1'**
+```
+{
+    type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
+    class: 'text',
+    properties: {
+      type: 'h1'
+    },
+    children: [
+      { text: 'Better music?' }
+    ]
+  }
 ```
 
+**Example of bold/italic**
+```
+{
+    type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
+    class: 'text',
+    children: [
+      { text: 'An example paragraph  with ' },
+      {
+        text: 'stronger',
+        'core/bold': true,
+        'core/italic': true
+      },
+      {
+        text: ' text.'
+      }
+    ]
+  }
+```
+
+**Image example**
+```
+{
+  id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
+  class: 'block',
+  type: 'core/image',
+  properties: {
+    type: 'image/png',
+    src: 'https://www...image.png',
+    title: 'My image',
+    size: '234300,
+    width: 1024,
+    height: 986
+  },
+  children: [
+    {
+      type: 'core/image/image',
+      class: 'text',
+      children: [{ text: '' }]
+    },
+    {
+      type: 'core/image/text',
+      class: 'text',
+      children: [{ text: 'An image of people taken 2001 in the countryside' }]
+    },
+    {
+      type: 'core/image/altText',
+      class: 'text',
+      children: [{ text: 'Three people by a tree' }]
+    }
+  ]
+}
 ```
