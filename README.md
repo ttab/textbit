@@ -2,7 +2,7 @@
 
 ## Description
 
-An editable component with an easy to use plugin framework for creating custom rich text editors in React applications. Based on Slate. See [Slate documentation](https://docs.slatejs.org/) for more information on Slate. As it is early in development basic functionality and types can and will change.
+An unstyled editable component with an easy to use plugin framework for creating custom rich text editors in React applications. Based on Slate. See [Slate documentation](https://docs.slatejs.org/) for more information on Slate. As it is early in development basic functionality and types can and will change.
 
 ## Development
 
@@ -104,60 +104,6 @@ function MyEditor() {
       </Textbit.Editable>
     </Textbit.Editor>
   )
-}
-```
-
-**editor-variables.css**
-
-```css
-:root {
-  --font-family-serif: Georgia, serif;
-  --font-family-sans-serif: Helvetica, sans-serif;
-  --font-family-mono: monospace;
-  --font-family-ui: system-ui;
-
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 346.8 77.2% 49.8%;
-  --primary-foreground: 355.7 100% 97.3%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 346.8 77.2% 49.8%;
-  --radius: 0.5rem;
-}
-
-.dark {
-  --background: 20 14.3% 4.1%;
-  --foreground: 0 0% 95%;
-  --card: 24 9.8% 10%;
-  --card-foreground: 0 0% 95%;
-  --popover: 0 0% 9%;
-  --popover-foreground: 0 0% 95%;
-  --primary: 346.8 77.2% 49.8%;
-  --primary-foreground: 355.7 100% 97.3%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 15%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 12 6.5% 15.1%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 85.7% 97.3%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 346.8 77.2% 49.8%;
 }
 ```
 
@@ -446,4 +392,154 @@ const { actions } = usePluginRegistry()
     action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
   />
 })}
+```
+
+## Plugin development
+
+Content objects are handled by plugins. Plugins are defined by a structure which define hooks, render components and other parts of the plugin. Examples below should outline the general structure, they are not complete.
+
+Plugins can be either
+| class | |
+| ----------- | ----------- |
+| leaf | Bold, italic, etc. |
+| inline | Inline blocks in the text, like links. |
+| text | Normal text of various types. |
+| textblock | Behave like a block, but be text... Like code or a blockquote. Not draggable. |
+| block | Regular block elements like image, video. Automatically becomes draggable. |
+| void | Non editable objects, like a spinning loader. Should seldom be used.|
+| generic| Non rendered plugins. Like transforming input characters. |
+
+### Examples
+
+**Bold example**
+```
+import { BoldIcon } from 'lucide-react'
+
+const Bold: Plugin.LeafDefinition = {
+  class: 'leaf',
+  name: 'core/bold',
+  actions: [{
+    tool: () => <BoldIcon style={{ width: '0.8em', height: '0.8em' }} />,
+    hotkey: 'mod+b',
+    handler: () => true
+  }],
+  getStyle: () => {
+    return 'font-bold'
+  }
+}
+```
+
+**Blockquote example**
+```
+const Blockquote: Plugin.Definition = {
+  class: 'textblock',
+  name: 'core/blockquote',
+  actions: [
+    {
+      title: 'Blockquote',
+      tool: () => <MessageSquareQuoteIcon style={{ width: '1em', height: '1em' }} />,
+      hotkey: 'mod+shift+2',
+      handler: actionHandler,
+      visibility: (element) => {
+        return [
+          true, // Always visible
+          true, // Always enabled
+          (element.type === 'core/blockquote') // Active when isBlockquote
+        ]
+      }
+    }
+  ],
+  componentEntry: {
+    class: 'textblock',
+    component: BlockquoteComponent,
+    constraints: {
+      normalizeNode: normalizeBlockquote // Render function for main/wrapper component
+    },
+    children: [
+      {
+        type: 'body',
+        class: 'text',
+        component: BlockquoteBody // Render the quote
+      },
+      {
+        type: 'caption',
+        class: 'text',
+        component: BlockquoteCaption // Render the caption
+      }
+    ]
+  }
+}
+```
+
+### TextbitElement
+
+The format of an element, or content object, in Texbit is obviously based on Slate Elements. Note the use of `properties` used to carry data about the element and how leaf format is added directly on the text node.
+
+**A text element of type 'h1'**
+```
+{
+    type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
+    class: 'text',
+    properties: {
+      type: 'h1'
+    },
+    children: [
+      { text: 'Better music?' }
+    ]
+  }
+```
+
+**Example of bold/italic**
+```
+{
+    type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
+    class: 'text',
+    children: [
+      { text: 'An example paragraph  with ' },
+      {
+        text: 'stronger',
+        'core/bold': true,
+        'core/italic': true
+      },
+      {
+        text: ' text.'
+      }
+    ]
+  }
+```
+
+**Image example**
+```
+{
+  id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
+  class: 'block',
+  type: 'core/image',
+  properties: {
+    type: 'image/png',
+    src: 'https://www...image.png',
+    title: 'My image',
+    size: '234300,
+    width: 1024,
+    height: 986
+  },
+  children: [
+    {
+      type: 'core/image/image',
+      class: 'text',
+      children: [{ text: '' }]
+    },
+    {
+      type: 'core/image/text',
+      class: 'text',
+      children: [{ text: 'An image of people taken 2001 in the countryside' }]
+    },
+    {
+      type: 'core/image/altText',
+      class: 'text',
+      children: [{ text: 'Three people by a tree' }]
+    }
+  ]
+}
 ```
