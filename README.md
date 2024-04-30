@@ -404,8 +404,8 @@ Plugins can be either
 | leaf | Bold, italic, etc. |
 | inline | Inline blocks in the text, like links. |
 | text | Normal text of various types. |
-| textblock | Behave like a block, but be text... Like code or a blockquote. |
-| block | Regular block elements like image, video. Automacically draggable. |
+| textblock | Behave like a block, but be text... Like code or a blockquote. Not draggable. |
+| block | Regular block elements like image, video. Automatically becomes draggable. |
 | void | Non editable objects, like a spinning loader. Should seldom be used.|
 | generic| Non rendered plugins. Like transforming input characters. |
 
