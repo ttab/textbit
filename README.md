@@ -116,7 +116,8 @@ Top level Texbit component. Receives all plugins. Base plugins is exported from 
 ### Props
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
-| verbose | boolean | |
+| verbose | boolean | Optional, default false|
+| autoFocus | boolean | Optional, default false|
 | plugins | Plugin.Definition[] | |
 
 ### Provides PluginRegistryContext
@@ -143,6 +144,7 @@ TextbitContext: access through convenience hook `useTextbit()`.
 | characters | number | Number of characters in article |
 | words | number | Number of words in article |
 | verbose | boolean | Output extra info on console |
+| autoFocus | boolean | Whether autoFocus is true or false |
 
 ### useFocused()
 

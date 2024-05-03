@@ -113,6 +113,7 @@ function App() {
       <div style={{ margin: '20px 0', border: '1px solid gray', padding: '5px' }}>
         <Textbit.Root
           verbose={true}
+          autoFocus={true}
           debounce={0}
           plugins={[]}
           placeholder="Add text here..."

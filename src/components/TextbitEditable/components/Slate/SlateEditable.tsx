@@ -1,32 +1,51 @@
 import React, { // Necessary for esbuild
   useContext, useLayoutEffect
 } from 'react'
-import { Editor as SlateEditor, Transforms, Element as SlateElement, Range, Path, Node, Editor, Text, Element } from "slate"
+import { Editor as SlateEditor, Transforms, Element as SlateElement, Path, Node, Editor, Text, Element } from "slate"
 import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
 import { toggleLeaf } from '@/lib/toggleLeaf'
 import { PluginRegistryAction, PluginRegistryComponent } from '../../../PluginRegistry/lib/types'
-import { FocusContext } from '../../../TextbitRoot/FocusContext'
+import { FocusContext } from '@/components/TextbitRoot/FocusContext'
 import { useTextbit } from '@/components/TextbitRoot'
 import { PlaceholdersVisibility } from '@/components/TextbitRoot/TextbitContext'
+import { TextbitEditor } from '@/lib'
 
-export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components }: {
+export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components, autoFocus }: {
   className: string
   renderSlateElement: (props: RenderElementProps) => JSX.Element
   renderLeafComponent: (props: RenderLeafProps) => JSX.Element
   textbitEditor: Editor
   actions: PluginRegistryAction[]
   components: Map<string, PluginRegistryComponent>
+  autoFocus: boolean
 }): JSX.Element => {
   const slateIsFocused = useFocused()
   const { focused, setFocused } = useContext(FocusContext)
   const { placeholder, placeholders } = useTextbit()
 
   useLayoutEffect(() => {
-    // FIXME: This might be unnecessary if we use dependency array correctly...
     if (focused !== slateIsFocused) {
       setFocused(slateIsFocused)
     }
-  })
+  }, [slateIsFocused, focused])
+
+  useLayoutEffect(() => {
+    if (!autoFocus) {
+      return
+    }
+
+    // Set initial selection when autoFocus is true. Set it to beginning if there are multiple
+    // lines, otherwise to the end of the line.
+    if (!textbitEditor.selection) {
+      const [node] = TextbitEditor.first(textbitEditor, [0])
+      const offset = (TextbitEditor.length(textbitEditor) === 1 && Text.isText(node)) ? node.text.length : 0
+      const initialSelection = {
+        anchor: { path: [0, 0], offset },
+        focus: { path: [0, 0], offset }
+      }
+      Transforms.select(textbitEditor, initialSelection)
+    }
+  }, [])
 
   return (
     <Editable
@@ -37,6 +56,7 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
       renderLeaf={renderLeafComponent}
       onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
       decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path, placeholders)}
+      autoFocus={autoFocus}
     />
   )
 }
