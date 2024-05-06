@@ -88,7 +88,7 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
 
 
 // Create the context provider component
-export const TextbitContextProvider = ({ children, verbose, autoFocus, onBlur = undefined, debounce, placeholder, placeholders }: PropsWithChildren & {
+export const TextbitContextProvider = ({ children, verbose, autoFocus, onBlur, debounce, placeholder, placeholders }: PropsWithChildren & {
   verbose: boolean
   autoFocus: boolean
   onBlur?: React.FocusEventHandler<HTMLDivElement>
