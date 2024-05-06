@@ -118,6 +118,7 @@ Top level Texbit component. Receives all plugins. Base plugins is exported from 
 | ----------- | ----------- | ----------- |
 | verbose | boolean | Optional, default false|
 | autoFocus | boolean | Optional, default false|
+| onBlur | React.FocusEventHandler<HTMLDivElement> | Optional |
 | plugins | Plugin.Definition[] | |
 
 ### Provides PluginRegistryContext
@@ -145,6 +146,7 @@ TextbitContext: access through convenience hook `useTextbit()`.
 | words | number | Number of words in article |
 | verbose | boolean | Output extra info on console |
 | autoFocus | boolean | Whether autoFocus is true or false |
+| onBlur | React.FocusEventHandler<HTMLDivElement> | Event handler for when editor looses focus |
 
 ### useFocused()
 

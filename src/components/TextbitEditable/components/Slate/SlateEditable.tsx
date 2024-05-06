@@ -10,7 +10,7 @@ import { useTextbit } from '@/components/TextbitRoot'
 import { PlaceholdersVisibility } from '@/components/TextbitRoot/TextbitContext'
 import { TextbitEditor } from '@/lib'
 
-export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components, autoFocus }: {
+export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components, autoFocus, onBlur }: {
   className: string
   renderSlateElement: (props: RenderElementProps) => JSX.Element
   renderLeafComponent: (props: RenderLeafProps) => JSX.Element
@@ -18,6 +18,7 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
   actions: PluginRegistryAction[]
   components: Map<string, PluginRegistryComponent>
   autoFocus: boolean
+  onBlur?: React.FocusEventHandler<HTMLDivElement>
 }): JSX.Element => {
   const slateIsFocused = useFocused()
   const { focused, setFocused } = useContext(FocusContext)
@@ -67,6 +68,7 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
       onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
       decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path, placeholders)}
       autoFocus={autoFocus}
+      onBlur={onBlur}
     />
   )
 }

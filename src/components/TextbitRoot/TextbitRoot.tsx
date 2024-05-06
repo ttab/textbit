@@ -10,8 +10,9 @@ import {
 import { FocusContextProvider } from './FocusContext'
 
 
-export const TextbitRoot = ({ children, autoFocus, verbose, debounce, placeholder, placeholders, plugins, className }: PropsWithChildren & {
+export const TextbitRoot = ({ children, autoFocus, onBlur, verbose, debounce, placeholder, placeholders, plugins, className }: PropsWithChildren & {
   autoFocus?: boolean
+  onBlur?: React.FocusEventHandler<HTMLDivElement>
   verbose?: boolean
   debounce?: number
   placeholders?: PlaceholdersVisibility
@@ -29,7 +30,7 @@ export const TextbitRoot = ({ children, autoFocus, verbose, debounce, placeholde
 
   return (
     <div className={className} style={style}>
-      <TextbitContextProvider verbose={!!verbose} autoFocus={!!autoFocus} debounce={debounce} placeholder={placeholder} placeholders={placeholders}>
+      <TextbitContextProvider verbose={!!verbose} autoFocus={!!autoFocus} onBlur={onBlur} debounce={debounce} placeholder={placeholder} placeholders={placeholders}>
         <PluginRegistryContextProvider verbose={!!verbose} plugins={[
           ...basePlugins,
           ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins
