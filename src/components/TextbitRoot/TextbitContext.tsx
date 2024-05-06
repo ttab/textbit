@@ -10,6 +10,7 @@ export interface TextbitProviderState {
   words: number
   characters: number
   autoFocus: boolean
+  onBlur?: React.FocusEventHandler<HTMLDivElement>
   verbose: boolean
   debounce: number
   placeholder?: string
@@ -21,6 +22,7 @@ const initialState: TextbitProviderState = {
   words: 0,
   characters: 0,
   autoFocus: false,
+  onBlur: undefined,
   verbose: false,
   debounce: 250,
   placeholders: 'none',
@@ -38,6 +40,7 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
     words,
     characters,
     autoFocus,
+    onBlur,
     verbose,
     debounce,
     placeholder,
@@ -61,6 +64,10 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
     partialState.autoFocus = autoFocus
   }
 
+  if (typeof onBlur === 'function') {
+    partialState.onBlur = onBlur
+  }
+
   if (typeof debounce === 'number') {
     partialState.debounce = debounce
   }
@@ -81,9 +88,10 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
 
 
 // Create the context provider component
-export const TextbitContextProvider = ({ children, verbose, autoFocus, debounce, placeholder, placeholders }: PropsWithChildren & {
+export const TextbitContextProvider = ({ children, verbose, autoFocus, onBlur = undefined, debounce, placeholder, placeholders }: PropsWithChildren & {
   verbose: boolean
   autoFocus: boolean
+  onBlur?: React.FocusEventHandler<HTMLDivElement>
   debounce?: number
   placeholder?: string
   placeholders?: PlaceholdersVisibility
@@ -108,6 +116,7 @@ export const TextbitContextProvider = ({ children, verbose, autoFocus, debounce,
     ...initialState,
     verbose,
     autoFocus,
+    onBlur,
     debounce: typeof (debounce) === 'number' ? debounce : initialState.debounce,
     placeholders: initialPlaceholders,
     placeholder: placeholder || undefined
