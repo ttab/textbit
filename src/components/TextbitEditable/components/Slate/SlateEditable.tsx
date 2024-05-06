@@ -30,21 +30,31 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
   }, [slateIsFocused, focused])
 
   useLayoutEffect(() => {
-    if (!autoFocus) {
+    if (!autoFocus || textbitEditor.selection) {
       return
     }
 
-    // Set initial selection when autoFocus is true. Set it to beginning if there are multiple
-    // lines, otherwise to the end of the line.
-    if (!textbitEditor.selection) {
-      const [node] = TextbitEditor.first(textbitEditor, [0])
-      const offset = (TextbitEditor.length(textbitEditor) === 1 && Text.isText(node)) ? node.text.length : 0
+    setTimeout(() => {
+      // Set initial selection when autoFocus is true. Set it to beginning if there are multiple
+      // lines, otherwise to the end of the line. Needs setTimout() when in yjs env.
+      const nodes = Array.from(
+        Editor.nodes(textbitEditor, {
+          at: [],
+          match: el => {
+            return Text.isText(el)
+          }
+        })
+      )
+
+      const node = nodes.length ? nodes[0][0] : null
+      const offset = (TextbitEditor.length(textbitEditor) <= 1 && Text.isText(node)) ? node.text.length : 0
       const initialSelection = {
         anchor: { path: [0, 0], offset },
         focus: { path: [0, 0], offset }
       }
+
       Transforms.select(textbitEditor, initialSelection)
-    }
+    })
   }, [])
 
   return (
