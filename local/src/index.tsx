@@ -5,8 +5,7 @@ import Textbit, {
   Menu,
   Toolbar,
   usePluginRegistry,
-  useTextbit,
-  useFocused
+  useTextbit
 } from '../../src'
 
 import {
@@ -134,7 +133,16 @@ function App() {
           verbose={true}
           debounce={0}
           placeholders="multiple"
-          plugins={[...Textbit.Plugins, BulletList, NumberList, Link]}
+          plugins={[
+            ...Textbit.Plugins.map(p => p()),
+            BulletList({
+              listStyle: 'circle'
+            }),
+            NumberList(),
+            Link({
+              option1: true // Example option
+            })
+          ]}
         >
           <Editor initialValue={initialValue} />
         </Textbit.Root >
@@ -144,7 +152,7 @@ function App() {
         <Textbit.Root
           verbose={true}
           debounce={1000}
-          plugins={[...Textbit.Plugins]}
+          plugins={[...Textbit.Plugins.map(p => p())]}
         >
           <Editor initialValue={initialValue} />
         </Textbit.Root>

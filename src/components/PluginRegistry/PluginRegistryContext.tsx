@@ -79,7 +79,13 @@ function addPlugin(state: PluginRegistryProviderState, newPlugin: Plugin.Definit
   const actions = registerActions(plugins)
 
   const components = (TextbitPlugin.isElementPlugin(newPlugin) && newPlugin?.componentEntry)
-    ? registerComponents(state.components, newPlugin.componentEntry?.type || newPlugin.name, newPlugin.componentEntry, options)
+    ? registerComponents(
+      state.components,
+      newPlugin.componentEntry?.type || newPlugin.name,
+      newPlugin.componentEntry,
+      options,
+      newPlugin.options
+    )
     : state.components
 
   return {
@@ -101,7 +107,7 @@ function initializePlugins(state: PluginRegistryProviderState, plugins: Plugin.D
     state.actions = registerActions(state.plugins)
 
     if (TextbitPlugin.isElementPlugin(p) && p?.componentEntry) {
-      const comp = registerComponents(state.components, p.componentEntry?.type || p.name, p.componentEntry, options)
+      const comp = registerComponents(state.components, p.componentEntry?.type || p.name, p.componentEntry, options, p.options)
       state.components = comp
     }
   })

@@ -14,16 +14,18 @@ export const registerComponents = (
   currentComponents: Map<string, PluginRegistryComponent>,
   componentType: string,
   entry: Plugin.ComponentEntry,
-  options?: { verbose: boolean }
+  options?: { verbose: boolean },
+  pluginOptions?: Plugin.Options
 ) => {
   const components: Map<string, PluginRegistryComponent> = new Map()
   currentComponents.forEach((entry, key) => {
     components.set(key, entry)
   })
 
-  registerComponent(components, componentType, entry, options || {})
+  registerComponent(components, componentType, entry, options || {}, pluginOptions || {})
   return components
 }
+
 
 const registerComponent = (
   components: Map<string, PluginRegistryComponent>,
@@ -32,7 +34,8 @@ const registerComponent = (
   options: {
     verbose?: boolean,
     parent?: Plugin.ComponentEntry
-  }
+  },
+  pluginOptions: Record<string, unknown>
 ) => {
   if (components.has(componentType)) {
     if (options.verbose) {
@@ -52,7 +55,8 @@ const registerComponent = (
     type: componentType,
     class: entry.class || 'text',
     componentEntry: entry,
-    parent: options?.parent || null
+    parent: options?.parent || null,
+    pluginOptions: pluginOptions || new Map()
   })
 
   const { children = [] } = entry
@@ -68,7 +72,8 @@ const registerComponent = (
       {
         verbose: options.verbose,
         parent: entry
-      }
+      },
+      pluginOptions
     )
   })
 }

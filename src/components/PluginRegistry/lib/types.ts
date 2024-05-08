@@ -9,6 +9,7 @@ export type PluginRegistryComponent = {
   class: string
   componentEntry: Plugin.ComponentEntry
   parent: Plugin.ComponentEntry | null
+  pluginOptions: Record<string, unknown>
 }
 
 /**
