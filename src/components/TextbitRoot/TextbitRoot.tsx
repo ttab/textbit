@@ -32,8 +32,8 @@ export const TextbitRoot = ({ children, autoFocus, onBlur, verbose, debounce, pl
     <div className={className} style={style}>
       <TextbitContextProvider verbose={!!verbose} autoFocus={!!autoFocus} onBlur={onBlur} debounce={debounce} placeholder={placeholder} placeholders={placeholders}>
         <PluginRegistryContextProvider verbose={!!verbose} plugins={[
-          ...basePlugins,
-          ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins
+          ...basePlugins.map(p => p()),
+          ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map(sp => sp())
         ]}>
           <FocusContextProvider>
             {children}

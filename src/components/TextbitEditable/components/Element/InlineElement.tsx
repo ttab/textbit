@@ -4,6 +4,7 @@ import { Plugin } from '@/types'
 
 interface InlineElementProps extends RenderElementProps {
   entry: Plugin.ComponentEntry
+  options?: Record<string, unknown>
 }
 
 /**
@@ -12,14 +13,14 @@ interface InlineElementProps extends RenderElementProps {
  * @param props RenderInlineElementProps
  * @returns JSX.Element
  */
-export const InlineElement = ({ attributes, children, element, entry }: InlineElementProps) => {
+export const InlineElement = ({ attributes, children, element, entry, options }: InlineElementProps) => {
   return (
     <span
       className={`inline ${entry.type}`}
       data-id={element.id}
       {...attributes}
     >
-      {entry.component({ element, attributes, children })}
+      {entry.component({ element, attributes, children, options })}
     </span>
   )
 }

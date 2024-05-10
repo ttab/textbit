@@ -113,7 +113,7 @@ function handleOnKeyDown(editor: SlateEditor, actions: PluginRegistryAction[], e
 
     event.preventDefault()
 
-    if (action.handler && true !== action.handler({ editor })) {
+    if (action.handler && true !== action.handler({ editor, options: action.plugin.options })) {
       break
     }
 

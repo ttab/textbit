@@ -9,6 +9,7 @@ export type PluginRegistryComponent = {
   class: string
   componentEntry: Plugin.ComponentEntry
   parent: Plugin.ComponentEntry | null
+  pluginOptions: Record<string, unknown>
 }
 
 /**
@@ -16,7 +17,6 @@ export type PluginRegistryComponent = {
  * Hotkey registry
  */
 export type PluginRegistryAction = Plugin.Action & {
-  key: string
   plugin: Plugin.Definition
   isHotkey: (action: any) => boolean
 }

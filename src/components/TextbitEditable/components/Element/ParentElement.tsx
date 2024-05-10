@@ -7,6 +7,7 @@ import { GutterContext } from '../../../GutterProvider'
 
 interface ParentElementProps extends RenderElementProps {
   entry: Plugin.ComponentEntry
+  options?: Record<string, unknown>
 }
 
 /**

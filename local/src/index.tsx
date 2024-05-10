@@ -5,8 +5,7 @@ import Textbit, {
   Menu,
   Toolbar,
   usePluginRegistry,
-  useTextbit,
-  useFocused
+  useTextbit
 } from '../../src'
 
 import {
@@ -134,7 +133,16 @@ function App() {
           verbose={true}
           debounce={0}
           placeholders="multiple"
-          plugins={[...Textbit.Plugins, BulletList, NumberList, Link]}
+          plugins={[
+            ...Textbit.Plugins.map(p => p()),
+            BulletList({
+              listStyle: 'circle'
+            }),
+            NumberList(),
+            Link({
+              option1: true // Example option
+            })
+          ]}
         >
           <Editor initialValue={initialValue} />
         </Textbit.Root >
@@ -144,7 +152,7 @@ function App() {
         <Textbit.Root
           verbose={true}
           debounce={1000}
-          plugins={[...Textbit.Plugins]}
+          plugins={[...Textbit.Plugins.map(p => p())]}
         >
           <Editor initialValue={initialValue} />
         </Textbit.Root>
@@ -184,8 +192,8 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
                     return (
                       <Menu.Item
                         className="textbit-contenttools-item"
-                        key={`${action.key}`}
-                        action={action}
+                        key={action.name}
+                        action={action.name}
                       >
                         <Menu.Icon className="textbit-contenttools-icon" />
                         <Menu.Label className="textbit-contenttools-label" />
@@ -203,7 +211,8 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
               {actions.filter(action => ['leaf'].includes(action.plugin.class)).map(action => {
                 return <Toolbar.Item
                   className="textbit-contexttools-item"
-                  action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                  action={action}
+                  key={action.name}
                 />
               })}
             </Toolbar.Group>
@@ -211,7 +220,8 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
               {actions.filter(action => ['inline'].includes(action.plugin.class)).map(action => {
                 return <Toolbar.Item
                   className="textbit-contexttools-item"
-                  action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
+                  action={action}
+                  key={action.name}
                 />
               })}
             </Toolbar.Group>

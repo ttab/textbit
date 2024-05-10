@@ -51,6 +51,10 @@ import Textbit, {
   useTextbit
 } from '@ttab/textbit'
 import './editor-variables.css'
+import {
+  Plugin1,
+  Plugin2
+} from 'plugin-bundle'
 
 const initialValue: TBDescendant[] = [
   {
@@ -65,7 +69,16 @@ const initialValue: TBDescendant[] = [
 
 function MyEditor() {
   return (
-    <Textbit.Editor verbose={true} plugins={Textbit.Plugins}>
+    <Textbit.Root
+      verbose={true}
+      plugins={[
+        Plugin1(),
+        Plugin2({
+          option1: true,
+          option2: false
+        })
+      ]}
+    >
       <Textbit.Editable
         value={initialValue}
         onChange={value => {
@@ -102,16 +115,16 @@ function MyEditor() {
         </Toolbar.Root>
 
       </Textbit.Editable>
-    </Textbit.Editor>
+    </Textbit.Root>
   )
 }
 ```
 
 # Component Reference
 
-## Textbit.Textbit
+## Textbit.Root
 
-Top level Texbit component. Receives all plugins. Base plugins is exported from Textbit as `Textbit.Plugins`.
+Top level Texbit component. Receives all plugins. Base plugins is exported from Textbit as `Textbit.Plugins[]`.
 
 ### Props
 | Name | Type | Description |
@@ -419,58 +432,64 @@ Plugins can be either
 ```
 import { BoldIcon } from 'lucide-react'
 
-const Bold: Plugin.LeafDefinition = {
-  class: 'leaf',
-  name: 'core/bold',
-  actions: [{
-    tool: () => <BoldIcon style={{ width: '0.8em', height: '0.8em' }} />,
-    hotkey: 'mod+b',
-    handler: () => true
-  }],
-  getStyle: () => {
-    return 'font-bold'
+const Bold: Plugin.InitFunction = () => {
+  return {
+    class: 'leaf',
+    name: 'core/bold',
+    actions: [{
+      name: 'toggle-bold',
+      tool: () => <BoldIcon style={{ width: '0.8em', height: '0.8em' }} />,
+      hotkey: 'mod+b',
+      handler: () => true
+    }],
+    getStyle: () => {
+      return 'font-bold'
+    }
   }
 }
 ```
 
 **Blockquote example**
 ```
-const Blockquote: Plugin.Definition = {
-  class: 'textblock',
-  name: 'core/blockquote',
-  actions: [
-    {
-      title: 'Blockquote',
-      tool: () => <MessageSquareQuoteIcon style={{ width: '1em', height: '1em' }} />,
-      hotkey: 'mod+shift+2',
-      handler: actionHandler,
-      visibility: (element) => {
-        return [
-          true, // Always visible
-          true, // Always enabled
-          (element.type === 'core/blockquote') // Active when isBlockquote
-        ]
-      }
-    }
-  ],
-  componentEntry: {
+const Blockquote: Plugin.InitFunction = () => {
+  return {
     class: 'textblock',
-    component: BlockquoteComponent,
-    constraints: {
-      normalizeNode: normalizeBlockquote // Render function for main/wrapper component
-    },
-    children: [
+    name: 'core/blockquote',
+    actions: [
       {
-        type: 'body',
-        class: 'text',
-        component: BlockquoteBody // Render the quote
-      },
-      {
-        type: 'caption',
-        class: 'text',
-        component: BlockquoteCaption // Render the caption
+        name: 'set-blockquote',
+        title: 'Blockquote',
+        tool: () => <MessageSquareQuoteIcon style={{ width: '1em', height: '1em' }} />,
+        hotkey: 'mod+shift+2',
+        handler: actionHandler,
+        visibility: (element) => {
+          return [
+            true, // Always visible
+            true, // Always enabled
+            (element.type === 'core/blockquote') // Active when isBlockquote
+          ]
+        }
       }
-    ]
+    ],
+    componentEntry: {
+      class: 'textblock',
+      component: BlockquoteComponent,
+      constraints: {
+        normalizeNode: normalizeBlockquote // Render function for main/wrapper component
+      },
+      children: [
+        {
+          type: 'body',
+          class: 'text',
+          component: BlockquoteBody // Render the quote
+        },
+        {
+          type: 'caption',
+          class: 'text',
+          component: BlockquoteCaption // Render the caption
+        }
+      ]
+    }
   }
 }
 ```

@@ -8,22 +8,25 @@ import { EditLink as EditLinkComponent } from './components/EditLink'
 import './style.css'
 import { actionHandler } from './lib/actionHandler'
 
-
-export const Link: Plugin.Definition = {
-  class: 'inline',
-  name: 'core/link',
-  componentEntry: {
+export const Link: Plugin.InitFunction = (options) => {
+  return {
     class: 'inline',
-    component: LinkComponent
-  },
-  actions: [{
-    tool: [
-      () => <BsLink />,
-      ({ editor, entry, active }) => <EditLinkComponent editor={editor} entry={entry} active={active} />
-    ],
-    hotkey: 'mod+k',
-    handler: ({ editor }) => {
-      actionHandler(editor, 'core/link')
-    }
-  }]
+    name: 'core/link',
+    options,
+    componentEntry: {
+      class: 'inline',
+      component: LinkComponent
+    },
+    actions: [{
+      name: 'toggle-link',
+      tool: [
+        () => <BsLink />,
+        ({ editor, entry, active }) => <EditLinkComponent editor={editor} entry={entry} active={active} />
+      ],
+      hotkey: 'mod+k',
+      handler: ({ editor }) => {
+        actionHandler(editor, 'core/link')
+      }
+    }]
+  }
 }

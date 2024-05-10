@@ -27,17 +27,15 @@ const render: Plugin.Component = ({ children }) => {
       </svg>
     </div>
   )
-  // return <div style={style}>
-  //     <LoaderElement />
-  //     {children}
-  // </div>
 }
 
-export const Loader: Plugin.Definition = {
-  class: 'void',
-  name: 'core/loader',
-  componentEntry: {
+export const Loader: Plugin.InitFunction = () => {
+  return {
     class: 'void',
-    component: render
+    name: 'core/loader',
+    componentEntry: {
+      class: 'void',
+      component: render
+    }
   }
 }

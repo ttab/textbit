@@ -10,13 +10,14 @@ export namespace Plugin {
    */
   export interface ComponentProps extends RenderElementProps {
     rootNode?: Node
+    options?: Options
   }
 
   /**
    * @interface
    * Textbit component for rendering a TBElement (Slate Element)
    */
-  export type Component<Props = { rootNode?: Node } & RenderElementProps> = {
+  export type Component<Props = { rootNode?: Node, options?: Options } & RenderElementProps> = {
     (props: Props): ReactNode
   }
 
@@ -42,11 +43,12 @@ export namespace Plugin {
    * Action handler props interface
    */
   export interface Action {
+    name: string,
     title?: string
     description?: string
     hotkey?: string
     tool?: ToolComponent | [ToolComponent, ToolComponent]
-    handler: (options: { editor: Editor, api?: unknown }) => boolean | void
+    handler: (options: { editor: Editor, options?: Options, api?: unknown }) => boolean | void
     visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean] // visible, enabled, active
   }
 
@@ -142,6 +144,12 @@ export namespace Plugin {
    */
   export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resource | Resource[] }) => Promise<any | undefined>
 
+  /**
+   * @type Options
+   * Plugin options
+   */
+  export type Options = Record<string, unknown>
+
   interface BaseDefinition {
     /**
      * Class of the plugin, inherited to default component. Must be one of
@@ -156,6 +164,11 @@ export namespace Plugin {
      * Action definitions array, specifies tool, hotkey, title, description, handler and visibility.
      */
     actions?: Action[]
+
+    /**
+     * Options object
+     */
+    options?: Options
   }
 
   /**
@@ -197,4 +210,11 @@ export namespace Plugin {
    * Textbit plugin definition interface
    */
   export type Definition = ElementDefinition | LeafDefinition
+
+  /**
+   * @type InitFunction
+   * Plugin initialization function
+   */
+  export type InitFunction = (options?: Options) => Definition
+
 }
