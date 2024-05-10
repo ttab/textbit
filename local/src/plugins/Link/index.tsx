@@ -18,6 +18,7 @@ export const Link: Plugin.InitFunction = (options) => {
       component: LinkComponent
     },
     actions: [{
+      name: 'toggle-link',
       tool: [
         () => <BsLink />,
         ({ editor, entry, active }) => <EditLinkComponent editor={editor} entry={entry} active={active} />

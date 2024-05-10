@@ -1,13 +1,16 @@
 import * as uuid from 'uuid'
-import { Editor, Transforms } from 'slate'
+import { Transforms } from 'slate'
 
 import { Element } from 'slate'
 import { TextbitEditor, TextbitElement } from '../../../../../src/lib'
-import { TBEditor } from '../../../../../src/types'
+import { TBEditor, Plugin } from '../../../../../src/types'
 
-export const actionHandler = (editor: TBEditor, type: string) => {
+export const actionHandler = (editor: TBEditor, type: string, options: Plugin.Options = {}) => {
   const listType = ['core/bullet-list', 'core/number-list'].includes(type) ? type : 'core/bullet-list'
   const isActive = TextbitEditor.includes(editor, listType)
+
+  // Output options in the console "for show"
+  console.log(options)
 
   Transforms.unwrapNodes(editor, {
     match: (n) =>
@@ -38,5 +41,4 @@ export const actionHandler = (editor: TBEditor, type: string) => {
       children: []
     })
   }
-
 }

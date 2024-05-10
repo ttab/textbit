@@ -3,19 +3,26 @@ import { useSlateSelection, useSlateStatic } from 'slate-react'
 import { BaseSelection, Editor, Element } from 'slate'
 import { Plugin } from '@/types'
 import { pipeFromFileInput } from '@/lib/pipes'
-import { usePluginRegistry } from '@/components/PluginRegistry'
+import { PluginRegistryAction, usePluginRegistry } from '@/components/PluginRegistry'
+import { TextbitElement } from '@/lib'
 
 
 export const ItemContext = createContext<{ isActive: boolean, action?: Plugin.Action }>({ isActive: false })
 
-export const Item = ({ children, className, action }: PropsWithChildren & {
+export const Item = ({ children, className, action: actionName }: PropsWithChildren & {
   className?: string
-  action: Plugin.Action
+  action: string
 }) => {
-  const { plugins } = usePluginRegistry()
+  const { plugins, actions } = usePluginRegistry()
   const editor = useSlateStatic()
   const selection = useSlateSelection()
-  const isActive = isBlockActive(editor, selection, action)
+  const action = actions.find(a => a.name === actionName)
+
+  if (!action) {
+    return <></>
+  }
+
+  const isActive = action && isBlockActive(editor, selection, action)
 
   return (
     <ItemContext.Provider value={{ isActive: isActive ? true : false, action }}>
@@ -26,6 +33,7 @@ export const Item = ({ children, className, action }: PropsWithChildren & {
           e.preventDefault()
           action.handler({
             editor,
+            options: action.plugin.options,
             api: {
               // FIXME: This is just to expose some functionality, but it is not a good way to give access to an api...
               consumeFileInputChangeEvent: (
@@ -45,9 +53,9 @@ export const Item = ({ children, className, action }: PropsWithChildren & {
 }
 
 
-const isBlockActive = (editor: Editor, selection: BaseSelection, action: any): [boolean, boolean, boolean] => {
+const isBlockActive = (editor: Editor, selection: BaseSelection, action: PluginRegistryAction): boolean => {
   if (!selection) {
-    return [false, false, false]
+    return false
   }
 
   const [match] = Array.from(
@@ -61,11 +69,15 @@ const isBlockActive = (editor: Editor, selection: BaseSelection, action: any): [
   )
 
   if (!match.length) {
-    return [false, false, false]
+    return false
   }
 
   if (!action?.visibility) {
-    return [false, false, false]
+    return false
+  }
+
+  if (!TextbitElement.isElement(match[0])) {
+    return false
   }
 
   const status = action?.visibility(match[0]) // [visible, enabled, active]

@@ -15,11 +15,12 @@ export const BulletList: Plugin.InitFunction = (options) => {
     options,
     actions: [
       {
+        name: 'toggle-bulletlist',
         title: 'Bullet list',
         tool: () => <BsListUl />,
         hotkey: 'mod+shift+8',
-        handler: ({ editor }) => {
-          actionHandler(editor, 'core/bullet-list')
+        handler: ({ editor, options }) => {
+          actionHandler(editor, 'core/bullet-list', options)
         },
         visibility: (element) => {
           return [
@@ -55,6 +56,7 @@ export const NumberList: Plugin.InitFunction = () => {
     name: 'core/number-list',
     actions: [
       {
+        name: 'toggle-numberlist',
         title: 'Number list',
         tool: () => <BsListOl />,
         hotkey: 'mod+shift+7',

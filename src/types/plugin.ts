@@ -43,11 +43,12 @@ export namespace Plugin {
    * Action handler props interface
    */
   export interface Action {
+    name: string,
     title?: string
     description?: string
     hotkey?: string
     tool?: ToolComponent | [ToolComponent, ToolComponent]
-    handler: (options: { editor: Editor, api?: unknown }) => boolean | void
+    handler: (options: { editor: Editor, options?: Options, api?: unknown }) => boolean | void
     visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean] // visible, enabled, active
   }
 

@@ -13,6 +13,7 @@ export const Text: Plugin.InitFunction = () => {
       placeholder: '¶'
     },
     actions: [{
+      name: 'set-text',
       title: 'Text',
       hotkey: 'mod+0',
       handler: ({ editor }) => {
