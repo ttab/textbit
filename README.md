@@ -437,6 +437,7 @@ const Bold: Plugin.InitFunction = () => {
     class: 'leaf',
     name: 'core/bold',
     actions: [{
+      name: 'toggle-bold',
       tool: () => <BoldIcon style={{ width: '0.8em', height: '0.8em' }} />,
       hotkey: 'mod+b',
       handler: () => true
@@ -456,6 +457,7 @@ const Blockquote: Plugin.InitFunction = () => {
     name: 'core/blockquote',
     actions: [
       {
+        name: 'set-blockquote',
         title: 'Blockquote',
         tool: () => <MessageSquareQuoteIcon style={{ width: '1em', height: '1em' }} />,
         hotkey: 'mod+shift+2',
