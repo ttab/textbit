@@ -8,6 +8,7 @@ export const Navigation: Plugin.InitFunction = () => {
     name: 'navigation',
     actions: [
       {
+        name: 'move-text-up',
         hotkey: 'mod+option+up',
         handler: ({ editor }) => {
           const position = TextbitEditor.position(editor)
@@ -26,6 +27,7 @@ export const Navigation: Plugin.InitFunction = () => {
         }
       },
       {
+        name: 'move-text-down',
         hotkey: 'mod+option+down',
         handler: ({ editor }) => {
           const position = TextbitEditor.position(editor)
