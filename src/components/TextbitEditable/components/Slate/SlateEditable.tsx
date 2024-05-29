@@ -1,4 +1,6 @@
 import React, { // Necessary for esbuild
+  FocusEventHandler,
+  useCallback,
   useContext, useLayoutEffect
 } from 'react'
 import { Editor as SlateEditor, Transforms, Element as SlateElement, Path, Node, Editor, Text, Element } from "slate"
@@ -26,18 +28,21 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
 
   useLayoutEffect(() => {
     if (focused !== slateIsFocused) {
-      setFocused(slateIsFocused)
+      setTimeout(() => {
+        setFocused(slateIsFocused)
+      }, 0)
     }
   }, [slateIsFocused, focused])
 
-  useLayoutEffect(() => {
-    if (!autoFocus || textbitEditor.selection) {
+  // Set initial selection on focus it no selection exists
+  const onFocus = useCallback<FocusEventHandler<HTMLDivElement>>((evt) => {
+    if (!!textbitEditor.selection) {
       return
     }
 
+    // Set it to beginning if there are multiple lines, otherwise to
+    // the end of the first (only line.Needs setTimout() when in yjs env.
     setTimeout(() => {
-      // Set initial selection when autoFocus is true. Set it to beginning if there are multiple
-      // lines, otherwise to the end of the line. Needs setTimout() when in yjs env.
       const nodes = Array.from(
         Editor.nodes(textbitEditor, {
           at: [],
@@ -55,7 +60,7 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
       }
 
       Transforms.select(textbitEditor, initialSelection)
-    })
+    }, 0)
   }, [])
 
   return (
@@ -69,6 +74,7 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
       decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path, placeholders)}
       autoFocus={autoFocus}
       onBlur={onBlur}
+      onFocus={onFocus}
     />
   )
 }
