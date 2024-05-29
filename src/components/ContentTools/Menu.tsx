@@ -25,7 +25,7 @@ export const Menu = ({ children, className }: PropsWithChildren & {
     return <></>
   }
 
-  const top = offsetY - box.top
+  const top = offsetY - box.top + window.scrollY
   return (
     <MenuContext.Provider value={[isOpen, setIsOpen]}>
       <div ref={ref} style={{ position: 'absolute', top: `${top}px` }} className={className} data-state={isOpen ? 'open' : 'closed'}>
