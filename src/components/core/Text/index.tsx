@@ -23,7 +23,7 @@ export const Text: Plugin.InitFunction = () => {
         return [
           element.type === 'core/text',
           true,
-          element.type === 'core/text' && !element?.properties?.type
+          element.type === 'core/text' && !element?.properties?.role
         ]
       }
     }]

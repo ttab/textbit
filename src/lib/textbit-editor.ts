@@ -5,11 +5,9 @@ import {
   Text,
   NodeEntry,
   EditorInterface,
-  Path,
   BaseRange,
   Transforms,
   Descendant,
-  Location,
   Range
 } from "slate"
 import * as uuid from 'uuid'
@@ -25,7 +23,7 @@ interface TextbitEditorInterface extends EditorInterface {
   getSelectedText: (editor: Editor, range?: BaseRange) => string | undefined,
   insertAt: (editor: Editor, position: number, nodes: Node | Node[]) => void,
   hasText: (nodes: NodeEntry<Descendant>[]) => boolean,
-  convertToTextNode: (editor: Editor, type: string, subtype?: string, nodes?: NodeEntry<Node>[]) => void
+  convertToTextNode: (editor: Editor, type: string, role?: string, nodes?: NodeEntry<Node>[]) => void
 }
 
 export const TextbitEditor: TextbitEditorInterface = {
@@ -182,10 +180,10 @@ export const TextbitEditor: TextbitEditorInterface = {
    *
    * @param editor Editor
    * @param type string i.e core/text
-   * @param subtype string e.g heading-1, preamble (or even undefined for body text) - Optional
+   * @param role string e.g heading-1, preamble (or even undefined for body text) - Optional
    * @param nodes Node[] - Optional
    */
-  convertToTextNode(editor, type, subtype = undefined, nodes = undefined) {
+  convertToTextNode(editor, type, role = undefined, nodes = undefined) {
     const targetNodes = nodes || getSelectedNodeEntries(editor)
 
     if (!targetNodes.length) {
@@ -209,13 +207,13 @@ export const TextbitEditor: TextbitEditorInterface = {
         if (TextbitElement.isText(node)) {
           const nodeAttribs: any = {
             type,
-            properties: subtype ? { type: subtype } : {}
+            properties: role ? { role } : {}
           }
 
           Transforms.setNodes(
             editor,
             nodeAttribs,
-            { match: n => TextbitElement.isElement(n) && Editor.isBlock(editor, n) && n?.properties?.type !== subtype }
+            { match: n => TextbitElement.isElement(n) && Editor.isBlock(editor, n) && n?.properties?.role !== role }
           )
           continue
         }
@@ -229,8 +227,8 @@ export const TextbitEditor: TextbitEditorInterface = {
               strings.push({
                 id: uuid.v4(),
                 class: 'text',
-                type: type,
-                properties: subtype ? { type: subtype } : {},
+                type,
+                properties: role ? { role } : {},
                 children: [{
                   text: val[0].text
                 }]
