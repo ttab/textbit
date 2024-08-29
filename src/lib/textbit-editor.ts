@@ -229,7 +229,6 @@ export const TextbitEditor: TextbitEditorInterface = {
           )
         }
       }
-    }
-    )
+    })
   }
 }
