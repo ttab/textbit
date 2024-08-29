@@ -184,63 +184,52 @@ export const TextbitEditor: TextbitEditorInterface = {
    * @param nodes Node[] - Optional
    */
   convertToTextNode(editor, type, role = undefined, nodes = undefined) {
-    const targetNodes = nodes || getSelectedNodeEntries(editor)
+    if (!editor.selection) {
+      return
+    }
+
+    const targetNodes = Array.from(
+      Editor.nodes(editor, {
+        mode: 'highest',
+        at: Editor.unhangRange(editor, editor.selection),
+        match: n => !Editor.isEditor(n)
+      })
+    )
 
     if (!targetNodes.length) {
       return
     }
 
-    // Not allowed (as it crashes if last element is a block) if any element is not text/textblock
-    for (const [node] of targetNodes) {
-      if (!TextbitElement.isText(node) && !TextbitElement.isTextblock(node)) {
-        return
-      }
-    }
-
     Editor.withoutNormalizing(editor, () => {
-      for (const [node, [position]] of targetNodes) {
-        if (!TextbitElement.isText(node) && !TextbitElement.isTextblock(node)) {
-          continue
+      for (let n = 0; n < targetNodes.length; n++) {
+        const [child, childPath] = targetNodes[n]
+
+        if (!TextbitElement.isOfType(child, 'core/text') && TextbitElement.isTextblock(child)) {
+          Transforms.removeNodes(editor, { at: childPath })
+
+          const textContent = Node.string(child)
+          if (textContent) {
+            Transforms.insertNodes(
+              editor,
+              {
+                type: 'core/text',
+                properties: role ? { role } : {},
+                children: [{ text: textContent }]
+              },
+              { at: childPath }
+            )
+          }
         }
 
-        // Convert regular text element
-        if (TextbitElement.isText(node)) {
-          const nodeAttribs: any = {
-            type,
-            properties: role ? { role } : {}
-          }
-
+        if (TextbitElement.isOfType(child, 'core/text')) {
           Transforms.setNodes(
             editor,
-            nodeAttribs,
-            { match: n => TextbitElement.isElement(n) && Editor.isBlock(editor, n) && n?.properties?.role !== role }
+            { type: 'core/text', properties: role ? { role } : {} },
+            { at: childPath }
           )
-          continue
-        }
-
-        if (TextbitElement.isTextblock(node)) {
-          const texts = Node.texts(node)
-          const strings: Node[] = []
-
-          for (let val of texts) {
-            if (Array.isArray(val) && val.length && val[0]?.text !== '') {
-              strings.push({
-                id: uuid.v4(),
-                class: 'text',
-                type,
-                properties: role ? { role } : {},
-                children: [{
-                  text: val[0].text
-                }]
-              })
-            }
-          }
-
-          Transforms.removeNodes(editor, { at: [position] })
-          Transforms.insertNodes(editor, strings, { at: [position] })
         }
       }
-    })
+    }
+    )
   }
-
 }
