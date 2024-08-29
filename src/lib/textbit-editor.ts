@@ -204,7 +204,10 @@ export const TextbitEditor: TextbitEditorInterface = {
       for (let n = 0; n < targetNodes.length; n++) {
         const [child, childPath] = targetNodes[n]
 
-        if (!TextbitElement.isOfType(child, 'core/text') && TextbitElement.isTextblock(child)) {
+        if (!TextbitElement.isOfType(child, 'core/text') && (
+          TextbitElement.isTextblock(child) ||
+          TextbitElement.isText(child)
+        )) {
           Transforms.removeNodes(editor, { at: childPath })
 
           const textContent = Node.string(child)
