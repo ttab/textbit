@@ -20,7 +20,7 @@ export type TBElement = BaseElement & {
   type: string
   hotKey?: string
   properties?: {
-    [key: string]: string | number
+    [key: string]: string | number | boolean
   }
   attributes?: {
     [key: string]: string | number
