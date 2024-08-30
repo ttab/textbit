@@ -54,7 +54,7 @@
     "rollup-plugin-postcss": "^4.0.2",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
-    "tslib": "^2.6.3",
+    "tslib": "^2.7.0",
     "typescript": "^5.4.5"
   },
   "peerDependencies": {
