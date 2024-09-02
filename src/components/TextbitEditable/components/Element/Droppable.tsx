@@ -82,11 +82,14 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
       const clone = el.cloneNode(true) as HTMLDivElement
       const { left, top } = el.getBoundingClientRect()
 
-      clone.style.transform = "translateX(-10000px)"
-      clone.style.width = `${el.offsetWidth * 0.4}px`
-      clone.style.height = `${el.offsetHeight * 0.4}px`
-
+      const clonedChild = clone.firstChild as HTMLDivElement
+      clonedChild.style.transform = 'scale(0.6) rotate(2deg)'
+      clone.style.width = `${el.offsetWidth}px`
+      clone.style.height = `${el.offsetHeight}px`
+      clone.style.position = 'absolute'
+      clone.style.top = '-9999px'
       clone.classList.add('textbit-dragged-temp') // Used to clean out in dragEnd()
+
       document.body.appendChild(clone)
 
       el.style.opacity = '0.5'
@@ -94,8 +97,8 @@ export const Droppable = ({ children, element }: PropsWithChildren & DroppablePr
       e.dataTransfer.setData("textbit/droppable-id", dataId)
       e.dataTransfer.setDragImage(
         clone,
-        (e.clientX - left) * 0.2,
-        (e.clientY - top) * 0.2
+        (e.clientX - left),
+        (e.clientY - top)
       )
     }}
     onDragEnterCapture={(e) => {
