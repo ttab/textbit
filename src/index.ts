@@ -6,6 +6,7 @@ import {
   useTextbit,
   useFocused,
   usePluginRegistry,
+  useAction,
   ContextTools,
   StandardPlugins,
   PluginRegistryAction,
@@ -50,6 +51,7 @@ export const Toolbar = {
 
 export { useTextbit }
 export { useFocused }
+export { useAction }
 export {
   usePluginRegistry,
   PluginRegistryAction
