@@ -42,7 +42,7 @@ npm i @ttab/textbit
 Below is the basic structure of the components and their usage. The example is lacking necessary styling and actions. Gutter, Menu and Toolbar components all receive a `className` property for styling. Clone the repo and see the directory `local/` for a more thorough example including additional link, list item plugins and example CSS.
 
 **MyEditor.tsx**
-```javascript
+```jsx
 import React, { useState } from 'react'
 import Textbit, {
   Menu,
@@ -421,7 +421,7 @@ Plugins can be either
 | leaf | Bold, italic, etc. |
 | inline | Inline blocks in the text, like links. |
 | text | Normal text of various types. |
-| textblock | Behave like a block, but be text... Like code or a blockquote. Not draggable. |
+| textblock | Very similar to a block, but used for text that is not draggable, like code or a blockquote. |
 | block | Regular block elements like image, video. Automatically becomes draggable. |
 | void | Non editable objects, like a spinning loader. Should seldom be used.|
 | generic| Non rendered plugins. Like transforming input characters. |
@@ -429,7 +429,7 @@ Plugins can be either
 ### Examples
 
 **Bold example**
-```
+```jsx
 import { BoldIcon } from 'lucide-react'
 
 const Bold: Plugin.InitFunction = () => {
@@ -450,7 +450,7 @@ const Bold: Plugin.InitFunction = () => {
 ```
 
 **Blockquote example**
-```
+```jsx
 const Blockquote: Plugin.InitFunction = () => {
   return {
     class: 'textblock',
@@ -494,12 +494,51 @@ const Blockquote: Plugin.InitFunction = () => {
 }
 ```
 
+### Component rendering
+
+A component is used to render an element. One plugin can have many different child components and even allow other plugin components as children.
+
+Each component receives the props
+| class | Type | Description |
+| ----------- | ----------- | ----------- |
+| children | `TBElement[]` | Child components that should be rendered |
+| element | `TBElement` | The actual element being rendered |
+| rootNode | `TBElement` | If the rendered component is a child node, rootNode gives access to the topmost root node which carries properties etc |
+| options | `Record<string, unknown>` | An object with plugin options provided at plugin instantiation |
+
+Components should be wrapped using `<Element>...</Element>` imported from `@ttab/textbit`. Using the hook `useAction()` it is possible to call a named action defined in the plugin specification.
+
+**Example**
+```javascript
+import { Element, useAction, type Plugin } from '@ttab/textbit'
+
+export const Factbox = ({ children, element }: Plugin.ComponentProps): JSX.Element => {
+  const setFactIsChecked = useAction('core/factbox', 'fact-is-checked') // Use a defined action in a specified plugin
+
+  return <Element>
+    <a
+      href="#"
+      contentEditable={false}
+      onMouseDown={event) => {
+        event.preventDefault() // Prevent href click
+        setFactIsChecked(true) // Call the specified action
+      }}
+    >
+      Set is factchecked
+    </a>
+    <div>
+      {children}
+    </div>
+  </Element>
+}
+```
+
 ### TextbitElement
 
-The format of an element, or content object, in Texbit is obviously based on Slate Elements. Note the use of `properties` used to carry data about the element and how leaf format is added directly on the text node.
+The format of an element, or content object, in Texbit is based on Slate Element. Note the use of `properties` which is used to carry data about the element as well as how formatting like bold, italic et al is added directly on the text node.
 
 **A text element of type 'h1'**
-```
+```json
 {
     type: 'core/text',
     id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
@@ -514,7 +553,7 @@ The format of an element, or content object, in Texbit is obviously based on Sla
 ```
 
 **Example of bold/italic**
-```
+```json
 {
     type: 'core/text',
     id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
@@ -534,7 +573,7 @@ The format of an element, or content object, in Texbit is obviously based on Sla
 ```
 
 **Image example**
-```
+```json
 {
   id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
   class: 'block',
