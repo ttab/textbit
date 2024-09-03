@@ -51,7 +51,9 @@ export function pasteToParagraphs(
   // If we have a longer path, paste happens in a child node, all
   // new nodes should be of the same type then
   let nodeType = 'core/text'
-  let properties: { [key: string]: string | number } | undefined = {}
+  let properties: {
+    [key: string]: string | number | boolean
+  } | undefined
 
   if (parent[1].length > 1) {
     nodeType = node.type
