@@ -506,7 +506,7 @@ Each component receives the props
 | rootNode | `TBElement` | If the rendered component is a child node, rootNode gives access to the topmost root node which carries properties etc |
 | options | `Record<string, unknown>` | An object with plugin options provided at plugin instantiation |
 
-Components should be wrapped using `<Element>...</Element>` imported from `@ttab/textbit`. Using the hook `useAction()` it is possible to call a named action defined in the plugin specification.
+Components should be wrapped using `<Element>...</Element>` imported from `@ttab/textbit`. Using the hook `useAction()` it is possible to call a named action defined in the plugin specification, including providing a argument object (`Record<string, unknown>`).
 
 **Example**
 ```javascript
@@ -520,8 +520,13 @@ export const Factbox = ({ children, element }: Plugin.ComponentProps): JSX.Eleme
       href="#"
       contentEditable={false}
       onMouseDown={event) => {
-        event.preventDefault() // Prevent href click
-        setFactIsChecked(true) // Call the specified action
+        // Prevent href click
+        event.preventDefault()
+
+         // Call the specified action
+        setFactIsChecked({
+          state: true
+        })
       }}
     >
       Set is factchecked
