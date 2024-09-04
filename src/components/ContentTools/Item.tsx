@@ -22,7 +22,11 @@ export const Item = ({ children, className, action: actionName }: PropsWithChild
     return <></>
   }
 
-  const isActive = action && isBlockActive(editor, selection, action)
+  const [isVisible, isEnabled, isActive] = visibilityBySelection(editor, selection, action) || [false, false, false]
+
+  if (!isVisible) {
+    return <></>
+  }
 
   return (
     <ItemContext.Provider value={{ isActive: isActive ? true : false, action }}>
@@ -53,9 +57,9 @@ export const Item = ({ children, className, action: actionName }: PropsWithChild
 }
 
 
-const isBlockActive = (editor: Editor, selection: BaseSelection, action: PluginRegistryAction): boolean => {
+const visibilityBySelection = (editor: Editor, selection: BaseSelection, action: PluginRegistryAction): [boolean, boolean, boolean] => {
   if (!selection) {
-    return false
+    return [false, false, false]
   }
 
   const [match] = Array.from(
@@ -69,17 +73,17 @@ const isBlockActive = (editor: Editor, selection: BaseSelection, action: PluginR
   )
 
   if (!match.length) {
-    return false
+    return [false, false, false]
   }
 
   if (!action?.visibility) {
-    return false
+    return [false, false, false]
   }
 
   if (!TextbitElement.isElement(match[0])) {
-    return false
+    return [false, false, false]
   }
 
   const status = action?.visibility(match[0]) // [visible, enabled, active]
-  return status[2]
+  return status || [[false, false, false]]
 }
