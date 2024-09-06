@@ -45,7 +45,7 @@ export const TextbitEditable = ({
   className = ''
 }: TextbitEditableProps) => {
   const { plugins, components, actions } = usePluginRegistry()
-  const { autoFocus, onBlur } = useTextbit()
+  const { autoFocus, onBlur, onFocus } = useTextbit()
 
   const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
     const e = SlateEditor.isEditor(yjsEditor) ? yjsEditor : createEditor()
@@ -88,6 +88,7 @@ export const TextbitEditable = ({
                   className={className}
                   autoFocus={autoFocus}
                   onBlur={onBlur}
+                  onFocus={onFocus}
                   renderSlateElement={renderSlateElement}
                   renderLeafComponent={renderLeafComponent}
                   textbitEditor={textbitEditor}
