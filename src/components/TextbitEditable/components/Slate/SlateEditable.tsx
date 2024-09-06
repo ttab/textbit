@@ -12,7 +12,7 @@ import { useTextbit } from '@/components/TextbitRoot'
 import { PlaceholdersVisibility } from '@/components/TextbitRoot/TextbitContext'
 import { TextbitEditor } from '@/lib'
 
-export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components, autoFocus, onBlur }: {
+export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components, autoFocus, onBlur, onFocus }: {
   className: string
   renderSlateElement: (props: RenderElementProps) => JSX.Element
   renderLeafComponent: (props: RenderLeafProps) => JSX.Element
@@ -21,6 +21,7 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
   components: Map<string, PluginRegistryComponent>
   autoFocus: boolean
   onBlur?: React.FocusEventHandler<HTMLDivElement>
+  onFocus?: React.FocusEventHandler<HTMLDivElement>
 }): JSX.Element => {
   const slateIsFocused = useFocused()
   const { focused, setFocused } = useContext(FocusContext)
@@ -34,8 +35,12 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
     }
   }, [slateIsFocused, focused])
 
-  // Set initial selection on focus it no selection exists
-  const onFocus = useCallback<FocusEventHandler<HTMLDivElement>>((evt) => {
+  // Set initial selection on focus if no selection exists
+  const onFocusCallback = useCallback<FocusEventHandler<HTMLDivElement>>((evt) => {
+    if (onFocus) {
+      onFocus(evt)
+    }
+
     if (!!textbitEditor.selection) {
       return
     }
@@ -74,7 +79,7 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
       decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path, placeholders)}
       autoFocus={autoFocus}
       onBlur={onBlur}
-      onFocus={onFocus}
+      onFocus={onFocusCallback}
     />
   )
 }
