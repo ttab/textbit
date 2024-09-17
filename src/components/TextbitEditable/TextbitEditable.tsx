@@ -25,6 +25,7 @@ import { PositionProvider } from '../ContextTools/PositionProvider'
 import { Gutter } from '../GutterProvider'
 import { SlateEditable } from './components/Slate/SlateEditable'
 import { SlateSlate } from './components/Slate/SlateSlate'
+import { withUniqueIds } from './with/uniqueIds'
 
 export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
@@ -62,6 +63,7 @@ export const TextbitEditable = ({
     withEditableVoids(e, components)
     withInsertBreak(e, components)
     withInsertHtml(e, components, plugins)
+    withUniqueIds(e)
 
     return e
   }, [])

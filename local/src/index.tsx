@@ -21,7 +21,7 @@ import './toolbox.css'
 const initialValue: Descendant[] = [
   {
     type: 'core/text',
-    id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
+    id: '538345e5-bacc-48f9-8ef1-a219891b6011',
     class: 'text',
     properties: {
       type: 'h1'
@@ -32,7 +32,7 @@ const initialValue: Descendant[] = [
   },
   {
     type: 'core/text',
-    id: '538345e5-bacc-48f9-9ed2-b219892b51dc',
+    id: '538345e5-bacc-48f9-9ed2-b219892b5122',
     class: 'text',
     properties: {
       type: 'preamble'
@@ -43,7 +43,7 @@ const initialValue: Descendant[] = [
   },
   {
     type: 'core/text',
-    id: '538345e5-cadd-4558-9ed2-a219892b51dc',
+    id: '538345e5-cadd-4558-9ed2-a219892b5133',
     class: 'text',
     properties: {
       type: 'dateline'
@@ -54,7 +54,7 @@ const initialValue: Descendant[] = [
   },
   {
     type: 'core/text',
-    id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6044',
     class: 'text',
     children: [
       { text: 'An example paragraph that contains text that is a wee bit ' },
@@ -75,14 +75,14 @@ const initialValue: Descendant[] = [
   {
     type: 'core/text',
     class: 'text',
-    id: '538345e5-bacc-48f9-8ef1-1215892b61ed',
+    id: '538345e5-bacc-48f9-8ef1-1215892b6155',
     children: [
       { text: 'This, here now is just a regular paragraph that contains some nonsensical writing written by me.' },
     ],
   },
   {
     type: 'core/text',
-    id: '538343b5-badd-48f9-8ef0-1219891b60ef',
+    id: '538343b5-badd-48f9-8ef0-1219891b6066',
     class: 'text',
     children: [
       { text: 'An example paragraph that contains text that is a wee bit ' },
