@@ -28,8 +28,9 @@ export const ParentElement = (renderProps: ParentElementProps) => {
     }
 
     const { top } = ref.current.getBoundingClientRect()
+    const scrollTop = accumulatedScrollTop(ref.current)
 
-    setOffsetY(top)
+    setOffsetY(top + scrollTop)
   }, [focused, selected, ref])
 
   const { element, attributes, entry } = renderProps
@@ -48,4 +49,16 @@ export const ParentElement = (renderProps: ParentElementProps) => {
       </div>
     </Droppable>
   )
+}
+
+function accumulatedScrollTop(element: HTMLElement) {
+  let scrollTop = 0
+  let el = element
+
+  while (el.parentElement && el.parentElement !== document.documentElement) {
+    el = el.parentElement
+    scrollTop += el.scrollTop
+  }
+
+  return scrollTop
 }
