@@ -3,10 +3,13 @@ import React, {
   PropsWithChildren,
   SetStateAction,
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useRef,
   useState
 } from 'react'
+import { createPortal } from 'react-dom'
 
 import { GutterContext } from '@/components/GutterProvider/GutterProvider'
 import { useFocused } from 'slate-react'
@@ -25,12 +28,17 @@ export const Menu = ({ children, className }: PropsWithChildren & {
     return <></>
   }
 
-  const top = offsetY - box.top + window.scrollY
+  const top = offsetY + window.scrollY
+  const left = box.left + window.scrollX
+
   return (
     <MenuContext.Provider value={[isOpen, setIsOpen]}>
-      <div ref={ref} style={{ position: 'absolute', top: `${top}px` }} className={className} data-state={isOpen ? 'open' : 'closed'}>
-        {children}
-      </div>
+      {createPortal(
+        <div ref={ref} style={{ position: 'absolute', top: `${top}px`, 'left': `${left}px` }} className={className} data-state={isOpen ? 'open' : 'closed'}>
+          {children}
+        </div>,
+        document.body
+      )}
     </MenuContext.Provider>
   )
 }

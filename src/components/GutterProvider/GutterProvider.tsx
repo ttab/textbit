@@ -5,7 +5,7 @@ import React, {
   useState,
   Dispatch,
   SetStateAction,
-  useLayoutEffect,
+  useLayoutEffect
 } from 'react' // Necessary for esbuild
 
 type Box = {
@@ -18,18 +18,18 @@ type Box = {
 type GutterContextInterface = {
   box?: Box
   offsetY: number
-  offsetX: number
+  width: number
   gutter: boolean // has gutter
   setOffsetY: Dispatch<SetStateAction<number>>
-  setOffsetX: Dispatch<SetStateAction<number>>
+  setWidth: Dispatch<SetStateAction<number>>
 }
 
 export const GutterContext = createContext<GutterContextInterface>({
-  offsetX: 0,
+  width: 0,
   offsetY: 0,
   gutter: false,
   setOffsetY: () => { },
-  setOffsetX: () => { }
+  setWidth: () => { }
 })
 
 /**
@@ -42,7 +42,7 @@ export const GutterProvider = ({ dir = 'ltr', gutter = true, children }: PropsWi
   const ref = useRef<HTMLDivElement>(null)
   const [box, setBox] = useState<Box | undefined>(undefined)
   const [offsetY, setOffsetY] = useState<number>(0)
-  const [offsetX, setOffsetX] = useState<number>(0)
+  const [gutterWidth, setGutterWidth] = useState<number>(0)
 
   useLayoutEffect(() => {
     const calculateBox = () => {
@@ -63,15 +63,14 @@ export const GutterProvider = ({ dir = 'ltr', gutter = true, children }: PropsWi
       gutter,
       offsetY,
       setOffsetY,
-      offsetX,
-      setOffsetX,
+      width: gutterWidth,
+      setWidth: setGutterWidth,
       box
     }}>
       <div
         contentEditable={false}
         style={{
           height: '100%',
-          position: 'relative',
           display: 'flex',
           flexDirection: dir === 'rtl' ? 'row' : 'row-reverse'
         }}

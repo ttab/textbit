@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect, useRef } from 'react' // Necessary for esbuild
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react' // Necessary for esbuild
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
 import { Droppable } from './Droppable'
 import { Plugin } from '@/types'
@@ -22,15 +22,28 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   const { setOffsetY } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
 
-  useLayoutEffect(() => {
+  const recalculateTop = useCallback(() => {
     if (!focused || !selected || !ref?.current) {
       return
     }
 
     const { top } = ref.current.getBoundingClientRect()
-    const scrollTop = accumulatedScrollTop(ref.current)
+    setOffsetY(top)
+  }, [focused, selected, ref?.current])
 
-    setOffsetY(top + scrollTop)
+  // Recalculate position if something have scrolled
+  useEffect(() => {
+    addEventListener('scroll', recalculateTop, {
+      passive: true,
+      capture: true
+    })
+
+    return () => window.removeEventListener('scroll', recalculateTop)
+  })
+
+  // Recalculate position on rerenders (i.e. user moves selection/cursor)
+  useLayoutEffect(() => {
+    recalculateTop()
   }, [focused, selected, ref])
 
   const { element, attributes, entry } = renderProps
@@ -49,16 +62,4 @@ export const ParentElement = (renderProps: ParentElementProps) => {
       </div>
     </Droppable>
   )
-}
-
-function accumulatedScrollTop(element: HTMLElement) {
-  let scrollTop = 0
-  let el = element
-
-  while (el.parentElement && el.parentElement !== document.documentElement) {
-    el = el.parentElement
-    scrollTop += el.scrollTop
-  }
-
-  return scrollTop
 }
