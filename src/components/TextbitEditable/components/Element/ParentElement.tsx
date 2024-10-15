@@ -36,7 +36,7 @@ export const ParentElement = (renderProps: ParentElementProps) => {
       componentRef.current.children[0]
     )
 
-    setOffsetY(top - parseInt(paddingTop) + parseInt(marginTop))
+    setOffsetY(top + parseInt(paddingTop) + parseInt(marginTop))
   }, [ref?.current, componentRef?.current])
 
   useEffect(() => {
