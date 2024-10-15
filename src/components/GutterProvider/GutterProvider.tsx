@@ -63,8 +63,19 @@ export const GutterProvider = ({ dir = 'ltr', gutter = true, children }: PropsWi
   }, [ref?.current])
 
   useEffect(() => {
-    // requestAnimationFrame(recalculateTop)
-  })
+    const handleScroll = () => {
+      recalculateTop()
+    }
+
+    addEventListener('scroll', handleScroll, {
+      passive: true,
+      capture: true
+    })
+
+    recalculateTop()
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
     <GutterContext.Provider value={{
