@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react' // Necessary for esbuild
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react' // Necessary for esbuild
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
 import { Droppable } from './Droppable'
 import { Plugin } from '@/types'
@@ -21,14 +21,20 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   const focused = useFocused()
   const { setOffsetY } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
+  const componentRef = useRef<HTMLDivElement>(null)
 
   const recalculateTop = useCallback(() => {
-    if (!focused || !selected || !ref?.current) {
+    if (!focused || !selected || !ref?.current || !componentRef?.current?.children?.length) {
       return
     }
 
+    // The top of the element container
     const { top } = ref.current.getBoundingClientRect()
-    setOffsetY(top)
+
+    // Get margin/padding of the plugin rendered topmost component
+    const { paddingTop, marginTop } = getComputedStyle(componentRef.current.children[0])
+
+    setOffsetY(top + parseInt(paddingTop) + parseInt(marginTop))
   }, [focused, selected, ref?.current])
 
   // Recalculate position if something have scrolled
@@ -43,7 +49,7 @@ export const ParentElement = (renderProps: ParentElementProps) => {
 
   // Recalculate position on rerenders (i.e. user moves selection/cursor)
   useLayoutEffect(() => {
-    recalculateTop()
+    requestAnimationFrame(recalculateTop)
   }, [focused, selected, ref])
 
   const { element, attributes, entry } = renderProps
@@ -56,7 +62,7 @@ export const ParentElement = (renderProps: ParentElementProps) => {
         data-id={element.id}
         ref={ref}
       >
-        <div {...attributes}>
+        <div {...attributes} ref={componentRef}>
           {entry.component(renderProps)}
         </div>
       </div>
