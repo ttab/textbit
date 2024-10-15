@@ -28,7 +28,7 @@ export const Content = ({ children, className }: PropsWithChildren & {
 
     // Ensure sure the menu is not hidden below viewport bottom
     const innerRect = innerRef.current.getBoundingClientRect()
-    const diff = innerRect.bottom - (window.innerHeight + innerRect.height - (triggerSize / 0.75))
+    const diff = innerRect.bottom - window.innerHeight
 
     if (diff > 0) {
       offset -= diff

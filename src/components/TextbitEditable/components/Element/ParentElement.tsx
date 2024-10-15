@@ -23,8 +23,8 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const componentRef = useRef<HTMLDivElement>(null)
 
-  const recalculateTop = useCallback(() => {
-    if (!focused || !selected || !ref?.current || !componentRef?.current?.children?.length) {
+  const recalculateTop = useCallback((isFocused: boolean, isSelected: boolean) => {
+    if (!isFocused || !isSelected || !ref?.current || !componentRef?.current?.children?.length) {
       return
     }
 
@@ -37,11 +37,22 @@ export const ParentElement = (renderProps: ParentElementProps) => {
     )
 
     setOffsetY(top - parseInt(paddingTop) + parseInt(marginTop))
-  }, [focused, selected, ref?.current, componentRef?.current])
+  }, [ref?.current, componentRef?.current])
 
   useEffect(() => {
-    requestAnimationFrame(recalculateTop)
-  })
+    const handleScroll = () => {
+      recalculateTop(selected, focused)
+    }
+
+    addEventListener('scroll', handleScroll, {
+      passive: true,
+      capture: true
+    })
+
+    recalculateTop(selected, focused)
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [selected, focused])
 
   const { element, attributes, entry } = renderProps
 
