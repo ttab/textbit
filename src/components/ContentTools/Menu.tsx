@@ -3,7 +3,6 @@ import React, {
   PropsWithChildren,
   SetStateAction,
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -16,6 +15,9 @@ import { useFocused } from 'slate-react'
 
 export const MenuContext = createContext<[boolean, Dispatch<SetStateAction<boolean>>]>([false, () => { }])
 
+/**
+ * Menu.root
+ */
 export const Menu = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
@@ -24,21 +26,45 @@ export const Menu = ({ children, className }: PropsWithChildren & {
   const ref = useRef<HTMLDivElement>(null)
   const focused = useFocused()
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isOpen) {
+        setIsOpen(false)
+      }
+    }
+
+    addEventListener('scroll', handleScroll, {
+      passive: true,
+      capture: true
+    })
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [isOpen])
+
   if (!focused || !offsetY || !box?.top) {
     return <></>
   }
 
-  const top = offsetY + window.scrollY
-  const left = box.left + window.scrollX
+  // Related editor element offset minus gutter top
+  const left = box.left
+  const top = offsetY - box.top - window.scrollY
 
   return (
     <MenuContext.Provider value={[isOpen, setIsOpen]}>
-      {createPortal(
-        <div ref={ref} style={{ position: 'absolute', top: `${top}px`, 'left': `${left}px` }} className={className} data-state={isOpen ? 'open' : 'closed'}>
+      {
+        <div
+          ref={ref}
+          style={{
+            position: 'absolute',
+            left: `${left}px`,
+            top: `${top}px`
+          }}
+          className={className}
+          data-state={isOpen ? 'open' : 'closed'}
+        >
           {children}
-        </div>,
-        document.body
-      )}
+        </div>
+      }
     </MenuContext.Provider>
   )
 }

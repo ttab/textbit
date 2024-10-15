@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react' // Necessary for esbuild
+import React, { useCallback, useContext, useEffect, useRef } from 'react' // Necessary for esbuild
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
 import { Droppable } from './Droppable'
 import { Plugin } from '@/types'
@@ -28,29 +28,20 @@ export const ParentElement = (renderProps: ParentElementProps) => {
       return
     }
 
-    // The top of the element container
+    // The top of the element container relative to the viewport
     const { top } = ref.current.getBoundingClientRect()
 
-    // Get margin/padding of the plugin rendered topmost component
-    const { paddingTop, marginTop } = getComputedStyle(componentRef.current.children[0])
+    // Get margin/padding of the plugin topmost rendered component
+    const { paddingTop, marginTop } = getComputedStyle(
+      componentRef.current.children[0]
+    )
 
-    setOffsetY(top + parseInt(paddingTop) + parseInt(marginTop))
-  }, [focused, selected, ref?.current])
+    setOffsetY(top - parseInt(paddingTop) + parseInt(marginTop))
+  }, [focused, selected, ref?.current, componentRef?.current])
 
-  // Recalculate position if something have scrolled
   useEffect(() => {
-    addEventListener('scroll', recalculateTop, {
-      passive: true,
-      capture: true
-    })
-
-    return () => window.removeEventListener('scroll', recalculateTop)
-  })
-
-  // Recalculate position on rerenders (i.e. user moves selection/cursor)
-  useLayoutEffect(() => {
     requestAnimationFrame(recalculateTop)
-  }, [focused, selected, ref])
+  })
 
   const { element, attributes, entry } = renderProps
 

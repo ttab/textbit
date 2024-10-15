@@ -1,41 +1,45 @@
 import React, {
   PropsWithChildren,
+  useCallback,
   useContext,
   useLayoutEffect,
-  useRef,
-  useState
+  useRef
 } from 'react'
 import { MenuContext } from './Menu'
 import { useKeydownGlobal } from '@/hooks'
 import { createPortal } from 'react-dom'
+import { GutterContext } from '../GutterProvider'
 
 export const Content = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
   const [isOpen, setIsOpen] = useContext(MenuContext)
-  const outerRef = useRef<HTMLDivElement>(null)
+  const { offsetY, triggerSize } = useContext(GutterContext)
   const innerRef = useRef<HTMLDivElement>(null)
-  const MIN_BOTTOM_MARGIN = 10
 
-  // Ensure sure the menu is not displayed below browser window bottom
-  useLayoutEffect(() => {
+  const recalculateTop = useCallback(() => {
     if (!innerRef?.current) {
       return
     }
 
-    let offset = 0
-    if (isOpen) {
-      const innerRect = innerRef.current.getBoundingClientRect()
-      const { paddingBottom, borderBottomWidth } = window.getComputedStyle(innerRef.current!)
-      const verticalSpace = parseFloat(paddingBottom) + parseFloat(borderBottomWidth)
+    const scrollOffset = window.scrollY
+    let offset = offsetY + (triggerSize * 0.75) + scrollOffset
+    innerRef.current.style.top = `${offset}px`
 
-      if (innerRect.bottom > window.innerHeight - verticalSpace - MIN_BOTTOM_MARGIN) {
-        offset = Math.max(0, innerRect.height - (window.innerHeight - innerRect.top) + verticalSpace + MIN_BOTTOM_MARGIN)
-      }
+    // Ensure sure the menu is not hidden below viewport bottom
+    const innerRect = innerRef.current.getBoundingClientRect()
+    const diff = innerRect.bottom - (window.innerHeight + innerRect.height - (triggerSize / 0.75))
+
+    if (diff > 0) {
+      offset -= diff
     }
 
-    innerRef.current.style.marginTop = `-${offset}px`
+    innerRef.current.style.top = `${offset}px`
   }, [isOpen, innerRef?.current])
+
+  useLayoutEffect(() => {
+    requestAnimationFrame(recalculateTop)
+  })
 
   const keyTriggerRef = useKeydownGlobal<HTMLDivElement>((e) => {
     if (isOpen && (e.key === 'Escape' || e.key === 'Tab')) {
@@ -44,14 +48,12 @@ export const Content = ({ children, className }: PropsWithChildren & {
     }
   })
 
-  return <div ref={keyTriggerRef}>
-    <div ref={outerRef}>
-      {isOpen && outerRef?.current && createPortal(
-        <div ref={innerRef} className={className}>
-          {children}
-        </div>,
-        outerRef.current
-      )}
-    </div>
+  return <div ref={keyTriggerRef} style={{ height: 'full' }}>
+    {isOpen && createPortal(
+      <div ref={innerRef} className={className}>
+        {children}
+      </div>,
+      document.body
+    )}
   </div>
 }

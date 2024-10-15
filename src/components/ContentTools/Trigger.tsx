@@ -8,7 +8,7 @@ export const Trigger = ({ children, className }: PropsWithChildren & {
 }) => {
   const [isOpen, setIsOpen] = useContext(MenuContext)
   const [marginLeft, setMarginLeft] = useState(0)
-  const { width: gutterWidth } = useContext(GutterContext)
+  const { width: gutterWidth, setTriggerSize } = useContext(GutterContext)
   const mouseTriggerRef = useClickGlobal<HTMLAnchorElement>((e) => {
     setIsOpen(false)
   })
@@ -16,6 +16,7 @@ export const Trigger = ({ children, className }: PropsWithChildren & {
   useLayoutEffect(() => {
     const { width: triggerWidth } = mouseTriggerRef?.current?.getBoundingClientRect() || {}
     setMarginLeft(triggerWidth ? (gutterWidth - triggerWidth) / 2 : 0)
+    setTriggerSize(triggerWidth || 0)
   }, [mouseTriggerRef])
 
   return (
