@@ -8,8 +8,6 @@ import React, {
   useRef,
   useState
 } from 'react'
-import { createPortal } from 'react-dom'
-
 import { GutterContext } from '@/components/GutterProvider/GutterProvider'
 import { useFocused } from 'slate-react'
 
