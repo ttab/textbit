@@ -30,7 +30,6 @@ a.textbit-contenttools-trigger {
 }
 
 div.textbit-contenttools-popover {
-  position:absolute;
   margin: -0.5rem 0 0 1.6rem;
   min-width: 16rem;
   border-radius: calc(var(--radius) * 0.8);

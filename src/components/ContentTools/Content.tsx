@@ -50,7 +50,13 @@ export const Content = ({ children, className }: PropsWithChildren & {
 
   return <div ref={keyTriggerRef} style={{ height: 'full' }}>
     {isOpen && createPortal(
-      <div ref={innerRef} className={className}>
+      <div
+        ref={innerRef}
+        className={className}
+        style={{
+          position: 'absolute'
+        }}
+      >
         {children}
       </div>,
       document.body
