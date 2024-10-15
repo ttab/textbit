@@ -163,12 +163,6 @@ TextbitContext: access through convenience hook `useTextbit()`.
 | onBlur | React.FocusEventHandler<HTMLDivElement> | Event handler for when editor looses focus |
 | onFocus | React.FocusEventHandler<HTMLDivElement> | Event handler for when editor receives focus |
 
-### useFocused()
-
-Convenience hook to get current focused state for the textbit editor. Styling should normally be controlled using css and the data attribute of `Textbit.Editable`.
-
-`useFocused() => boolean`
-
 ---
 
 ## Textbit.Editable
