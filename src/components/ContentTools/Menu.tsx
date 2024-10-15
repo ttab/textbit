@@ -44,7 +44,6 @@ export const Menu = ({ children, className }: PropsWithChildren & {
   }
 
   // Related editor element offset minus gutter top
-  const left = box.left
   const top = offsetY - box.top - window.scrollY
 
   return (
@@ -54,7 +53,7 @@ export const Menu = ({ children, className }: PropsWithChildren & {
           ref={ref}
           style={{
             position: 'absolute',
-            left: `${left}px`,
+            left: '0px',
             top: `${top}px`
           }}
           className={className}

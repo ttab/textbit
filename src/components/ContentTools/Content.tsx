@@ -14,7 +14,7 @@ export const Content = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
   const [isOpen, setIsOpen] = useContext(MenuContext)
-  const { offsetY, triggerSize } = useContext(GutterContext)
+  const { offsetY, triggerSize, box } = useContext(GutterContext)
   const innerRef = useRef<HTMLDivElement>(null)
 
   const recalculateTop = useCallback(() => {
@@ -25,6 +25,7 @@ export const Content = ({ children, className }: PropsWithChildren & {
     const scrollOffset = window.scrollY
     let offset = offsetY + (triggerSize * 0.75) + scrollOffset
     innerRef.current.style.top = `${offset}px`
+    innerRef.current.style.left = `${box?.left || 0}px`
 
     // Ensure sure the menu is not hidden below viewport bottom
     const innerRect = innerRef.current.getBoundingClientRect()
@@ -39,7 +40,7 @@ export const Content = ({ children, className }: PropsWithChildren & {
 
   useLayoutEffect(() => {
     requestAnimationFrame(recalculateTop)
-  })
+  }, [isOpen])
 
   const keyTriggerRef = useKeydownGlobal<HTMLDivElement>((e) => {
     if (isOpen && (e.key === 'Escape' || e.key === 'Tab')) {
