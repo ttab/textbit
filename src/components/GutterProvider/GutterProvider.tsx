@@ -63,7 +63,7 @@ export const GutterProvider = ({ dir = 'ltr', gutter = true, children }: PropsWi
   }, [ref?.current])
 
   useEffect(() => {
-    requestAnimationFrame(recalculateTop)
+    // requestAnimationFrame(recalculateTop)
   })
 
   return (
