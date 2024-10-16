@@ -43,7 +43,7 @@ export default [
   },
   {
     input: "dist/esm/types/index.d.ts",
-    output: [{ file: "dist/index.d.ts", format: "esm" }],
+    output: [{ file: "dist/index.d.ts" }],
     external: [/\.(sass|scss|css)$/, '@slate-yjs/core'],
     plugins: [dts()]
   },

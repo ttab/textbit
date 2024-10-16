@@ -54,5 +54,14 @@ export {
   usePluginRegistry,
   PluginRegistryAction
 }
-export * from './lib'
+
 export * from './types'
+
+export {
+  calculateStats,
+  TextbitEditor,
+  TextbitElement,
+  TextbitPlugin,
+  consumeFileDropEvent,
+  consumeFileInputChangeEvent
+} from './lib'
