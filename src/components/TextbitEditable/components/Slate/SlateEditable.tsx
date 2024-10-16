@@ -1,13 +1,13 @@
 import React, { // Necessary for esbuild
   FocusEventHandler,
   useCallback,
-  useContext, useLayoutEffect
+  useContext,
+  useEffect,
 } from 'react'
 import { Editor as SlateEditor, Transforms, Element as SlateElement, Path, Node, Editor, Text, Element } from "slate"
 import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
 import { toggleLeaf } from '@/lib/toggleLeaf'
 import { PluginRegistryAction, PluginRegistryComponent } from '../../../PluginRegistry/lib/types'
-import { FocusContext } from '@/components/TextbitRoot/FocusContext'
 import { useTextbit } from '@/components/TextbitRoot'
 import { PlaceholdersVisibility } from '@/components/TextbitRoot/TextbitContext'
 import { TextbitEditor } from '@/lib'
@@ -24,24 +24,10 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
   onFocus?: React.FocusEventHandler<HTMLDivElement>
 }): JSX.Element => {
   const slateIsFocused = useFocused()
-  const { focused, setFocused } = useContext(FocusContext)
   const { placeholder, placeholders } = useTextbit()
 
-  useLayoutEffect(() => {
-    if (focused !== slateIsFocused) {
-      setTimeout(() => {
-        setFocused(slateIsFocused)
-      }, 0)
-    }
-  }, [slateIsFocused, focused])
-
-  // Set initial selection on focus if no selection exists
-  const onFocusCallback = useCallback<FocusEventHandler<HTMLDivElement>>((evt) => {
-    if (onFocus) {
-      onFocus(evt)
-    }
-
-    if (!!textbitEditor.selection) {
+  useEffect(() => {
+    if (!autoFocus) {
       return
     }
 
@@ -66,12 +52,12 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
 
       Transforms.select(textbitEditor, initialSelection)
     }, 0)
-  }, [])
+  }, [autoFocus])
 
   return (
     <Editable
       placeholder={placeholder}
-      data-state={focused ? 'focused' : ''}
+      data-state={slateIsFocused ? 'focused' : ''}
       className={className}
       renderElement={renderSlateElement}
       renderLeaf={renderLeafComponent}
@@ -79,7 +65,7 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
       decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path, placeholders)}
       autoFocus={autoFocus}
       onBlur={onBlur}
-      onFocus={onFocusCallback}
+      onFocus={onFocus}
     />
   )
 }

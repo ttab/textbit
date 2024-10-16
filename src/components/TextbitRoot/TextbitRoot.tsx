@@ -7,7 +7,6 @@ import {
   basePlugins,
   StandardPlugins
 } from '@/components/core'
-import { FocusContextProvider } from './FocusContext'
 
 
 export const TextbitRoot = ({ children, autoFocus, onBlur, onFocus, verbose, debounce, placeholder, placeholders, plugins, className }: PropsWithChildren & {
@@ -36,9 +35,7 @@ export const TextbitRoot = ({ children, autoFocus, onBlur, onFocus, verbose, deb
           ...basePlugins.map(p => p()),
           ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map(sp => sp())
         ]}>
-          <FocusContextProvider>
-            {children}
-          </FocusContextProvider>
+          {children}
         </PluginRegistryContextProvider>
       </TextbitContextProvider>
     </div>

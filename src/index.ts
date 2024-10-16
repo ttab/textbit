@@ -4,7 +4,6 @@ import {
   DropMarker,
   ContentTools,
   useTextbit,
-  useFocused,
   usePluginRegistry,
   useAction,
   ContextTools,
@@ -50,7 +49,6 @@ export const Toolbar = {
 }
 
 export { useTextbit }
-export { useFocused }
 export { useAction }
 export {
   usePluginRegistry,

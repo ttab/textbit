@@ -5,19 +5,11 @@ export const Gutter = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
   const ref = useRef<HTMLDivElement>(null)
-  const { gutter, setOffsetX } = useContext(GutterContext)
+  const { gutter, setWidth } = useContext(GutterContext)
 
   useLayoutEffect(() => {
-    const reportWidth = () => {
-      const { right, left } = ref?.current?.getBoundingClientRect() || { right: 0, left: 0 }
-      setOffsetX(right - left)
-    }
-
-    reportWidth()
-    window.addEventListener('resize', reportWidth)
-    return () => {
-      window.removeEventListener('resize', reportWidth)
-    }
+    const { right, left } = ref?.current?.getBoundingClientRect() || { right: 0, left: 0 }
+    setWidth(right - left)
   }, [ref])
 
   return <div

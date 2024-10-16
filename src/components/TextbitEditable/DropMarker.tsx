@@ -4,7 +4,7 @@ import { GutterContext } from '../GutterProvider'
 
 export const DropMarker = ({ className }: { className?: string }) => {
   const ref = useRef<HTMLDivElement>(null)
-  const { box: gutterBox, offsetX } = useContext(GutterContext)
+  const { box: gutterBox, width: gutterWidth } = useContext(GutterContext)
   const { offset, dragOver } = useContext(DragstateContext)
   const { top = 0, bottom = 0, position = ['above', false] } = offset || {}
 
@@ -26,8 +26,8 @@ export const DropMarker = ({ className }: { className?: string }) => {
 
     const xPos = top - (gutterBox?.top || 0)
     pos.top = `${xPos}px`
-    pos.left = `${offsetX || 0}px`
-    pos.width = `${(gutterBox?.right || 0) - (gutterBox?.left || 0) - (offsetX)}px`
+    pos.left = `${gutterWidth || 0}px`
+    pos.width = `${(gutterBox?.right || 0) - (gutterBox?.left || 0) - (gutterWidth)}px`
     pos.height = `${bottom - top}px`
     if (!className) {
       pos.backgroundColor = 'rgba(191, 191, 191, 0.4)'
@@ -40,8 +40,8 @@ export const DropMarker = ({ className }: { className?: string }) => {
 
     const xPos = (position[0] === 'above' ? top : bottom) - (gutterBox?.top || 0)
     pos.top = `${xPos}px`
-    pos.left = `${offsetX || 0}px`
-    pos.width = `${(gutterBox?.right || 0) - (gutterBox?.left || 0) - (offsetX)}px`
+    pos.left = `${gutterWidth || 0}px`
+    pos.width = `${(gutterBox?.right || 0) - (gutterBox?.left || 0) - (gutterWidth)}px`
   }
 
   pos.display = dragOver ? 'block' : 'none'

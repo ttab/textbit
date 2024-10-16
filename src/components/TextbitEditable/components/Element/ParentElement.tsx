@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect, useRef } from 'react' // Necessary for esbuild
+import React, { useCallback, useContext, useEffect, useRef } from 'react' // Necessary for esbuild
 import { RenderElementProps, useSelected, useFocused } from 'slate-react'
 import { Droppable } from './Droppable'
 import { Plugin } from '@/types'
@@ -21,16 +21,38 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   const focused = useFocused()
   const { setOffsetY } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
+  const componentRef = useRef<HTMLDivElement>(null)
 
-  useLayoutEffect(() => {
-    if (!focused || !selected || !ref?.current) {
+  const recalculateTop = useCallback((isFocused: boolean, isSelected: boolean) => {
+    if (!isFocused || !isSelected || !ref?.current || !componentRef?.current?.children?.length) {
       return
     }
 
+    // The top of the element container relative to the viewport
     const { top } = ref.current.getBoundingClientRect()
 
-    setOffsetY(top)
-  }, [focused, selected, ref])
+    // Get margin/padding of the plugin topmost rendered component
+    const { paddingTop, marginTop } = getComputedStyle(
+      componentRef.current.children[0]
+    )
+
+    setOffsetY(top + parseInt(paddingTop) + parseInt(marginTop))
+  }, [ref?.current, componentRef?.current])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      recalculateTop(selected, focused)
+    }
+
+    addEventListener('scroll', handleScroll, {
+      passive: true,
+      capture: true
+    })
+
+    recalculateTop(selected, focused)
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [selected, focused])
 
   const { element, attributes, entry } = renderProps
 
@@ -42,7 +64,7 @@ export const ParentElement = (renderProps: ParentElementProps) => {
         data-id={element.id}
         ref={ref}
       >
-        <div {...attributes}>
+        <div {...attributes} ref={componentRef}>
           {entry.component(renderProps)}
         </div>
       </div>
