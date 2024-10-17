@@ -1,4 +1,14 @@
-import { Editor, Node, BaseRange, Path, Transforms, Descendant, Element as SlateElement, NodeEntry } from "slate"
+import {
+  Editor,
+  Node,
+  BaseRange,
+  Path,
+  Transforms,
+  Descendant,
+  Element as SlateElement,
+  NodeEntry,
+  Text
+} from "slate"
 
 /**
  * Helper function to find siblings of the same type and convert the last to a new text element.
@@ -100,4 +110,26 @@ export function cloneChildren(children: Descendant[]): Descendant[] {
 
     return { ...node }
   })
+}
+
+export function getTextNodesInTopAncestor(editor: Editor, includeEditor: boolean = false): NodeEntry<Descendant>[] {
+  if (!editor.selection) {
+    return []
+  }
+
+  const [start] = Editor.edges(editor, editor.selection)
+  const topAncestor = Editor.above(editor, {
+    at: start.path,
+    match: n => (!includeEditor || !Editor.isEditor(n)) && SlateElement.isElement(n),
+    mode: 'lowest'
+  })
+
+  if (!topAncestor) {
+    return []
+  }
+
+  const [node] = topAncestor
+  return Array.from(Node.descendants(node, {
+    pass: ([n]) => Text.isText(n)
+  }))
 }

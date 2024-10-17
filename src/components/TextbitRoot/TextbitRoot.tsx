@@ -9,12 +9,25 @@ import {
 } from '@/components/core'
 
 
-export const TextbitRoot = ({ children, autoFocus, onBlur, onFocus, verbose, debounce, placeholder, placeholders, plugins, className }: PropsWithChildren & {
+export const TextbitRoot = ({
+  children,
+  autoFocus,
+  onBlur,
+  onFocus,
+  verbose,
+  debounce,
+  spellcheckDebounce,
+  placeholder,
+  placeholders,
+  plugins,
+  className
+}: PropsWithChildren & {
   autoFocus?: boolean
   onBlur?: React.FocusEventHandler<HTMLDivElement>
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   verbose?: boolean
   debounce?: number
+  spellcheckDebounce?: number
   placeholders?: PlaceholdersVisibility
   placeholder?: string
   plugins?: Plugin.Definition[]
@@ -30,7 +43,16 @@ export const TextbitRoot = ({ children, autoFocus, onBlur, onFocus, verbose, deb
 
   return (
     <div className={className} style={style}>
-      <TextbitContextProvider verbose={!!verbose} autoFocus={!!autoFocus} onBlur={onBlur} onFocus={onFocus} debounce={debounce} placeholder={placeholder} placeholders={placeholders}>
+      <TextbitContextProvider
+        verbose={!!verbose}
+        autoFocus={!!autoFocus}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        debounce={debounce}
+        spellcheckDebounce={spellcheckDebounce}
+        placeholder={placeholder}
+        placeholders={placeholders}
+      >
         <PluginRegistryContextProvider verbose={!!verbose} plugins={[
           ...basePlugins.map(p => p()),
           ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map(sp => sp())

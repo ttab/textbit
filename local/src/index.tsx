@@ -113,10 +113,11 @@ function App() {
         <Textbit.Root
           verbose={true}
           autoFocus={true}
-          debounce={0}
+          debounce={200}
           plugins={[]}
           placeholder="Add text here..."
         >
+          <strong>No menu, with placeholder</strong>
           <Textbit.Editable value={[{
             type: 'core/text',
             id: '0',
@@ -128,10 +129,10 @@ function App() {
         </Textbit.Root>
       </div>
 
+
       <div style={{ margin: '20px 0', border: '1px solid gray' }}>
         <Textbit.Root
           verbose={true}
-          debounce={0}
           placeholders="multiple"
           plugins={[
             ...Textbit.Plugins.map(p => p()),
@@ -144,9 +145,11 @@ function App() {
             })
           ]}
         >
+          <strong>Multiple placeholders</strong>
           <Editor initialValue={initialValue} />
         </Textbit.Root >
       </div>
+
 
       <div style={{ margin: '20px 0', border: '1px solid gray' }}>
         <Textbit.Root
@@ -154,11 +157,48 @@ function App() {
           debounce={1000}
           plugins={[...Textbit.Plugins.map(p => p())]}
         >
+          <strong>Long debounce</strong>
           <Editor initialValue={initialValue} />
         </Textbit.Root>
       </div>
     </div >
   )
+}
+
+
+function fakeSpellChecker(text: string):
+  Array<{ str: string; pos: number, sub: string[] }> {
+  const wordRegex = /\b[\w-]+\b/g
+  const result: Array<{
+    str: string
+    pos: number
+    sub: string[]
+  }> = []
+
+  let match: RegExpExecArray | null
+  while ((match = wordRegex.exec(text)) !== null) {
+    const substitutions = getSubstitutions(match[0])
+    if (substitutions) {
+      result.push({
+        str: match[0],
+        pos: match.index,
+        sub: substitutions
+      })
+    }
+  }
+
+  return result
+}
+
+const getSubstitutions = (word: string) => {
+  const misspelledWords = {
+    'wee': ['we', 'teeny', 'weeny'],
+    'emphasized': ['emphasised']
+  }
+
+  if (Object.keys(misspelledWords).includes(word)) {
+    return misspelledWords[word]
+  }
 }
 
 function Editor({ initialValue }: { initialValue: Descendant[] }) {
@@ -178,6 +218,9 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
           onChange={value => {
             console.log(value, null, 2)
             setValue(value)
+          }}
+          onSpellcheck={(texts) => {
+            return texts.map(fakeSpellChecker)
           }}
         >
           <Textbit.DropMarker />

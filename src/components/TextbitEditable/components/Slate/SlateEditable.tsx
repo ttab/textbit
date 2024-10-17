@@ -1,16 +1,14 @@
 import React, { // Necessary for esbuild
-  FocusEventHandler,
-  useCallback,
-  useContext,
   useEffect,
 } from 'react'
-import { Editor as SlateEditor, Transforms, Element as SlateElement, Path, Node, Editor, Text, Element } from "slate"
+import { Editor as SlateEditor, Transforms, Element as SlateElement, Path, Node, Editor, Text, Element, Range } from "slate"
 import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
 import { toggleLeaf } from '@/lib/toggleLeaf'
 import { PluginRegistryAction, PluginRegistryComponent } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '@/components/TextbitRoot'
 import { PlaceholdersVisibility } from '@/components/TextbitRoot/TextbitContext'
 import { TextbitEditor } from '@/lib'
+import { TBEditor } from '@/types'
 
 export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components, autoFocus, onBlur, onFocus }: {
   className: string
@@ -30,28 +28,7 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
     if (!autoFocus) {
       return
     }
-
-    // Set it to beginning if there are multiple lines, otherwise to
-    // the end of the first (only line.Needs setTimout() when in yjs env.
-    setTimeout(() => {
-      const nodes = Array.from(
-        Editor.nodes(textbitEditor, {
-          at: [],
-          match: el => {
-            return Text.isText(el)
-          }
-        })
-      )
-
-      const node = nodes.length ? nodes[0][0] : null
-      const offset = (TextbitEditor.length(textbitEditor) <= 1 && Text.isText(node)) ? node.text.length : 0
-      const initialSelection = {
-        anchor: { path: [0, 0], offset },
-        focus: { path: [0, 0], offset }
-      }
-
-      Transforms.select(textbitEditor, initialSelection)
-    }, 0)
+    setAutoFocus(textbitEditor)
   }, [autoFocus])
 
   return (
@@ -62,7 +39,14 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
       renderElement={renderSlateElement}
       renderLeaf={renderLeafComponent}
       onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-      decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path, placeholders)}
+      decorate={([node, path]) => {
+        return handleDecoration(
+          textbitEditor,
+          components,
+          node,
+          path,
+          placeholders)
+      }}
       autoFocus={autoFocus}
       onBlur={onBlur}
       onFocus={onFocus}
@@ -70,11 +54,67 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
   )
 }
 
-/*
- * Display placeholder as decoration when node is an empty text node
+
+/**
+ * Set autofocus on load.
+ *
+ * Set it to beginning if there are multiple lines, otherwise to
+ * the end of the first (only line.Needs setTimout() when in yjs env.
  */
-function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path, placeholders: PlaceholdersVisibility) {
-  if (placeholders !== 'multiple') {
+function setAutoFocus(textbitEditor: TBEditor) {
+  setTimeout(() => {
+    const nodes = Array.from(
+      Editor.nodes(textbitEditor, {
+        at: [],
+        match: el => {
+          return Text.isText(el)
+        }
+      })
+    )
+
+    const node = nodes.length ? nodes[0][0] : null
+    const offset = (TextbitEditor.length(textbitEditor) <= 1 && Text.isText(node)) ? node.text.length : 0
+    const initialSelection = {
+      anchor: { path: [0, 0], offset },
+      focus: { path: [0, 0], offset }
+    }
+
+    Transforms.select(textbitEditor, initialSelection)
+  }, 0)
+}
+
+
+/*
+ * Handle all decorations
+ */
+function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path, placeholders?: PlaceholdersVisibility) {
+
+  // Speling words
+
+  // if (Text.isText(node)) {
+  //   const ranges: Range[] = []
+
+  //   const { text } = node
+  //   const words = text.split(/\s+/)
+  //   let offset = 0
+
+  //   words.forEach((word) => {
+  //     if (isMisspelled(word)) {
+  //       ranges.push({
+  //         anchor: { path, offset },
+  //         focus: { path, offset: offset + word.length },
+  //         misspelled: true,
+  //       })
+  //     }
+  //     offset += word.length + 1 // +1 for the space
+  //   })
+
+  //   return ranges
+  // }
+
+
+  // Placeholders
+  if (!placeholders || placeholders !== 'multiple') {
     return []
   }
 
@@ -95,6 +135,7 @@ function handleDecoration(editor: SlateEditor, components: Map<string, PluginReg
     placeholder: (entry?.componentEntry?.placeholder) ? entry.componentEntry.placeholder : ''
   }]
 }
+
 
 /*
  * Match key events to registered actions keyboard shortcuts. Then either

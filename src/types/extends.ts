@@ -1,7 +1,8 @@
 import {
   BaseElement,
   BaseText,
-  BaseEditor
+  BaseEditor,
+  BaseRange
 } from "slate"
 
 
@@ -46,5 +47,9 @@ declare module 'slate' {
     Editor: TBEditor
     Element: TBElement
     Text: TBText
+    Range: BaseRange & {
+      misspelled?: boolean // FIXME: should this include suggestions?
+      placeholder?: string
+    }
   }
 }

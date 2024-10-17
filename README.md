@@ -134,6 +134,8 @@ Top level Texbit component. Receives all plugins. Base plugins is exported from 
 | onBlur | React.FocusEventHandler<HTMLDivElement> | Optional |
 | onFocus | React.FocusEventHandler<HTMLDivElement> | Optional |
 | plugins | Plugin.Definition[] | |
+| debounce | number? | Optional debounce time for calling `onChange()` handler. Defaults to 250 ms.
+| debounceSpellcheck | number? | Optional debounce time for calling `onSpellcheck()` handler. Defaults to 1250 ms.
 
 ### Provides PluginRegistryContext
 
@@ -174,6 +176,7 @@ Editable area component, acts as wrapper around Slate.
 | ----------- | ----------- | ----------- |
 | value | Descendant[] | Optional, initial content |
 | onChange | (Descendant[] => void) | Function to receive all changes |
+| onSpellcheck | onSpellcheck?: (texts: string[]) => Array<{<br> str: string,<br> pos: number,<br> sub: string[]<br> }[]> | Optional, callback function to handle spellchecking of strings |
 | dir | "ltr" \| "rtl" | Optional, defaults to _ltr_ |
 | yjsEditor | BaseEditor | BaseEditor created with `withYjs()` and `withCursors()` |
 | gutter | boolean | Optional, defaults to true (render gutter). |

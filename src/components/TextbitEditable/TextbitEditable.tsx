@@ -29,6 +29,11 @@ import { withUniqueIds } from './with/uniqueIds'
 
 export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
+  onSpellcheck?: (texts: string[]) => Array<{
+    str: string,
+    pos: number,
+    sub: string[]
+  }[]>
   value?: Descendant[]
   yjsEditor?: Editor
   gutter?: boolean
@@ -40,6 +45,7 @@ export const TextbitEditable = ({
   children,
   value,
   onChange,
+  onSpellcheck,
   yjsEditor,
   gutter = true,
   dir = 'ltr',
@@ -80,7 +86,7 @@ export const TextbitEditable = ({
 
   return (
     <DragStateProvider>
-      <SlateSlate editor={textbitEditor} value={value} onChange={onChange}>
+      <SlateSlate editor={textbitEditor} value={value} onChange={onChange} onSpellcheck={onSpellcheck}>
         <PositionProvider inline={true}>
           <Gutter.Provider dir={dir} gutter={gutter}>
 
