@@ -87,53 +87,39 @@ function setAutoFocus(textbitEditor: TBEditor) {
 /*
  * Handle all decorations
  */
-function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path, placeholders?: PlaceholdersVisibility) {
-
-  // Speling words
-
-  // if (Text.isText(node)) {
-  //   const ranges: Range[] = []
-
-  //   const { text } = node
-  //   const words = text.split(/\s+/)
-  //   let offset = 0
-
-  //   words.forEach((word) => {
-  //     if (isMisspelled(word)) {
-  //       ranges.push({
-  //         anchor: { path, offset },
-  //         focus: { path, offset: offset + word.length },
-  //         misspelled: true,
-  //       })
-  //     }
-  //     offset += word.length + 1 // +1 for the space
-  //   })
-
-  //   return ranges
-  // }
-
+function handleDecoration(
+  editor: SlateEditor,
+  components: Map<string, PluginRegistryComponent>,
+  node: Node,
+  path: Path,
+  placeholders?: PlaceholdersVisibility
+) {
+  const ranges: Range[] = []
 
   // Placeholders
   if (!placeholders || placeholders !== 'multiple') {
-    return []
+    return ranges
   }
 
   if (!Text.isText(node) || !path.length || node.text !== '') {
-    return []
+    return ranges
   }
 
   const parent = Node.parent(editor, path)
   if (!Element.isElement(parent)) {
-    return []
+    return ranges
   }
 
   const entry = components.get(parent.type)
 
-  return [{
-    anchor: { path, offset: 0 },
-    focus: { path, offset: 0 },
-    placeholder: (entry?.componentEntry?.placeholder) ? entry.componentEntry.placeholder : ''
-  }]
+  return [
+    ...ranges,
+    {
+      anchor: { path, offset: 0 },
+      focus: { path, offset: 0 },
+      placeholder: (entry?.componentEntry?.placeholder) ? entry.componentEntry.placeholder : ''
+    }
+  ]
 }
 
 
