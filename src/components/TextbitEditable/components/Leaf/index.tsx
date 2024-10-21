@@ -55,13 +55,21 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
     }
   }
 
+  //
+  // FIXME: text decoration for spelling errors should be styleable.
+  // FIXME: UI for showing/choosing substitutions should be injectable.
+  //
+  const spellingError = !!leaf.misspelled
+  const subs = Array.isArray(leaf.subs) && leaf.subs.length ? leaf.subs : undefined
+
   return <>
     <span
       style={{
         ...style,
-        textDecoration: (leaf as any).misspelled ? 'underline wavy red' : 'none'
+        textDecoration: spellingError ? 'underline dotted red' : 'none'
       }}
       className={className}
+      title={spellingError && subs ? subs.join(', ') : undefined}
       {...attributes}
     >
       {leaf.placeholder && placeholders === 'multiple' &&

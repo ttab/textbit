@@ -3,7 +3,8 @@ import React, { // Necessary for esbuild
   useMemo,
   useCallback,
   useRef,
-  useState
+  useState,
+  useEffect
 } from 'react'
 import { createEditor, Editor as SlateEditor, Descendant, BaseEditor, Editor, NodeEntry, Node, Text, Range } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
@@ -69,7 +70,7 @@ export const TextbitEditable = ({
   className = ''
 }: TextbitEditableProps) => {
   const { plugins, components, actions } = usePluginRegistry()
-  const { autoFocus, onBlur, onFocus, placeholders } = useTextbit()
+  const { autoFocus, onBlur, onFocus, placeholders, verbose } = useTextbit()
   const { dispatch, debounce: debounceTimeout, spellcheckDebounce: spellcheckDebounceTimeout } = useTextbit()
   const [spellcheckLookup, setSpellcheckLookup] = useState<SpellcheckLookupTable>(new Map())
 
@@ -118,16 +119,26 @@ export const TextbitEditable = ({
   const onSpellcheckCallback = useCallback(
     debounce(() => {
       if (textbitEditor && onSpellcheck && spellcheckLookup) {
+        if (verbose) {
+          console.log('Executing spellcheck callback function')
+        }
         setSpellcheckLookup(
           updateSpellcheckTable(textbitEditor, onSpellcheck, spellcheckLookup)
         )
-        // spellcheckTable.current = updateSpellcheckTable(textbitEditor, onSpellcheck, spellcheckTable.current)
-        // textbitEditor.onChange()
       }
 
     }, spellcheckDebounceTimeout),
     [textbitEditor, onSpellcheck, spellcheckDebounceTimeout]
   )
+
+  useEffect(() => {
+    if (onSpellcheckCallback) {
+      if (verbose) {
+        console.info('Executing initial spellcheck callback function')
+      }
+      onSpellcheckCallback()
+    }
+  }, [])
 
   return (
     <DragStateProvider>
