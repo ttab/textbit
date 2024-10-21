@@ -27,34 +27,23 @@ const initialValue: Descendant[] = [
       type: 'h1'
     },
     children: [
-      { text: 'Better music?' }
+      { text: 'Kalmar Sweden' }
     ]
   },
   {
     type: 'core/text',
-    id: '538345e5-bacc-48f9-9ed2-b219892b5122',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6034',
     class: 'text',
     properties: {
-      type: 'preamble'
+      type: 'h1'
     },
     children: [
-      { text: 'It is one of those days when better music makes all the difference in the world. At least to me, my inner and imaginary friend.' }
-    ]
+      { text: '' }
+    ],
   },
   {
     type: 'core/text',
-    id: '538345e5-cadd-4558-9ed2-a219892b5133',
-    class: 'text',
-    properties: {
-      type: 'dateline'
-    },
-    children: [
-      { text: 'Kalmar' }
-    ]
-  },
-  {
-    type: 'core/text',
-    id: '538345e5-bacc-48f9-8ef0-1219891b6044',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6024',
     class: 'text',
     children: [
       { text: 'An example paragraph that contains text that is a wee bit ' },
@@ -74,15 +63,42 @@ const initialValue: Descendant[] = [
   },
   {
     type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6014',
     class: 'text',
-    id: '538345e5-bacc-48f9-8ef1-1215892b6155',
     children: [
-      { text: 'This, here now is just a regular paragraph that contains some nonsensical writing written by me.' },
+      { text: '' }
     ],
   },
   {
     type: 'core/text',
     id: '538343b5-badd-48f9-8ef0-1219891b6066',
+    class: 'text',
+    children: [
+      { text: 'An example paragraph that contains text that is a wee bit ' },
+      {
+        text: 'stronger',
+        'core/bold': true,
+        'core/italic': true
+      },
+      { text: ' than normal but also text that is somewhat ' },
+      {
+        text: 'emphasized',
+        'core/italic': true
+      },
+      { text: ' compared to the normal styled text found elsewhere in the document.' },
+    ],
+  },
+  {
+    type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6041',
+    class: 'text',
+    children: [
+      { text: '' }
+    ],
+  },
+  {
+    type: 'core/text',
+    id: '538343b5-badd-48f9-8ef0-1219891b6061',
     class: 'text',
     children: [
       { text: 'An example paragraph that contains text that is a wee bit ' },
@@ -117,7 +133,7 @@ function App() {
           plugins={[]}
           placeholder="Add text here..."
         >
-          <strong>No menu, with placeholder</strong>
+          <strong>No menu, with single placeholder</strong>
           <Textbit.Editable value={[{
             type: 'core/text',
             id: '0',
@@ -167,12 +183,12 @@ function App() {
 
 
 function fakeSpellChecker(text: string):
-  Array<{ str: string; pos: number, sub: string[] }> {
+  Array<{ text: string; offset: number, subs: string[] }> {
   const wordRegex = /\b[\w-]+\b/g
   const result: Array<{
-    str: string
-    pos: number
-    sub: string[]
+    text: string
+    offset: number
+    subs: string[]
   }> = []
 
   let match: RegExpExecArray | null
@@ -180,9 +196,9 @@ function fakeSpellChecker(text: string):
     const substitutions = getSubstitutions(match[0])
     if (substitutions) {
       result.push({
-        str: match[0],
-        pos: match.index,
-        sub: substitutions
+        text: match[0],
+        offset: match.index,
+        subs: substitutions
       })
     }
   }

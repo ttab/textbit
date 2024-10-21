@@ -2,10 +2,10 @@ import React, { // Necessary for esbuild
   PropsWithChildren,
   useMemo,
   useCallback,
-  useState,
-  useRef
+  useRef,
+  useState
 } from 'react'
-import { createEditor, Editor as SlateEditor, Descendant, BaseEditor, Editor, NodeEntry, Node, Text } from "slate"
+import { createEditor, Editor as SlateEditor, Descendant, BaseEditor, Editor, NodeEntry, Node, Text, Range } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
 import { ReactEditor, RenderElementProps, RenderLeafProps, withReact } from "slate-react"
 import { YHistoryEditor } from '@slate-yjs/core'
@@ -28,24 +28,35 @@ import { Gutter } from '../GutterProvider'
 import { SlateEditable } from './components/Slate/SlateEditable'
 import { SlateSlate } from './components/Slate/SlateSlate'
 import { withUniqueIds } from './with/uniqueIds'
-import { getTextNodesInTopAncestor } from '@/lib/utils'
-import { TBElement, TBText } from '@/types'
 import { debounce } from '@/lib/debounce'
 import { calculateStats, TextbitElement } from '@/lib'
+import { PluginRegistryComponent } from '../PluginRegistry/lib/types'
+import { PlaceholdersVisibility } from '../TextbitRoot/TextbitContext'
 
 export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
-  onSpellcheck?: (texts: string[]) => Array<{
-    str: string,
-    pos: number,
-    sub: string[]
-  }[]>
+  onSpellcheck?: OnSpellcheckCallback
   value?: Descendant[]
   yjsEditor?: Editor
   gutter?: boolean
   dir?: 'ltr' | 'rtl'
   className?: string
 }
+
+type OnSpellcheckCallback = (texts: string[]) => Array<{
+  text: string,
+  offset: number,
+  subs: string[]
+}[]>
+
+type SpellcheckLookupTable = Map<string, {
+  text: string,
+  spelling?: {
+    offset: number,
+    subs: string[]
+    text: string
+  }[]
+}>
 
 export const TextbitEditable = ({
   children,
@@ -58,15 +69,9 @@ export const TextbitEditable = ({
   className = ''
 }: TextbitEditableProps) => {
   const { plugins, components, actions } = usePluginRegistry()
-  const { autoFocus, onBlur, onFocus } = useTextbit()
+  const { autoFocus, onBlur, onFocus, placeholders } = useTextbit()
   const { dispatch, debounce: debounceTimeout, spellcheckDebounce: spellcheckDebounceTimeout } = useTextbit()
-  const spellcheckTable = useRef<Map<string, {
-    id: string,
-    path: number[]
-    textNodes?: NodeEntry<Descendant>[],
-    text: string,
-    ranges: Range[]
-  }>>(new Map())
+  const [spellcheckLookup, setSpellcheckLookup] = useState<SpellcheckLookupTable>(new Map())
 
   const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
     const e = SlateEditor.isEditor(yjsEditor) ? yjsEditor : createEditor()
@@ -87,7 +92,6 @@ export const TextbitEditable = ({
     return e
   }, [])
 
-
   const renderSlateElement = useCallback((props: RenderElementProps) => {
     return ElementComponent(props)
 
@@ -97,7 +101,7 @@ export const TextbitEditable = ({
     return Leaf(props)
   }, [])
 
-  // Debounce onChange handler
+  // Debounced onChange handler
   const onChangeCallback = useCallback(
     debounce((value: Descendant[]) => {
       if (onChange) {
@@ -110,90 +114,17 @@ export const TextbitEditable = ({
     [textbitEditor, onChange, debounceTimeout]
   )
 
-  //
-  // Debounce onSpellcheck handler
-  //
-  // TODO: Refactor logic to its own file and make it asynchnonous!
-  //
+  // Debounced onSpellcheck handler
   const onSpellcheckCallback = useCallback(
     debounce(() => {
-      if (!onSpellcheck || !spellcheckTable) {
-        return
+      if (textbitEditor && onSpellcheck && spellcheckLookup) {
+        setSpellcheckLookup(
+          updateSpellcheckTable(textbitEditor, onSpellcheck, spellcheckLookup)
+        )
+        // spellcheckTable.current = updateSpellcheckTable(textbitEditor, onSpellcheck, spellcheckTable.current)
+        // textbitEditor.onChange()
       }
 
-      // Find all nodes that need spellchecking
-      const tracker = new Map()
-      let path = 0
-      for (const child of textbitEditor.children) {
-        if (TextbitElement.isElement(child) && child.id) {
-          const childId = child.id
-          const text = Node.string(child)
-          const entry = spellcheckTable.current.get(child.id)
-
-          if (!spellcheckTable.current.has(childId)) {
-            // Add the new element (without ranges to trigger spellchecking)
-            tracker.set(childId, {
-              path: [path],
-              text,
-              textNodes: Array.from(Node.descendants(child, { pass: ([n]) => Text.isText(n) }))
-            })
-          }
-          else if (entry && text !== entry?.text) {
-            // Readd changed element (without ranges to trigger spellchecking)
-            tracker.set(childId, {
-              path: [path],
-              text,
-              textNodes: Array.from(Node.descendants(child, { pass: ([n]) => Text.isText(n) }))
-            })
-          }
-          else {
-            // Add the unchanged previous entry, but update the path
-            tracker.set(childId, { ...entry, path: [path] })
-          }
-        }
-
-        path++
-      }
-
-      // Send all changed or added strings to spellcheck in one call
-      const result = onSpellcheck(
-        Array.from(tracker.values())
-          .filter(entry => !entry.ranges)
-          .map(entry => entry.text)
-      )
-
-      // Add ranges for the spelling mistakes
-      let i = 0
-      tracker.forEach(entry => {
-        if (!entry.ranges) {
-          entry.ranges = []
-
-          for (const spellingError of result[i]) {
-            entry.ranges.push({
-              anchor: {
-                path: [i],
-                offset: spellingError.pos
-              },
-              focus: {
-                path: [i],
-                offset: spellingError.pos + spellingError.str.length
-              },
-              misspelled: true,
-              sub: spellingError.sub
-            })
-          }
-
-          i++
-        }
-      })
-
-      // TODO: Remove console.log
-      console.log(tracker)
-      spellcheckTable.current = tracker
-
-      //
-      // TODO: Forward data in spellcheckTable.current to decorate in SlateEditable
-      //
     }, spellcheckDebounceTimeout),
     [textbitEditor, onSpellcheck, spellcheckDebounceTimeout]
   )
@@ -211,11 +142,13 @@ export const TextbitEditable = ({
                   autoFocus={autoFocus}
                   onBlur={onBlur}
                   onFocus={onFocus}
+                  onDecorate={(entry: NodeEntry) => {
+                    return decorate(textbitEditor, entry, components, placeholders, spellcheckLookup)
+                  }}
                   renderSlateElement={renderSlateElement}
                   renderLeafComponent={renderLeafComponent}
                   textbitEditor={textbitEditor}
                   actions={actions}
-                  components={components}
                 />
               </PresenceOverlay>
             </Gutter.Content>
@@ -227,4 +160,126 @@ export const TextbitEditable = ({
       </SlateSlate>
     </DragStateProvider >
   )
+}
+
+
+/**
+ * Create ranges for all decorations needed
+ *
+ * @param editor
+ * @param nodeEntry
+ * @param components
+ * @param placeholders
+ * @param spellcheckLookupTable
+ *
+ * @returns Range[]
+ */
+function decorate(
+  editor: Editor,
+  nodeEntry: NodeEntry,
+  components: Map<string, PluginRegistryComponent>,
+  placeholders?: PlaceholdersVisibility,
+  spellcheckLookupTable?: SpellcheckLookupTable
+): Range[] {
+  const [node, path] = nodeEntry
+  const ranges: Range[] = []
+
+  // Add ranges from spellchecking
+  if (spellcheckLookupTable?.size && Text.isText(node)) {
+    const [topNode] = Editor.node(editor, [path[0]])
+
+    if (TextbitElement.isElement(topNode) && topNode.id) {
+      const spellcheck = spellcheckLookupTable.get(topNode.id)
+
+      if (spellcheck?.spelling) {
+        const text = node.text
+
+        spellcheck.spelling.forEach(item => {
+          const indices = [...text.matchAll(new RegExp(`\\b${item.text}\\b`, 'gi'))]
+
+          indices.forEach(match => {
+            ranges.push({
+              anchor: { path, offset: match.index },
+              focus: { path, offset: match.index + item.text.length },
+              misspelled: true,
+              subs: item.subs
+            })
+          })
+        })
+      }
+    }
+  }
+
+  // Placeholders
+  if (path.length === 2 && Text.isText(node) && node.text === '' && placeholders === 'multiple') {
+    const parentNode = Node.parent(editor, path)
+
+    if (TextbitElement.isElement(parentNode) && Node.string(parentNode) === '') {
+      const componentEntry = components.get(parentNode.type)
+
+      ranges.push({
+        anchor: { path, offset: 0 },
+        focus: { path, offset: 0 },
+        placeholder: (componentEntry?.componentEntry?.placeholder) ? componentEntry.componentEntry.placeholder : ''
+      })
+    }
+  }
+
+  return ranges
+}
+
+
+function updateSpellcheckTable(
+  editor: Editor,
+  onSpellcheck: OnSpellcheckCallback,
+  currentSpellcheckTable: SpellcheckLookupTable
+): SpellcheckLookupTable {
+  // Find all nodes that need spellchecking
+  const tracker: SpellcheckLookupTable = new Map()
+  const spellcheck: string[] = []
+
+  for (const node of editor.children) {
+    if (!TextbitElement.isElement(node) || !node.id) {
+      continue
+    }
+
+    const currentEntry = currentSpellcheckTable.get(node.id)
+    const text = Node.string(node)
+
+    if (!currentEntry || currentEntry.text !== text) {
+      // New node, or existing changed node. Needs spellchecking.
+      const isEmpty = text.trim() === ''
+      tracker.set(node.id, {
+        text,
+        spelling: !isEmpty ? undefined : [] // Only spellcheck non empty texts
+      })
+
+      if (!isEmpty) {
+        spellcheck.push(node.id)
+      }
+    }
+    else {
+      // Existing unchanged node
+      tracker.set(node.id, currentEntry)
+    }
+  }
+
+  // Send all changed or added strings to spellcheck in one call
+  const result = onSpellcheck(
+    Array.from(tracker.values())
+      .filter(entry => !entry.spelling) // Spellcheck those without spelling info
+      .map(entry => entry.text)
+  )
+
+  // Add all spellchecking results
+  if (result.length === spellcheck.length) {
+    for (let i = 0; i < spellcheck.length; i++) {
+      const entry = tracker.get(spellcheck[i])
+      if (entry) {
+        entry.spelling = result[i]
+      }
+    }
+  }
+
+  return tracker
 }

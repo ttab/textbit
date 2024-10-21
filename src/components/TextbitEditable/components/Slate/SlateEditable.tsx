@@ -1,28 +1,27 @@
 import React, { // Necessary for esbuild
   useEffect,
 } from 'react'
-import { Editor as SlateEditor, Transforms, Element as SlateElement, Path, Node, Editor, Text, Element, Range } from "slate"
+import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, NodeEntry } from "slate"
 import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
 import { toggleLeaf } from '@/lib/toggleLeaf'
 import { PluginRegistryAction, PluginRegistryComponent } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '@/components/TextbitRoot'
-import { PlaceholdersVisibility } from '@/components/TextbitRoot/TextbitContext'
 import { TextbitEditor } from '@/lib'
 import { TBEditor } from '@/types'
 
-export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components, autoFocus, onBlur, onFocus }: {
-  className: string
+export const SlateEditable = ({ className = '', renderSlateElement, renderLeafComponent, textbitEditor, actions, autoFocus, onBlur, onFocus, onDecorate }: {
+  className?: string
   renderSlateElement: (props: RenderElementProps) => JSX.Element
   renderLeafComponent: (props: RenderLeafProps) => JSX.Element
   textbitEditor: Editor
   actions: PluginRegistryAction[]
-  components: Map<string, PluginRegistryComponent>
   autoFocus: boolean
   onBlur?: React.FocusEventHandler<HTMLDivElement>
   onFocus?: React.FocusEventHandler<HTMLDivElement>
+  onDecorate?: ((entry: NodeEntry) => Range[]) | undefined
 }): JSX.Element => {
   const slateIsFocused = useFocused()
-  const { placeholder, placeholders } = useTextbit()
+  const { placeholder } = useTextbit()
 
   useEffect(() => {
     if (!autoFocus) {
@@ -39,17 +38,11 @@ export const SlateEditable = ({ className, renderSlateElement, renderLeafCompone
       renderElement={renderSlateElement}
       renderLeaf={renderLeafComponent}
       onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-      decorate={([node, path]) => {
-        return handleDecoration(
-          textbitEditor,
-          components,
-          node,
-          path,
-          placeholders)
-      }}
+      decorate={onDecorate}
       autoFocus={autoFocus}
       onBlur={onBlur}
       onFocus={onFocus}
+      spellCheck={false}
     />
   )
 }
@@ -81,45 +74,6 @@ function setAutoFocus(textbitEditor: TBEditor) {
 
     Transforms.select(textbitEditor, initialSelection)
   }, 0)
-}
-
-
-/*
- * Handle all decorations
- */
-function handleDecoration(
-  editor: SlateEditor,
-  components: Map<string, PluginRegistryComponent>,
-  node: Node,
-  path: Path,
-  placeholders?: PlaceholdersVisibility
-) {
-  const ranges: Range[] = []
-
-  // Placeholders
-  if (!placeholders || placeholders !== 'multiple') {
-    return ranges
-  }
-
-  if (!Text.isText(node) || !path.length || node.text !== '') {
-    return ranges
-  }
-
-  const parent = Node.parent(editor, path)
-  if (!Element.isElement(parent)) {
-    return ranges
-  }
-
-  const entry = components.get(parent.type)
-
-  return [
-    ...ranges,
-    {
-      anchor: { path, offset: 0 },
-      focus: { path, offset: 0 },
-      placeholder: (entry?.componentEntry?.placeholder) ? entry.componentEntry.placeholder : ''
-    }
-  ]
 }
 
 

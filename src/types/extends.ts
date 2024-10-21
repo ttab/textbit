@@ -48,8 +48,9 @@ declare module 'slate' {
     Element: TBElement
     Text: TBText
     Range: BaseRange & {
-      misspelled?: boolean // FIXME: should this include suggestions?
-      placeholder?: string
+      placeholder?: string,
+      misspelled?: boolean // If misspelled
+      subs?: string[] // Suggested substitutions
     }
   }
 }
