@@ -232,7 +232,7 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
         <Textbit.Editable
           value={value}
           onChange={value => {
-            console.log(value, null, 2)
+            console.log(value)
             setValue(value)
           }}
           onSpellcheck={(texts) => {
