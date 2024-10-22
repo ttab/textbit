@@ -5,7 +5,7 @@ div.textbit-contenttools-gutter {
 div.textbit-contenttools-menu {
   position:absolute;
   user-select: none;
-  left: 0.5rem;
+  margin-left: 0.5rem;
   box-sizing: border-box;
 }
 
@@ -30,7 +30,7 @@ a.textbit-contenttools-trigger {
 }
 
 div.textbit-contenttools-popover {
-  margin: -0.5rem 0 0 1.6rem;
+  margin: 1.5rem 0 0 -1rem;
   min-width: 16rem;
   border-radius: calc(var(--radius) * 0.8);
   background-color: hsl(var(--popover));

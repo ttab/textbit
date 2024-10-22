@@ -1,28 +1,32 @@
-import React, { PropsWithChildren, useCallback, useContext, useLayoutEffect, useRef } from 'react'
+import React, {
+  PropsWithChildren, useLayoutEffect, useRef
+} from 'react'
 import { createPortal } from 'react-dom'
-import { useFocused, useSlateStatic } from 'slate-react'
+import { useFocused } from 'slate-react'
+import { useTextbitSelectionBoundsState } from '../TextbitRoot'
 
-import { PositionContext } from './PositionProvider'
-import { Editor, Element, Range } from 'slate'
-import { GutterContext } from '../GutterProvider'
 
 export const Menu = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
-  const { position } = useContext(PositionContext)
-  const { box } = useContext(GutterContext)
-  const editor = useSlateStatic()
+  return (
+    <>
+      {createPortal(
+        <Popover className={className}>
+          {children}
+        </Popover>,
+        document.body)}
+    </>
+  )
+}
+
+
+function Popover({ children, className }: PropsWithChildren & {
+  className?: string
+}) {
+  const bounds = useTextbitSelectionBoundsState()
   const focused = useFocused()
   const ref = useRef<HTMLDivElement>(null)
-
-  const setVisibility = useCallback((opacity: string, zIndex: string): void => {
-    setTimeout(() => {
-      if (ref?.current) {
-        ref.current.style.opacity = opacity
-        ref.current.style.zIndex = zIndex
-      }
-    }, 0)
-  }, [])
 
   useLayoutEffect(() => {
     const el = ref?.current
@@ -30,49 +34,58 @@ export const Menu = ({ children, className }: PropsWithChildren & {
       return
     }
 
-    const { selection } = editor
-    if (!focused || !selection || !Range.isRange(selection) || !position || !focused) {
-      return setVisibility('0', '-1')
+    if (!focused || !bounds || bounds.isCollapsed) {
+      el.style.opacity = '0'
+      el.style.zIndex = '-1'
+      return
     }
 
-    if (Range.isCollapsed(selection)) {
-      const nodes = Array.from(Editor.nodes(editor, {
-        at: selection,
-        match: n => Element.isElement(n) && n.class === 'inline'
-      }))
+    const { top, left } = calculatePosition(
+      ref.current?.getBoundingClientRect(),
+      bounds
+    )
 
-      if (!nodes.length) {
-        return setVisibility('0', '-1')
-      }
-    }
-
-    const { width, height } = ref?.current?.getBoundingClientRect() || { width: 0 }
-    let left = position.x - (width ? width / 2 : 0)
-
-    if (left < 0) {
-      left = 0
-    }
-    else if (left + width > position.offset.x + position.offset.w) {
-      left = position.offset.w - width
-    }
-
+    el.style.opacity = '1'
+    el.style.zIndex = 'auto'
+    el.style.top = `${top}px`
     el.style.left = `${left}px`
-    el.style.top = (height <= position.y + position.offset.y) ? `${position.y - height}px` : `${position.y + height}px`
-
-    setVisibility('1', 'auto')
-  }, [ref, position, focused])
-
+  }, [ref, bounds])
 
   return (
-    <div ref={ref} className={className || ''} style={{
+    <div ref={ref} className={className} style={{
       opacity: '0',
       zIndex: '-1',
       position: 'absolute'
     }}>
-      {ref?.current && createPortal(
-        <>{children}</>,
-        ref.current
-      )}
+      {children}
     </div>
   )
+}
+
+interface BoundingBox {
+  top: number
+  left: number
+  width: number
+  height: number
+}
+
+function calculatePosition(popoverBounds: BoundingBox, selectionBounds: BoundingBox) {
+  const gap = 2
+
+  // Calculate initial centered position
+  let left = selectionBounds.left + (selectionBounds.width / 2) - (popoverBounds.width / 2)
+  let top = selectionBounds.top - popoverBounds.height - gap
+
+  // Constrain to viewport bounds
+  const viewportWidth = window.innerWidth
+
+  // Prevent going off left or right edges
+  left = Math.max(gap, Math.min(left, viewportWidth - popoverBounds.width - gap))
+
+  // When going above viewport, position below selection instead
+  if (top < gap) {
+    top = selectionBounds.top + selectionBounds.height + gap
+  }
+
+  return { top, left }
 }

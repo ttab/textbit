@@ -4,6 +4,7 @@ import { GutterContext } from '../GutterProvider'
 
 export const DropMarker = ({ className }: { className?: string }) => {
   const ref = useRef<HTMLDivElement>(null)
+  // FIXME: Use updated data from GutterContext
   const { box: gutterBox, width: gutterWidth } = useContext(GutterContext)
   const { offset, dragOver } = useContext(DragstateContext)
   const { top = 0, bottom = 0, position = ['above', false] } = offset || {}

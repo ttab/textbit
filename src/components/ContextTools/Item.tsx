@@ -1,15 +1,12 @@
 import React, {
   PropsWithChildren,
-  Children,
-  useContext
+  Children
 } from 'react'
 import { useSlateStatic } from 'slate-react'
 import { hasMark } from '@/lib/hasMark'
 import { PluginRegistryAction } from '../PluginRegistry/lib/types'
 import { toggleLeaf } from '@/lib/toggleLeaf'
-import { PositionContext } from './PositionProvider'
-import { Element } from 'slate'
-
+import { Editor, Element } from 'slate'
 
 export const Item = ({ action, className, children }: PropsWithChildren & {
   action: PluginRegistryAction
@@ -17,8 +14,12 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
 }) => {
   const editor = useSlateStatic()
   const isActive = hasMark(editor, action.plugin.name)
-  const { nodeEntry } = useContext(PositionContext)
-  const isActiveInlineNode = nodeEntry && Element.isElement(nodeEntry[0]) && nodeEntry[0].type === action.plugin.name
+  const leafEntry = Editor.nodes(editor, {
+    mode: 'lowest'
+  }).next().value || undefined
+  const isActiveInlineNode = leafEntry && Element.isElement(leafEntry[0]) && leafEntry[0].type === action.plugin.name
+
+  // TODO: Correctly identify active items
 
   const Tool = !Array.isArray(action.tool)
     ? action.tool
@@ -33,8 +34,8 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
   if (isActiveInlineNode) {
     return <>
       {!Children.count
-        ? <Tool editor={editor} active={isActive} entry={nodeEntry} />
-        : <Tool editor={editor} active={isActive} entry={nodeEntry}>{children}</Tool>
+        ? <Tool editor={editor} active={isActive} entry={leafEntry} />
+        : <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
       }
       <em className={`${isActive ? 'active' : ''}`}></em>
     </>
@@ -52,8 +53,8 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
     }}
   >
     {!Children.count
-      ? <Tool editor={editor} active={isActive} entry={nodeEntry}>{children}</Tool>
-      : <Tool editor={editor} active={isActive} entry={nodeEntry}>{children}</Tool>
+      ? <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
+      : <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
     }
   </div >
 }

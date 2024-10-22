@@ -2,7 +2,6 @@ import React, { // Necessary for esbuild
   PropsWithChildren,
   useMemo,
   useCallback,
-  useRef,
   useState,
   useEffect
 } from 'react'
@@ -24,7 +23,6 @@ import { withInsertHtml } from './with/insertHtml'
 import { PresenceOverlay } from './components/PresenceOverlay/PresenceOverlay'
 import { useTextbit } from '../TextbitRoot'
 import { usePluginRegistry } from '../PluginRegistry'
-import { PositionProvider } from '../ContextTools/PositionProvider'
 import { Gutter } from '../GutterProvider'
 import { SlateEditable } from './components/Slate/SlateEditable'
 import { SlateSlate } from './components/Slate/SlateSlate'
@@ -143,31 +141,29 @@ export const TextbitEditable = ({
   return (
     <DragStateProvider>
       <SlateSlate editor={textbitEditor} value={value} onChange={onChangeCallback} onSpellcheck={onSpellcheckCallback}>
-        <PositionProvider inline={true}>
-          <Gutter.Provider dir={dir} gutter={gutter}>
+        <Gutter.Provider dir={dir} gutter={gutter}>
 
-            <Gutter.Content>
-              <PresenceOverlay isCollaborative={!!yjsEditor}>
-                <SlateEditable
-                  className={className}
-                  autoFocus={autoFocus}
-                  onBlur={onBlur}
-                  onFocus={onFocus}
-                  onDecorate={(entry: NodeEntry) => {
-                    return decorate(textbitEditor, entry, components, placeholders, spellcheckLookup)
-                  }}
-                  renderSlateElement={renderSlateElement}
-                  renderLeafComponent={renderLeafComponent}
-                  textbitEditor={textbitEditor}
-                  actions={actions}
-                />
-              </PresenceOverlay>
-            </Gutter.Content>
+          <Gutter.Content>
+            <PresenceOverlay isCollaborative={!!yjsEditor}>
+              <SlateEditable
+                className={className}
+                autoFocus={autoFocus}
+                onBlur={onBlur}
+                onFocus={onFocus}
+                onDecorate={(entry: NodeEntry) => {
+                  return decorate(textbitEditor, entry, components, placeholders, spellcheckLookup)
+                }}
+                renderSlateElement={renderSlateElement}
+                renderLeafComponent={renderLeafComponent}
+                textbitEditor={textbitEditor}
+                actions={actions}
+              />
+            </PresenceOverlay>
+          </Gutter.Content>
 
-            {children}
+          {children}
 
-          </Gutter.Provider>
-        </PositionProvider>
+        </Gutter.Provider>
       </SlateSlate>
     </DragStateProvider >
   )

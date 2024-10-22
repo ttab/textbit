@@ -7,6 +7,7 @@ import {
   basePlugins,
   StandardPlugins
 } from '@/components/core'
+import TextbitSelectionBoundsProvider from './TextbitSelectionBoundsProvider'
 
 
 export const TextbitRoot = ({
@@ -43,23 +44,25 @@ export const TextbitRoot = ({
 
   return (
     <div className={className} style={style}>
-      <TextbitContextProvider
-        verbose={!!verbose}
-        autoFocus={!!autoFocus}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        debounce={debounce}
-        spellcheckDebounce={spellcheckDebounce}
-        placeholder={placeholder}
-        placeholders={placeholders}
-      >
-        <PluginRegistryContextProvider verbose={!!verbose} plugins={[
-          ...basePlugins.map(p => p()),
-          ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map(sp => sp())
-        ]}>
-          {children}
-        </PluginRegistryContextProvider>
-      </TextbitContextProvider>
+      <TextbitSelectionBoundsProvider>
+        <TextbitContextProvider
+          verbose={!!verbose}
+          autoFocus={!!autoFocus}
+          onBlur={onBlur}
+          onFocus={onFocus}
+          debounce={debounce}
+          spellcheckDebounce={spellcheckDebounce}
+          placeholder={placeholder}
+          placeholders={placeholders}
+        >
+          <PluginRegistryContextProvider verbose={!!verbose} plugins={[
+            ...basePlugins.map(p => p()),
+            ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map(sp => sp())
+          ]}>
+            {children}
+          </PluginRegistryContextProvider>
+        </TextbitContextProvider>
+      </TextbitSelectionBoundsProvider>
     </div>
   )
 }

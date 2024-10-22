@@ -1,31 +1,33 @@
 import React, {
   PropsWithChildren,
   Children,
-  useContext,
   useCallback,
   ReactNode
 } from 'react'
-import { PositionContext } from './PositionProvider'
-import { useSlateSelection } from 'slate-react'
+import { useSlateStatic } from 'slate-react'
+import { Editor } from 'slate'
 
 export const Group = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
-  const { nodeEntry, expanded } = useContext(PositionContext)
-  const selection = useSlateSelection()
+  const editor = useSlateStatic()
+  const leafEntry = Editor.nodes(editor, {
+    mode: 'lowest'
+  }).next().value || undefined
 
   const filter = useCallback((children: ReactNode) => {
-    if (!nodeEntry) {
+    if (!leafEntry) {
       return children
     }
 
     return Children.toArray(children).filter(child => {
       // @ts-ignore
       const isInline = child?.props?.action?.plugin?.class === 'inline'
-      return isInline !== expanded
+      // FiXME: This is wrong
+      return true // isInline // === isCollapsed
     })
 
-  }, [nodeEntry, expanded, selection])
+  }, [leafEntry, editor])
 
   const filteredChildren = filter(children)
   const hasChildren = Children.count(filteredChildren) > 0
