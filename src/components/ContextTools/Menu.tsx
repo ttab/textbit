@@ -2,8 +2,10 @@ import React, {
   PropsWithChildren, useLayoutEffect, useRef
 } from 'react'
 import { createPortal } from 'react-dom'
-import { useFocused } from 'slate-react'
-import { useTextbitSelectionBoundsState } from '../TextbitRoot'
+import { useFocused, useSlateSelection, useSlateStatic } from 'slate-react'
+import { useTextbitSelectionBounds } from '../TextbitRoot'
+import { Editor, Range } from 'slate'
+import { TextbitElement } from '@/lib'
 
 
 export const Menu = ({ children, className }: PropsWithChildren & {
@@ -24,7 +26,9 @@ export const Menu = ({ children, className }: PropsWithChildren & {
 function Popover({ children, className }: PropsWithChildren & {
   className?: string
 }) {
-  const bounds = useTextbitSelectionBoundsState()
+  const editor = useSlateStatic()
+  const selection = useSlateSelection()
+  const bounds = useTextbitSelectionBounds()
   const focused = useFocused()
   const ref = useRef<HTMLDivElement>(null)
 
@@ -34,22 +38,35 @@ function Popover({ children, className }: PropsWithChildren & {
       return
     }
 
-    if (!focused || !bounds || bounds.isCollapsed) {
+    if (!focused || !bounds.current || !selection) {
       el.style.opacity = '0'
       el.style.zIndex = '-1'
       return
     }
 
+    if (Range.isCollapsed(selection)) {
+      const node = Editor.nodes(editor, {
+        at: selection,
+        match: n => TextbitElement.isElement(n) && n.class === 'inline'
+      }).next().value
+
+      if (!node) {
+        el.style.opacity = '0'
+        el.style.zIndex = '-1'
+        return
+      }
+    }
+
     const { top, left } = calculatePosition(
       ref.current?.getBoundingClientRect(),
-      bounds
+      bounds.current
     )
 
     el.style.opacity = '1'
     el.style.zIndex = 'auto'
     el.style.top = `${top}px`
     el.style.left = `${left}px`
-  }, [ref, bounds])
+  }, [ref, bounds, editor.selection])
 
   return (
     <div ref={ref} className={className} style={{

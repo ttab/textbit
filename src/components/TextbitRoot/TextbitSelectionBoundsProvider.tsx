@@ -125,8 +125,8 @@ export const TextbitSelectionBoundsProvider = ({ children }: PropsWithChildren) 
       calculateBounds()
     }
 
-    document.addEventListener('selectionchange', handleSelectionChange, { capture: true })
-    window.addEventListener('scroll', handleScroll, { capture: true })
+    document.addEventListener('selectionchange', handleSelectionChange, { capture: true, passive: true })
+    window.addEventListener('scroll', handleScroll, { capture: true, passive: true })
 
     return () => {
       document.removeEventListener('selectionchange', handleSelectionChange, { capture: true })

@@ -4,27 +4,31 @@ import React, {
   useCallback,
   ReactNode
 } from 'react'
-import { useSlateStatic } from 'slate-react'
-import { Editor } from 'slate'
+import { useSlateSelection, useSlateStatic } from 'slate-react'
+import { Editor, Range } from 'slate'
 
 export const Group = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
   const editor = useSlateStatic()
+  const selection = useSlateSelection()
   const leafEntry = Editor.nodes(editor, {
     mode: 'lowest'
   }).next().value || undefined
 
   const filter = useCallback((children: ReactNode) => {
-    if (!leafEntry) {
+    if (!leafEntry || !selection) {
       return children
     }
 
+
     return Children.toArray(children).filter(child => {
+      if (!Range.isCollapsed(selection)) {
+        return true
+      }
+
       // @ts-ignore
-      const isInline = child?.props?.action?.plugin?.class === 'inline'
-      // FiXME: This is wrong
-      return true // isInline // === isCollapsed
+      return child?.props?.action?.plugin?.class === 'inline'
     })
 
   }, [leafEntry, editor])

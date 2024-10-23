@@ -2,24 +2,30 @@ import React, {
   PropsWithChildren,
   Children
 } from 'react'
-import { useSlateStatic } from 'slate-react'
+import { useSlateSelection, useSlateStatic } from 'slate-react'
 import { hasMark } from '@/lib/hasMark'
 import { PluginRegistryAction } from '../PluginRegistry/lib/types'
 import { toggleLeaf } from '@/lib/toggleLeaf'
-import { Editor, Element } from 'slate'
+import { Editor } from 'slate'
+import { TextbitElement } from '@/lib'
 
 export const Item = ({ action, className, children }: PropsWithChildren & {
   action: PluginRegistryAction
   className?: string
 }) => {
   const editor = useSlateStatic()
+  useSlateSelection()
+
   const isActive = hasMark(editor, action.plugin.name)
   const leafEntry = Editor.nodes(editor, {
     mode: 'lowest'
   }).next().value || undefined
-  const isActiveInlineNode = leafEntry && Element.isElement(leafEntry[0]) && leafEntry[0].type === action.plugin.name
 
-  // TODO: Correctly identify active items
+  const inlineNode = Editor.nodes(editor, {
+    match: n => TextbitElement.isElement(n) && n.class === 'inline'
+  }).next().value
+
+  const isActiveInlineNode = TextbitElement.isElement(inlineNode?.[0]) && inlineNode[0].type === action.plugin.name
 
   const Tool = !Array.isArray(action.tool)
     ? action.tool
@@ -32,16 +38,15 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
   }
 
   if (isActiveInlineNode) {
-    return <>
-      {!Children.count
-        ? <Tool editor={editor} active={isActive} entry={leafEntry} />
-        : <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
+    return <div data-state='active'>
+      {!Children.count(children)
+        ? <Tool editor={editor} active={isActive} entry={inlineNode} />
+        : <Tool editor={editor} active={isActive} entry={inlineNode}>{children}</Tool>
       }
-      <em className={`${isActive ? 'active' : ''}`}></em>
-    </>
+      <em className='active'></em>
+    </div>
   }
 
-  // FIXME: Here is an weird logic error (Children.count without func call or parameter) and both ways is always the same output...
   return <div
     data-state={isActive ? 'active' : 'inactive'}
     className={className || ''}
@@ -52,9 +57,6 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
       }
     }}
   >
-    {!Children.count
-      ? <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
-      : <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
-    }
+    <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
   </div >
 }
