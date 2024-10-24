@@ -26,7 +26,7 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
   const { placeholder } = useTextbit()
   const ref = useRef<HTMLDivElement>(null)
 
-  useContextMenu(ref, ({ target, originalEvent, nodeEntry }) => {
+  useContextMenu(ref, ({ target, originalEvent, nodeEntry, spelling }) => {
     // const nodeEntry = getNodeEntryFromDomNode(textbitEditor, target)
     // const result = findNodeAndRangeAtPosition(textbitEditor, originalEvent)
     // Try to use caretPositionFromPoint (modern approach)
@@ -44,7 +44,7 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
     // }
 
     console.log(nodeEntry)
-    debugger
+    console.log(spelling)
   })
 
   useEffect(() => {

@@ -7,8 +7,12 @@ interface ContextMenuEvent {
   x: number
   y: number
   target: HTMLElement
-  originalEvent: MouseEvent,
+  originalEvent: MouseEvent
   nodeEntry: NodeEntry
+  spelling?: {
+    error: string
+    suggestions: string[]
+  }
 }
 
 type ContextMenuHandler = (event: ContextMenuEvent) => void
@@ -34,7 +38,7 @@ export function useContextMenu(
       if (!targetElement || !element.contains(targetElement)) {
         return
       }
-      debugger
+
       if (preventDefault) {
         event.preventDefault()
       }
@@ -49,7 +53,8 @@ export function useContextMenu(
         y: event.clientY,
         target: targetElement,
         originalEvent: event,
-        nodeEntry
+        nodeEntry,
+        spelling: getSpellingData(targetElement)
       })
     }
 
@@ -57,4 +62,21 @@ export function useContextMenu(
 
     return () => window.removeEventListener('contextmenu', contextMenuHandler)
   }, [ref, onContextMenu, preventDefault])
+}
+
+function getSpellingData(element: HTMLElement): {
+  error: string
+  suggestions: string[]
+} | undefined {
+  const ancestor = element.closest('[data-spelling-error]') as HTMLElement | null
+  if (!ancestor) {
+    return
+  }
+
+  try {
+    return {
+      error: decodeURIComponent(ancestor.getAttribute('data-spelling-error') || ''),
+      suggestions: JSON.parse(decodeURIComponent(ancestor.getAttribute('data-spelling-suggestions') || '')),
+    }
+  } catch (_) { }
 }

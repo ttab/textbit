@@ -91,7 +91,7 @@ function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSS
     <span
       style={{ ...style }}
       className={className}
-      data-spelling-error={leaf.text}
+      data-spelling-error={encodeURIComponent(leaf.text)}
       data-spelling-suggestions={subs ? encodeURIComponent(JSON.stringify(subs)) : ''}
       {...attributes}
     >
