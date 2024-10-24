@@ -5,9 +5,9 @@ import React, { // Necessary for esbuild
   useState,
   useEffect
 } from 'react'
-import { createEditor, Editor as SlateEditor, Descendant, BaseEditor, Editor, NodeEntry, Node, Text, Range } from "slate"
-import { HistoryEditor, withHistory } from "slate-history"
-import { ReactEditor, RenderElementProps, RenderLeafProps, withReact } from "slate-react"
+import { createEditor, Editor as SlateEditor, Descendant, Editor, NodeEntry, Node, Text, Range } from "slate"
+import { withHistory } from "slate-history"
+import { RenderElementProps, RenderLeafProps, withReact } from "slate-react"
 import { YHistoryEditor } from '@slate-yjs/core'
 
 import { DragStateProvider } from './DragStateProvider'
@@ -31,6 +31,7 @@ import { debounce } from '@/lib/debounce'
 import { calculateStats, TextbitElement } from '@/lib'
 import { PluginRegistryComponent } from '../PluginRegistry/lib/types'
 import { PlaceholdersVisibility } from '../TextbitRoot/TextbitContext'
+import { withSpelling } from './with/withSpelling'
 
 export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
@@ -42,11 +43,11 @@ export interface TextbitEditableProps extends PropsWithChildren {
   className?: string
 }
 
-type OnSpellcheckCallback = (texts: string[]) => Array<{
+type OnSpellcheckCallback = (texts: string[]) => Promise<Array<{
   text: string,
   offset: number,
   subs: string[]
-}[]>
+}[]>>
 
 type SpellcheckLookupTable = Map<string, {
   text: string,
@@ -68,18 +69,17 @@ export const TextbitEditable = ({
   className = ''
 }: TextbitEditableProps) => {
   const { plugins, components, actions } = usePluginRegistry()
-  const { autoFocus, onBlur, onFocus, placeholders, verbose } = useTextbit()
+  const { autoFocus, onBlur, onFocus, placeholders } = useTextbit()
   const { dispatch, debounce: debounceTimeout, spellcheckDebounce: spellcheckDebounceTimeout } = useTextbit()
-  const [spellcheckLookup, setSpellcheckLookup] = useState<SpellcheckLookupTable>(new Map())
 
-  const textbitEditor = useMemo<BaseEditor & ReactEditor & HistoryEditor>(() => {
+  const textbitEditor = useMemo<Editor>(() => {
     const e = SlateEditor.isEditor(yjsEditor) ? yjsEditor : createEditor()
 
     if (!YHistoryEditor.isYHistoryEditor(e)) {
       withHistory(e)
     }
     withReact(e)
-
+    withSpelling(e, onSpellcheck, spellcheckDebounceTimeout)
     withInline(e)
     withInsertText(e, plugins)
     withNormalizeNode(e, plugins, components)
@@ -93,7 +93,6 @@ export const TextbitEditable = ({
 
   const renderSlateElement = useCallback((props: RenderElementProps) => {
     return ElementComponent(props)
-
   }, [])
 
   const renderLeafComponent = useCallback((props: RenderLeafProps) => {
@@ -113,34 +112,15 @@ export const TextbitEditable = ({
     [textbitEditor, onChange, debounceTimeout]
   )
 
-  // Debounced onSpellcheck handler
-  const onSpellcheckCallback = useCallback(
-    debounce(() => {
-      if (textbitEditor && onSpellcheck && spellcheckLookup) {
-        if (verbose) {
-          console.log('Executing spellcheck callback function')
-        }
-        setSpellcheckLookup(
-          updateSpellcheckTable(textbitEditor, onSpellcheck, spellcheckLookup)
-        )
-      }
-
-    }, spellcheckDebounceTimeout),
-    [textbitEditor, onSpellcheck, spellcheckDebounceTimeout]
-  )
-
   useEffect(() => {
-    if (onSpellcheckCallback) {
-      if (verbose) {
-        console.info('Executing initial spellcheck callback function')
-      }
-      onSpellcheckCallback()
+    if (textbitEditor?.spellcheck) {
+      textbitEditor?.spellcheck()
     }
   }, [])
 
   return (
     <DragStateProvider>
-      <SlateSlate editor={textbitEditor} value={value} onChange={onChangeCallback} onSpellcheck={onSpellcheckCallback}>
+      <SlateSlate editor={textbitEditor} value={value} onChange={onChangeCallback}>
         <Gutter.Provider dir={dir} gutter={gutter}>
 
           <Gutter.Content>
@@ -151,7 +131,7 @@ export const TextbitEditable = ({
                 onBlur={onBlur}
                 onFocus={onFocus}
                 onDecorate={(entry: NodeEntry) => {
-                  return decorate(textbitEditor, entry, components, placeholders, spellcheckLookup)
+                  return decorate(textbitEditor, entry, components, placeholders)
                 }}
                 renderSlateElement={renderSlateElement}
                 renderLeafComponent={renderLeafComponent}
@@ -185,18 +165,17 @@ function decorate(
   editor: Editor,
   nodeEntry: NodeEntry,
   components: Map<string, PluginRegistryComponent>,
-  placeholders?: PlaceholdersVisibility,
-  spellcheckLookupTable?: SpellcheckLookupTable
+  placeholders?: PlaceholdersVisibility
 ): Range[] {
   const [node, path] = nodeEntry
   const ranges: Range[] = []
 
   // Add ranges from spellchecking
-  if (spellcheckLookupTable?.size && Text.isText(node)) {
+  if (editor.spelling?.size && Text.isText(node)) {
     const [topNode] = Editor.node(editor, [path[0]])
 
     if (TextbitElement.isElement(topNode) && topNode.id) {
-      const spellcheck = spellcheckLookupTable.get(topNode.id)
+      const spellcheck = editor.spelling.get(topNode.id)
 
       if (spellcheck?.spelling) {
         const text = node.text
@@ -233,60 +212,4 @@ function decorate(
   }
 
   return ranges
-}
-
-
-function updateSpellcheckTable(
-  editor: Editor,
-  onSpellcheck: OnSpellcheckCallback,
-  currentSpellcheckTable: SpellcheckLookupTable
-): SpellcheckLookupTable {
-  // Find all nodes that need spellchecking
-  const tracker: SpellcheckLookupTable = new Map()
-  const spellcheck: string[] = []
-
-  for (const node of editor.children) {
-    if (!TextbitElement.isElement(node) || !node.id) {
-      continue
-    }
-
-    const currentEntry = currentSpellcheckTable.get(node.id)
-    const text = Node.string(node)
-
-    if (!currentEntry || currentEntry.text !== text) {
-      // New node, or existing changed node. Needs spellchecking.
-      const isEmpty = text.trim() === ''
-      tracker.set(node.id, {
-        text,
-        spelling: !isEmpty ? undefined : [] // Only spellcheck non empty texts
-      })
-
-      if (!isEmpty) {
-        spellcheck.push(node.id)
-      }
-    }
-    else {
-      // Existing unchanged node
-      tracker.set(node.id, currentEntry)
-    }
-  }
-
-  // Send all changed or added strings to spellcheck in one call
-  const result = onSpellcheck(
-    Array.from(tracker.values())
-      .filter(entry => !entry.spelling) // Spellcheck those without spelling info
-      .map(entry => entry.text)
-  )
-
-  // Add all spellchecking results
-  if (result.length === spellcheck.length) {
-    for (let i = 0; i < spellcheck.length; i++) {
-      const entry = tracker.get(spellcheck[i])
-      if (entry) {
-        entry.spelling = result[i]
-      }
-    }
-  }
-
-  return tracker
 }

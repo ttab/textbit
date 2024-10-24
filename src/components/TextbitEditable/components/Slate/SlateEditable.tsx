@@ -1,13 +1,15 @@
 import React, { // Necessary for esbuild
   useEffect,
+  useRef,
 } from 'react'
 import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, NodeEntry } from "slate"
 import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
 import { toggleLeaf } from '@/lib/toggleLeaf'
-import { PluginRegistryAction, PluginRegistryComponent } from '../../../PluginRegistry/lib/types'
+import { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '@/components/TextbitRoot'
 import { TextbitEditor } from '@/lib'
 import { TBEditor } from '@/types'
+import { useContextMenu } from '@/hooks/useContextMenu'
 
 export const SlateEditable = ({ className = '', renderSlateElement, renderLeafComponent, textbitEditor, actions, autoFocus, onBlur, onFocus, onDecorate }: {
   className?: string
@@ -20,8 +22,30 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   onDecorate?: ((entry: NodeEntry) => Range[]) | undefined
 }): JSX.Element => {
-  const slateIsFocused = useFocused()
+  const focused = useFocused()
   const { placeholder } = useTextbit()
+  const ref = useRef<HTMLDivElement>(null)
+
+  useContextMenu(ref, ({ target, originalEvent, nodeEntry }) => {
+    // const nodeEntry = getNodeEntryFromDomNode(textbitEditor, target)
+    // const result = findNodeAndRangeAtPosition(textbitEditor, originalEvent)
+    // Try to use caretPositionFromPoint (modern approach)
+    // if (document.caretPositionFromPoint) {
+    //   const pos = document.caretPositionFromPoint(clientX, clientY)
+    //   if (pos) {
+    //     domRange = document.createRange()
+    //     domRange.setStart(pos.offsetNode, pos.offset)
+    //     domRange.setEnd(pos.offsetNode, pos.offset)
+    //   }
+    // }
+    // // Fallback for Safari and older browsers
+    // else if (document.caretRangeFromPoint) {
+    //   domRange = document.caretRangeFromPoint(clientX, clientY)
+    // }
+
+    console.log(nodeEntry)
+    debugger
+  })
 
   useEffect(() => {
     if (!autoFocus) {
@@ -31,19 +55,21 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
   }, [autoFocus])
 
   return (
-    <Editable
-      placeholder={placeholder}
-      data-state={slateIsFocused ? 'focused' : ''}
-      className={className}
-      renderElement={renderSlateElement}
-      renderLeaf={renderLeafComponent}
-      onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-      decorate={onDecorate}
-      autoFocus={autoFocus}
-      onBlur={onBlur}
-      onFocus={onFocus}
-      spellCheck={false}
-    />
+    <div ref={ref}>
+      <Editable
+        placeholder={placeholder}
+        data-state={focused ? 'focused' : ''}
+        className={className}
+        renderElement={renderSlateElement}
+        renderLeaf={renderLeafComponent}
+        onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
+        decorate={onDecorate}
+        autoFocus={autoFocus}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        spellCheck={false}
+      />
+    </div>
   )
 }
 

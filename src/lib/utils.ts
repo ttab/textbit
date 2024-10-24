@@ -1,14 +1,16 @@
 import {
   Editor,
-  Node,
+  Node as SlateNode,
   BaseRange,
   Path,
   Transforms,
   Descendant,
   Element as SlateElement,
   NodeEntry,
-  Text
+  Text as SlateText,
+  Range
 } from "slate"
+import { ReactEditor } from 'slate-react'
 
 /**
  * Helper function to find siblings of the same type and convert the last to a new text element.
@@ -24,9 +26,9 @@ import {
  * @param fromType String The type of siblings only allowed one of
  * @param toTextType String The type to convert to (eg "paragraph")
  */
-export function convertLastSibling(editor: Editor, node: Node, path: Path, fromType: string, toTextType: string): void {
+export function convertLastSibling(editor: Editor, node: SlateNode, path: Path, fromType: string, toTextType: string): void {
   const siblingNodes: Array<any> = []
-  for (const [child, childPath] of Node.elements(node)) {
+  for (const [child, childPath] of SlateNode.elements(node)) {
     if (child.type === fromType) {
       siblingNodes.push([child, childPath])
     }
@@ -43,9 +45,9 @@ export function convertLastSibling(editor: Editor, node: Node, path: Path, fromT
       editor,
       {
         type: toTextType, children: [{
-          text: Node.string(siblingNodes[n][0] as Node)
+          text: SlateNode.string(siblingNodes[n][0] as SlateNode)
         }]
-      } as Node,
+      } as SlateNode,
       {
         at: [nextPath]
       }
@@ -66,7 +68,7 @@ export function convertLastSibling(editor: Editor, node: Node, path: Path, fromT
 }
 
 
-export function getNodeById(editor: Editor, id: string): NodeEntry<Node> | undefined {
+export function getNodeById(editor: Editor, id: string): NodeEntry<SlateNode> | undefined {
   const matches = Array.from(
     Editor.nodes(editor, {
       at: [0],
@@ -83,7 +85,7 @@ export function getNodeById(editor: Editor, id: string): NodeEntry<Node> | undef
   return (matches.length === 1) ? matches[0] : undefined
 }
 
-export function getSelectedNodeEntries(editor: Editor): NodeEntry<Node>[] {
+export function getSelectedNodeEntries(editor: Editor): NodeEntry<SlateNode>[] {
   const { selection } = editor
   const matches = Array.from(
     Editor.nodes(editor, {
@@ -95,7 +97,7 @@ export function getSelectedNodeEntries(editor: Editor): NodeEntry<Node>[] {
   return matches
 }
 
-export function getSelectedNodes(editor: Editor): Node[] {
+export function getSelectedNodes(editor: Editor): SlateNode[] {
   return getSelectedNodeEntries(editor).map(nodeEntry => nodeEntry[0])
 }
 
@@ -129,7 +131,22 @@ export function getTextNodesInTopAncestor(editor: Editor, includeEditor: boolean
   }
 
   const [node] = topAncestor
-  return Array.from(Node.descendants(node, {
-    pass: ([n]) => Text.isText(n)
+  return Array.from(SlateNode.descendants(node, {
+    pass: ([n]) => SlateText.isText(n)
   }))
+}
+
+
+export function getNodeEntryFromDomNode(editor: ReactEditor, domNode: Node): NodeEntry | undefined {
+  try {
+    if (ReactEditor.hasDOMNode(editor, domNode)) {
+      const node = ReactEditor.toSlateNode(editor, domNode)
+      const path = ReactEditor.findPath(editor, node)
+
+
+      return [node, path]
+    }
+  } catch (error) { }
+
+  return undefined
 }

@@ -9,7 +9,17 @@ import {
 import { ReactEditor } from "slate-react"
 import { HistoryEditor } from 'slate-history'
 
-export type TBEditor = BaseEditor & ReactEditor & HistoryEditor
+export type TBEditor = BaseEditor & ReactEditor & HistoryEditor & {
+  spelling: Map<string, {
+    text: string,
+    spelling?: {
+      offset: number,
+      subs: string[]
+      text: string
+    }[]
+  }>,
+  spellcheck: () => void
+}
 
 /**
  * @type

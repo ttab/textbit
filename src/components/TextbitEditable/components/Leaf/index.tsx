@@ -3,6 +3,8 @@ import { usePluginRegistry } from '@/components/PluginRegistry'
 import { RenderLeafProps } from 'slate-react'
 import { TextbitPlugin } from '@/lib'
 import { useTextbit } from '@/components/TextbitRoot'
+import { Text } from 'slate'
+import { TBText } from '@/types'
 
 /**
  * Render a leaf
@@ -55,36 +57,61 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
     }
   }
 
-  //
-  // FIXME: text decoration for spelling errors should be styleable.
-  // FIXME: UI for showing/choosing substitutions should be injectable.
-  //
-  const spellingError = !!leaf.misspelled
-  const subs = Array.isArray(leaf.subs) && leaf.subs.length ? leaf.subs : undefined
+  return (!!leaf.misspelled)
+    ? <MisspelledLeaf {...props} className={className} style={style} />
+    : <OrdinaryLeaf {...props} className={className} style={style} />
+}
+
+
+function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }): JSX.Element {
+  const { placeholders } = useTextbit()
+  const { leaf, attributes, children, style, className } = props
 
   return <>
     <span
-      style={{
-        ...style,
-        textDecoration: spellingError ? 'underline dotted red' : 'none'
-      }}
+      style={{ ...style }}
       className={className}
-      title={spellingError && subs ? subs.join(', ') : undefined}
       {...attributes}
     >
       {leaf.placeholder && placeholders === 'multiple' &&
-        <span
-          style={{
-            ...style,
-            position: 'absolute',
-            opacity: 0.333
-          }}
-          contentEditable={false}
-        >
-          {leaf.placeholder}
-        </span>
+        <Placeholder value={leaf.placeholder} style={style} />
       }
       {children}
     </span>
   </>
+}
+
+
+function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }): JSX.Element {
+  const { placeholders } = useTextbit()
+  const { leaf, attributes, children, style, className } = props
+  const subs = Array.isArray(leaf.subs) && leaf.subs.length ? leaf.subs : undefined
+
+  return <>
+    <span
+      style={{ ...style }}
+      className={className}
+      data-spelling-error={leaf.text}
+      data-spelling-suggestions={subs ? encodeURIComponent(JSON.stringify(subs)) : ''}
+      {...attributes}
+    >
+      {leaf.placeholder && placeholders === 'multiple' &&
+        <Placeholder value={leaf.placeholder} style={style} />}
+      {children}
+    </span>
+  </>
+}
+
+
+function Placeholder({ value, style }: { value: string, style: CSSProperties }): JSX.Element {
+  return <span
+    style={{
+      ...style,
+      position: 'absolute',
+      opacity: 0.333
+    }}
+    contentEditable={false}
+  >
+    {value}
+  </span>
 }

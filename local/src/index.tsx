@@ -17,6 +17,7 @@ import {
 import './editor-variables.css'
 import './toolmenu.css'
 import './toolbox.css'
+import './spelling.css'
 
 const initialValue: Descendant[] = [
   {
@@ -236,7 +237,11 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             setValue(value)
           }}
           onSpellcheck={(texts) => {
-            return texts.map(fakeSpellChecker)
+            return new Promise(resolve => {
+              setTimeout(() => {
+                resolve(texts.map(fakeSpellChecker))
+              }, 100)
+            })
           }}
         >
           <Textbit.DropMarker />

@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useCallback, useEffect } from 'react'
+import React, { PropsWithChildren, useEffect } from 'react'
 import { Descendant, Editor } from 'slate'
 import { Slate } from 'slate-react'
 import * as uuid from 'uuid'
@@ -8,11 +8,10 @@ import { calculateStats } from '@/lib'
 /**
  * Wrapper around the Slate component handling value/onChange etc
  */
-export const SlateSlate = ({ editor, value, onChange, onSpellcheck, children }: PropsWithChildren & {
+export const SlateSlate = ({ editor, value, onChange, children }: PropsWithChildren & {
   editor: Editor
   value?: Descendant[]
   onChange?: (value: Descendant[]) => void
-  onSpellcheck: () => void
 }): JSX.Element => {
   const inValue = value || [{
     id: uuid.v4(),
@@ -45,10 +44,6 @@ export const SlateSlate = ({ editor, value, onChange, onSpellcheck, children }: 
 
         if (onChange) {
           onChange(value)
-        }
-
-        if (onSpellcheck) {
-          onSpellcheck()
         }
       }}
     >
