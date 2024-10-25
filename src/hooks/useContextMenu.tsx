@@ -10,7 +10,7 @@ interface ContextMenuEvent {
   originalEvent: MouseEvent
   nodeEntry: NodeEntry
   spelling?: {
-    error: string
+    text: string
     suggestions: string[]
     range: Range | undefined
   }
@@ -68,7 +68,7 @@ export function useContextMenu(
 }
 
 function getSpellingData(editor: ReactEditor, element: HTMLElement, event: MouseEvent): {
-  error: string
+  text: string
   suggestions: string[],
   range: Range | undefined
 } | undefined {
@@ -79,7 +79,7 @@ function getSpellingData(editor: ReactEditor, element: HTMLElement, event: Mouse
 
   try {
     return {
-      error: decodeURIComponent(ancestor.getAttribute('data-spelling-error') || ''),
+      text: decodeURIComponent(ancestor.getAttribute('data-spelling-error') || ''),
       suggestions: JSON.parse(decodeURIComponent(ancestor.getAttribute('data-spelling-suggestions') || '')),
       range: getDecorationRangeFromMouseEvent(editor, event)
     }

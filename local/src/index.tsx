@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Descendant } from 'slate'
 import { createRoot } from 'react-dom/client'
 import Textbit, {
   Menu,
   Toolbar,
   usePluginRegistry,
-  useTextbit
+  useTextbit,
+  ContextMenu,
+  useContextMenuHints
 } from '../../src'
 
 import {
@@ -18,6 +20,7 @@ import './editor-variables.css'
 import './toolmenu.css'
 import './toolbox.css'
 import './spelling.css'
+import './contextmenu.css'
 
 const initialValue: Descendant[] = [
   {
@@ -222,6 +225,7 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
   const [value, setValue] = useState<Descendant[]>(initialValue)
   const { characters } = useTextbit()
   const { actions } = usePluginRegistry()
+  const { isOpen, spelling } = useContextMenuHints()
 
   return (
     <>
@@ -270,6 +274,24 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             </Menu.Root>
           </Textbit.Gutter>
 
+          <ContextMenu.Root className='textbit-contextmenu'>
+            {!!spelling?.suggestions.length &&
+              <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
+                {spelling.suggestions.map(suggestion => {
+                  return (
+                    <ContextMenu.Item
+                      className='textbit-contextmenu-item'
+                      key={suggestion}
+                      func={() => { alert('replacing ' + suggestion) }}
+                    >
+                      {suggestion}
+                    </ContextMenu.Item>
+                  )
+                })}
+              </ContextMenu.Group>
+            }
+          </ContextMenu.Root>
+
           <Toolbar.Root className='textbit-contexttools-menu'>
             <Toolbar.Group key="leafs" className="textbit-contexttools-group">
               {actions.filter(action => ['leaf'].includes(action.plugin.class)).map(action => {
@@ -291,8 +313,8 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             </Toolbar.Group>
           </Toolbar.Root>
 
-        </Textbit.Editable>
-      </div>
+        </Textbit.Editable >
+      </div >
     </>
   )
 }

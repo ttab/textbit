@@ -9,7 +9,9 @@ import {
   ContextTools,
   StandardPlugins,
   PluginRegistryAction,
-  TextbitEditableElement
+  TextbitEditableElement,
+  ContextMenu,
+  useContextMenuHints
 } from './components'
 
 import { Gutter as Gutter$1 } from './components/GutterProvider'
@@ -46,6 +48,11 @@ export const Toolbar = {
   Root: ContextTools.Menu,
   Group: ContextTools.Group,
   Item: ContextTools.Item
+}
+
+export {
+  ContextMenu,
+  useContextMenuHints
 }
 
 export { useTextbit }

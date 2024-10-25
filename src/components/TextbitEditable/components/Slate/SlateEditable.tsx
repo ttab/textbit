@@ -1,4 +1,5 @@
 import React, { // Necessary for esbuild
+  useContext,
   useEffect,
   useRef,
 } from 'react'
@@ -10,6 +11,7 @@ import { useTextbit } from '@/components/TextbitRoot'
 import { TextbitEditor } from '@/lib'
 import { TBEditor } from '@/types'
 import { useContextMenu } from '@/hooks/useContextMenu'
+import { ContextMenuContext } from '@/components/ContextMenu/ContextMenuContext'
 
 export const SlateEditable = ({ className = '', renderSlateElement, renderLeafComponent, textbitEditor, actions, autoFocus, onBlur, onFocus, onDecorate }: {
   className?: string
@@ -25,26 +27,20 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
   const focused = useFocused()
   const { placeholder } = useTextbit()
   const ref = useRef<HTMLDivElement>(null)
+  const contextMenuContext = useContext(ContextMenuContext)
 
-  useContextMenu(ref, ({ target, originalEvent, nodeEntry, spelling }) => {
-    // const nodeEntry = getNodeEntryFromDomNode(textbitEditor, target)
-    // const result = findNodeAndRangeAtPosition(textbitEditor, originalEvent)
-    // Try to use caretPositionFromPoint (modern approach)
-    // if (document.caretPositionFromPoint) {
-    //   const pos = document.caretPositionFromPoint(clientX, clientY)
-    //   if (pos) {
-    //     domRange = document.createRange()
-    //     domRange.setStart(pos.offsetNode, pos.offset)
-    //     domRange.setEnd(pos.offsetNode, pos.offset)
-    //   }
-    // }
-    // // Fallback for Safari and older browsers
-    // else if (document.caretRangeFromPoint) {
-    //   domRange = document.caretRangeFromPoint(clientX, clientY)
-    // }
+  useContextMenu(ref, (hints) => {
+    contextMenuContext?.dispatch({
+      menu: {
+        x: hints.x,
+        y: hints.y,
+        target: hints.target,
+        originalEvent: hints.originalEvent,
+        nodeEntry: hints.nodeEntry
 
-    console.log(nodeEntry)
-    console.log(spelling)
+      },
+      spelling: hints.spelling
+    })
   })
 
   useEffect(() => {

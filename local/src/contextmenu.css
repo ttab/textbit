@@ -1,0 +1,85 @@
+div.textbit-contextmenu {
+  min-width: 12rem;
+  border-radius: calc(var(--radius) * 0.8);
+  background-color: hsl(var(--popover));
+  box-shadow: 0px 3px 10px -6px hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  font-size: 0.9rem;
+  line-height: 2.3rem;
+  letter-spacing: 0.03rem;
+}
+
+.dark .textbit-contextmenu {
+  box-shadow: none;
+  border: 1px solid hsl(var(--border))
+}
+
+a.textbit-contextmenu-item {
+  display: grid;
+  user-select: none;
+  grid-template-columns: 2rem minmax(max-content, 220px) 90px;
+  grid-column-gap: 0;
+  grid-row-gap: 0;
+  font-family: var(--font-family-ui);
+  color: hsl(var(--popover-foreground));
+  border-radius: calc(var(--radius) * 0.85);
+  cursor: pointer;
+  border: 1px solid hsl(var(--popover));
+  border-width: 0 3px;
+}
+a.textbit-contextmenu-item:first-child {
+  border-top-width: 3px;
+}
+a.textbit-contextmenu-item:last-child {
+  border-bottom-width: 3px;
+}
+a.textbit-contextmenu-item:hover {
+  background: hsl(var(--secondary));
+}
+
+
+div.textbit-contextmenu-icon {
+  flex-shrink: 0;
+  width: 2rem;
+  opacity: 0.8;
+  font-weight: bold;
+
+  /* All for centering svg child */
+  display: flex;
+  flex-direction: row;
+  flex-basis: fit-content;
+  align-items: center;
+  justify-content: center;
+}
+
+a.textbit-contextmenu-item[data-state="active"] div.textbit-contextmenu-label {
+  opacity: 0.8;
+  font-weight: bold;
+}
+
+div.textbit-contextmenu-hotkey {
+  text-align: right;
+  padding-right: 0.5rem;
+  opacity: 0.8;
+}
+
+
+/* Tool groups */
+div.textbit-contextmenu-group {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Separator between tool groups */
+div.textbit-contextmenu-group::after {
+  content: "";
+  background-color: hsl(var(--border));
+  align-self: stretch;
+  margin: 0 3px;
+  height: 1px;
+}
+
+div.textbit-contextmenu-group:last-child::after {
+  display: none;
+}

@@ -8,6 +8,7 @@ import {
   StandardPlugins
 } from '@/components/core'
 import TextbitSelectionBoundsProvider from './TextbitSelectionBoundsProvider'
+import { ContextMenuProvider } from '../ContextMenu/ContextMenuContext'
 
 
 export const TextbitRoot = ({
@@ -59,7 +60,9 @@ export const TextbitRoot = ({
             ...basePlugins.map(p => p()),
             ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map(sp => sp())
           ]}>
-            {children}
+            <ContextMenuProvider>
+              {children}
+            </ContextMenuProvider>
           </PluginRegistryContextProvider>
         </TextbitContextProvider>
       </TextbitSelectionBoundsProvider>

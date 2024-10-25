@@ -1,9 +1,12 @@
-import { Menu } from './Menu'
+import { Menu as Root } from './Menu'
 import { Group } from './Group'
 import { Item } from './Item'
 
 export const ContextMenu = {
-  Menu,
+  Root,
   Group,
   Item
 }
+
+export { useContextMenuHints } from './useContextMenuHints'
+export { ContextMenuProvider } from './ContextMenuContext'
