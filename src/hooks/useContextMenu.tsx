@@ -1,7 +1,7 @@
-import { getNodeEntryFromDomNode } from '@/lib/utils'
+import { getDecorationRangeFromMouseEvent, getNodeEntryFromDomNode } from '@/lib/utils'
 import { RefObject, useEffect } from 'react'
-import { NodeEntry } from 'slate'
-import { useSlateStatic } from 'slate-react'
+import { Range, NodeEntry } from 'slate'
+import { ReactEditor, useSlateStatic } from 'slate-react'
 
 interface ContextMenuEvent {
   x: number
@@ -12,6 +12,7 @@ interface ContextMenuEvent {
   spelling?: {
     error: string
     suggestions: string[]
+    range: Range | undefined
   }
 }
 
@@ -48,13 +49,15 @@ export function useContextMenu(
         return
       }
 
+      const spelling = getSpellingData(editor, targetElement, event)
+
       onContextMenu({
         x: event.clientX,
         y: event.clientY,
         target: targetElement,
         originalEvent: event,
         nodeEntry,
-        spelling: getSpellingData(targetElement)
+        spelling
       })
     }
 
@@ -64,9 +67,10 @@ export function useContextMenu(
   }, [ref, onContextMenu, preventDefault])
 }
 
-function getSpellingData(element: HTMLElement): {
+function getSpellingData(editor: ReactEditor, element: HTMLElement, event: MouseEvent): {
   error: string
-  suggestions: string[]
+  suggestions: string[],
+  range: Range | undefined
 } | undefined {
   const ancestor = element.closest('[data-spelling-error]') as HTMLElement | null
   if (!ancestor) {
@@ -77,6 +81,7 @@ function getSpellingData(element: HTMLElement): {
     return {
       error: decodeURIComponent(ancestor.getAttribute('data-spelling-error') || ''),
       suggestions: JSON.parse(decodeURIComponent(ancestor.getAttribute('data-spelling-suggestions') || '')),
+      range: getDecorationRangeFromMouseEvent(editor, event)
     }
   } catch (_) { }
 }

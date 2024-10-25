@@ -150,3 +150,57 @@ export function getNodeEntryFromDomNode(editor: ReactEditor, domNode: Node): Nod
 
   return undefined
 }
+
+/**
+ * Extract a decorated text range in it's parent node. The range can then be
+ * used to perform text manipulation on the text node.
+ *
+ * Used to extract a range for a string that in turn can be used to replace a
+ * misspelled word or string. (As decorations are fleeting and not persisted they
+ * are rendered as a leaf children in their parent text leaf.)
+ *
+ * @fixme This might need to return a RangeRef to accomodate remote yjs changes.
+ *
+ * @param editor - Editor
+ * @param x - number
+ * @param y - number
+ * @returns Range | undefined
+ */
+export function getDecorationRangeFromMouseEvent(editor: ReactEditor, event: MouseEvent): Range | undefined {
+  let textNode
+  let offset
+
+  // @ts-expect-error Limited availability as per https://developer.mozilla.org/en-US/docs/Web/API/Document/caretPositionFromPoint
+  if (document.caretPositionFromPoint) {
+    // @ts-ignore
+    const domPoint = document.caretPositionFromPoint(event.clientX, event.clientY)
+    textNode = domPoint?.offsetNode
+    offset = domPoint?.offset
+  }
+  else if (document.caretRangeFromPoint) {
+    // Fallback to deprecated function (mainly for Safari)
+    const domRange = document.caretRangeFromPoint(event.clientX, event.clientY)
+    textNode = domRange?.startContainer
+    offset = domRange?.startOffset
+  }
+
+  if (textNode?.nodeType !== 3) {
+    return
+  }
+
+  const slateRange = ReactEditor.findEventRange(editor, event)
+
+  const ltr = slateRange.anchor.offset <= slateRange.focus.offset
+  const length = textNode.nodeValue.length
+
+  return {
+    anchor: {
+      path: slateRange.anchor.path,
+      offset: slateRange.anchor.offset + (ltr ? -offset : length - offset)
+    },
+    focus: {
+      path: slateRange.focus.path,
+      offset: slateRange.focus.offset + (ltr ? length - offset : -offset)
+    }
+  }
+}
