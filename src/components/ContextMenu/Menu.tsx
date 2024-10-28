@@ -1,9 +1,10 @@
 import React, {
-  PropsWithChildren, useLayoutEffect, useRef
+  PropsWithChildren, useCallback, useEffect, useLayoutEffect, useRef
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useFocused, useSlateStatic } from 'slate-react'
 import { useContextMenuHints } from './useContextMenuHints'
+import { useClickGlobal, useKeydownGlobal } from '@/hooks'
 
 
 export const Menu = ({ children, className }: PropsWithChildren & {
@@ -24,10 +25,23 @@ export const Menu = ({ children, className }: PropsWithChildren & {
 function Popover({ children, className }: PropsWithChildren & {
   className?: string
 }) {
-  const editor = useSlateStatic()
-  const focused = useFocused()
   const ref = useRef<HTMLDivElement>(null)
   const { isOpen, position } = useContextMenuHints()
+
+  const closePopover = useCallback(() => {
+    if (ref?.current) {
+      ref.current.style.opacity = '0'
+      ref.current.style.zIndex = '-1'
+    }
+  }, [ref?.current])
+
+  useKeydownGlobal(() => {
+    closePopover()
+  })
+
+  useClickGlobal(() => {
+    closePopover()
+  })
 
   useLayoutEffect(() => {
     const el = ref?.current
@@ -36,9 +50,7 @@ function Popover({ children, className }: PropsWithChildren & {
     }
 
     if (!isOpen || !position) {
-      el.style.opacity = '0'
-      el.style.zIndex = '-1'
-      return
+      return closePopover()
     }
 
     const { top, left } = calculatePosition(
