@@ -410,6 +410,75 @@ const { actions } = usePluginRegistry()
 })}
 ```
 
+---
+
+## ContextMenu.Root
+
+Root component around the context menu in the editor area providing a way to display spelling suggestions on spelling errors.
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+
+## ## ContextMenu.Group
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+
+## ## ContextMenu.Item
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+| func | () => void | Callback function to execute on click |
+
+### useContextMenuHints() hook
+
+Provides context click context hints, like which slate node, offset and spelling suggestions if they exist.
+
+```typescript
+interface {
+    isOpen: boolean
+    position?: {
+      x: number,
+      y: number
+    }
+    target?: HTMLElement
+    event?: MouseEvent
+    nodeEntry?: NodeEntry
+    spelling?: {
+      text: string
+      suggestions: string[]
+      range?: Range
+    }
+  }
+```
+
+### Example
+
+```jsx
+<ContextMenu.Root className='textbit-contextmenu'>
+  {!!spelling?.suggestions &&
+    <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
+      {spelling.suggestions.map(suggestion => {
+        return (
+          <ContextMenu.Item
+            className='textbit-contextmenu-item'
+            key={suggestion}
+            func={() => {
+              // ...
+            }}
+          >
+            {suggestion}
+          </ContextMenu.Item>
+        )
+      })}
+    </ContextMenu.Group>
+  }
+</ContextMenu.Root>
+```
+
 ## Plugin development
 
 Content objects are handled by plugins. Plugins are defined by a structure which define hooks, render components and other parts of the plugin. Examples below should outline the general structure, they are not complete.
