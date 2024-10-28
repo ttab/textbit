@@ -2,7 +2,6 @@ import React, {
   PropsWithChildren, useCallback, useEffect, useLayoutEffect, useRef
 } from 'react'
 import { createPortal } from 'react-dom'
-import { useFocused, useSlateStatic } from 'slate-react'
 import { useContextMenuHints } from './useContextMenuHints'
 import { useClickGlobal, useKeydownGlobal } from '@/hooks'
 
@@ -26,7 +25,7 @@ function Popover({ children, className }: PropsWithChildren & {
   className?: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const { isOpen, position } = useContextMenuHints()
+  const { isOpen, position, spelling } = useContextMenuHints()
 
   const closePopover = useCallback(() => {
     if (ref?.current) {
@@ -50,6 +49,10 @@ function Popover({ children, className }: PropsWithChildren & {
     }
 
     if (!isOpen || !position) {
+      return closePopover()
+    }
+
+    if (spelling === undefined) {
       return closePopover()
     }
 

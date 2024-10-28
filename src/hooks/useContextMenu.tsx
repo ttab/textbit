@@ -1,7 +1,7 @@
 import { getDecorationRangeFromMouseEvent, getNodeEntryFromDomNode } from '@/lib/utils'
-import { RefObject, useEffect } from 'react'
-import { Range, NodeEntry } from 'slate'
-import { ReactEditor, useSlateStatic } from 'slate-react'
+import { RefObject, useEffect, useState } from 'react'
+import { Range, NodeEntry, Editor } from 'slate'
+import { ReactEditor, useFocused, useSlateStatic } from 'slate-react'
 
 interface ContextMenuEvent {
   x: number
@@ -16,7 +16,7 @@ interface ContextMenuEvent {
   }
 }
 
-type ContextMenuHandler = (event: ContextMenuEvent) => void
+type ContextMenuHandler = (event: ContextMenuEvent | undefined) => void
 
 export function useContextMenu(
   ref: RefObject<HTMLElement>,
@@ -24,6 +24,17 @@ export function useContextMenu(
   preventDefault = true
 ) {
   const editor = useSlateStatic()
+  const isFocused = useFocused()
+  const [range, setRange] = useState<Range | undefined>()
+
+  useEffect(() => {
+    if (editor && range) {
+      if (!isFocused) {
+        ReactEditor.focus(editor)
+      }
+      editor.setSelection(range)
+    }
+  }, [editor, range])
 
   useEffect(() => {
     const element = ref.current
@@ -37,11 +48,8 @@ export function useContextMenu(
         : (event.target as HTMLElement)
 
       if (!targetElement || !element.contains(targetElement)) {
+        setRange(undefined)
         return
-      }
-
-      if (preventDefault) {
-        event.preventDefault()
       }
 
       const nodeEntry = getNodeEntryFromDomNode(editor, targetElement)
@@ -49,7 +57,15 @@ export function useContextMenu(
         return
       }
 
+      const slateRange = ReactEditor.findEventRange(editor, event)
+      if (Range.isCollapsed(slateRange)) {
+        setRange(slateRange)
+      }
+
       const spelling = getSpellingData(editor, targetElement, event)
+      if (preventDefault) {
+        event.preventDefault()
+      }
 
       onContextMenu({
         x: event.clientX,
@@ -64,7 +80,7 @@ export function useContextMenu(
     window.addEventListener('contextmenu', contextMenuHandler)
 
     return () => window.removeEventListener('contextmenu', contextMenuHandler)
-  }, [ref, onContextMenu, preventDefault])
+  }, [ref, onContextMenu, preventDefault, setRange])
 }
 
 function getSpellingData(editor: ReactEditor, element: HTMLElement, event: MouseEvent): {

@@ -44,13 +44,8 @@ const reducer = (state: ContextMenuProviderState, action: Partial<ContextMenuPro
   } = action
   const partialState: Partial<ContextMenuProviderState> = {}
 
-  if (menu) {
-    partialState.menu = menu
-  }
-
-  if (spelling) {
-    partialState.spelling = spelling
-  }
+  partialState.menu = menu
+  partialState.spelling = spelling
 
   return {
     ...state,

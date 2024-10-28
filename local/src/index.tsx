@@ -275,19 +275,31 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
           </Textbit.Gutter>
 
           <ContextMenu.Root className='textbit-contextmenu'>
-            {!!spelling?.suggestions.length &&
+            {!!spelling?.suggestions &&
               <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
-                {spelling.suggestions.map(suggestion => {
-                  return (
+                <>
+                  {spelling.suggestions.length === 0 &&
                     <ContextMenu.Item
                       className='textbit-contextmenu-item'
-                      key={suggestion}
-                      func={() => { alert('replacing ' + suggestion) }}
+                      func={() => { }}
                     >
-                      {suggestion}
+                      No spelling suggestions
                     </ContextMenu.Item>
-                  )
-                })}
+                  }
+                </>
+                <>
+                  {spelling.suggestions.map(suggestion => {
+                    return (
+                      <ContextMenu.Item
+                        className='textbit-contextmenu-item'
+                        key={suggestion}
+                        func={() => { alert('replacing ' + suggestion) }}
+                      >
+                        {suggestion}
+                      </ContextMenu.Item>
+                    )
+                  })}
+                </>
               </ContextMenu.Group>
             }
           </ContextMenu.Root>

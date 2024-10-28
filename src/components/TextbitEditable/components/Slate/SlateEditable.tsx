@@ -30,6 +30,14 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
   const contextMenuContext = useContext(ContextMenuContext)
 
   useContextMenu(ref, (hints) => {
+    if (!hints) {
+      contextMenuContext?.dispatch({
+        menu: undefined,
+        spelling: undefined
+      })
+      return
+    }
+
     contextMenuContext?.dispatch({
       menu: {
         x: hints.x,
@@ -37,7 +45,6 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
         target: hints.target,
         originalEvent: hints.originalEvent,
         nodeEntry: hints.nodeEntry
-
       },
       spelling: hints.spelling
     })
