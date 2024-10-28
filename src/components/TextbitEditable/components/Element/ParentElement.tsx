@@ -1,8 +1,7 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react' // Necessary for esbuild
-import { RenderElementProps, useSelected, useFocused } from 'slate-react'
+import React from 'react' // Necessary for esbuild
+import { RenderElementProps } from 'slate-react'
 import { Droppable } from './Droppable'
 import { Plugin } from '@/types'
-import { GutterContext } from '../../../GutterProvider'
 
 
 interface ParentElementProps extends RenderElementProps {

@@ -141,7 +141,9 @@ export const TextbitEditable = ({
             </PresenceOverlay>
           </Gutter.Content>
 
-          {children}
+          <div style={{ position: 'relative' }}>
+            {children}
+          </div>
 
         </Gutter.Provider>
       </SlateSlate>
