@@ -79,14 +79,12 @@ function Popover({ children, className }: PropsWithChildren & {
   )
 }
 
-interface BoundingBox {
+function calculatePosition(x: number, y: number, popoverBounds: {
   top: number
   left: number
   width: number
   height: number
-}
-
-function calculatePosition(x: number, y: number, popoverBounds: BoundingBox) {
+}) {
   const gap = 2
 
   // Calculate initial centered position
