@@ -20,7 +20,7 @@ export const DropMarker = ({ className }: { className?: string }) => {
   const { bbox, position } = offset || {}
   let dragOverState: 'none' | 'around' | 'between' = 'none'
 
-  pos.left = bbox?.left
+  pos.left = gutterBox?.width || 0
   pos.width = bbox?.width
 
   if (!!position?.[1]) {
