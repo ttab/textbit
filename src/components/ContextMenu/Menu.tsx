@@ -1,5 +1,5 @@
 import React, {
-  PropsWithChildren, useCallback, useEffect, useLayoutEffect, useRef
+  PropsWithChildren, useCallback, useLayoutEffect, useRef
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useContextMenuHints } from './useContextMenuHints'

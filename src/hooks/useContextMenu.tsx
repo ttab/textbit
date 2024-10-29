@@ -1,6 +1,6 @@
 import { getDecorationRangeFromMouseEvent, getNodeEntryFromDomNode } from '@/lib/utils'
 import { RefObject, useEffect, useState } from 'react'
-import { Range, NodeEntry, Editor } from 'slate'
+import { Range, NodeEntry } from 'slate'
 import { ReactEditor, useFocused, useSlateStatic } from 'slate-react'
 
 interface ContextMenuEvent {

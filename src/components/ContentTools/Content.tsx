@@ -22,7 +22,7 @@ export const Content = ({ children, className }: PropsWithChildren & {
   })
 
   return (
-    <div ref={keyTriggerRef} style={{ height: 'full' }}>
+    <div ref={keyTriggerRef}>
       {isOpen && createPortal(
         <Popover className={className}>
           {children}
