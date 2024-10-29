@@ -1,7 +1,6 @@
 import { TextbitElement } from '@/lib'
 import { debounce } from '@/lib/debounce'
 import { Editor, Node, Operation } from "slate"
-import { ReactEditor } from 'slate-react'
 
 type OnSpellcheckCallback = (texts: string[]) => Promise<Array<{
   text: string,
@@ -30,7 +29,6 @@ export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback 
 
     // Execute spellcheck callback function
     editor.spelling = await updateSpellcheckTable(editor, onSpellcheck, editor.spelling)
-
     if (editor.selection) {
       // Apply dummy no op set selection to force rerender
       editor.apply({
@@ -50,14 +48,16 @@ export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback 
           focus: start
         }
       })
-
-      editor.apply({
-        type: 'insert_text',
-        path: [0, 0],
-        offset: 0,
-        text: ''
-      })
     }
+
+    // FIXME: While seemingly safe, this is not perfect as it adds an extra onChange
+    editor.apply({
+      type: 'insert_text',
+      path: [0, 0],
+      offset: 0,
+      text: ''
+    })
+
   }, debounceTimeout)
 
   editor.onChange = (options?: { operation?: Operation }) => {
@@ -108,20 +108,21 @@ async function updateSpellcheckTable(
       tracker.set(node.id, currentEntry)
     }
   }
-
   // Send all changed or added strings to spellcheck in one call
-  const result = await onSpellcheck(
-    Array.from(tracker.values())
-      .filter(entry => !entry.spelling) // Spellcheck those without spelling info
-      .map(entry => entry.text)
-  )
+  if (spellcheck.length) {
+    const result = await onSpellcheck(
+      Array.from(tracker.values())
+        .filter(entry => !entry.spelling) // Spellcheck those without spelling info
+        .map(entry => entry.text)
+    )
 
-  // Add all spellchecking results
-  if (result.length === spellcheck.length) {
-    for (let i = 0; i < spellcheck.length; i++) {
-      const entry = tracker.get(spellcheck[i])
-      if (entry) {
-        entry.spelling = result[i]
+    // Add all spellchecking results
+    if (result.length === spellcheck.length) {
+      for (let i = 0; i < spellcheck.length; i++) {
+        const entry = tracker.get(spellcheck[i])
+        if (entry) {
+          entry.spelling = result[i]
+        }
       }
     }
   }
