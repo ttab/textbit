@@ -11,7 +11,7 @@ import { useTextbit } from '@/components/TextbitRoot'
 import { TextbitEditor } from '@/lib'
 import { TBEditor } from '@/types'
 import { useContextMenu } from '@/hooks/useContextMenu'
-import { ContextMenuContext } from '@/components/ContextMenu/ContextMenuContext'
+import { ContextMenuHintsContext } from '@/components/ContextMenu/ContextMenuHintsContext'
 
 export const SlateEditable = ({ className = '', renderSlateElement, renderLeafComponent, textbitEditor, actions, autoFocus, onBlur, onFocus, onDecorate }: {
   className?: string
@@ -27,7 +27,7 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
   const focused = useFocused()
   const { placeholder } = useTextbit()
   const ref = useRef<HTMLDivElement>(null)
-  const contextMenuContext = useContext(ContextMenuContext)
+  const contextMenuContext = useContext(ContextMenuHintsContext)
 
   useContextMenu(ref, (hints) => {
     if (!hints) {

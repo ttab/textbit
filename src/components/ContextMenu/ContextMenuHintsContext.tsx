@@ -19,13 +19,13 @@ export interface SpellingHint {
   range?: Range
 }
 
-export interface ContextMenuProviderState {
+export interface ContextMenuHintsProviderState {
   menu?: ContextMenuHints
   spelling?: SpellingHint
-  dispatch: React.Dispatch<Partial<ContextMenuProviderState>>
+  dispatch: React.Dispatch<Partial<ContextMenuHintsProviderState>>
 }
 
-const initialState: ContextMenuProviderState = {
+const initialState: ContextMenuHintsProviderState = {
   menu: undefined,
   spelling: undefined,
   dispatch: () => { }
@@ -33,16 +33,16 @@ const initialState: ContextMenuProviderState = {
 
 
 // Create the context
-export const ContextMenuContext = createContext(initialState)
+export const ContextMenuHintsContext = createContext(initialState)
 
 
 // Define the reducer function
-const reducer = (state: ContextMenuProviderState, action: Partial<ContextMenuProviderState>): ContextMenuProviderState => {
+const reducer = (state: ContextMenuHintsProviderState, action: Partial<ContextMenuHintsProviderState>): ContextMenuHintsProviderState => {
   const {
     menu,
     spelling
   } = action
-  const partialState: Partial<ContextMenuProviderState> = {}
+  const partialState: Partial<ContextMenuHintsProviderState> = {}
 
   partialState.menu = menu
   partialState.spelling = spelling
@@ -55,13 +55,13 @@ const reducer = (state: ContextMenuProviderState, action: Partial<ContextMenuPro
 
 
 // Create the context provider component
-export const ContextMenuProvider = ({ children }: PropsWithChildren): JSX.Element => {
+export const ContextMenuHintsProvider = ({ children }: PropsWithChildren): JSX.Element => {
 
   const [state, dispatch] = useReducer(reducer, { ...initialState })
 
   return (
-    <ContextMenuContext.Provider value={{ ...state, dispatch }}>
+    <ContextMenuHintsContext.Provider value={{ ...state, dispatch }}>
       {children}
-    </ContextMenuContext.Provider>
+    </ContextMenuHintsContext.Provider>
   )
 }

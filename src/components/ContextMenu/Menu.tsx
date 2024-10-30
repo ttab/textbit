@@ -1,9 +1,9 @@
 import React, {
-  PropsWithChildren, useCallback, useLayoutEffect, useRef
+  PropsWithChildren, useCallback, useContext, useEffect, useLayoutEffect, useRef
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useContextMenuHints } from './useContextMenuHints'
-import { useClickGlobal, useKeydownGlobal } from '@/hooks'
+import { ContextMenuHintsContext } from './ContextMenuHintsContext'
 
 
 export const Menu = ({ children, className }: PropsWithChildren & {
@@ -24,36 +24,22 @@ export const Menu = ({ children, className }: PropsWithChildren & {
 function Popover({ children, className }: PropsWithChildren & {
   className?: string
 }) {
+  const contextMenuContext = useContext(ContextMenuHintsContext)
   const ref = useRef<HTMLDivElement>(null)
   const { isOpen, position, spelling } = useContextMenuHints()
 
-  const closePopover = useCallback(() => {
-    if (ref?.current) {
-      ref.current.style.opacity = '0'
-      ref.current.style.zIndex = '-1'
-    }
-  }, [ref?.current])
-
-  useKeydownGlobal(() => {
-    closePopover()
-  })
-
-  useClickGlobal(() => {
-    closePopover()
-  })
-
-  useLayoutEffect(() => {
-    const el = ref?.current
-    if (!el) {
+  const hidePopover = useCallback(() => {
+    if (!ref?.current) {
       return
     }
 
-    if (!isOpen || !position) {
-      return closePopover()
-    }
+    ref.current.style.opacity = '0'
+    ref.current.style.zIndex = '-1'
+  }, [ref?.current])
 
-    if (spelling === undefined) {
-      return closePopover()
+  const revealPopover = useCallback(() => {
+    if (!ref?.current || !position) {
+      return
     }
 
     const { top, left } = calculatePosition(
@@ -62,11 +48,57 @@ function Popover({ children, className }: PropsWithChildren & {
       ref.current?.getBoundingClientRect()
     )
 
-    el.style.opacity = '1'
-    el.style.zIndex = 'auto'
-    el.style.top = `${top}px`
-    el.style.left = `${left}px`
-  }, [ref, position])
+    ref.current.style.opacity = '1'
+    ref.current.style.zIndex = 'auto'
+    ref.current.style.top = `${top}px`
+    ref.current.style.left = `${left}px`
+  }, [ref?.current, position])
+
+  useEffect(() => {
+    const clearContextMenu = (event: Event) => {
+      if (!ref?.current) {
+        return
+      }
+
+      if (ref.current.contains(event.target as Node)) {
+        return
+      }
+
+      if (!contextMenuContext.menu) {
+        return
+      }
+
+      contextMenuContext?.dispatch({
+        menu: undefined,
+        spelling: undefined
+      })
+    }
+
+    window.addEventListener('keydown', clearContextMenu, { passive: true, capture: true })
+    window.addEventListener('click', clearContextMenu, { passive: true, capture: true })
+
+    return () => {
+      window.removeEventListener('keydown', clearContextMenu, { capture: true })
+      window.removeEventListener('click', clearContextMenu, { capture: true })
+    }
+  }, [contextMenuContext])
+
+  useLayoutEffect(() => {
+    const el = ref?.current
+    if (!el) {
+      return
+    }
+
+    if (!isOpen || !position) {
+      return hidePopover()
+    }
+    else if (spelling === undefined) {
+      return hidePopover()
+    }
+    else {
+      revealPopover()
+    }
+  }, [ref?.current, isOpen, position])
 
   return (
     <div ref={ref} className={className} style={{

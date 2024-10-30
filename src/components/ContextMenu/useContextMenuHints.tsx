@@ -1,8 +1,8 @@
 import { useContext } from 'react'
-import { ContextMenuContext } from './ContextMenuContext'
+import { ContextMenuHintsContext } from './ContextMenuHintsContext'
 
 export const useContextMenuHints = () => {
-  const context = useContext(ContextMenuContext)
+  const context = useContext(ContextMenuHintsContext)
 
   if (context === undefined) {
     throw new Error('useContextMenu must be used within a ContextMenuContextProvider')

@@ -9,4 +9,4 @@ export const ContextMenu = {
 }
 
 export { useContextMenuHints } from './useContextMenuHints'
-export { ContextMenuProvider } from './ContextMenuContext'
+export { ContextMenuHintsProvider as ContextMenuProvider } from './ContextMenuHintsContext'
