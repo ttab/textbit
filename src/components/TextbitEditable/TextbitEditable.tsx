@@ -2,7 +2,6 @@ import React, { // Necessary for esbuild
   PropsWithChildren,
   useMemo,
   useCallback,
-  useState,
   useEffect
 } from 'react'
 import { createEditor, Editor as SlateEditor, Descendant, Editor, NodeEntry, Node, Text, Range } from "slate"
@@ -48,15 +47,6 @@ type OnSpellcheckCallback = (texts: string[]) => Promise<Array<{
   offset: number,
   subs: string[]
 }[]>>
-
-type SpellcheckLookupTable = Map<string, {
-  text: string,
-  spelling?: {
-    offset: number,
-    subs: string[]
-    text: string
-  }[]
-}>
 
 export const TextbitEditable = ({
   children,
