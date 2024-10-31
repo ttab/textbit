@@ -2,7 +2,8 @@ import { getDecorationRangeFromMouseEvent, getNodeEntryFromDomNode } from '@/lib
 import { RefObject, useContext, useEffect, useState } from 'react'
 import { Range, Editor, Element as SlateElement } from 'slate'
 import { ReactEditor, useFocused, useSlateStatic } from 'slate-react'
-import { SpellingError, TextbitEditor } from '../'
+import { TextbitEditor } from '@/lib/textbit-editor'
+import { SpellingError } from '@/types/extends'
 import { ContextMenuHintsContext } from '@/components/ContextMenu/ContextMenuHintsContext'
 
 export function useContextMenu(

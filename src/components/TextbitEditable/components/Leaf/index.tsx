@@ -3,7 +3,7 @@ import { usePluginRegistry } from '@/components/PluginRegistry'
 import { RenderLeafProps } from 'slate-react'
 import { TextbitPlugin } from '@/lib'
 import { useTextbit } from '@/components/TextbitRoot'
-import { SpellingError, TBText } from '@/types'
+import { SpellingError } from '@/types'
 
 /**
  * Render a leaf

@@ -1,4 +1,4 @@
-import { TextbitEditor, TextbitElement } from '@/lib'
+import { TextbitElement } from '@/lib'
 import { debounce } from '@/lib/debounce'
 import { SpellingError } from '@/types'
 import { Editor, Node, Operation } from "slate"
