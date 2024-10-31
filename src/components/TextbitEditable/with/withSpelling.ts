@@ -7,7 +7,7 @@ type SpellcheckLookupTable = Map<string, {
   text: string,
   errors: SpellingError[]
 }>
-export type OnSpellcheckCallback = (texts: string[]) => Promise<SpellingError[][]>
+export type OnSpellcheckCallback = (texts: string[]) => Promise<Omit<SpellingError, 'id'>[][]>
 
 export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback | undefined, debounceTimeout: number): Editor => {
   const { onChange } = editor
