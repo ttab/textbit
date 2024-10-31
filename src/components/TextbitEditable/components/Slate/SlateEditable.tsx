@@ -29,13 +29,6 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
 
   useContextMenu(ref)
 
-  useEffect(() => {
-    if (!autoFocus) {
-      return
-    }
-    setAutoFocus(textbitEditor)
-  }, [autoFocus])
-
   return (
     <div ref={ref}>
       <Editable
@@ -46,10 +39,18 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
         renderLeaf={renderLeafComponent}
         onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
         decorate={onDecorate}
-        autoFocus={autoFocus}
         onBlur={onBlur}
-        onFocus={onFocus}
         spellCheck={false}
+        autoFocus={autoFocus}
+        onFocus={(event) => {
+          if (!textbitEditor.selection) {
+            setInitialSelection(textbitEditor)
+          }
+
+          if (onFocus) {
+            onFocus(event)
+          }
+        }}
       />
     </div>
   )
@@ -57,12 +58,12 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
 
 
 /**
- * Set autofocus on load.
+ * Set iniital selection on load or on focus.
  *
- * Set it to beginning if there are multiple lines, otherwise to
- * the end of the first (only line.Needs setTimout() when in yjs env.
+ * Set it to beginning if there are multiple lines, otherwise to the end of the first.
+ * Needs setTimout() when in yjs env.
  */
-function setAutoFocus(textbitEditor: TBEditor) {
+function setInitialSelection(textbitEditor: Editor) {
   setTimeout(() => {
     const nodes = Array.from(
       Editor.nodes(textbitEditor, {
