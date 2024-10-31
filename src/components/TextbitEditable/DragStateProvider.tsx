@@ -2,11 +2,8 @@ import React, { Dispatch, SetStateAction, useState } from 'react' // Necessary f
 import { PropsWithChildren, useRef, createContext, DragEvent } from "react"
 
 type Offset = {
-  top: number
-  right: number
-  bottom: number
-  left: number
-  position: ['above' | 'below', boolean] // Drop should be above/below, or boolean true then could be inside)
+  bbox?: DOMRect
+  position?: ['above' | 'below', boolean] // Drop should be above/below, or boolean true then could be inside)
 }
 
 type DragStateContextInterface = {

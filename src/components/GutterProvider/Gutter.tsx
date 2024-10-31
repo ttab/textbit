@@ -1,22 +1,39 @@
-import React, { PropsWithChildren, useContext, useLayoutEffect, useRef } from 'react'
+import React, {
+  PropsWithChildren, useContext, useEffect, useLayoutEffect, useRef
+} from 'react'
 import { GutterContext } from './GutterProvider'
 
 export const Gutter = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
   const ref = useRef<HTMLDivElement>(null)
-  const { gutter, setWidth } = useContext(GutterContext)
+  const { setGutterBox } = useContext(GutterContext)
 
   useLayoutEffect(() => {
-    const { right, left } = ref?.current?.getBoundingClientRect() || { right: 0, left: 0 }
-    setWidth(right - left)
-  }, [ref])
+    if (ref?.current) {
+      setGutterBox(ref?.current.getBoundingClientRect())
+    }
+  }, [ref?.current])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (ref?.current) {
+        setGutterBox(ref.current.getBoundingClientRect())
+      }
+    }
+
+    addEventListener('scroll', handleScroll, {
+      passive: true,
+      capture: true
+    })
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [ref?.current])
 
   return <div
     ref={ref}
     className={className}
     style={{
-      display: gutter ? 'block' : 'none',
       position: 'relative',
       flexShrink: 0
     }}

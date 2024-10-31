@@ -9,6 +9,7 @@ const config: Config.InitialOptions = {
     '\\.(css|less|sass|scss)$': 'identity-obj-proxy',
     '@fontsource': 'identity-obj-proxy',
     "^@/lib(.*)$": "<rootDir>/lib$1",
+    "^@/hooks(.*)$": "<rootDir>/hooks$1",
     "^@/components(.*)$": "<rootDir>/components$1"
   }
 }

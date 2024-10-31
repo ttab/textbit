@@ -7,17 +7,19 @@ export const Trigger = ({ children, className }: PropsWithChildren & {
   className?: string
 }) => {
   const [isOpen, setIsOpen] = useContext(MenuContext)
-  const [marginLeft, setMarginLeft] = useState(0)
-  const { width: gutterWidth, setTriggerSize } = useContext(GutterContext)
+  const { gutterBox, setTriggerSize } = useContext(GutterContext)
   const mouseTriggerRef = useClickGlobal<HTMLAnchorElement>((e) => {
     setIsOpen(false)
   })
 
   useLayoutEffect(() => {
+    if (!gutterBox || !mouseTriggerRef?.current) {
+      return
+    }
+
     const { width: triggerWidth } = mouseTriggerRef?.current?.getBoundingClientRect() || {}
-    setMarginLeft(triggerWidth ? (gutterWidth - triggerWidth) / 2 : 0)
     setTriggerSize(triggerWidth || 0)
-  }, [mouseTriggerRef])
+  }, [mouseTriggerRef, gutterBox, setTriggerSize])
 
   return (
     <a
@@ -26,9 +28,6 @@ export const Trigger = ({ children, className }: PropsWithChildren & {
       onMouseDown={(e) => {
         e.preventDefault()
         setIsOpen(!isOpen)
-      }}
-      style={{
-        marginLeft: marginLeft
       }}
     >
       {children}

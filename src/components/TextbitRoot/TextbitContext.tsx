@@ -6,16 +6,22 @@ import React, {
 
 export type PlaceholdersVisibility = 'none' | 'single' | 'multiple'
 
-export interface TextbitProviderState {
-  words: number
-  characters: number
+export interface TextbitProviderProps {
+  verbose: boolean
   autoFocus: boolean
   onBlur?: React.FocusEventHandler<HTMLDivElement>
   onFocus?: React.FocusEventHandler<HTMLDivElement>
-  verbose: boolean
-  debounce: number
+  debounce?: number
+  spellcheckDebounce?: number
   placeholder?: string
-  placeholders: PlaceholdersVisibility
+  placeholders?: PlaceholdersVisibility
+}
+
+export interface TextbitProviderState extends TextbitProviderProps {
+  debounce: number
+  spellcheckDebounce: number
+  words: number
+  characters: number
   dispatch: React.Dispatch<Partial<TextbitProviderState>>
 }
 
@@ -27,6 +33,7 @@ const initialState: TextbitProviderState = {
   onFocus: undefined,
   verbose: false,
   debounce: 250,
+  spellcheckDebounce: 1250,
   placeholders: 'none',
   dispatch: () => { }
 }
@@ -91,15 +98,7 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
 
 
 // Create the context provider component
-export const TextbitContextProvider = ({ children, verbose, autoFocus, onBlur, onFocus, debounce, placeholder, placeholders }: PropsWithChildren & {
-  verbose: boolean
-  autoFocus: boolean
-  onBlur?: React.FocusEventHandler<HTMLDivElement>
-  onFocus?: React.FocusEventHandler<HTMLDivElement>
-  debounce?: number
-  placeholder?: string
-  placeholders?: PlaceholdersVisibility
-}): JSX.Element => {
+export const TextbitContextProvider = ({ children, verbose, autoFocus, onBlur, onFocus, debounce, spellcheckDebounce, placeholder, placeholders }: PropsWithChildren & TextbitProviderProps): JSX.Element => {
   const initialPlaceholders: PlaceholdersVisibility = (!placeholders && !!placeholder)
     ? 'single'
     : (!placeholders)
@@ -123,6 +122,7 @@ export const TextbitContextProvider = ({ children, verbose, autoFocus, onBlur, o
     onBlur,
     onFocus,
     debounce: typeof (debounce) === 'number' ? debounce : initialState.debounce,
+    spellcheckDebounce: typeof (spellcheckDebounce) === 'number' ? spellcheckDebounce : initialState.spellcheckDebounce,
     placeholders: initialPlaceholders,
     placeholder: placeholder || undefined
   })

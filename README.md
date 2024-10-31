@@ -134,6 +134,8 @@ Top level Texbit component. Receives all plugins. Base plugins is exported from 
 | onBlur | React.FocusEventHandler<HTMLDivElement> | Optional |
 | onFocus | React.FocusEventHandler<HTMLDivElement> | Optional |
 | plugins | Plugin.Definition[] | |
+| debounce | number? | Optional debounce time for calling `onChange()` handler. Defaults to 250 ms.
+| debounceSpellcheck | number? | Optional debounce time for calling `onSpellcheck()` handler. Defaults to 1250 ms.
 
 ### Provides PluginRegistryContext
 
@@ -174,6 +176,7 @@ Editable area component, acts as wrapper around Slate.
 | ----------- | ----------- | ----------- |
 | value | Descendant[] | Optional, initial content |
 | onChange | (Descendant[] => void) | Function to receive all changes |
+| onSpellcheck | onSpellcheck?: (texts: string[]) => Array<Array<{<br> str: string,<br> pos: number,<br> sub: string[]<br> }>> | Optional, callback function to handle spellchecking of strings |
 | dir | "ltr" \| "rtl" | Optional, defaults to _ltr_ |
 | yjsEditor | BaseEditor | BaseEditor created with `withYjs()` and `withCursors()` |
 | gutter | boolean | Optional, defaults to true (render gutter). |
@@ -233,6 +236,38 @@ Can be used to wrap all elements in plugin components. Provides data state attri
 | ----------- | ----------- | ----------- |
 | [data-state] | "active" \| "inactive" | Indicate that cursor is in element or element is part of a selection. |
 
+
+### Styling spelling errors
+When using the spellchecking functionality words (or combination of words) that are misspelled
+are rendered as `<span>` child elements having the data attribute `data-spelling-error`. This
+can be used to style all the spelling errors. See context menu handling for handling spelling errors
+in more detail.
+
+| Name | Value | Description |
+| ----------- | ----------- | ----------- |
+| [data-spelling-error] | string | Id of individual spelling error |
+
+**Using a CSS style rule**
+
+```css
+[data-spelling-error] {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: rgb(239, 68, 68);
+}
+```
+
+**Using Tailwind**
+```JSX
+return (
+  <Textbit.Editable
+    onSpellcheck={async (texts) => checkSpelling(texts)}
+    className="outline-none h-full dark:text-slate-100 [&_[data-spelling-error]]:underline [&_[data-spelling-error]]:decoration-dotted [&_[data-spelling-error]]:decoration-red-500"
+  >
+    <ContextMenu />
+  </Textbit.Editable>
+)
+```
 
 ---
 
@@ -405,6 +440,76 @@ const { actions } = usePluginRegistry()
     action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
   />
 })}
+```
+
+---
+
+## ContextMenu.Root
+
+Root component around the context menu in the editor area providing a way to display spelling suggestions on spelling errors.
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+
+## ## ContextMenu.Group
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+
+## ## ContextMenu.Item
+
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| className | string |  |
+| func | () => void | Callback function to execute on click |
+
+### useContextMenuHints() hook
+
+Provides context click context hints, like which slate node, offset and spelling suggestions if they exist.
+
+```typescript
+interface {
+    isOpen: boolean
+    position?: {
+      x: number,
+      y: number
+    }
+    target?: HTMLElement
+    event?: MouseEvent
+    nodeEntry?: NodeEntry
+    spelling?: {
+      text: string
+      suggestions: string[]
+      range?: Range
+      apply: (replacementString: string) => void
+    }
+  }
+```
+
+### Example
+
+```jsx
+<ContextMenu.Root className='textbit-contextmenu'>
+  {!!spelling?.suggestions &&
+    <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
+      {spelling.suggestions.map(suggestion => {
+        return (
+          <ContextMenu.Item
+            className='textbit-contextmenu-item'
+            key={suggestion}
+            func={() => {
+              spelling.apply(suggestion)
+            }}
+          >
+            {suggestion}
+          </ContextMenu.Item>
+        )
+      })}
+    </ContextMenu.Group>
+  }
+</ContextMenu.Root>
 ```
 
 ## Plugin development

@@ -1,100 +1,89 @@
 import React, { // Necessary for esbuild
-  FocusEventHandler,
-  useCallback,
-  useContext,
   useEffect,
+  useRef,
 } from 'react'
-import { Editor as SlateEditor, Transforms, Element as SlateElement, Path, Node, Editor, Text, Element } from "slate"
-import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
+import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, NodeEntry } from "slate"
+import { Editable, RenderElementProps, RenderLeafProps, useFocused, useSlateStatic } from "slate-react"
 import { toggleLeaf } from '@/lib/toggleLeaf'
-import { PluginRegistryAction, PluginRegistryComponent } from '../../../PluginRegistry/lib/types'
+import { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '@/components/TextbitRoot'
-import { PlaceholdersVisibility } from '@/components/TextbitRoot/TextbitContext'
 import { TextbitEditor } from '@/lib'
+import { TBEditor } from '@/types'
+import { useContextMenu } from '@/hooks/useContextMenu'
 
-export const SlateEditable = ({ className, renderSlateElement, renderLeafComponent, textbitEditor, actions, components, autoFocus, onBlur, onFocus }: {
-  className: string
+export const SlateEditable = ({ className = '', renderSlateElement, renderLeafComponent, textbitEditor, actions, autoFocus, onBlur, onFocus, onDecorate }: {
+  className?: string
   renderSlateElement: (props: RenderElementProps) => JSX.Element
   renderLeafComponent: (props: RenderLeafProps) => JSX.Element
   textbitEditor: Editor
   actions: PluginRegistryAction[]
-  components: Map<string, PluginRegistryComponent>
   autoFocus: boolean
   onBlur?: React.FocusEventHandler<HTMLDivElement>
   onFocus?: React.FocusEventHandler<HTMLDivElement>
+  onDecorate?: ((entry: NodeEntry) => Range[]) | undefined
 }): JSX.Element => {
-  const slateIsFocused = useFocused()
-  const { placeholder, placeholders } = useTextbit()
+  const editor = useSlateStatic()
+  const focused = useFocused()
+  const { placeholder } = useTextbit()
+  const ref = useRef<HTMLDivElement>(null)
+
+  useContextMenu(ref)
 
   useEffect(() => {
     if (!autoFocus) {
       return
     }
-
-    // Set it to beginning if there are multiple lines, otherwise to
-    // the end of the first (only line.Needs setTimout() when in yjs env.
-    setTimeout(() => {
-      const nodes = Array.from(
-        Editor.nodes(textbitEditor, {
-          at: [],
-          match: el => {
-            return Text.isText(el)
-          }
-        })
-      )
-
-      const node = nodes.length ? nodes[0][0] : null
-      const offset = (TextbitEditor.length(textbitEditor) <= 1 && Text.isText(node)) ? node.text.length : 0
-      const initialSelection = {
-        anchor: { path: [0, 0], offset },
-        focus: { path: [0, 0], offset }
-      }
-
-      Transforms.select(textbitEditor, initialSelection)
-    }, 0)
+    setAutoFocus(textbitEditor)
   }, [autoFocus])
 
   return (
-    <Editable
-      placeholder={placeholder}
-      data-state={slateIsFocused ? 'focused' : ''}
-      className={className}
-      renderElement={renderSlateElement}
-      renderLeaf={renderLeafComponent}
-      onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
-      decorate={([node, path]) => handleDecoration(textbitEditor, components, node, path, placeholders)}
-      autoFocus={autoFocus}
-      onBlur={onBlur}
-      onFocus={onFocus}
-    />
+    <div ref={ref}>
+      <Editable
+        placeholder={placeholder}
+        data-state={focused ? 'focused' : ''}
+        className={className}
+        renderElement={renderSlateElement}
+        renderLeaf={renderLeafComponent}
+        onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
+        decorate={onDecorate}
+        autoFocus={autoFocus}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        spellCheck={false}
+      />
+    </div>
   )
 }
 
-/*
- * Display placeholder as decoration when node is an empty text node
+
+/**
+ * Set autofocus on load.
+ *
+ * Set it to beginning if there are multiple lines, otherwise to
+ * the end of the first (only line.Needs setTimout() when in yjs env.
  */
-function handleDecoration(editor: SlateEditor, components: Map<string, PluginRegistryComponent>, node: Node, path: Path, placeholders: PlaceholdersVisibility) {
-  if (placeholders !== 'multiple') {
-    return []
-  }
+function setAutoFocus(textbitEditor: TBEditor) {
+  setTimeout(() => {
+    const nodes = Array.from(
+      Editor.nodes(textbitEditor, {
+        at: [],
+        match: el => {
+          return Text.isText(el)
+        }
+      })
+    )
 
-  if (!Text.isText(node) || !path.length || node.text !== '') {
-    return []
-  }
+    const node = nodes.length ? nodes[0][0] : null
+    const offset = (TextbitEditor.length(textbitEditor) <= 1 && Text.isText(node)) ? node.text.length : 0
+    const initialSelection = {
+      anchor: { path: [0, 0], offset },
+      focus: { path: [0, 0], offset }
+    }
 
-  const parent = Node.parent(editor, path)
-  if (!Element.isElement(parent)) {
-    return []
-  }
-
-  const entry = components.get(parent.type)
-
-  return [{
-    anchor: { path, offset: 0 },
-    focus: { path, offset: 0 },
-    placeholder: (entry?.componentEntry?.placeholder) ? entry.componentEntry.placeholder : ''
-  }]
+    Transforms.select(textbitEditor, initialSelection)
+  }, 0)
 }
+
 
 /*
  * Match key events to registered actions keyboard shortcuts. Then either

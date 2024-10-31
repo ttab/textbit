@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Descendant } from 'slate'
 import { createRoot } from 'react-dom/client'
 import Textbit, {
   Menu,
   Toolbar,
   usePluginRegistry,
-  useTextbit
+  useTextbit,
+  ContextMenu,
+  useContextMenuHints,
+  TextbitEditor,
+  SpellingError
 } from '../../src'
 
 import {
@@ -17,6 +21,9 @@ import {
 import './editor-variables.css'
 import './toolmenu.css'
 import './toolbox.css'
+import './spelling.css'
+import './contextmenu.css'
+import { useSlateStatic } from 'slate-react'
 
 const initialValue: Descendant[] = [
   {
@@ -27,34 +34,23 @@ const initialValue: Descendant[] = [
       type: 'h1'
     },
     children: [
-      { text: 'Better music?' }
+      { text: 'Kalmar Sweden' }
     ]
   },
   {
     type: 'core/text',
-    id: '538345e5-bacc-48f9-9ed2-b219892b5122',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6034',
     class: 'text',
     properties: {
-      type: 'preamble'
+      type: 'h1'
     },
     children: [
-      { text: 'It is one of those days when better music makes all the difference in the world. At least to me, my inner and imaginary friend.' }
-    ]
+      { text: '' }
+    ],
   },
   {
     type: 'core/text',
-    id: '538345e5-cadd-4558-9ed2-a219892b5133',
-    class: 'text',
-    properties: {
-      type: 'dateline'
-    },
-    children: [
-      { text: 'Kalmar' }
-    ]
-  },
-  {
-    type: 'core/text',
-    id: '538345e5-bacc-48f9-8ef0-1219891b6044',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6024',
     class: 'text',
     children: [
       { text: 'An example paragraph that contains text that is a wee bit ' },
@@ -74,15 +70,42 @@ const initialValue: Descendant[] = [
   },
   {
     type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6014',
     class: 'text',
-    id: '538345e5-bacc-48f9-8ef1-1215892b6155',
     children: [
-      { text: 'This, here now is just a regular paragraph that contains some nonsensical writing written by me.' },
+      { text: '' }
     ],
   },
   {
     type: 'core/text',
     id: '538343b5-badd-48f9-8ef0-1219891b6066',
+    class: 'text',
+    children: [
+      { text: 'An example paragraph that contains text that is a wee bit ' },
+      {
+        text: 'stronger',
+        'core/bold': true,
+        'core/italic': true
+      },
+      { text: ' than normal but also text that is somewhat ' },
+      {
+        text: 'emphasized',
+        'core/italic': true
+      },
+      { text: ' compared to the normal styled text found elsewhere in the document.' },
+    ],
+  },
+  {
+    type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6041',
+    class: 'text',
+    children: [
+      { text: '' }
+    ],
+  },
+  {
+    type: 'core/text',
+    id: '538343b5-badd-48f9-8ef0-1219891b6061',
     class: 'text',
     children: [
       { text: 'An example paragraph that contains text that is a wee bit ' },
@@ -113,10 +136,11 @@ function App() {
         <Textbit.Root
           verbose={true}
           autoFocus={true}
-          debounce={0}
+          debounce={200}
           plugins={[]}
           placeholder="Add text here..."
         >
+          <strong>No menu, with single placeholder</strong>
           <Textbit.Editable value={[{
             type: 'core/text',
             id: '0',
@@ -128,10 +152,10 @@ function App() {
         </Textbit.Root>
       </div>
 
+
       <div style={{ margin: '20px 0', border: '1px solid gray' }}>
         <Textbit.Root
           verbose={true}
-          debounce={0}
           placeholders="multiple"
           plugins={[
             ...Textbit.Plugins.map(p => p()),
@@ -144,9 +168,11 @@ function App() {
             })
           ]}
         >
+          <strong>Multiple placeholders</strong>
           <Editor initialValue={initialValue} />
         </Textbit.Root >
       </div>
+
 
       <div style={{ margin: '20px 0', border: '1px solid gray' }}>
         <Textbit.Root
@@ -154,6 +180,7 @@ function App() {
           debounce={1000}
           plugins={[...Textbit.Plugins.map(p => p())]}
         >
+          <strong>Long debounce</strong>
           <Editor initialValue={initialValue} />
         </Textbit.Root>
       </div>
@@ -161,10 +188,45 @@ function App() {
   )
 }
 
+
+type SpellcheckedText = Array<SpellingError>
+
+function fakeSpellChecker(text: string): SpellcheckedText {
+  const wordRegex = /\b[\w-]+\b/g
+  const result: SpellcheckedText = []
+  let match: RegExpExecArray | null
+
+  while ((match = wordRegex.exec(text)) !== null) {
+    const suggestions = getSubstitutions(match[0])
+
+    if (suggestions) {
+      result.push({
+        id: '',
+        text: match[0],
+        suggestions
+      })
+    }
+  }
+
+  return result
+}
+
+const getSubstitutions = (word: string): string[] | undefined => {
+  const misspelledWords = {
+    'wee': ['we', 'teeny', 'weeny'],
+    'emphasized': ['emphasised']
+  }
+
+  if (Object.keys(misspelledWords).includes(word)) {
+    return misspelledWords[word]
+  }
+}
+
 function Editor({ initialValue }: { initialValue: Descendant[] }) {
   const [value, setValue] = useState<Descendant[]>(initialValue)
   const { characters } = useTextbit()
   const { actions } = usePluginRegistry()
+  const { spelling } = useContextMenuHints()
 
   return (
     <>
@@ -176,8 +238,15 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
         <Textbit.Editable
           value={value}
           onChange={value => {
-            console.log(value, null, 2)
+            console.log(value)
             setValue(value)
+          }}
+          onSpellcheck={(texts) => {
+            return new Promise(resolve => {
+              setTimeout(() => {
+                resolve(texts.map(fakeSpellChecker))
+              }, 100)
+            })
           }}
         >
           <Textbit.DropMarker />
@@ -206,6 +275,35 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             </Menu.Root>
           </Textbit.Gutter>
 
+          <ContextMenu.Root className='textbit-contextmenu'>
+            {!!spelling?.suggestions &&
+              <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
+                <>
+                  {spelling.suggestions.length === 0 &&
+                    <ContextMenu.Item className='textbit-contextmenu-item'>
+                      No spelling suggestions
+                    </ContextMenu.Item>
+                  }
+                </>
+                <>
+                  {spelling.suggestions.map(suggestion => {
+                    return (
+                      <ContextMenu.Item
+                        className='textbit-contextmenu-item'
+                        key={suggestion}
+                        func={() => {
+                          spelling.apply(suggestion)
+                        }}
+                      >
+                        {suggestion}
+                      </ContextMenu.Item>
+                    )
+                  })}
+                </>
+              </ContextMenu.Group>
+            }
+          </ContextMenu.Root>
+
           <Toolbar.Root className='textbit-contexttools-menu'>
             <Toolbar.Group key="leafs" className="textbit-contexttools-group">
               {actions.filter(action => ['leaf'].includes(action.plugin.class)).map(action => {
@@ -227,8 +325,8 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             </Toolbar.Group>
           </Toolbar.Root>
 
-        </Textbit.Editable>
-      </div>
+        </Textbit.Editable >
+      </div >
     </>
   )
 }

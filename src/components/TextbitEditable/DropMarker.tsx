@@ -4,9 +4,8 @@ import { GutterContext } from '../GutterProvider'
 
 export const DropMarker = ({ className }: { className?: string }) => {
   const ref = useRef<HTMLDivElement>(null)
-  const { box: gutterBox, width: gutterWidth } = useContext(GutterContext)
+  const { gutterBox } = useContext(GutterContext)
   const { offset, dragOver } = useContext(DragstateContext)
-  const { top = 0, bottom = 0, position = ['above', false] } = offset || {}
 
   const def = !!className ? {} : {
     height: '3px',
@@ -15,20 +14,21 @@ export const DropMarker = ({ className }: { className?: string }) => {
   }
 
   const pos: React.CSSProperties = {
-    display: 'none'
+    display: 'block'
   }
 
+  const { bbox, position } = offset || {}
   let dragOverState: 'none' | 'around' | 'between' = 'none'
 
-  if (!!position[1]) {
+  pos.left = gutterBox?.width || 0
+  pos.width = bbox?.width
+
+  if (!!position?.[1]) {
     // Position around element
     dragOverState = 'around'
+    pos.top = (bbox?.top || 0) - (gutterBox?.top || 0)
+    pos.height = (bbox?.height || 0) + 2
 
-    const xPos = top - (gutterBox?.top || 0)
-    pos.top = `${xPos}px`
-    pos.left = `${gutterWidth || 0}px`
-    pos.width = `${(gutterBox?.right || 0) - (gutterBox?.left || 0) - (gutterWidth)}px`
-    pos.height = `${bottom - top}px`
     if (!className) {
       pos.backgroundColor = 'rgba(191, 191, 191, 0.4)'
       pos.borderRadius = '4px'
@@ -37,11 +37,11 @@ export const DropMarker = ({ className }: { className?: string }) => {
   else {
     // Position above or below element
     dragOverState = 'between'
-
-    const xPos = (position[0] === 'above' ? top : bottom) - (gutterBox?.top || 0)
-    pos.top = `${xPos}px`
-    pos.left = `${gutterWidth || 0}px`
-    pos.width = `${(gutterBox?.right || 0) - (gutterBox?.left || 0) - (gutterWidth)}px`
+    pos.top = (
+      (position?.[0] === 'above')
+        ? (bbox?.top || 0) - (gutterBox?.top || 0) - 2
+        : (bbox?.top || 0) - (gutterBox?.top || 0) - 2 + (bbox?.height || 0)
+    )
   }
 
   pos.display = dragOver ? 'block' : 'none'

@@ -1,180 +1,202 @@
-import React, { useCallback, useContext, useLayoutEffect, useRef, useState } from 'react'
-import { PropsWithChildren } from "react"
-import { Descendant, Editor, Element } from 'slate'
-import { useSlateSelection, useSlateStatic } from 'slate-react'
-
-import { DragstateContext } from '../../DragStateProvider'
-import { pipeFromDrop } from '../../../../lib/pipes'
 import { usePluginRegistry } from '@/components/PluginRegistry'
 import { TextbitPlugin } from '@/lib'
+import React, {
+  useRef,
+  PropsWithChildren,
+  useContext
+} from 'react'
 
-type Box = {
-  top: number
-  right: number
-  bottom: number
-  left: number
+import {
+  Descendant,
+  Editor,
+  Element as SlateElement
+} from 'slate'
+import { DragstateContext } from '../../DragStateProvider'
+import { pipeFromDrop } from '@/lib/pipes'
+import { useSlateStatic } from 'slate-react'
+
+
+type Position = ['above' | 'below', boolean] | undefined
+
+interface MouseInfo {
+  position?: Position
+  bbox: DOMRect | undefined
 }
 
-type DroppableProps = {
-  element?: Element
-}
 
-export const Droppable = ({ children, element }: PropsWithChildren & DroppableProps) => {
+export const Droppable = ({ children, element }: PropsWithChildren & {
+  element?: SlateElement
+}) => {
   const editor = useSlateStatic()
-  const selection = useSlateSelection()
-  const ref = useRef<HTMLDivElement>(null)
   const ctx = useContext(DragstateContext)
   const { plugins } = usePluginRegistry()
-  const [box, setBox] = useState<Box>({ top: 0, right: 0, bottom: 0, left: 0 })
-  const dataId = element?.id || ''
-  const draggable = ['block', 'void'].includes(element?.class || '') ? 'true' : 'false'
+  const ref = useRef<HTMLDivElement>(null)
+
   const plugin = plugins.find(p => p.name === element?.type)
   const isDroppable = TextbitPlugin.isElementPlugin(plugin) && !!plugin?.componentEntry?.droppable
-  const calculateBox = useCallback(() => {
-    const { top, right, bottom, left } = ref?.current?.getBoundingClientRect() || { top: 0, right: 0, bottom: 0, left: 0 }
-    setBox({ top, right, bottom, left })
-  }, [])
 
-  useLayoutEffect(() => {
-    calculateBox()
-
-    window.addEventListener('resize', calculateBox)
-    return () => {
-      window.removeEventListener('resize', calculateBox)
-    }
-  }, [ref, selection])
-
-  return <div
-    ref={ref}
-    draggable={draggable}
-    data-id={dataId}
-    onDragEnd={() => {
-      ctx?.onDragLeave()
-
-      const el = ref.current
-      if (!el) {
-        return
-      }
-      el.style.opacity = '1'
-
-      // Remove the temporary element
-      const temps = document.getElementsByClassName('textbit-dragged-temp')
-      if (temps.length) {
-        for (const t of temps) {
-          if (t.parentNode) {
-            t.parentNode.removeChild(t)
-          }
+  return (
+    <div
+      data-id={element?.id || ''}
+      ref={ref}
+      className="h-full w-full"
+      draggable={['block', 'void'].includes(element?.class || '') ? 'true' : 'false'}
+      onDragStartCapture={(e) => {
+        if (!element?.id) {
+          return
         }
-      }
-    }}
-    onDragStartCapture={(e) => {
-      if (!dataId) {
-        return
-      }
 
-      e.stopPropagation()
-      const el = ref.current
-      if (!el) {
-        return
-      }
+        e.stopPropagation()
+        if (ref?.current) {
+          createDragImage(ref.current, e, element.id)
+        }
+      }}
+      onDragEnterCapture={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        ctx?.onDragEnter()
+      }}
+      onDragLeaveCapture={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        ctx?.onDragLeave()
+      }}
+      onDragOverCapture={(e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        ctx.setOffset(dropHints(e, ref?.current, isDroppable))
+      }}
+      onDropCapture={(e) => {
+        if (ctx?.onDrop) {
+          ctx.onDrop(e)
+        }
 
-      // Create cloned element to force as drag image
-      const clone = el.cloneNode(true) as HTMLDivElement
-      const { left, top } = el.getBoundingClientRect()
+        if (!ref.current || !element?.id) {
+          return
+        }
 
-      const clonedChild = clone.firstChild as HTMLDivElement
-      clonedChild.style.transform = 'scale(0.6) rotate(2deg)'
-      clone.style.width = `${el.offsetWidth}px`
-      clone.style.height = `${el.offsetHeight}px`
-      clone.style.position = 'absolute'
-      clone.style.top = '-9999px'
-      clone.classList.add('textbit-dragged-temp') // Used to clean out in dragEnd()
-
-      document.body.appendChild(clone)
-
-      el.style.opacity = '0.5'
-      e.dataTransfer.clearData()
-      e.dataTransfer.setData("textbit/droppable-id", dataId)
-      e.dataTransfer.setDragImage(
-        clone,
-        (e.clientX - left),
-        (e.clientY - top)
-      )
-    }}
-    onDragEnterCapture={(e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      ctx?.onDragEnter()
-    }}
-    onDragLeaveCapture={(e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      ctx?.onDragLeave()
-    }}
-    onDragOverCapture={(e) => {
-      e.stopPropagation()
-      e.preventDefault()
-
-      const position = getDropPlacement(e, ref?.current, isDroppable)
-      ctx?.setOffset({
-        position,
-        ...box
-      })
-    }}
-    onDropCapture={(e) => {
-      if (ctx?.onDrop) {
-        ctx.onDrop(e)
-      }
-
-      const container = ref.current
-      if (!container) {
-        return
-      }
-
-      const id = ref.current?.dataset?.id || null
-      if (id === null) {
-        return
-      }
-
-      // TODO: Name and node can in the future be used to let plugins say that the
-      // node/plugin itself want to handle/hijack the drop for a component to handle.
-      // const name = droppableRef.current?.dataset?.name || null
-      const [position /*, node */] = getDropPosition(editor, e, container, id, isDroppable)
-
-      pipeFromDrop(editor, plugins, e, position)
-    }}>
-    {children}
-  </div >
+        // TODO: Name and node can in the future be used to let plugins say that the
+        // node/plugin itself want to handle/hijack the drop for a component to handle.
+        // const name = droppableRef.current?.dataset?.name || null
+        // const [position /*, node */] = getDropPosition(editor, e, container, id, isDroppable)
+        const [position] = dropPosition(editor, e, ref?.current, element.id, isDroppable) || {}
+        pipeFromDrop(editor, plugins, e, position)
+      }}
+      onDragEnd={() => {
+        ctx?.onDragLeave()
+        if (ref?.current) {
+          ref.current.style.opacity = '1'
+          cleanup()
+        }
+      }}
+    >
+      {children}
+    </div>
+  )
 }
 
-function getDropPosition(editor: Editor, e: React.DragEvent, container: HTMLDivElement, id: string, isDroppable: boolean): [number, Descendant | undefined] {
+
+/*
+ * Remove temporarily created drag images
+ */
+function cleanup() {
+  const temps = document.getElementsByClassName('textbit-dragged-temp')
+  if (temps.length) {
+    for (const t of temps) {
+      if (t.parentNode) {
+        t.parentNode.removeChild(t)
+      }
+    }
+  }
+}
+
+
+/**
+ * Create a dragImage by cloning the dragged element
+ */
+function createDragImage(el: HTMLDivElement, e: React.DragEvent<HTMLDivElement>, dataId: string) {
+  const clone = el.cloneNode(true) as HTMLDivElement
+  const { left, top } = el.getBoundingClientRect()
+
+  const clonedChild = clone.firstChild as HTMLDivElement
+  clonedChild.style.transform = 'scale(0.6) rotate(2deg)'
+  clone.style.width = `${el.offsetWidth}px`
+  clone.style.height = `${el.offsetHeight}px`
+  clone.style.position = 'absolute'
+  clone.style.top = '-9999px'
+  clone.classList.add('textbit-dragged-temp') // Used to clean out in dragEnd()
+
+  document.body.appendChild(clone)
+
+  el.style.opacity = '0.5'
+  e.dataTransfer.clearData()
+  e.dataTransfer.setData("textbit/droppable-id", dataId)
+  e.dataTransfer.setDragImage(
+    clone,
+    (e.clientX - left),
+    (e.clientY - top)
+  )
+}
+
+
+/**
+ * This function now only give you a drop position above or below the target node.
+ *
+ * TODO: Allow for nodes to receive and handle drops.
+ */
+function dropPosition(editor: Editor, e: React.DragEvent, container: HTMLDivElement, id: string, isDroppable: boolean): [number, Descendant | undefined] {
   let position = -1
   const node = editor.children.find((el: any, idx: number) => {
     position = idx
     return el.id === id
   })
 
-  return [position + (getDropPlacement(e, container, isDroppable) ? 0 : 1), node]
+  const hints = dropHints(e, container, isDroppable)
+  return [position + (hints?.position?.[0] === 'above' ? 0 : 1), node]
 }
 
-function getDropPlacement(e: React.DragEvent, container: HTMLDivElement | null, isDroppable: boolean): ['above' | 'below', boolean] {
-  if (!container) {
-    return ['above', false]
+
+/**
+ * Calculate bounding box of current dom element as well as whether the pointer
+ * position will result in a drop above or below or "on" the hovered element
+ */
+function dropHints(event: React.DragEvent, domEl: HTMLDivElement | null, isDroppable: boolean): MouseInfo | undefined {
+  if (!domEl) {
+    return undefined
   }
 
-  const rect = e.currentTarget.getBoundingClientRect()
-  const y = Math.round(e.clientY - rect.top)
+  const bbox = domEl.getBoundingClientRect()
+  const mouseY = event.clientY
 
-  if (y < container.offsetHeight * 0.2) {
-    return ['above', false]
+  // If mouse is within horizontal bounds
+  if (event.clientX < bbox.left || event.clientX > bbox.right) {
+    return {
+      position: undefined,
+      bbox
+    }
   }
-  else if (y < container.offsetHeight * 0.5) {
-    return ['above', isDroppable]
+
+  // Calculate relative position as percentage from top of element
+  const relativeY = mouseY - bbox.top
+  const percentage = (relativeY / bbox.height) * 100
+
+  let position: Position
+
+  if (percentage <= 20) {
+    position = ['above', false]
   }
-  else if (y < container.offsetHeight * 0.8) {
-    return ['below', isDroppable]
+  else if (percentage <= 50) {
+    position = ['above', isDroppable]
+  }
+  else if (percentage >= 80) {
+    position = ['below', isDroppable]
   }
   else {
-    return ['below', false]
+    position = ['below', false]
+  }
+
+  return {
+    position,
+    bbox
   }
 }

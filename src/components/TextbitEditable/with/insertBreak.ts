@@ -1,4 +1,4 @@
-import { Editor, Transforms, Range, Path, Node } from "slate"
+import { Editor, Transforms, Range, Path, Node, Text } from "slate"
 import * as uuid from 'uuid'
 
 import { Element as SlateElement, BaseRange } from 'slate'
@@ -27,34 +27,47 @@ export const withInsertBreak = (editor: Editor, components: Map<string, PluginRe
       var elements = Array.from(Node.elements(editor, { from: start, to: end }))
       var [element] = elements[elements.length - 1]
       const component = components.get(element?.type || '')
+
       if (component?.componentEntry?.constraints?.allowBreak === false) {
         return
       }
     }
 
-    const matches = Array.from(
-      Editor.nodes(editor, {
-        at: Editor.unhangRange(editor, selection as BaseRange),
-        match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.class !== 'inline'
-      })
-    )
+    if (isSelectionAtLastOffset(editor, selection)) {
+      // If last in the node, always create a new paragraph instead of the same as current node.
+      // But only if on the highest level (not in a blockquote sub element for example)
+      const [node] = Array.from(
+        Editor.nodes(editor, {
+          at: Editor.unhangRange(editor, selection as BaseRange),
+          match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.class !== 'inline'
+        })
+      )
 
-    const comps = Array.from(components)
-
-    // Handle common case where <enter> should by default create paragraph and not same as current node
-    // But only if on the highest level (not in a blockquote sub element for example)
-    if (Range.isCollapsed(selection) && matches.length < 2) {
-      // New nodes should be paragraph with a newly generated id
-      return Transforms.insertNodes(editor, {
-        id: uuid.v4(),
-        class: 'text',
-        type: 'core/text',
-        children: [{ text: "" }]
-      })
+      if (Range.isCollapsed(selection) && node) {
+        // New nodes should be paragraph with a newly generated id
+        return Transforms.insertNodes(editor, {
+          id: uuid.v4(),
+          class: 'text',
+          type: 'core/text',
+          children: [{ text: "" }]
+        })
+      }
     }
 
     return insertBreak()
   }
 
   return editor
+}
+
+
+function isSelectionAtLastOffset(editor: Editor, selection: Range): boolean {
+  const { offset, path } = selection.focus
+  const node = Editor.node(editor, path)
+  if (!Text.isText(node[0])) {
+    return false
+  }
+
+  const lastOffset = node[0].text.length
+  return offset === lastOffset
 }

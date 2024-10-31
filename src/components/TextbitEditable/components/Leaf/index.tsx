@@ -3,6 +3,7 @@ import { usePluginRegistry } from '@/components/PluginRegistry'
 import { RenderLeafProps } from 'slate-react'
 import { TextbitPlugin } from '@/lib'
 import { useTextbit } from '@/components/TextbitRoot'
+import { SpellingError } from '@/types'
 
 /**
  * Render a leaf
@@ -55,6 +56,16 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
     }
   }
 
+  return (!!leaf.spellingError)
+    ? <MisspelledLeaf {...props} className={className} style={style} />
+    : <OrdinaryLeaf {...props} className={className} style={style} />
+}
+
+
+function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }): JSX.Element {
+  const { placeholders } = useTextbit()
+  const { leaf, attributes, children, style, className } = props
+
   return <>
     <span
       style={{ ...style }}
@@ -62,9 +73,43 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
       {...attributes}
     >
       {leaf.placeholder && placeholders === 'multiple' &&
-        <span style={{ ...style, position: 'absolute', opacity: 0.333 }} contentEditable={false}>{leaf.placeholder}</span>
+        <Placeholder value={leaf.placeholder} style={style} />
       }
       {children}
     </span>
   </>
+}
+
+
+function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }): JSX.Element {
+  const { placeholders } = useTextbit()
+  const { leaf, attributes, children, style, className } = props
+  const spellingError = leaf.spellingError as unknown as SpellingError | undefined
+
+  return <>
+    <span
+      style={{ ...style }}
+      className={className}
+      data-spelling-error={spellingError?.id || ''}
+      {...attributes}
+    >
+      {leaf.placeholder && placeholders === 'multiple' &&
+        <Placeholder value={leaf.placeholder} style={style} />}
+      {children}
+    </span>
+  </>
+}
+
+
+function Placeholder({ value, style }: { value: string, style: CSSProperties }): JSX.Element {
+  return <span
+    style={{
+      ...style,
+      position: 'absolute',
+      opacity: 0.333
+    }}
+    contentEditable={false}
+  >
+    {value}
+  </span>
 }

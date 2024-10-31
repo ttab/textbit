@@ -1,14 +1,27 @@
 import {
   BaseElement,
   BaseText,
-  BaseEditor
+  BaseEditor,
+  BaseRange
 } from "slate"
 
 
 import { ReactEditor } from "slate-react"
 import { HistoryEditor } from 'slate-history'
 
-export type TBEditor = BaseEditor & ReactEditor & HistoryEditor
+export type SpellingError = {
+  id: string
+  text: string
+  suggestions: string[]
+}
+
+export type TBEditor = BaseEditor & ReactEditor & HistoryEditor & {
+  spellingLookupTable: Map<string, {
+    text: string,
+    errors: SpellingError[]
+  }>,
+  spellcheck: () => void
+}
 
 /**
  * @type
@@ -46,5 +59,9 @@ declare module 'slate' {
     Editor: TBEditor
     Element: TBElement
     Text: TBText
+    Range: BaseRange & {
+      placeholder?: string,
+      spellingError?: SpellingError
+    }
   }
 }
