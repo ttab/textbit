@@ -7,7 +7,9 @@ import Textbit, {
   usePluginRegistry,
   useTextbit,
   ContextMenu,
-  useContextMenuHints
+  useContextMenuHints,
+  TextbitEditor,
+  SpellingError
 } from '../../src'
 
 import {
@@ -21,6 +23,7 @@ import './toolmenu.css'
 import './toolbox.css'
 import './spelling.css'
 import './contextmenu.css'
+import { useSlateStatic } from 'slate-react'
 
 const initialValue: Descendant[] = [
   {
@@ -186,23 +189,21 @@ function App() {
 }
 
 
-function fakeSpellChecker(text: string):
-  Array<{ text: string; offset: number, subs: string[] }> {
-  const wordRegex = /\b[\w-]+\b/g
-  const result: Array<{
-    text: string
-    offset: number
-    subs: string[]
-  }> = []
+type SpellcheckedText = Array<SpellingError>
 
+function fakeSpellChecker(text: string): SpellcheckedText {
+  const wordRegex = /\b[\w-]+\b/g
+  const result: SpellcheckedText = []
   let match: RegExpExecArray | null
+
   while ((match = wordRegex.exec(text)) !== null) {
-    const substitutions = getSubstitutions(match[0])
-    if (substitutions) {
+    const suggestions = getSubstitutions(match[0])
+
+    if (suggestions) {
       result.push({
+        id: '',
         text: match[0],
-        offset: match.index,
-        subs: substitutions
+        suggestions
       })
     }
   }
@@ -210,7 +211,7 @@ function fakeSpellChecker(text: string):
   return result
 }
 
-const getSubstitutions = (word: string) => {
+const getSubstitutions = (word: string): string[] | undefined => {
   const misspelledWords = {
     'wee': ['we', 'teeny', 'weeny'],
     'emphasized': ['emphasised']
@@ -225,7 +226,7 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
   const [value, setValue] = useState<Descendant[]>(initialValue)
   const { characters } = useTextbit()
   const { actions } = usePluginRegistry()
-  const { isOpen, spelling } = useContextMenuHints()
+  const { spelling } = useContextMenuHints()
 
   return (
     <>
@@ -279,10 +280,7 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
               <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
                 <>
                   {spelling.suggestions.length === 0 &&
-                    <ContextMenu.Item
-                      className='textbit-contextmenu-item'
-                      func={() => { }}
-                    >
+                    <ContextMenu.Item className='textbit-contextmenu-item'>
                       No spelling suggestions
                     </ContextMenu.Item>
                   }
@@ -293,7 +291,9 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
                       <ContextMenu.Item
                         className='textbit-contextmenu-item'
                         key={suggestion}
-                        func={() => { alert('replacing ' + suggestion) }}
+                        func={() => {
+                          spelling.apply(suggestion)
+                        }}
                       >
                         {suggestion}
                       </ContextMenu.Item>

@@ -31,22 +31,17 @@ import { calculateStats, TextbitElement } from '@/lib'
 import { PluginRegistryComponent } from '../PluginRegistry/lib/types'
 import { PlaceholdersVisibility } from '../TextbitRoot/TextbitContext'
 import { withSpelling } from './with/withSpelling'
+import { SpellingError } from '@/types'
 
 export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
-  onSpellcheck?: OnSpellcheckCallback
+  onSpellcheck?: (texts: string[]) => Promise<Omit<SpellingError, 'id'>[][]>
   value?: Descendant[]
   yjsEditor?: Editor
   gutter?: boolean
   dir?: 'ltr' | 'rtl'
   className?: string
 }
-
-type OnSpellcheckCallback = (texts: string[]) => Promise<Array<{
-  text: string,
-  offset: number,
-  subs: string[]
-}[]>>
 
 export const TextbitEditable = ({
   children,
@@ -163,24 +158,23 @@ function decorate(
   const ranges: Range[] = []
 
   // Add ranges from spellchecking
-  if (editor.spelling?.size && Text.isText(node)) {
+  if (editor.spellingLookupTable?.size && Text.isText(node)) {
     const [topNode] = Editor.node(editor, [path[0]])
 
     if (TextbitElement.isElement(topNode) && topNode.id) {
-      const spellcheck = editor.spelling.get(topNode.id)
+      const spelling = editor.spellingLookupTable.get(topNode.id)
 
-      if (spellcheck?.spelling) {
+      if (spelling?.errors.length) {
         const text = node.text
 
-        spellcheck.spelling.forEach(item => {
-          const indices = [...text.matchAll(new RegExp(`\\b${item.text}\\b`, 'gi'))]
+        spelling.errors.forEach(spellingError => {
+          const indices = [...text.matchAll(new RegExp(`\\b${spellingError.text}\\b`, 'gi'))]
 
           indices.forEach(match => {
             ranges.push({
               anchor: { path, offset: match.index },
-              focus: { path, offset: match.index + item.text.length },
-              misspelled: true,
-              subs: item.subs
+              focus: { path, offset: match.index + spellingError.text.length },
+              spellingError
             })
           })
         })

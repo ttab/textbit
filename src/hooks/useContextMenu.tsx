@@ -1,31 +1,18 @@
 import { getDecorationRangeFromMouseEvent, getNodeEntryFromDomNode } from '@/lib/utils'
-import { RefObject, useEffect, useState } from 'react'
-import { Range, NodeEntry } from 'slate'
+import { RefObject, useContext, useEffect, useState } from 'react'
+import { Range, Editor, Element as SlateElement } from 'slate'
 import { ReactEditor, useFocused, useSlateStatic } from 'slate-react'
-
-interface ContextMenuEvent {
-  x: number
-  y: number
-  target: HTMLElement
-  originalEvent: MouseEvent
-  nodeEntry: NodeEntry
-  spelling?: {
-    text: string
-    suggestions: string[]
-    range: Range | undefined
-  }
-}
-
-type ContextMenuHandler = (event: ContextMenuEvent | undefined) => void
+import { SpellingError, TextbitEditor } from '../'
+import { ContextMenuHintsContext } from '@/components/ContextMenu/ContextMenuHintsContext'
 
 export function useContextMenu(
   ref: RefObject<HTMLElement>,
-  onContextMenu: ContextMenuHandler,
   preventDefault = true
 ) {
   const editor = useSlateStatic()
   const isFocused = useFocused()
   const [range, setRange] = useState<Range | undefined>()
+  const contextMenuHintsContext = useContext(ContextMenuHintsContext)
 
   useEffect(() => {
     if (editor && range) {
@@ -52,8 +39,13 @@ export function useContextMenu(
         return
       }
 
-      const nodeEntry = getNodeEntryFromDomNode(editor, targetElement)
-      if (!nodeEntry) {
+      const [targetNode, targetPath] = getNodeEntryFromDomNode(editor, targetElement) || []
+      if (!targetNode || !Array.isArray(targetPath)) {
+        return
+      }
+
+      const topNode = editor.children[targetPath[0]]
+      if (!SlateElement.isElement(topNode)) {
         return
       }
 
@@ -62,17 +54,21 @@ export function useContextMenu(
         setRange(slateRange)
       }
 
-      const spelling = getSpellingData(editor, targetElement, event)
+      const spelling = getSpellingHints(editor, topNode, targetElement, event)
       if (preventDefault) {
         event.preventDefault()
       }
 
-      onContextMenu({
-        x: event.clientX,
-        y: event.clientY,
-        target: targetElement,
-        originalEvent: event,
-        nodeEntry,
+      contextMenuHintsContext?.dispatch({
+        menu: {
+          position: {
+            x: event.clientX,
+            y: event.clientY
+          },
+          target: targetElement,
+          originalEvent: event,
+          nodeEntry: [targetNode, targetPath]
+        },
         spelling
       })
     }
@@ -80,24 +76,40 @@ export function useContextMenu(
     window.addEventListener('contextmenu', contextMenuHandler)
 
     return () => window.removeEventListener('contextmenu', contextMenuHandler)
-  }, [ref, onContextMenu, preventDefault, setRange])
+  }, [ref, contextMenuHintsContext, preventDefault, setRange])
 }
 
-function getSpellingData(editor: ReactEditor, element: HTMLElement, event: MouseEvent): {
-  text: string
-  suggestions: string[],
+function getSpellingHints(
+  editor: Editor,
+  topNode: SlateElement,
+  element: HTMLElement,
+  event: MouseEvent
+): SpellingError & {
   range: Range | undefined
+  apply: (replacement: string) => void
 } | undefined {
   const ancestor = element.closest('[data-spelling-error]') as HTMLElement | null
-  if (!ancestor) {
+  const errorId = ancestor?.dataset['spellingError']
+  if (!topNode.id || !errorId) {
     return
   }
 
+  const spelling = editor.spellingLookupTable.get(topNode.id)?.errors || []
+  const spellingError = spelling.find(error => error.id === errorId)
+
   try {
-    return {
-      text: decodeURIComponent(ancestor.getAttribute('data-spelling-error') || ''),
-      suggestions: JSON.parse(decodeURIComponent(ancestor.getAttribute('data-spelling-suggestions') || '')),
-      range: getDecorationRangeFromMouseEvent(editor, event)
-    }
+    return spellingError
+      ? {
+        ...spellingError,
+        range: getDecorationRangeFromMouseEvent(editor, event),
+        apply: (replacement: string) => {
+          TextbitEditor.replaceStringAtPosition(
+            editor,
+            spellingError.text,
+            replacement
+          )
+        }
+      }
+      : undefined
   } catch (_) { }
 }

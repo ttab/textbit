@@ -1,34 +1,27 @@
-import { TextbitElement } from '@/lib'
+import { TextbitEditor, TextbitElement } from '@/lib'
 import { debounce } from '@/lib/debounce'
+import { SpellingError } from '@/types'
 import { Editor, Node, Operation } from "slate"
-
-type OnSpellcheckCallback = (texts: string[]) => Promise<Array<{
-  text: string,
-  offset: number,
-  subs: string[]
-}[]>>
 
 type SpellcheckLookupTable = Map<string, {
   text: string,
-  spelling?: {
-    offset: number,
-    subs: string[]
-    text: string
-  }[]
+  errors: SpellingError[]
 }>
+export type OnSpellcheckCallback = (texts: string[]) => Promise<SpellingError[][]>
 
 export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback | undefined, debounceTimeout: number): Editor => {
   const { onChange } = editor
 
-  editor.spelling = new Map()
+  editor.spellingLookupTable = new Map()
 
   editor.spellcheck = debounce(async () => {
     if (!onSpellcheck) {
       return
     }
 
-    // Execute spellcheck callback function
-    editor.spelling = await updateSpellcheckTable(editor, onSpellcheck, editor.spelling)
+    // Do the spellcheck and store the new spellcheck lookup table
+    editor.spellingLookupTable = await updateSpellcheck(editor, onSpellcheck, editor.spellingLookupTable)
+
     if (editor.selection) {
       // Apply dummy no op set selection to force rerender
       editor.apply({
@@ -74,13 +67,17 @@ export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback 
 }
 
 
-async function updateSpellcheckTable(
+async function updateSpellcheck(
   editor: Editor,
   onSpellcheck: OnSpellcheckCallback,
   currentSpellcheckTable: SpellcheckLookupTable
 ): Promise<SpellcheckLookupTable> {
   // Find all nodes that need spellchecking
-  const tracker: SpellcheckLookupTable = new Map()
+  const tracker: Map<string, {
+    text: string,
+    errors: SpellingError[],
+    check: boolean
+  }> = new Map()
   const spellcheck: string[] = []
 
   for (const node of editor.children) {
@@ -92,11 +89,12 @@ async function updateSpellcheckTable(
     const text = Node.string(node)
 
     if (!currentEntry || currentEntry.text !== text) {
-      // New node, or existing changed node. Needs spellchecking.
+      // New node, or existing changed node, spellchecking needed
       const isEmpty = text.trim() === ''
       tracker.set(node.id, {
         text,
-        spelling: !isEmpty ? undefined : [] // Only spellcheck non empty texts
+        errors: [],
+        check: !isEmpty
       })
 
       if (!isEmpty) {
@@ -104,27 +102,52 @@ async function updateSpellcheckTable(
       }
     }
     else {
-      // Existing unchanged node
-      tracker.set(node.id, currentEntry)
+      // Existing unchanged node, no spellchecking needed
+      tracker.set(node.id, {
+        ...currentEntry,
+        check: false
+      })
     }
   }
-  // Send all changed or added strings to spellcheck in one call
-  if (spellcheck.length) {
-    const result = await onSpellcheck(
-      Array.from(tracker.values())
-        .filter(entry => !entry.spelling) // Spellcheck those without spelling info
-        .map(entry => entry.text)
-    )
 
-    // Add all spellchecking results
-    if (result.length === spellcheck.length) {
-      for (let i = 0; i < spellcheck.length; i++) {
-        const entry = tracker.get(spellcheck[i])
-        if (entry) {
-          entry.spelling = result[i]
-        }
-      }
+  // Nothing to check
+  if (!spellcheck.length) {
+    return tracker
+  }
+
+  // Send all changed or added strings to spellcheck in one call
+  const result = await onSpellcheck(
+    Array.from(tracker.values())
+      .filter(entry => entry.check) // Spellcheck those without spelling info
+      .map(entry => entry.text)
+  )
+
+  // Ignore mismatching results
+  if (result.length !== spellcheck.length) {
+    console.warn('Number of spellchecked texts differ from requested number of texts to spellcheck')
+    return tracker
+  }
+
+  // Add all spelling errors and suggestions, give each error an id
+  for (let i = 0; i < spellcheck.length; i++) {
+    const entry = tracker.get(spellcheck[i])
+    if (!entry) {
+      continue
     }
+
+    entry.errors = result[i]
+      .filter((item) => {
+        return typeof item?.text && Array.isArray(item?.suggestions)
+      })
+      .map((item) => {
+        return {
+          id: crypto.randomUUID(),
+          text: item.text,
+          suggestions: item.suggestions.map((suggestion) => {
+            return (typeof suggestion === 'string') ? suggestion : ''
+          })
+        }
+      })
   }
 
   return tracker

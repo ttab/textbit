@@ -26,7 +26,7 @@ function Popover({ children, className }: PropsWithChildren & {
 }) {
   const contextMenuContext = useContext(ContextMenuHintsContext)
   const ref = useRef<HTMLDivElement>(null)
-  const { isOpen, position, spelling } = useContextMenuHints()
+  const { menu, spelling } = useContextMenuHints()
 
   const hidePopover = useCallback(() => {
     if (!ref?.current) {
@@ -38,13 +38,13 @@ function Popover({ children, className }: PropsWithChildren & {
   }, [ref?.current])
 
   const revealPopover = useCallback(() => {
-    if (!ref?.current || !position) {
+    if (!ref?.current || !menu?.position) {
       return
     }
 
     const { top, left } = calculatePosition(
-      position.x,
-      position.y,
+      menu.position.x,
+      menu.position.y,
       ref.current?.getBoundingClientRect()
     )
 
@@ -52,7 +52,7 @@ function Popover({ children, className }: PropsWithChildren & {
     ref.current.style.zIndex = 'auto'
     ref.current.style.top = `${top}px`
     ref.current.style.left = `${left}px`
-  }, [ref?.current, position])
+  }, [ref?.current, menu?.position])
 
   useEffect(() => {
     const clearContextMenu = (event: Event) => {
@@ -89,7 +89,7 @@ function Popover({ children, className }: PropsWithChildren & {
       return
     }
 
-    if (!isOpen || !position) {
+    if (!menu?.position) {
       return hidePopover()
     }
     else if (spelling === undefined) {
@@ -98,7 +98,7 @@ function Popover({ children, className }: PropsWithChildren & {
     else {
       revealPopover()
     }
-  }, [ref?.current, isOpen, position])
+  }, [ref?.current, menu?.position])
 
   return (
     <div ref={ref} className={className} style={{

@@ -1,17 +1,15 @@
 import React, { // Necessary for esbuild
-  useContext,
   useEffect,
   useRef,
 } from 'react'
 import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, NodeEntry } from "slate"
-import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
+import { Editable, RenderElementProps, RenderLeafProps, useFocused, useSlateStatic } from "slate-react"
 import { toggleLeaf } from '@/lib/toggleLeaf'
 import { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '@/components/TextbitRoot'
 import { TextbitEditor } from '@/lib'
 import { TBEditor } from '@/types'
 import { useContextMenu } from '@/hooks/useContextMenu'
-import { ContextMenuHintsContext } from '@/components/ContextMenu/ContextMenuHintsContext'
 
 export const SlateEditable = ({ className = '', renderSlateElement, renderLeafComponent, textbitEditor, actions, autoFocus, onBlur, onFocus, onDecorate }: {
   className?: string
@@ -24,31 +22,12 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   onDecorate?: ((entry: NodeEntry) => Range[]) | undefined
 }): JSX.Element => {
+  const editor = useSlateStatic()
   const focused = useFocused()
   const { placeholder } = useTextbit()
   const ref = useRef<HTMLDivElement>(null)
-  const contextMenuContext = useContext(ContextMenuHintsContext)
 
-  useContextMenu(ref, (hints) => {
-    if (!hints) {
-      contextMenuContext?.dispatch({
-        menu: undefined,
-        spelling: undefined
-      })
-      return
-    }
-
-    contextMenuContext?.dispatch({
-      menu: {
-        x: hints.x,
-        y: hints.y,
-        target: hints.target,
-        originalEvent: hints.originalEvent,
-        nodeEntry: hints.nodeEntry
-      },
-      spelling: hints.spelling
-    })
-  })
+  useContextMenu(ref)
 
   useEffect(() => {
     if (!autoFocus) {

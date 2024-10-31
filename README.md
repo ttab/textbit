@@ -176,7 +176,7 @@ Editable area component, acts as wrapper around Slate.
 | ----------- | ----------- | ----------- |
 | value | Descendant[] | Optional, initial content |
 | onChange | (Descendant[] => void) | Function to receive all changes |
-| onSpellcheck | onSpellcheck?: (texts: string[]) => Array<{<br> str: string,<br> pos: number,<br> sub: string[]<br> }[]> | Optional, callback function to handle spellchecking of strings |
+| onSpellcheck | onSpellcheck?: (texts: string[]) => Array<Array<{<br> str: string,<br> pos: number,<br> sub: string[]<br> }>> | Optional, callback function to handle spellchecking of strings |
 | dir | "ltr" \| "rtl" | Optional, defaults to _ltr_ |
 | yjsEditor | BaseEditor | BaseEditor created with `withYjs()` and `withCursors()` |
 | gutter | boolean | Optional, defaults to true (render gutter). |
@@ -236,6 +236,38 @@ Can be used to wrap all elements in plugin components. Provides data state attri
 | ----------- | ----------- | ----------- |
 | [data-state] | "active" \| "inactive" | Indicate that cursor is in element or element is part of a selection. |
 
+
+### Styling spelling errors
+When using the spellchecking functionality words (or combination of words) that are misspelled
+are rendered as `<span>` child elements having the data attribute `data-spelling-error`. This
+can be used to style all the spelling errors. See context menu handling for handling spelling errors
+in more detail.
+
+| Name | Value | Description |
+| ----------- | ----------- | ----------- |
+| [data-spelling-error] | string | Id of individual spelling error |
+
+**Using a CSS style rule**
+
+```css
+[data-spelling-error] {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: rgb(239, 68, 68);
+}
+```
+
+**Using Tailwind**
+```JSX
+return (
+  <Textbit.Editable
+    onSpellcheck={async (texts) => checkSpelling(texts)}
+    className="outline-none h-full dark:text-slate-100 [&_[data-spelling-error]]:underline [&_[data-spelling-error]]:decoration-dotted [&_[data-spelling-error]]:decoration-red-500"
+  >
+    <ContextMenu />
+  </Textbit.Editable>
+)
+```
 
 ---
 
@@ -451,6 +483,7 @@ interface {
       text: string
       suggestions: string[]
       range?: Range
+      apply: (replacementString: string) => void
     }
   }
 ```
@@ -467,7 +500,7 @@ interface {
             className='textbit-contextmenu-item'
             key={suggestion}
             func={() => {
-              // ...
+              spelling.apply(suggestion)
             }}
           >
             {suggestion}

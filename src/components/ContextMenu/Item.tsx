@@ -1,4 +1,8 @@
-import React, { PropsWithChildren } from 'react'
+import React, {
+  PropsWithChildren,
+  useContext
+} from 'react'
+import { ContextMenuHintsContext } from './ContextMenuHintsContext'
 
 type ItemProps = PropsWithChildren & {
   className?: string
@@ -10,16 +14,20 @@ export const Item = ({
   className,
   func = undefined
 }: ItemProps) => {
-  if (!func) {
-    return <></>
-  }
+  const menuCtx = useContext(ContextMenuHintsContext)
 
   return (
     <a
       className={className}
       onMouseDown={(e) => {
         e.preventDefault()
-        func()
+        if (func) {
+          func()
+        }
+        menuCtx?.dispatch({
+          menu: undefined,
+          spelling: undefined
+        })
       }}
     >
       {children}

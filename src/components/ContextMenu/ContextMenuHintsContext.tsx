@@ -1,27 +1,27 @@
+import { SpellingError } from '@/types'
 import React, {
   createContext,
   useReducer,
   PropsWithChildren
 } from 'react'
-import { NodeEntry, Range } from 'slate'
+import { NodeEntry, BaseRange } from 'slate'
 
 export interface ContextMenuHints {
-  x: number
-  y: number
+  position: {
+    x: number
+    y: number
+  }
   target: HTMLElement
   originalEvent: MouseEvent
   nodeEntry: NodeEntry
 }
 
-export interface SpellingHint {
-  text: string
-  suggestions: string[]
-  range?: Range
-}
-
 export interface ContextMenuHintsProviderState {
   menu?: ContextMenuHints
-  spelling?: SpellingHint
+  spelling?: SpellingError & {
+    range?: BaseRange
+    apply: (replacement: string) => void
+  }
   dispatch: React.Dispatch<Partial<ContextMenuHintsProviderState>>
 }
 

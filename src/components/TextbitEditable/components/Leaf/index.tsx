@@ -3,8 +3,7 @@ import { usePluginRegistry } from '@/components/PluginRegistry'
 import { RenderLeafProps } from 'slate-react'
 import { TextbitPlugin } from '@/lib'
 import { useTextbit } from '@/components/TextbitRoot'
-import { Text } from 'slate'
-import { TBText } from '@/types'
+import { SpellingError, TBText } from '@/types'
 
 /**
  * Render a leaf
@@ -57,7 +56,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
     }
   }
 
-  return (!!leaf.misspelled)
+  return (!!leaf.spellingError)
     ? <MisspelledLeaf {...props} className={className} style={style} />
     : <OrdinaryLeaf {...props} className={className} style={style} />
 }
@@ -85,14 +84,13 @@ function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSPr
 function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }): JSX.Element {
   const { placeholders } = useTextbit()
   const { leaf, attributes, children, style, className } = props
-  const subs = Array.isArray(leaf.subs) && leaf.subs.length ? leaf.subs : undefined
+  const spellingError = leaf.spellingError as unknown as SpellingError | undefined
 
   return <>
     <span
       style={{ ...style }}
       className={className}
-      data-spelling-error={encodeURIComponent(leaf.text)}
-      data-spelling-suggestions={subs ? encodeURIComponent(JSON.stringify(subs)) : ''}
+      data-spelling-error={spellingError?.id || ''}
       {...attributes}
     >
       {leaf.placeholder && placeholders === 'multiple' &&

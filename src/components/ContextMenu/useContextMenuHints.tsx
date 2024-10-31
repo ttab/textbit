@@ -1,7 +1,9 @@
 import { useContext } from 'react'
-import { ContextMenuHintsContext } from './ContextMenuHintsContext'
+import { ContextMenuHintsContext, ContextMenuHintsProviderState } from './ContextMenuHintsContext'
 
-export const useContextMenuHints = () => {
+export type ContextMenuState = Omit<ContextMenuHintsProviderState, 'dispatch'>
+
+export const useContextMenuHints = (): ContextMenuState => {
   const context = useContext(ContextMenuHintsContext)
 
   if (context === undefined) {
@@ -9,14 +11,7 @@ export const useContextMenuHints = () => {
   }
 
   return {
-    isOpen: !!context.menu,
-    position: context.menu ? {
-      x: context.menu.x,
-      y: context.menu.y
-    } : undefined,
-    target: context.menu?.target,
-    event: context.menu?.originalEvent,
-    nodeEntry: context.menu?.nodeEntry,
+    menu: context.menu,
     spelling: context.spelling
   }
 }

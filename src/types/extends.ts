@@ -9,14 +9,16 @@ import {
 import { ReactEditor } from "slate-react"
 import { HistoryEditor } from 'slate-history'
 
+export type SpellingError = {
+  id: string
+  text: string
+  suggestions: string[]
+}
+
 export type TBEditor = BaseEditor & ReactEditor & HistoryEditor & {
-  spelling: Map<string, {
+  spellingLookupTable: Map<string, {
     text: string,
-    spelling?: {
-      offset: number,
-      subs: string[]
-      text: string
-    }[]
+    errors: SpellingError[]
   }>,
   spellcheck: () => void
 }
@@ -59,8 +61,7 @@ declare module 'slate' {
     Text: TBText
     Range: BaseRange & {
       placeholder?: string,
-      misspelled?: boolean // If misspelled
-      subs?: string[] // Suggested substitutions
+      spellingError?: SpellingError
     }
   }
 }

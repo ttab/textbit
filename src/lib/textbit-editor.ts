@@ -11,8 +11,6 @@ import {
   Range
 } from "slate"
 import * as uuid from 'uuid'
-import { getSelectedNodeEntries } from './utils'
-
 
 interface TextbitEditorInterface extends EditorInterface {
   position: (editor: Editor) => number
@@ -21,6 +19,7 @@ interface TextbitEditorInterface extends EditorInterface {
   selectedTextEntries: (editor: Editor) => NodeEntry<Node>[]
   includes: (editor: Editor, type: string) => boolean,
   getSelectedText: (editor: Editor, range?: BaseRange) => string | undefined,
+  replaceStringAtPosition: (editor: Editor, targetString: string, replacementString: string) => void
   insertAt: (editor: Editor, position: number, nodes: Node | Node[]) => void,
   hasText: (nodes: NodeEntry<Descendant>[]) => boolean,
   convertToTextNode: (editor: Editor, type: string, role?: string, nodes?: NodeEntry<Node>[]) => void
@@ -113,6 +112,59 @@ export const TextbitEditor: TextbitEditorInterface = {
   getSelectedText: (editor, range) => {
     const useRange = range || Editor.unhangRange(editor, editor.selection as BaseRange)
     return Editor.string(editor, useRange)
+  },
+
+  /**
+   * Replace a given target string with another string if cursor is placed in
+   * the given target string. Useful for replacing misspelled words on context clicks.
+   *
+   * @param editor - A slate editor instance
+   * @param targetString - The string to replace
+   * @param replacementString - The string to replace with
+   */
+  replaceStringAtPosition: (editor, targetString, replacementString) => {
+    // Check if we have a selection
+    if (!editor.selection) {
+      return
+    }
+
+    // Get the current cursor position
+    const cursor = editor.selection.anchor
+
+    // Get the node and path at cursor position
+    const [node] = Editor.node(editor, cursor.path)
+
+    // Make sure we're in a text node
+    if (!Text.isText(node)) {
+      return
+    }
+
+    const text = node.text
+
+    // Find the word boundaries around cursor position
+    const before = text.slice(0, cursor.offset).split(/\b/).pop() || ''
+    const after = text.slice(cursor.offset).split(/\b/)[0] || ''
+    const word = before + after
+
+    // Check if the word matches our target
+    if (word !== targetString) {
+      return
+    }
+
+    // Calculate the range of the target word
+    const start = cursor.offset - before.length
+    const end = cursor.offset + after.length
+
+    // Create the range to replace
+    const range = {
+      anchor: { path: cursor.path, offset: start },
+      focus: { path: cursor.path, offset: end }
+    }
+
+    // Perform the replacement
+    Transforms.insertText(editor, replacementString, {
+      at: range
+    })
   },
 
   /**
