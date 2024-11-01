@@ -1,4 +1,5 @@
 import React, { // Necessary for esbuild
+  useEffect,
   useRef,
 } from 'react'
 import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, NodeEntry } from "slate"
@@ -26,6 +27,10 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
 
   useContextMenu(ref)
 
+  useEffect(() => {
+    setInitialSelection(textbitEditor)
+  }, [textbitEditor])
+
   return (
     <div ref={ref}>
       <Editable
@@ -40,10 +45,6 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
         spellCheck={false}
         autoFocus={autoFocus}
         onFocus={(event) => {
-          if (!textbitEditor.selection) {
-            setInitialSelection(textbitEditor)
-          }
-
           if (onFocus) {
             onFocus(event)
           }
