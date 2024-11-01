@@ -1,14 +1,12 @@
 import React, { // Necessary for esbuild
-  useEffect,
   useRef,
 } from 'react'
 import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, NodeEntry } from "slate"
-import { Editable, RenderElementProps, RenderLeafProps, useFocused, useSlateStatic } from "slate-react"
+import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
 import { toggleLeaf } from '@/lib/toggleLeaf'
 import { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '@/components/TextbitRoot'
 import { TextbitEditor } from '@/lib'
-import { TBEditor } from '@/types'
 import { useContextMenu } from '@/hooks/useContextMenu'
 
 export const SlateEditable = ({ className = '', renderSlateElement, renderLeafComponent, textbitEditor, actions, autoFocus, onBlur, onFocus, onDecorate }: {
@@ -22,7 +20,6 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   onDecorate?: ((entry: NodeEntry) => Range[]) | undefined
 }): JSX.Element => {
-  const editor = useSlateStatic()
   const focused = useFocused()
   const { placeholder } = useTextbit()
   const ref = useRef<HTMLDivElement>(null)

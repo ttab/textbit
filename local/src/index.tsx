@@ -8,7 +8,6 @@ import Textbit, {
   useTextbit,
   ContextMenu,
   useContextMenuHints,
-  TextbitEditor,
   SpellingError
 } from '../../src'
 
@@ -23,7 +22,6 @@ import './toolmenu.css'
 import './toolbox.css'
 import './spelling.css'
 import './contextmenu.css'
-import { useSlateStatic } from 'slate-react'
 
 const initialValue: Descendant[] = [
   {

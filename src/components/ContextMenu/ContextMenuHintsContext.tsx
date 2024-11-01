@@ -1,4 +1,4 @@
-import { SpellingError } from '@/types'
+import { SpellingError } from '../../types'
 import React, {
   createContext,
   useReducer,
@@ -16,12 +16,14 @@ export interface ContextMenuHints {
   nodeEntry: NodeEntry
 }
 
+export interface ContextMenuSpellingHints extends SpellingError {
+  range?: BaseRange
+  apply: (replacement: string) => void
+}
+
 export interface ContextMenuHintsProviderState {
   menu?: ContextMenuHints
-  spelling?: SpellingError & {
-    range?: BaseRange
-    apply: (replacement: string) => void
-  }
+  spelling?: ContextMenuSpellingHints
   dispatch: React.Dispatch<Partial<ContextMenuHintsProviderState>>
 }
 
@@ -58,9 +60,10 @@ const reducer = (state: ContextMenuHintsProviderState, action: Partial<ContextMe
 export const ContextMenuHintsProvider = ({ children }: PropsWithChildren): JSX.Element => {
 
   const [state, dispatch] = useReducer(reducer, { ...initialState })
+  const value = { ...state, dispatch }
 
   return (
-    <ContextMenuHintsContext.Provider value={{ ...state, dispatch }}>
+    <ContextMenuHintsContext.Provider value={value}>
       {children}
     </ContextMenuHintsContext.Provider>
   )
