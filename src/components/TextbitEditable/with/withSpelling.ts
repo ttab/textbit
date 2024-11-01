@@ -1,6 +1,7 @@
 import { TextbitElement } from '@/lib'
 import { debounce } from '@/lib/debounce'
 import { SpellingError } from '@/types'
+import { YjsEditor } from '@slate-yjs/core'
 import { Editor, Node, Operation } from "slate"
 
 type SpellcheckLookupTable = Map<string, {
@@ -19,48 +20,34 @@ export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback 
       return
     }
 
-    // Do the spellcheck and store the new spellcheck lookup table
-    editor.spellingLookupTable = await updateSpellcheck(editor, onSpellcheck, editor.spellingLookupTable)
+    const [newLookupTable, checkPerformed] = await updateSpellcheck(editor, onSpellcheck, editor.spellingLookupTable)
+    editor.spellingLookupTable = newLookupTable
 
-    if (editor.selection) {
-      // Apply dummy no op set selection to force rerender
+    if (checkPerformed && editor.selection) {
+      // Apply dummy no op set selection to force rerender, seems safe...
       editor.apply({
-        type: 'set_selection',
-        properties: {},
-        newProperties: { ...editor.selection }
+        type: 'insert_text',
+        path: [0, 0],
+        offset: 0,
+        text: ''
       })
     }
-    else {
-      // Set an initial selection and apply dummy no op to force rerender
-      const start = Editor.start(editor, [])
-      editor.apply({
-        type: 'set_selection',
-        properties: null,
-        newProperties: {
-          anchor: start,
-          focus: start
-        }
-      })
-    }
-
-    // FIXME: While seemingly safe, this is not perfect as it adds an extra onChange
-    editor.apply({
-      type: 'insert_text',
-      path: [0, 0],
-      offset: 0,
-      text: ''
-    })
-
   }, debounceTimeout)
 
-  editor.onChange = (options?: { operation?: Operation }) => {
+  editor.onChange = (options) => {
     // Call the original onChange first
     onChange(options)
 
-    // Then do the spellchecking
-    if (options?.operation?.type && options.operation.type !== 'set_selection' && onSpellcheck) {
-      editor.spellcheck()
+    const operations = editor.operations.filter(
+      op => ['insert_text', 'remove_text', 'split_node', 'merge_node'].includes(op.type)
+    )
+
+    if (!operations.length) {
+      // Change was not meaningful and must not trigger a spellcheck
+      return
     }
+
+    editor.spellcheck()
   }
 
   return editor
@@ -71,7 +58,7 @@ async function updateSpellcheck(
   editor: Editor,
   onSpellcheck: OnSpellcheckCallback,
   currentSpellcheckTable: SpellcheckLookupTable
-): Promise<SpellcheckLookupTable> {
+): Promise<[SpellcheckLookupTable, boolean]> {
   // Find all nodes that need spellchecking
   const tracker: Map<string, {
     text: string,
@@ -112,7 +99,7 @@ async function updateSpellcheck(
 
   // Nothing to check
   if (!spellcheck.length) {
-    return tracker
+    return [tracker, false]
   }
 
   // Send all changed or added strings to spellcheck in one call
@@ -125,7 +112,7 @@ async function updateSpellcheck(
   // Ignore mismatching results
   if (result.length !== spellcheck.length) {
     console.warn('Number of spellchecked texts differ from requested number of texts to spellcheck')
-    return tracker
+    return [tracker, false]
   }
 
   // Add all spelling errors and suggestions, give each error an id
@@ -150,5 +137,5 @@ async function updateSpellcheck(
       })
   }
 
-  return tracker
+  return [tracker, true]
 }
