@@ -1,4 +1,6 @@
+import { TBElement } from '@/types'
 import { TextbitElement } from './textbit-element'
+import { EditorNodesOptions } from 'slate'
 import {
   Editor,
   Node,
@@ -15,7 +17,7 @@ import * as uuid from 'uuid'
 interface TextbitEditorInterface extends EditorInterface {
   position: (editor: Editor) => number
   length: (editor: Editor) => number
-  parents: <T extends Node>(editor: Editor) => Generator<NodeEntry<T>, void, undefined>
+  parents: <T>(editor: Editor, options?: EditorNodesOptions<TBElement> | undefined) => Generator<NodeEntry<TBElement>, void, undefined>
   selectedTextEntries: (editor: Editor) => NodeEntry<Node>[]
   includes: (editor: Editor, type: string) => boolean,
   getSelectedText: (editor: Editor, range?: BaseRange) => string | undefined,
