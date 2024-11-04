@@ -232,7 +232,7 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
         Characters: {characters}
       </div>
 
-      <div style={{ flex: '1', display: 'flex', flexDirection: 'column', maxHeight: '150px', overflow: 'scroll' }}>
+      <div tabIndex={-1} style={{ flex: '1', display: 'flex', flexDirection: 'column', maxHeight: '150px', overflow: 'scroll' }}>
         <Textbit.Editable
           value={value}
           onChange={value => {
