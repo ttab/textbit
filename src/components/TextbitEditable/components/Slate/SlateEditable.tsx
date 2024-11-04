@@ -1,9 +1,10 @@
 import React, { // Necessary for esbuild
   useEffect,
+  useLayoutEffect,
   useRef,
 } from 'react'
 import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, NodeEntry } from "slate"
-import { Editable, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
+import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, useFocused } from "slate-react"
 import { toggleLeaf } from '@/lib/toggleLeaf'
 import { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '@/components/TextbitRoot'
@@ -27,10 +28,6 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
 
   useContextMenu(ref)
 
-  useEffect(() => {
-    setInitialSelection(textbitEditor)
-  }, [textbitEditor])
-
   return (
     <div ref={ref}>
       <Editable
@@ -44,7 +41,20 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
         onBlur={onBlur}
         spellCheck={false}
         autoFocus={autoFocus}
+        onMouseDown={(event) => {
+          if (!focused && !textbitEditor.selection) {
+            // Especially Firefox does not set it correctly on first click
+            const range = ReactEditor.findEventRange(textbitEditor, event)
+            if (Range.isRange(range)) {
+              Transforms.select(textbitEditor, range)
+            }
+          }
+        }}
         onFocus={(event) => {
+          if (!textbitEditor.selection) {
+            setInitialSelection(textbitEditor)
+          }
+
           if (onFocus) {
             onFocus(event)
           }
