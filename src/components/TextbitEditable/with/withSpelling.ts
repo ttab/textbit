@@ -23,15 +23,26 @@ export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback 
     const [newLookupTable, checkPerformed] = await updateSpellcheck(editor, onSpellcheck, editor.spellingLookupTable)
     editor.spellingLookupTable = newLookupTable
 
-    if (checkPerformed && editor.selection) {
-      // Apply dummy no op set selection to force rerender, seems safe...
+    if (!checkPerformed) {
+      return
+    }
+
+    if (!editor.selection) {
       editor.apply({
-        type: 'insert_text',
-        path: [0, 0],
-        offset: 0,
-        text: ''
+        type: 'set_selection', properties: null, newProperties: {
+          anchor: { path: [0, 0], offset: 0 },
+          focus: { path: [0, 0], offset: 0 }
+        }
       })
     }
+
+    editor.apply({
+      type: 'insert_text',
+      path: [0, 0],
+      offset: 0,
+      text: ''
+    })
+
   }, debounceTimeout)
 
   editor.onChange = (options) => {
