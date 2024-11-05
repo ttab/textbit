@@ -1,4 +1,4 @@
-import { TBElement } from '@/types'
+import { TBElement } from '../types'
 import { TextbitElement } from './textbit-element'
 import { EditorNodesOptions } from 'slate'
 import {

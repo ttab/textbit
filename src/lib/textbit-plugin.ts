@@ -1,4 +1,4 @@
-import { Plugin } from '@/types/plugin'
+import { Plugin } from '../types/plugin'
 
 interface TextbitPluginInterface {
   isLeafPlugin: (value: unknown) => value is Plugin.LeafDefinition

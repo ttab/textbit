@@ -27,7 +27,9 @@ export default [
       peerDepsExternal(),
       resolve(),
       commonjs(),
-      typescript({ tsconfig: "./tsconfig.build.json" }),
+      typescript({
+        tsconfig: "./tsconfig.build.json"
+      }),
       terser(),
       postcss({
         extract: true,
@@ -42,7 +44,7 @@ export default [
     }
   },
   {
-    input: "dist/esm/types/index.d.ts",
+    input: "src/index.ts",
     output: [{ file: "dist/index.d.ts" }],
     external: [/\.(sass|scss|css)$/, '@slate-yjs/core'],
     plugins: [dts()]

@@ -31,7 +31,7 @@ import { calculateStats, TextbitElement } from '@/lib'
 import { PluginRegistryComponent } from '../PluginRegistry/lib/types'
 import { PlaceholdersVisibility } from '../TextbitRoot/TextbitContext'
 import { withSpelling } from './with/withSpelling'
-import { SpellingError } from '@/types'
+import { SpellingError } from '../../types'
 
 export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
