@@ -49,7 +49,7 @@ function Popover({ children, className }: PropsWithChildren & {
     )
 
     ref.current.style.opacity = '1'
-    ref.current.style.zIndex = 'auto'
+    ref.current.style.zIndex = ''
     ref.current.style.top = `${top}px`
     ref.current.style.left = `${left}px`
   }, [ref?.current, menu?.position])
