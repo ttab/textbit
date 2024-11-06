@@ -6,7 +6,7 @@ const config: Config.InitialOptions = {
   rootDir: './tests',
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   moduleNameMapper: {
-    '\\.(css|less|sass|scss)$': 'identity-obj-proxy',
+    '\\.(css|scss)$': '<rootDir>/__mocks/styleMock.js',
     '^@/lib(.*)$': '<rootDir>/lib$1',
     '^@/hooks(.*)$': '<rootDir>/hooks$1',
     '^@/components(.*)$': '<rootDir>/components$1'
