@@ -9,6 +9,7 @@ export default [
       'no-var': 'off',
       'no-constant-binary-expression': 'off',
       'no-extra-boolean-cast': 'off',
+      'no-undef': 'off',
       'prefer-const': 'off',
       'react-hooks/exhaustive-deps': 'off',
       '@typescript-eslint/no-namespace': 'off',
