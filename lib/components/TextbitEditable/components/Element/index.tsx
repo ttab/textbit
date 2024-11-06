@@ -10,16 +10,16 @@ import { usePluginRegistry } from '../../../../components/PluginRegistry'
  * Render a custom Slate element
  */
 export const ElementComponent = (props: RenderElementProps) => {
+  const editor = useSlateStatic()
+
   const { element } = props
   const { components } = usePluginRegistry()
   const component = components.get(element.type)
-
   if (!component) {
     return UnknownElement(props)
   }
 
   // Get the path for this element
-  const editor = useSlateStatic()
   const path = ReactEditor.findPath(editor, element)
 
   // No parents found in path, render a root element

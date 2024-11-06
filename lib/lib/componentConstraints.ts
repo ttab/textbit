@@ -5,8 +5,8 @@ export function componentConstraints(entry: Plugin.ComponentEntry) {
     // maxLength = undefined,   // Max length of text content
     // maxElements = undefined, // Max no of elements in parent
     // minElements = undefined, // Min no of elements in parent
-    allowBreak,       // Allow normal break to create new node of same type
-    allowSoftBreak,  // Allow soft break (newline in text node)
+    allowBreak, // Allow normal break to create new node of same type
+    allowSoftBreak, // Allow soft break (newline in text node)
     normalizeNode
   } = entry?.constraints || {}
 

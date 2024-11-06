@@ -41,7 +41,6 @@ export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback 
       offset: 0,
       text: ''
     })
-
   }, debounceTimeout)
 
   editor.onChange = (options) => {

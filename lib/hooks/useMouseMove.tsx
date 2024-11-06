@@ -25,7 +25,7 @@ export function useMouseMove<T extends Element>(): [
     elementX: 0,
     elementY: 0,
     elementPositionX: 0,
-    elementPositionY: 0,
+    elementPositionY: 0
   })
 
   const ref = useRef<T | undefined>()
@@ -34,8 +34,8 @@ export function useMouseMove<T extends Element>(): [
     const handleMouseMove = (event: MouseEvent) => {
       let newState: Partial<MousePosition> = {
         x: event.pageX,
-        y: event.pageY,
-      };
+        y: event.pageY
+      }
 
       if (ref.current?.nodeType === Node.ELEMENT_NODE) {
         const { left, top } = ref.current.getBoundingClientRect()
@@ -53,7 +53,7 @@ export function useMouseMove<T extends Element>(): [
       setState((s) => {
         return {
           ...s,
-          ...newState,
+          ...newState
         }
       })
     }

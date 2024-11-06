@@ -55,7 +55,7 @@ export function convertLastSibling(editor: Editor, node: SlateNode, path: Path, 
 
     Transforms.select(editor, {
       anchor: { offset: 0, path: [nextPath, 0] },
-      focus: { offset: 0, path: [nextPath, 0] },
+      focus: { offset: 0, path: [nextPath, 0] }
     })
 
     Transforms.removeNodes(
@@ -172,7 +172,7 @@ export function getDecorationRangeFromMouseEvent(editor: ReactEditor, event: Mou
 
   // @ts-expect-error Limited availability as per https://developer.mozilla.org/en-US/docs/Web/API/Document/caretPositionFromPoint
   if (document.caretPositionFromPoint) {
-    // @ts-ignore
+    // @ts-expect-error Does not exist in all browsers
     const domPoint = document.caretPositionFromPoint(event.clientX, event.clientY)
     textNode = domPoint?.offsetNode
     offset = domPoint?.offset
