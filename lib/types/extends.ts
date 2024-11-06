@@ -12,7 +12,10 @@ import { HistoryEditor } from 'slate-history'
 export type SpellingError = {
   id: string
   text: string
-  suggestions: string[]
+  suggestions: Array<{
+    text: string
+    description?: string
+  }>
 }
 
 export type TBEditor = BaseEditor & ReactEditor & HistoryEditor & {

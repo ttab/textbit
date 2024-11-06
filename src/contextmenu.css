@@ -15,7 +15,6 @@ div.textbit-contextmenu {
 }
 
 a.textbit-contextmenu-item {
-  display: grid;
   user-select: none;
   grid-template-columns: 2rem minmax(max-content, 220px) 90px;
   grid-column-gap: 0;
@@ -27,12 +26,15 @@ a.textbit-contextmenu-item {
   border: 1px solid hsl(var(--popover));
   border-width: 0 3px;
 }
+
 a.textbit-contextmenu-item:first-child {
   border-top-width: 3px;
 }
+
 a.textbit-contextmenu-item:last-child {
   border-bottom-width: 3px;
 }
+
 a.textbit-contextmenu-item:hover {
   background: hsl(var(--secondary));
 }

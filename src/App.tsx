@@ -197,9 +197,9 @@ function fakeSpellChecker(text: string): SpellcheckedText {
   let match: RegExpExecArray | null
 
   while ((match = wordRegex.exec(text)) !== null) {
-    const suggestions = getSubstitutions(match[0])
+    const suggestions = getSuggestions(match[0])
 
-    if (suggestions) {
+    if (suggestions?.length) {
       result.push({
         id: '',
         text: match[0],
@@ -211,15 +211,22 @@ function fakeSpellChecker(text: string): SpellcheckedText {
   return result
 }
 
-const getSubstitutions = (word: string): string[] | undefined => {
-  const misspelledWords: Record<string, string[]> = {
-    wee: ['we', 'teeny', 'weeny'],
-    emphasized: ['emphasised']
+interface Suggestion {
+  text: string
+  description?: string
+}
+
+const getSuggestions = (word: string): Suggestion[] => {
+  const misspelledWords: Record<string, Suggestion[]> = {
+    wee: [{ text: 'we' }, { text: 'teeny' }, { text: 'weeny' }],
+    emphasized: [{ text: 'emphasised', description: 'UK vs US' }]
   }
 
   if (Object.keys(misspelledWords).includes(word)) {
     return misspelledWords[word]
   }
+
+  return []
 }
 
 function Editor({ initialValue }: { initialValue: Descendant[] }) {
@@ -278,12 +285,10 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
           </Textbit.Gutter>
 
           <ContextMenu.Root className='textbit-contextmenu'>
-            {!!spelling?.suggestions
-            && (
+            {!!spelling?.suggestions && (
               <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
                 <>
-                  {spelling.suggestions.length === 0
-                  && (
+                  {spelling.suggestions.length === 0 && (
                     <ContextMenu.Item className='textbit-contextmenu-item'>
                       No spelling suggestions
                     </ContextMenu.Item>
@@ -291,15 +296,17 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
                 </>
                 <>
                   {spelling.suggestions.map((suggestion) => {
+                    const { text, description } = suggestion
+
                     return (
                       <ContextMenu.Item
                         className='textbit-contextmenu-item'
-                        key={suggestion}
+                        key={text}
                         func={() => {
-                          spelling.apply(suggestion)
+                          spelling.apply(text)
                         }}
                       >
-                        {suggestion}
+                        {text} - <em>{description}</em>
                       </ContextMenu.Item>
                     )
                   })}

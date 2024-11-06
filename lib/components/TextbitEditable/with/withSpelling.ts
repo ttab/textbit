@@ -139,9 +139,7 @@ async function updateSpellcheck(
         return {
           id: crypto.randomUUID(),
           text: item.text,
-          suggestions: item.suggestions.map((suggestion) => {
-            return (typeof suggestion === 'string') ? suggestion : ''
-          })
+          suggestions: item.suggestions || []
         }
       })
   }
