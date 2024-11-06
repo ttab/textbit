@@ -4,26 +4,17 @@ import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 import { glob } from 'glob'
+
 import { peerDependencies } from './package.json'
 
 export default defineConfig({
-  root: '.', // ./index.html
   plugins: [
     react(),
-    dts({
-      rollupTypes: true
-    })
+    dts({ rollupTypes: true })
   ],
-  resolve: {
-    mainFields: ['module', 'main'],
-  },
-  optimizeDeps: {
-    exclude: ["fsevents", "jest-pnp-resolver"]
-  },
   build: {
     target: 'esnext',
     minify: true,
-    outDir: 'dist',
     lib: {
       entry: resolve(__dirname, join('lib', 'index.ts')),
       formats: ['es', 'cjs']
@@ -36,6 +27,8 @@ export default defineConfig({
       ],
       input: Object.fromEntries(
         glob.sync('lib/**/*.{ts,tsx}').map(file => [
+          // The name of the entry point
+          // lib/plugins/foo.ts becomes nested/foo
           relative(
             'lib',
             file.slice(0, file.length - extname(file).length)
@@ -45,15 +38,10 @@ export default defineConfig({
           fileURLToPath(new URL(file, import.meta.url))
         ])
       ),
-      treeshake: {
-        moduleSideEffects: false
-      },
       output: {
-        exports: 'named',
-        // Ensure that all files in the `lib` folder are bundled into the output
-        preserveModules: true,
-        dir: 'dist',
-        entryFileNames: '[name].js'
+        preserveModules: false,
+        chunkFileNames: 'chunks/[name].[hash].js',
+        entryFileNames: '[name].[format].js'
       }
     }
   }

@@ -13,7 +13,6 @@
       "node",
       "jest"
     ],
-    "baseUrl": "./",
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

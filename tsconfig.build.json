@@ -14,7 +14,7 @@
     // Do not emit compiled output files, vite will take care of the that.
     "noEmit": true,
     // Vite will handle the resolution of the import paths.
-    "moduleResolution": "bundler",
+    "moduleResolution": "Bundler",
     // Use the React 17 JSX transform, importing React is no longer required.
     "jsx": "react-jsx",
     // Skip the type checking for declaration files to improve performance.
