@@ -26,15 +26,6 @@ export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback 
       return
     }
 
-    if (!editor.selection) {
-      editor.apply({
-        type: 'set_selection', properties: null, newProperties: {
-          anchor: { path: [0, 0], offset: 0 },
-          focus: { path: [0, 0], offset: 0 }
-        }
-      })
-    }
-
     editor.apply({
       type: 'insert_text',
       path: [0, 0],
