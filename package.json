@@ -47,7 +47,7 @@
     "@slate-yjs/core": "^1.0.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.0.1",
-    "@ttab/eslint-config-elephant": "^0.0.5",
+    "@ttab/eslint-config-elephant": "^0.0.6",
     "@types/escape-html": "^1.0.4",
     "@types/is-hotkey": "^0.1.10",
     "@types/is-url": "^1.2.32",
