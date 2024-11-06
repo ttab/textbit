@@ -141,26 +141,30 @@ export const TextbitEditor: TextbitEditorInterface = {
       return
     }
 
-    const text = node.text
+    // Find the correct occurrence of the string (could be many)
+    let index = cursor.offset - targetString.length // Start search from offset index
+    if (index < 0) {
+      index = 0
+    }
+    let targetStart = -1
+    let targetEnd = -1
 
-    // Find the word boundaries around cursor position
-    const before = text.slice(0, cursor.offset).split(/\b/).pop() || ''
-    const after = text.slice(cursor.offset).split(/\b/)[0] || ''
-    const word = before + after
+    while ((index = node.text.indexOf(targetString, index)) !== -1) {
+      if (cursor.offset >= index && cursor.offset <= index + targetString.length) {
+        targetStart = index
+        targetEnd = index + targetString.length
+        break
+      }
+      index += 1
+    }
 
-    // Check if the word matches our target
-    if (word !== targetString) {
+    if (targetStart === -1) {
       return
     }
 
-    // Calculate the range of the target word
-    const start = cursor.offset - before.length
-    const end = cursor.offset + after.length
-
-    // Create the range to replace
     const range = {
-      anchor: { path: cursor.path, offset: start },
-      focus: { path: cursor.path, offset: end }
+      anchor: { path: cursor.path, offset: targetStart },
+      focus: { path: cursor.path, offset: targetEnd }
     }
 
     // Perform the replacement

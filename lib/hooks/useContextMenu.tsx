@@ -99,7 +99,7 @@ function getSpellingHints(
   const spellingError = spelling.find(error => error.id === errorId)
 
   try {
-    return spellingError
+    return !!spellingError
       ? {
         ...spellingError,
         range: getDecorationRangeFromMouseEvent(editor, event),

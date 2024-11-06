@@ -90,7 +90,7 @@ const initialValue: Descendant[] = [
         text: 'emphasized',
         'core/italic': true
       },
-      { text: ' compared to the normal styled text found elsewhere in the document.' }
+      { text: ' compared to the normal styled text found else where in the document.' }
     ]
   },
   {
@@ -189,21 +189,32 @@ export function App() {
 }
 
 
-type SpellcheckedText = Array<SpellingError>
+type SpellcheckedText = SpellingError[]
 
 function fakeSpellChecker(text: string): SpellcheckedText {
-  const wordRegex = /\b[\w-]+\b/g
   const result: SpellcheckedText = []
-  let match: RegExpExecArray | null
 
-  while ((match = wordRegex.exec(text)) !== null) {
-    const suggestions = getSuggestions(match[0])
+  const allSuggestions: Record<string, Suggestion[]> = {
+    wee: [
+      { text: 'we', description: 'Alternative single word' },
+      { text: 'teeny', description: 'Alternative single word' },
+      { text: 'weeny', description: 'Alternative single word' },
+      { text: 'a little', description: 'Alternative phrase for "wee bit"' }
+    ],
+    emphasized: [
+      { text: 'emphasised', description: 'UK vs US spelling' }
+    ],
+    'else where': [
+      { text: 'elsewhere', description: 'One word instead of two' }
+    ]
+  }
 
-    if (suggestions?.length) {
+  for (const misspelled of Object.keys(allSuggestions)) {
+    if (text.toLowerCase().includes(misspelled.toLowerCase())) {
       result.push({
         id: '',
-        text: match[0],
-        suggestions
+        text: misspelled,
+        suggestions: allSuggestions[misspelled]
       })
     }
   }
@@ -212,21 +223,8 @@ function fakeSpellChecker(text: string): SpellcheckedText {
 }
 
 interface Suggestion {
-  text: string
-  description?: string
-}
-
-const getSuggestions = (word: string): Suggestion[] => {
-  const misspelledWords: Record<string, Suggestion[]> = {
-    wee: [{ text: 'we' }, { text: 'teeny' }, { text: 'weeny' }],
-    emphasized: [{ text: 'emphasised', description: 'UK vs US' }]
-  }
-
-  if (Object.keys(misspelledWords).includes(word)) {
-    return misspelledWords[word]
-  }
-
-  return []
+  text: string;
+  description?: string;
 }
 
 function Editor({ initialValue }: { initialValue: Descendant[] }) {
