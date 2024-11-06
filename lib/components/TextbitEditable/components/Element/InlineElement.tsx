@@ -14,6 +14,7 @@ interface InlineElementProps extends RenderElementProps {
  */
 export const InlineElement = ({ attributes, children, element, entry, options }: InlineElementProps) => {
   return (
+    // @ts-expect-error FIXME:
     <span
       className={`inline ${entry.type}`}
       data-id={element.id}

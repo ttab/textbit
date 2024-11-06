@@ -27,9 +27,9 @@ export const actionHandler = (editor: TBEditor, type: string, options: Plugin.Op
 
   Transforms.setNodes<Element>(editor, newProperties, {
     match: (n) => {
-      return !TextbitEditor.isEditor(n) &&
-        TextbitElement.isElement(n) &&
-        n.class === 'text'
+      return !TextbitEditor.isEditor(n)
+        && TextbitElement.isElement(n)
+        && n.class === 'text'
     }
   })
 

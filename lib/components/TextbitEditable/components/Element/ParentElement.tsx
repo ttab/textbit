@@ -24,6 +24,7 @@ export const ParentElement = (renderProps: ParentElementProps) => {
         className={`${element.class} ${element.type} ${entry.class} relative`}
         data-id={element.id}
       >
+        {/* @ts-expect-error FIXME: */}
         <div {...attributes}>
           {entry.component(renderProps)}
         </div>

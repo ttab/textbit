@@ -19,57 +19,59 @@ export const EditLink = ({ editor, entry }: Plugin.ToolComponentProps): JSX.Elem
   }
 
 
-  return <>
-    <span
-      className="textbit-tool"
-      onMouseDown={(e) => {
-        e.preventDefault()
-        deleteLink(editor)
-      }}
-    >
-      <BsLink45Deg />
-    </span>
-
-    <span className="textbit-tool core/link-input">
-      <input
-        id={node.id}
-        ref={inputRef}
-        type="text"
-        value={url}
-        onClick={(e) => { e.currentTarget.focus() }}
-        onChange={(e) => {
-          seturl(e.target.value)
+  return (
+    <>
+      <span
+        className='textbit-tool'
+        onMouseDown={(e) => {
+          e.preventDefault()
+          deleteLink(editor)
         }}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape' || e.key === 'Enter') {
-            e.preventDefault()
+      >
+        <BsLink45Deg />
+      </span>
 
-            if (url === '') {
-              deleteLink(editor)
-            }
-            ReactEditor.focus(editor)
-          }
-        }}
-        onBlur={() => {
-          Transforms.setNodes(
-            editor,
-            {
-              properties: {
-                ...node.properties,
-                url
+      <span className='textbit-tool core/link-input'>
+        <input
+          id={node.id}
+          ref={inputRef}
+          type='text'
+          value={url}
+          onClick={(e) => { e.currentTarget.focus() }}
+          onChange={(e) => {
+            seturl(e.target.value)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape' || e.key === 'Enter') {
+              e.preventDefault()
+
+              if (url === '') {
+                deleteLink(editor)
               }
-            },
-            { at: path }
-          )
-        }}
-      />
-    </span>
-  </>
+              ReactEditor.focus(editor)
+            }
+          }}
+          onBlur={() => {
+            Transforms.setNodes(
+              editor,
+              {
+                properties: {
+                  ...node.properties,
+                  url
+                }
+              },
+              { at: path }
+            )
+          }}
+        />
+      </span>
+    </>
+  )
 }
 
 
 const deleteLink = (editor: Editor): void => {
   Transforms.unwrapNodes(editor, {
-    match: n => !Editor.isEditor(n) && Element.isElement(n) && n.type === 'core/link'
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === 'core/link'
   })
 }

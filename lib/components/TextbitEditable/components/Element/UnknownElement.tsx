@@ -1,5 +1,5 @@
-import { type RenderElementProps } from "slate-react"
-import { Droppable } from "./Droppable"
+import { type RenderElementProps } from 'slate-react'
+import { Droppable } from './Droppable'
 
 /**
  * Used when no renderer exists, unknown node
@@ -12,13 +12,19 @@ export const UnknownElement = ({ element, attributes, children }: RenderElementP
     // TODO: Investigate if this dataId should be there (as data-id - or at all)?
     // <Droppable dataId={element?.id || ''}>
     <Droppable>
+      { /* @ts-expect-error FIXME:  */}
       <div
         contentEditable={false}
-        className="textbit-parent textbit-unknown"
+        className='textbit-parent textbit-unknown'
         data-id={element.id}
         {...attributes}
       >
-        <pre style={{ fontSize: '80%' }}> UNKNOWN OBJECT({element.type})</pre>
+        <pre style={{ fontSize: '80%' }}>
+          {' '}
+          UNKNOWN OBJECT(
+          {element.type}
+          )
+        </pre>
         <div style={{ opacity: '0.4' }}>
           {children}
         </div>

@@ -17,7 +17,8 @@ interface ChildElementProps extends RenderElementProps {
  */
 export const ChildElement = ({ attributes, children, element, entry, rootNode, options }: ChildElementProps) => {
   return (
-    <div className={`child`} data-id={element.id} {...attributes}>
+    // @ts-expect-error FIXME:
+    <div className='child' data-id={element.id} {...attributes}>
       {entry.component({ element, attributes, children, rootNode, options })}
     </div>
   )

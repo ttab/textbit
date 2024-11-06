@@ -32,7 +32,6 @@ export const normalizeNode = (editor: Editor, nodeEntry: NodeEntry, listType: st
     // <enter> on a last empty list item converts it to a text node.
     if (n === children.length && children.length > 1 && TextbitElement.isOfType(child, `${listType}/list-item`)) {
       if (!TextbitEditor.hasText([children[n - 2], children[n - 1]])) {
-
         const removePath = [childPath[0], n - 2]
         const liftPath = [childPath[0], n - 1]
 

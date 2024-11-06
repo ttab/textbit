@@ -26,7 +26,7 @@ export default defineConfig({
         ...Object.keys(peerDependencies)
       ],
       input: Object.fromEntries(
-        glob.sync('lib/**/*.{ts,tsx}').map(file => [
+        glob.sync('lib/**/*.{ts,tsx}').map((file) => [
           // The name of the entry point
           // lib/plugins/foo.ts becomes nested/foo
           relative(

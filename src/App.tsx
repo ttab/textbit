@@ -44,7 +44,7 @@ const initialValue: Descendant[] = [
     },
     children: [
       { text: '' }
-    ],
+    ]
   },
   {
     type: 'core/text',
@@ -63,8 +63,8 @@ const initialValue: Descendant[] = [
         text: 'emphasized',
         'core/italic': true
       },
-      { text: ' compared to the normal styled text found elsewhere in the document.' },
-    ],
+      { text: ' compared to the normal styled text found elsewhere in the document.' }
+    ]
   },
   {
     type: 'core/text',
@@ -72,7 +72,7 @@ const initialValue: Descendant[] = [
     class: 'text',
     children: [
       { text: '' }
-    ],
+    ]
   },
   {
     type: 'core/text',
@@ -90,8 +90,8 @@ const initialValue: Descendant[] = [
         text: 'emphasized',
         'core/italic': true
       },
-      { text: ' compared to the normal styled text found elsewhere in the document.' },
-    ],
+      { text: ' compared to the normal styled text found elsewhere in the document.' }
+    ]
   },
   {
     type: 'core/text',
@@ -99,7 +99,7 @@ const initialValue: Descendant[] = [
     class: 'text',
     children: [
       { text: '' }
-    ],
+    ]
   },
   {
     type: 'core/text',
@@ -117,8 +117,8 @@ const initialValue: Descendant[] = [
         text: 'emphasized',
         'core/italic': true
       },
-      { text: ' compared to the normal styled text found elsewhere in the document.' },
-    ],
+      { text: ' compared to the normal styled text found elsewhere in the document.' }
+    ]
   }
 ]
 
@@ -129,14 +129,15 @@ export function App() {
       maxWidth: '800px',
       display: 'flex',
       flexDirection: 'column'
-    }}>
+    }}
+    >
       <div style={{ margin: '20px 0', border: '1px solid gray', padding: '5px' }}>
         <Textbit.Root
           verbose={true}
           autoFocus={true}
           debounce={200}
           plugins={[]}
-          placeholder="Add text here..."
+          placeholder='Add text here...'
         >
           <strong>No menu, with single placeholder</strong>
           <Textbit.Editable value={[{
@@ -146,7 +147,8 @@ export function App() {
             children: [{
               text: ''
             }]
-          }]} />
+          }]}
+          />
         </Textbit.Root>
       </div>
 
@@ -154,9 +156,9 @@ export function App() {
       <div style={{ margin: '20px 0', border: '1px solid gray' }}>
         <Textbit.Root
           verbose={true}
-          placeholders="multiple"
+          placeholders='multiple'
           plugins={[
-            ...Textbit.Plugins.map(p => p()),
+            ...Textbit.Plugins.map((p) => p()),
             BulletList({
               listStyle: 'circle'
             }),
@@ -168,7 +170,7 @@ export function App() {
         >
           <strong>Multiple placeholders</strong>
           <Editor initialValue={initialValue} />
-        </Textbit.Root >
+        </Textbit.Root>
       </div>
 
 
@@ -176,13 +178,13 @@ export function App() {
         <Textbit.Root
           verbose={true}
           debounce={1000}
-          plugins={[...Textbit.Plugins.map(p => p())]}
+          plugins={[...Textbit.Plugins.map((p) => p())]}
         >
           <strong>Long debounce</strong>
           <Editor initialValue={initialValue} />
         </Textbit.Root>
       </div>
-    </div >
+    </div>
   )
 }
 
@@ -211,8 +213,8 @@ function fakeSpellChecker(text: string): SpellcheckedText {
 
 const getSubstitutions = (word: string): string[] | undefined => {
   const misspelledWords: Record<string, string[]> = {
-    'wee': ['we', 'teeny', 'weeny'],
-    'emphasized': ['emphasised']
+    wee: ['we', 'teeny', 'weeny'],
+    emphasized: ['emphasised']
   }
 
   if (Object.keys(misspelledWords).includes(word)) {
@@ -229,18 +231,20 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
   return (
     <>
       <div style={{ lineHeight: '47px', marginLeft: '3.25rem' }}>
-        Characters: {characters}
+        Characters:
+        {' '}
+        {characters}
       </div>
 
       <div tabIndex={-1} style={{ flex: '1', display: 'flex', flexDirection: 'column', maxHeight: '150px', overflow: 'scroll' }}>
         <Textbit.Editable
           value={value}
-          onChange={value => {
+          onChange={(value) => {
             console.log(value)
             setValue(value)
           }}
           onSpellcheck={(texts) => {
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
               setTimeout(() => {
                 resolve(texts.map(fakeSpellChecker))
               }, 100)
@@ -249,22 +253,22 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
         >
           <Textbit.DropMarker />
 
-          <Textbit.Gutter className="textbit-contenttools-gutter">
-            <Menu.Root className="textbit-contenttools-menu">
+          <Textbit.Gutter className='textbit-contenttools-gutter'>
+            <Menu.Root className='textbit-contenttools-menu'>
 
-              <Menu.Trigger className="textbit-contenttools-trigger">⋮</Menu.Trigger>
-              <Menu.Content className="textbit-contenttools-popover">
-                <Menu.Group className="textbit-contenttools-group">
-                  {actions.filter(action => !['leaf', 'generic', 'inline'].includes(action.plugin.class)).map(action => {
+              <Menu.Trigger className='textbit-contenttools-trigger'>⋮</Menu.Trigger>
+              <Menu.Content className='textbit-contenttools-popover'>
+                <Menu.Group className='textbit-contenttools-group'>
+                  {actions.filter((action) => !['leaf', 'generic', 'inline'].includes(action.plugin.class)).map((action) => {
                     return (
                       <Menu.Item
-                        className="textbit-contenttools-item"
+                        className='textbit-contenttools-item'
                         key={action.name}
                         action={action.name}
                       >
-                        <Menu.Icon className="textbit-contenttools-icon" />
-                        <Menu.Label className="textbit-contenttools-label" />
-                        <Menu.Hotkey className="textbit-contenttools-hotkey" />
+                        <Menu.Icon className='textbit-contenttools-icon' />
+                        <Menu.Label className='textbit-contenttools-label' />
+                        <Menu.Hotkey className='textbit-contenttools-hotkey' />
                       </Menu.Item>
                     )
                   })}
@@ -274,17 +278,19 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
           </Textbit.Gutter>
 
           <ContextMenu.Root className='textbit-contextmenu'>
-            {!!spelling?.suggestions &&
+            {!!spelling?.suggestions
+            && (
               <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
                 <>
-                  {spelling.suggestions.length === 0 &&
+                  {spelling.suggestions.length === 0
+                  && (
                     <ContextMenu.Item className='textbit-contextmenu-item'>
                       No spelling suggestions
                     </ContextMenu.Item>
-                  }
+                  )}
                 </>
                 <>
-                  {spelling.suggestions.map(suggestion => {
+                  {spelling.suggestions.map((suggestion) => {
                     return (
                       <ContextMenu.Item
                         className='textbit-contextmenu-item'
@@ -299,32 +305,36 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
                   })}
                 </>
               </ContextMenu.Group>
-            }
+            )}
           </ContextMenu.Root>
 
           <Toolbar.Root className='textbit-contexttools-menu'>
-            <Toolbar.Group key="leafs" className="textbit-contexttools-group">
-              {actions.filter(action => ['leaf'].includes(action.plugin.class)).map(action => {
-                return <Toolbar.Item
-                  className="textbit-contexttools-item"
-                  action={action}
-                  key={action.name}
-                />
+            <Toolbar.Group key='leafs' className='textbit-contexttools-group'>
+              {actions.filter((action) => ['leaf'].includes(action.plugin.class)).map((action) => {
+                return (
+                  <Toolbar.Item
+                    className='textbit-contexttools-item'
+                    action={action}
+                    key={action.name}
+                  />
+                )
               })}
             </Toolbar.Group>
-            <Toolbar.Group key="inlines" className="textbit-contexttools-group">
-              {actions.filter(action => ['inline'].includes(action.plugin.class)).map(action => {
-                return <Toolbar.Item
-                  className="textbit-contexttools-item"
-                  action={action}
-                  key={action.name}
-                />
+            <Toolbar.Group key='inlines' className='textbit-contexttools-group'>
+              {actions.filter((action) => ['inline'].includes(action.plugin.class)).map((action) => {
+                return (
+                  <Toolbar.Item
+                    className='textbit-contexttools-item'
+                    action={action}
+                    key={action.name}
+                  />
+                )
               })}
             </Toolbar.Group>
           </Toolbar.Root>
 
-        </Textbit.Editable >
-      </div >
+        </Textbit.Editable>
+      </div>
     </>
   )
 }

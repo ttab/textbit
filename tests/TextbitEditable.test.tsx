@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen } from '@testing-library/react'
 import 'jest'
 import type { Descendant } from 'slate'
 import crypto from 'crypto'
@@ -10,7 +10,7 @@ Object.defineProperty(global, 'crypto', {
   }
 })
 
-describe("TextbitEditor", () => {
+describe('TextbitEditor', () => {
   const initialValue: Descendant[] = [
     {
       type: 'core/text',
@@ -27,12 +27,11 @@ describe("TextbitEditor", () => {
       type: 'core/text',
       class: 'text',
       id: 'fc542b22-6046-49d8-8eae-56a8597599a3',
-      children: [{ text: 'This is paragraph' }],
+      children: [{ text: 'This is paragraph' }]
     }
   ]
 
-  test("renders the TextbitEditor component", () => {
-
+  test('renders the TextbitEditor component', () => {
     const { container } = render(
       <TextbitRoot>
         <TextbitEditable value={initialValue} onChange={() => { return }} />

@@ -20,7 +20,7 @@ export const actionHandler = (editor: Editor, typeName: string): void => {
   // If we already have a link, focus on it's input
   const nodeEntries = Array.from(Editor.nodes(editor, {
     at: Editor.unhangRange(editor, selection),
-    match: n => !Editor.isEditor(n) && TextbitElement.isInline(n) && TextbitElement.isOfType(n, typeName)
+    match: (n) => !Editor.isEditor(n) && TextbitElement.isInline(n) && TextbitElement.isOfType(n, typeName)
   }))
 
   if (nodeEntries.length) {

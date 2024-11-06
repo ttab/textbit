@@ -28,6 +28,7 @@ export const Link = ({ attributes, children, element }: Plugin.ComponentProps): 
   })
 
   return (
+    // @ts-expect-error FIXME:
     <a
       {...attributes}
       href={url}
@@ -78,7 +79,7 @@ function isValidLink(link: string, enforceScheme: boolean = false): boolean {
   try {
     const url = new URL(sanitizedLink)
     return allowedSchemes.includes(url.protocol)
-  } catch (ex) {
+  } catch (_) {
     if (enforceScheme) {
       return false
     }
@@ -87,7 +88,7 @@ function isValidLink(link: string, enforceScheme: boolean = false): boolean {
   try {
     const url = new URL(sanitizedLink, document.location.origin)
     return url.origin === document.location.origin && allowedSchemes.includes(url.protocol)
-  } catch (ex) {
+  } catch (_) {
     return false
   }
 }

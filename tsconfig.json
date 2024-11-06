@@ -33,6 +33,7 @@
     "lib",
     "vite.config.ts",
     "jest.config.ts",
+    "eslint.config.js",
     "tests"
   ]
 }
