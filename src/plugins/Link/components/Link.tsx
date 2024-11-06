@@ -28,7 +28,7 @@ export const Link = ({ attributes, children, element }: Plugin.ComponentProps): 
   })
 
   return (
-    // @ts-expect-error FIXME:
+    // FIXME: @ts-expect-error FIXME:
     <a
       {...attributes}
       href={url}

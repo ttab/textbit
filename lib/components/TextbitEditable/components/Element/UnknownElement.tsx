@@ -12,7 +12,7 @@ export const UnknownElement = ({ element, attributes, children }: RenderElementP
     // TODO: Investigate if this dataId should be there (as data-id - or at all)?
     // <Droppable dataId={element?.id || ''}>
     <Droppable>
-      { /* @ts-expect-error FIXME:  */}
+      { /* FIXME: @ts-expect-error FIXME:  */}
       <div
         contentEditable={false}
         className='textbit-parent textbit-unknown'
