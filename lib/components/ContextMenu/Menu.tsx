@@ -99,11 +99,15 @@ function Popover({ children, className }: PropsWithChildren & {
   }, [ref?.current, menu?.position])
 
   return (
-    <div ref={ref} className={className} style={{
-      opacity: '0',
-      zIndex: '-1',
-      position: 'absolute'
-    }}>
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: '0',
+        zIndex: '-1',
+        position: 'absolute'
+      }}
+    >
       {children}
     </div>
   )

@@ -44,16 +44,18 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
     </div>
   }
 
-  return <div
-    data-state={isActive ? 'active' : 'inactive'}
-    className={className || ''}
-    onMouseDown={(e) => {
-      e.preventDefault()
-      if (true === action.handler({ editor })) {
-        toggleLeaf(editor, action.plugin.name)
-      }
-    }}
-  >
-    <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
-  </div >
+  return (
+    <div
+      data-state={isActive ? 'active' : 'inactive'}
+      className={className || ''}
+      onMouseDown={(e) => {
+        e.preventDefault()
+        if (true === action.handler({ editor })) {
+          toggleLeaf(editor, action.plugin.name)
+        }
+      }}
+    >
+      <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
+    </div>
+  )
 }

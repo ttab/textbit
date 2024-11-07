@@ -55,7 +55,7 @@ const DragStateProvider = ({ children }: PropsWithChildren) => {
   return (
     <DragstateContext.Provider value={{ dragOver, offset, setOffset, onDragEnter, onDragLeave, onDrop }}>
       {children}
-    </DragstateContext.Provider >
+    </DragstateContext.Provider>
   )
 }
 

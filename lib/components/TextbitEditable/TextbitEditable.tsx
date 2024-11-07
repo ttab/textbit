@@ -131,7 +131,7 @@ export const TextbitEditable = ({
 
         </Gutter.Provider>
       </SlateSlate>
-    </DragStateProvider >
+    </DragStateProvider>
   )
 }
 

@@ -102,14 +102,16 @@ function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSS
 
 
 function Placeholder({ value, style }: { value: string, style: CSSProperties }): JSX.Element {
-  return <span
-    style={{
-      ...style,
-      position: 'absolute',
-      opacity: 0.333
-    }}
-    contentEditable={false}
-  >
-    {value}
-  </span>
+  return (
+    <span
+      style={{
+        ...style,
+        position: 'absolute',
+        opacity: 0.333
+      }}
+      contentEditable={false}
+    >
+      {value}
+    </span>
+  )
 }

@@ -56,10 +56,13 @@ export const TextbitRoot = ({
           placeholder={placeholder}
           placeholders={placeholders}
         >
-          <PluginRegistryContextProvider verbose={!!verbose} plugins={[
-            ...basePlugins.map(p => p()),
-            ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map(sp => sp())
-          ]}>
+          <PluginRegistryContextProvider
+            verbose={!!verbose}
+            plugins={[
+              ...basePlugins.map(p => p()),
+              ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map(sp => sp())
+            ]}
+          >
             <ContextMenuHintsProvider>
               {children}
             </ContextMenuHintsProvider>

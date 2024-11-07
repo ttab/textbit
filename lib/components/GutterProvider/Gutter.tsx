@@ -30,14 +30,16 @@ export const Gutter = ({ children, className }: PropsWithChildren & {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [ref?.current])
 
-  return <div
-    ref={ref}
-    className={className}
-    style={{
-      position: 'relative',
-      flexShrink: 0
-    }}
-  >
-    {children}
-  </div>
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        position: 'relative',
+        flexShrink: 0
+      }}
+    >
+      {children}
+    </div>
+  )
 }

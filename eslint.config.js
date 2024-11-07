@@ -115,9 +115,6 @@ export default tseslint.config(
       '@stylistic/jsx-closing-tag-location': 'off',
       '@stylistic/jsx-first-prop-new-line': 'off',
       '@stylistic/jsx-max-props-per-line': 'off',
-      '@stylistic/jsx-closing-bracket-location': 'off',
-      '@stylistic/jsx-tag-spacing': 'off',
-      '@stylistic/multiline-ternary': 'off',
 
       // Keep these off
       '@stylistic/jsx-curly-newline': 'off'
