@@ -124,7 +124,7 @@ async function updateSpellcheck(
 
     entry.errors = result[i]
       .filter((item) => {
-        return typeof item?.text && Array.isArray(item?.suggestions)
+        return item?.text && Array.isArray(item?.suggestions)
       })
       .map((item) => {
         return {

@@ -7,7 +7,7 @@ export const DropMarker = ({ className }: { className?: string }) => {
   const { gutterBox } = useContext(GutterContext)
   const { offset, dragOver } = useContext(DragstateContext)
 
-  const def = !!className
+  const def = (className)
     ? {}
     : {
       height: '3px',
@@ -25,7 +25,7 @@ export const DropMarker = ({ className }: { className?: string }) => {
   pos.left = gutterBox?.width || 0
   pos.width = bbox?.width
 
-  if (!!position?.[1]) {
+  if (position?.[1]) {
     // Position around element
     dragOverState = 'around'
     pos.top = (bbox?.top || 0) - (gutterBox?.top || 0)

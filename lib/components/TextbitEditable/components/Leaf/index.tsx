@@ -56,7 +56,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
     }
   }
 
-  return (!!leaf.spellingError)
+  return (leaf.spellingError)
     ? <MisspelledLeaf {...props} className={className} style={style} />
     : <OrdinaryLeaf {...props} className={className} style={style} />
 }

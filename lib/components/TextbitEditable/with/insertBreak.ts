@@ -24,8 +24,8 @@ export const withInsertBreak = (editor: Editor, components: Map<string, PluginRe
 
     // Ensure allowBreak constraint is met in collapsed node break
     if (Range.isCollapsed(selection) || pathIsEqual) {
-      var elements = Array.from(Node.elements(editor, { from: start, to: end }))
-      var [element] = elements[elements.length - 1]
+      const elements = Array.from(Node.elements(editor, { from: start, to: end }))
+      const [element] = elements[elements.length - 1]
       const component = components.get(element?.type || '')
 
       if (component?.componentEntry?.constraints?.allowBreak === false) {

@@ -83,11 +83,11 @@ export default tseslint.config(
 
       // FIXME: These offs should be removed
       // 'no-empty': 'off',
-      'no-var': 'off',
-      'no-constant-binary-expression': 'off',
-      'no-extra-boolean-cast': 'off',
+      // 'no-var': 'off',
+      // 'no-constant-binary-expression': 'off',
+      // 'no-extra-boolean-cast': 'off',
+      // 'prefer-const': 'off',
       'no-undef': 'off',
-      'prefer-const': 'off',
       'react-hooks/exhaustive-deps': 'off',
       '@typescript-eslint/no-namespace': 'off',
       '@typescript-eslint/no-redundant-type-constituents': 'off',

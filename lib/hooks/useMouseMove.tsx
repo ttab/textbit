@@ -32,7 +32,7 @@ export function useMouseMove<T extends Element>(): [
 
   useLayoutEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      let newState: Partial<MousePosition> = {
+      const newState: Partial<MousePosition> = {
         x: event.pageX,
         y: event.pageY
       }
