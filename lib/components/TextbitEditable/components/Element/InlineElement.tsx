@@ -14,12 +14,8 @@ interface InlineElementProps extends RenderElementProps {
  */
 export const InlineElement = ({ attributes, children, element, entry, options }: InlineElementProps) => {
   return (
-    // FIXME: @ts-expect-error FIXME:
-    <span
-      className={`inline ${entry.type}`}
-      data-id={element.id}
-      {...attributes}
-    >
+    <span className={`inline ${entry.type}`} data-id={element.id} {...attributes}>
+      {/* eslint-disable-next-line */}
       {entry.component({ element, attributes, children, options })}
     </span>
   )

@@ -64,7 +64,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
 
 function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }): JSX.Element {
   const { placeholders } = useTextbit()
-  const { leaf, attributes, children, style, className } = props
+  const { leaf, attributes, style, className } = props
 
   return <>
     <span
@@ -75,7 +75,7 @@ function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSPr
       {leaf.placeholder && placeholders === 'multiple' &&
         <Placeholder value={leaf.placeholder} style={style} />
       }
-      {children}
+      {props.children}
     </span>
   </>
 }
@@ -83,7 +83,7 @@ function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSPr
 
 function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }): JSX.Element {
   const { placeholders } = useTextbit()
-  const { leaf, attributes, children, style, className } = props
+  const { leaf, attributes, style, className } = props
   const spellingError = leaf.spellingError as unknown as SpellingError | undefined
 
   return <>
@@ -95,7 +95,7 @@ function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSS
     >
       {leaf.placeholder && placeholders === 'multiple' &&
         <Placeholder value={leaf.placeholder} style={style} />}
-      {children}
+      {props.children}
     </span>
   </>
 }
