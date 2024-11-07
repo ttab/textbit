@@ -85,8 +85,7 @@ export default tseslint.config(
       // 'prefer-const': 'off',
 
       // FIXME: These offs should be removed
-      // '@typescript-eslint/no-unnecessary-type-assertion': 'off',
-      '@typescript-eslint/no-duplicate-type-constituents': 'off',
+      // '@typescript-eslint/no-duplicate-type-constituents': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
       '@typescript-eslint/require-await': 'off',
