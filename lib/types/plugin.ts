@@ -142,7 +142,7 @@ export namespace Plugin {
    *
    * @returns any | undefined
    */
-  export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resource | Resource[] }) => Promise<any | undefined>
+  export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resource | Resource[] }) => Promise<any>
 
   /**
    * @type Options

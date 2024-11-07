@@ -12,7 +12,6 @@ import {
   type Descendant,
   Range
 } from "slate"
-import * as uuid from 'uuid'
 
 interface TextbitEditorInterface extends EditorInterface {
   position: (editor: Editor) => number
@@ -187,13 +186,6 @@ export const TextbitEditor: TextbitEditorInterface = {
     if (!nodeArray.length) {
       return
     }
-
-    // Ensure all nodes have an id
-    nodeArray.forEach((node: any) => {
-      if (!node.id) {
-        node.id = uuid.v4()
-      }
-    })
 
     Transforms.insertNodes(
       editor,

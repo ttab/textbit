@@ -15,7 +15,7 @@ export const withUniqueIds = (editor: Editor) => {
   const { insertNode, insertNodes, apply } = editor
 
   editor.insertNode = (node, options) => {
-    if (TBE.isElement(node) && idExists(editor, node)) {
+    if (TBE.isElement(node) && (idExists(editor, node) || !node.id)) {
       node.id = uuid.v4()
     }
 
@@ -24,7 +24,7 @@ export const withUniqueIds = (editor: Editor) => {
 
   editor.insertNodes = (nodes, options) => {
     for (const node of toArray(nodes)) {
-      if (TBE.isElement(node) && idExists(editor, node)) {
+      if (TBE.isElement(node) && (idExists(editor, node) || !node.id)) {
         node.id = uuid.v4()
       }
     }
@@ -36,7 +36,7 @@ export const withUniqueIds = (editor: Editor) => {
     if (operation.type === 'insert_node') {
       const node = structuredClone(operation.node)
 
-      if (TBE.isElement(node) && idExists(editor, node)) {
+      if (TBE.isElement(node) && (idExists(editor, node) || !node.id)) {
         node.id = uuid.v4()
       }
 

@@ -27,7 +27,7 @@ import { ReactEditor } from 'slate-react'
  * @param toTextType String The type to convert to (eg "paragraph")
  */
 export function convertLastSibling(editor: Editor, node: SlateNode, path: Path, fromType: string, toTextType: string): void {
-  const siblingNodes: Array<any> = []
+  const siblingNodes: Array<NodeEntry> = []
   for (const [child, childPath] of SlateNode.elements(node)) {
     if (child.type === fromType) {
       siblingNodes.push([child, childPath])
@@ -169,31 +169,34 @@ export function getNodeEntryFromDomNode(editor: ReactEditor, domNode: Node): Nod
  * @returns Range | undefined
  */
 export function getDecorationRangeFromMouseEvent(editor: ReactEditor, event: MouseEvent): Range | undefined {
-  let textNode
-  let offset
+  let textNode: Node | undefined
+  let offset: number | undefined
 
   // @ts-expect-error Limited availability as per https://developer.mozilla.org/en-US/docs/Web/API/Document/caretPositionFromPoint
   if (document.caretPositionFromPoint) {
     // @ts-expect-error Does not exist in all browsers
-    const domPoint = document.caretPositionFromPoint(event.clientX, event.clientY)
+    const domPoint = document.caretPositionFromPoint(event.clientX, event.clientY) as { offsetNode: Node, offset: number } | null
     textNode = domPoint?.offsetNode
-    offset = domPoint?.offset
+    offset = domPoint?.offset ?? 0
   }
   else if (document.caretRangeFromPoint) {
     // Fallback to deprecated function (mainly for Safari)
     const domRange = document.caretRangeFromPoint(event.clientX, event.clientY)
     textNode = domRange?.startContainer
-    offset = domRange?.startOffset
+    offset = domRange?.startOffset ?? 0
+  }
+  else {
+    return
   }
 
-  if (textNode?.nodeType !== 3) {
+  if (!textNode || textNode?.nodeType !== 3) {
     return
   }
 
   const slateRange = ReactEditor.findEventRange(editor, event)
 
   const ltr = slateRange.anchor.offset <= slateRange.focus.offset
-  const length = textNode.nodeValue.length
+  const length = textNode.nodeValue?.length || 0
 
   return {
     anchor: {
