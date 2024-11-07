@@ -45,7 +45,7 @@ export function convertLastSibling(editor: Editor, node: SlateNode, path: Path, 
       editor,
       {
         type: toTextType, children: [{
-          text: SlateNode.string(siblingNodes[n][0] as SlateNode)
+          text: SlateNode.string(siblingNodes[n][0])
         }]
       } as SlateNode,
       {
@@ -106,7 +106,7 @@ export function cloneChildren(children: Descendant[]): Descendant[] {
     if (SlateElement.isElement(node)) {
       return {
         ...node,
-        children: cloneChildren(node.children as Descendant[])
+        children: cloneChildren(node.children)
       }
     }
 

@@ -85,8 +85,7 @@ export default tseslint.config(
       // 'prefer-const': 'off',
 
       // FIXME: These offs should be removed
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      // '@typescript-eslint/no-unnecessary-type-assertion': 'off',
       '@typescript-eslint/no-duplicate-type-constituents': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
@@ -112,6 +111,7 @@ export default tseslint.config(
       '@stylistic/jsx-max-props-per-line': 'off',
 
       // Keep these off
+      '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-namespace': 'off',
       '@stylistic/jsx-curly-newline': 'off'
     }

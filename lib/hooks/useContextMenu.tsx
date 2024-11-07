@@ -89,7 +89,7 @@ function getSpellingHints(
   range: Range | undefined
   apply: (replacement: string) => void
 } | undefined {
-  const ancestor = element.closest('[data-spelling-error]') as HTMLElement | null
+  const ancestor = element.closest('[data-spelling-error]') as HTMLElement
   const errorId = ancestor?.dataset['spellingError']
   if (!topNode.id || !errorId) {
     return
