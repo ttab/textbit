@@ -27,7 +27,7 @@ const DragstateContext = createContext<DragStateContextInterface>({
   onDragEnter: () => { },
   onDragLeave: () => { },
   onDrop: () => { },
-  setOffset: () => { },
+  setOffset: () => { }
 })
 
 const DragStateProvider = ({ children }: PropsWithChildren) => {

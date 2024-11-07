@@ -2,7 +2,7 @@ import {
   type Ancestor,
   Element as SlateElement,
   Text as SlateText,
-  type ElementInterface,
+  type ElementInterface
 } from "slate"
 
 interface TextbitElementInterface extends ElementInterface {

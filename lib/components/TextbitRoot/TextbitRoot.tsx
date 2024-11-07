@@ -36,11 +36,11 @@ export const TextbitRoot = ({
   className?: string
 }) => {
   const style: React.CSSProperties = {
-    position: "relative",
-    boxSizing: "border-box",
-    textRendering: "optimizeLegibility",
-    WebkitFontSmoothing: "antialiased",
-    MozOsxFontSmoothing: "grayscale",
+    position: 'relative',
+    boxSizing: 'border-box',
+    textRendering: 'optimizeLegibility',
+    WebkitFontSmoothing: 'antialiased',
+    MozOsxFontSmoothing: 'grayscale'
   }
 
   return (

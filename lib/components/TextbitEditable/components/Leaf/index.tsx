@@ -1,4 +1,4 @@
-import { type CSSProperties } from 'react' // Necessary for esbuild
+import { type CSSProperties } from 'react'
 import { usePluginRegistry } from '../../../../components/PluginRegistry'
 import { type RenderLeafProps } from 'slate-react'
 import { TextbitPlugin } from '../../../../lib'

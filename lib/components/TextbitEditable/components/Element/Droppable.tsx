@@ -39,7 +39,7 @@ export const Droppable = ({ children, element }: PropsWithChildren & {
     <div
       data-id={element?.id || ''}
       ref={ref}
-      className="h-full w-full"
+      className='h-full w-full'
       draggable={['block', 'void'].includes(element?.class || '') ? 'true' : 'false'}
       onDragStartCapture={(e) => {
         if (!element?.id) {
@@ -130,7 +130,7 @@ function createDragImage(el: HTMLDivElement, e: React.DragEvent<HTMLDivElement>,
 
   el.style.opacity = '0.5'
   e.dataTransfer.clearData()
-  e.dataTransfer.setData("textbit/droppable-id", dataId)
+  e.dataTransfer.setData('textbit/droppable-id', dataId)
   e.dataTransfer.setDragImage(
     clone,
     (e.clientX - left),
@@ -158,7 +158,7 @@ function dropPosition(editor: Editor, e: React.DragEvent, container: HTMLDivElem
 
 /**
  * Calculate bounding box of current dom element as well as whether the pointer
- * position will result in a drop above or below or "on" the hovered element
+ * position will result in a drop above or below or 'on' the hovered element
  */
 function dropHints(event: React.DragEvent, domEl: HTMLDivElement | null, isDroppable: boolean): MouseInfo | undefined {
   if (!domEl) {

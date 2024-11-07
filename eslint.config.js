@@ -49,8 +49,8 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooksPlugin.configs.recommended.rules,
-      // '@stylistic/comma-dangle': ['error', 'never'],
-      // '@stylistic/jsx-quotes': ['error', 'prefer-single'],
+      '@stylistic/comma-dangle': ['error', 'never'],
+      '@stylistic/jsx-quotes': ['error', 'prefer-single'],
       'react/react-in-jsx-scope': 'off',
 
       '@stylistic/no-multiple-empty-lines': ['warn', {
@@ -114,13 +114,13 @@ export default tseslint.config(
       '@stylistic/jsx-wrap-multilines': 'off',
       '@stylistic/jsx-one-expression-per-line': 'off',
       '@stylistic/jsx-closing-tag-location': 'off',
-      '@stylistic/comma-dangle': 'off',
-      '@stylistic/jsx-quotes': 'off',
       '@stylistic/jsx-first-prop-new-line': 'off',
       '@stylistic/jsx-max-props-per-line': 'off',
       '@stylistic/jsx-closing-bracket-location': 'off',
       '@stylistic/jsx-tag-spacing': 'off',
       '@stylistic/multiline-ternary': 'off',
+
+      // Keep these off
       '@stylistic/jsx-curly-newline': 'off'
     }
   },
