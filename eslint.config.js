@@ -82,7 +82,7 @@ export default tseslint.config(
       'react/prop-types': 'off',
 
       // FIXME: These offs should be removed
-      'no-empty': 'off',
+      // 'no-empty': 'off',
       'no-var': 'off',
       'no-constant-binary-expression': 'off',
       'no-extra-boolean-cast': 'off',
