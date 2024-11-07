@@ -58,18 +58,18 @@ export default tseslint.config(
         maxEOF: 1
       }],
       '@stylistic/quote-props': ['error', 'as-needed'],
-      // '@typescript-eslint/no-unused-vars': [
-      //   'error',
-      //   {
-      //     args: 'all',
-      //     argsIgnorePattern: '^_',
-      //     caughtErrors: 'all',
-      //     caughtErrorsIgnorePattern: '^_',
-      //     destructuredArrayIgnorePattern: '^_',
-      //     varsIgnorePattern: '^_',
-      //     ignoreRestSiblings: true
-      //   }
-      // ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true
+        }
+      ],
 
       // These should be enabled as they add great value
       // Only level warn for now
@@ -95,7 +95,6 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-unnecessary-type-assertion': 'off',
       '@typescript-eslint/no-duplicate-type-constituents': 'off',
       '@typescript-eslint/no-floating-promises': 'off',

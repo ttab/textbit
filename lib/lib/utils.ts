@@ -146,7 +146,9 @@ export function getNodeEntryFromDomNode(editor: ReactEditor, domNode: Node): Nod
 
       return [node, path]
     }
-  } catch (error) { }
+  } catch (_) {
+    // Ignored
+  }
 
   return undefined
 }

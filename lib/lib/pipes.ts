@@ -2,7 +2,7 @@ import { type ChangeEvent } from 'react'
 import { Editor, Transforms, Element } from "slate"
 import { HistoryEditor } from "slate-history"
 import * as uuid from 'uuid'
-import { getNodeById, getSelectedNodeEntries } from "./utils"
+import { getSelectedNodeEntries } from "./utils"
 import type { Plugin } from '../types'
 import { TextbitPlugin } from './textbit-plugin'
 
@@ -367,20 +367,11 @@ function insertLoader(editor: Editor, position: number) {
   return id
 }
 
-function removeLoader(editor: Editor, identifier: string | number) {
-  let position: number
-
-  if (typeof identifier === 'number') {
-    position = identifier
-  }
-  else if (typeof identifier === 'string') {
-    // FIXME: This code is weird as node is not used
-    // @ts-expect-error Will be fixed eventually
-    const node = getNodeById(editor, identifier)
-  }
-  else {
+function removeLoader(editor: Editor, position: number) {
+  if (typeof position !== 'number') {
     console.warn('Could not remove loader, identifier was neither number or string')
     return
+
   }
 
   HistoryEditor.withoutSaving(editor, () => {
