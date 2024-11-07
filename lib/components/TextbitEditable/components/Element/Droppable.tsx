@@ -140,13 +140,13 @@ function createDragImage(el: HTMLDivElement, e: React.DragEvent<HTMLDivElement>,
 
 
 /**
- * This function now only give you a drop position above or below the target node.
+ * This function currently only give you a drop position above or below the target node.
  *
  * TODO: Allow for nodes to receive and handle drops.
  */
 function dropPosition(editor: Editor, e: React.DragEvent, container: HTMLDivElement, id: string, isDroppable: boolean): [number, Descendant | undefined] {
   let position = -1
-  const node = editor.children.find((el: any, idx: number) => {
+  const node = editor.children.find((el, idx: number) => {
     position = idx
     return el.id === id
   })

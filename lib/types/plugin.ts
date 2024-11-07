@@ -109,7 +109,7 @@ export namespace Plugin {
     type: string
 
     /** Indata to consumer, e.g a File, text, url, etc */
-    data: any
+    data: unknown
   }
 
   /**
@@ -139,10 +139,8 @@ export namespace Plugin {
    * either individually or in bulk depending on what the the consumes function responded.
    *
    * Should return data as specified by the second value of the consumes function response.
-   *
-   * @returns any | undefined
    */
-  export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resource | Resource[] }) => Promise<any>
+  export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resource | Resource[] }) => Promise<Resource | undefined>
 
   /**
    * @type Options

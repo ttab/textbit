@@ -81,18 +81,12 @@ export default tseslint.config(
       // Disable prop-types rule as we're using TypeScript
       'react/prop-types': 'off',
 
-      // FIXME: These offs should be removed
-      // 'no-empty': 'off',
-      // 'no-var': 'off',
-      // 'no-constant-binary-expression': 'off',
-      // 'no-extra-boolean-cast': 'off',
+      // FIXME: This can be turned on when using vitest instead of jest
       // 'prefer-const': 'off',
-      'no-undef': 'off',
-      'react-hooks/exhaustive-deps': 'off',
-      '@typescript-eslint/no-namespace': 'off',
-      '@typescript-eslint/no-redundant-type-constituents': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
+
+      // FIXME: These offs should be removed
+      // '@typescript-eslint/no-redundant-type-constituents': 'off',
+      // '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unnecessary-type-assertion': 'off',
@@ -102,6 +96,10 @@ export default tseslint.config(
       '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
+
+      'react-hooks/exhaustive-deps': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+
       '@stylistic/member-delimiter-style': 'off',
       '@stylistic/brace-style': 'off',
       '@stylistic/arrow-parens': 'off',
@@ -117,6 +115,7 @@ export default tseslint.config(
       '@stylistic/jsx-max-props-per-line': 'off',
 
       // Keep these off
+      '@typescript-eslint/no-namespace': 'off',
       '@stylistic/jsx-curly-newline': 'off'
     }
   },
