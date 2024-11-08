@@ -16,14 +16,14 @@ export function pasteToConsumers(editor: Editor, consumers: Consumers, input: Pl
   return new Promise((resolve) => {
     consume({ input, editor }).then((result) => {
       if (typeof result === 'object' && output === result.type) {
-        insertNodes(editor, result)
+        insertNodes(editor, result as unknown as Element)
         resolve() // It is handled
       }
       else if (typeof result === 'string' && output === 'text/plain') {
         resolve(result) // It is transformed to text, handle it further
       }
       else {
-        console.warn(`Unexpected output from consumer when handling paste, expected ${output}`, result)
+        console.warn(`Unexpected output from consumer when handling paste`, result)
         resolve()
       }
     })
@@ -44,7 +44,7 @@ function findConsumer(consumers: Consumers, input: Plugin.Resource) {
   return [undefined, undefined]
 }
 
-function insertNodes(editor: Editor, object: any) {
+function insertNodes(editor: Editor, object: Element) {
   if (!Range.isRange(editor.selection)) {
     return
   }

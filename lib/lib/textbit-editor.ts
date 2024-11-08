@@ -16,7 +16,7 @@ import {
 interface TextbitEditorInterface extends EditorInterface {
   position: (editor: Editor) => number
   length: (editor: Editor) => number
-  parents: (editor: Editor, options?: EditorNodesOptions<TBElement> | undefined) => Generator<NodeEntry<TBElement>, void, undefined>
+  parents: (editor: Editor, options?: EditorNodesOptions<TBElement>) => Generator<NodeEntry<TBElement>, void, undefined>
   selectedTextEntries: (editor: Editor) => NodeEntry<Node>[]
   includes: (editor: Editor, type: string) => boolean,
   getSelectedText: (editor: Editor, range?: BaseRange) => string | undefined,

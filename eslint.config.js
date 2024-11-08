@@ -85,11 +85,9 @@ export default tseslint.config(
       // 'prefer-const': 'off',
 
       // FIXME: These offs should be removed
-      // '@typescript-eslint/no-duplicate-type-constituents': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
-      '@typescript-eslint/restrict-template-expressions': 'off',
       '@typescript-eslint/require-await': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
+      // '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
 
       'react-hooks/exhaustive-deps': 'off',

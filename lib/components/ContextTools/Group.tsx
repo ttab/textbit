@@ -6,7 +6,7 @@ import React, {
 } from 'react'
 import { useSlateSelection, useSlateStatic } from 'slate-react'
 import { Editor, Range } from 'slate'
-import { PluginRegistryAction } from '../PluginRegistry'
+import type { PluginRegistryAction } from '../PluginRegistry'
 
 export const Group = ({ children, className }: PropsWithChildren & {
   className?: string
