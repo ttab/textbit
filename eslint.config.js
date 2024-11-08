@@ -87,13 +87,9 @@ export default tseslint.config(
       // FIXME: These offs should be removed
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/require-await': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/ban-ts-comment': 'off',
 
       'react-hooks/exhaustive-deps': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
 
-      '@stylistic/member-delimiter-style': 'off',
       '@stylistic/brace-style': 'off',
       '@stylistic/arrow-parens': 'off',
       '@stylistic/quotes': 'off',

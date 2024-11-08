@@ -43,7 +43,7 @@ export namespace Plugin {
    * Action handler props interface
    */
   export interface Action {
-    name: string,
+    name: string
     title?: string
     description?: string
     hotkey?: string

@@ -223,8 +223,8 @@ function fakeSpellChecker(text: string): SpellcheckedText {
 }
 
 interface Suggestion {
-  text: string;
-  description?: string;
+  text: string
+  description?: string
 }
 
 function Editor({ initialValue }: { initialValue: Descendant[] }) {

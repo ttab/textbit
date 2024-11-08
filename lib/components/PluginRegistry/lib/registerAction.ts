@@ -15,9 +15,13 @@ export const registerActions = (plugins: Plugin.Definition[]) => {
     .filter(plugin => Array.isArray(plugin.actions) && plugin.actions.length)
     .forEach((plugin) => {
       plugin.actions?.forEach(action => {
+        const isHotkeyForAction = (typeof action.hotkey === 'string')
+          ? isHotkey(action.hotkey)
+          : () => false
+
         actions.push({
           plugin,
-          isHotkey: action.hotkey ? isHotkey(action.hotkey) : () => false,
+          isHotkey: isHotkeyForAction,
           ...action,
           name: `${plugin.name}/${action.name}`
         })

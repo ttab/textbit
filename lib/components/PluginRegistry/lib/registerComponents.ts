@@ -32,7 +32,7 @@ const registerComponent = (
   componentType: string,
   entry: Plugin.ComponentEntry,
   options: {
-    verbose?: boolean,
+    verbose?: boolean
     parent?: Plugin.ComponentEntry
   },
   pluginOptions: Record<string, unknown>

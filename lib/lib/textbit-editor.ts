@@ -18,11 +18,11 @@ interface TextbitEditorInterface extends EditorInterface {
   length: (editor: Editor) => number
   parents: (editor: Editor, options?: EditorNodesOptions<TBElement>) => Generator<NodeEntry<TBElement>, void, undefined>
   selectedTextEntries: (editor: Editor) => NodeEntry<Node>[]
-  includes: (editor: Editor, type: string) => boolean,
-  getSelectedText: (editor: Editor, range?: BaseRange) => string | undefined,
+  includes: (editor: Editor, type: string) => boolean
+  getSelectedText: (editor: Editor, range?: BaseRange) => string | undefined
   replaceStringAtPosition: (editor: Editor, targetString: string, replacementString: string) => void
-  insertAt: (editor: Editor, position: number, nodes: Node | Node[]) => void,
-  hasText: (nodes: NodeEntry<Descendant>[]) => boolean,
+  insertAt: (editor: Editor, position: number, nodes: Node | Node[]) => void
+  hasText: (nodes: NodeEntry<Descendant>[]) => boolean
   convertToTextNode: (editor: Editor, type: string, role?: string, nodes?: NodeEntry<Node>[]) => void
 }
 

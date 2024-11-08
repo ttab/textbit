@@ -6,12 +6,12 @@ import {
 
 
 export type MousePosition = {
-  x: number;
-  y: number;
-  elementX: number;
-  elementY: number;
-  elementPositionX: number;
-  elementPositionY: number;
+  x: number
+  y: number
+  elementX: number
+  elementY: number
+  elementPositionX: number
+  elementPositionY: number
 }
 
 

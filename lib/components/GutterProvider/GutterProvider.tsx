@@ -10,7 +10,7 @@ import {
 type GutterContextInterface = {
   triggerSize: number
   setTriggerSize: Dispatch<SetStateAction<number>>
-  gutterBox?: DOMRect,
+  gutterBox?: DOMRect
   setGutterBox: React.Dispatch<React.SetStateAction<DOMRect | undefined>>
 }
 

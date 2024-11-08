@@ -1,3 +1,4 @@
+import type { KeyboardEventLike } from 'is-hotkey'
 import type { Plugin } from '../../../types'
 
 /**
@@ -18,7 +19,7 @@ export type PluginRegistryComponent = {
  */
 export type PluginRegistryAction = Plugin.Action & {
   plugin: Plugin.Definition
-  isHotkey: (action: any) => boolean
+  isHotkey: (action: KeyboardEventLike) => boolean
 }
 
 /**

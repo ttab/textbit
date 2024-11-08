@@ -8,16 +8,16 @@ import { TextbitPlugin } from './textbit-plugin'
 
 
 export type PipeConsumer = {
-  name: string,
-  produces?: string,
+  name: string
+  produces?: string
   aggregate: boolean
 }
 
 export type PipeItem = {
-  kind: string,
-  type: string,
-  source: string,
-  input: File | string | null,
+  kind: string
+  type: string
+  source: string
+  input: File | string | null
   alternate?: string
   output?: Element | Element[]
   consumer: Array<PipeConsumer>
@@ -26,7 +26,7 @@ export type PipeItem = {
 export type Pipe = Array<PipeItem>
 
 export type AggregatedPipeItem = {
-  consumer: Array<PipeConsumer>, // All possible consumers for this pipe
+  consumer: Array<PipeConsumer> // All possible consumers for this pipe
   pipe: Array<PipeItem> // All data items
 }
 

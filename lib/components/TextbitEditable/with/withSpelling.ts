@@ -4,7 +4,7 @@ import { type SpellingError } from '../../../types'
 import { Editor, Node } from "slate"
 
 type SpellcheckLookupTable = Map<string, {
-  text: string,
+  text: string
   errors: SpellingError[]
 }>
 export type OnSpellcheckCallback = (texts: string[]) => Promise<Omit<SpellingError, 'id'>[][]>
@@ -61,8 +61,8 @@ async function updateSpellcheck(
 ): Promise<[SpellcheckLookupTable, boolean]> {
   // Find all nodes that need spellchecking
   const tracker: Map<string, {
-    text: string,
-    errors: SpellingError[],
+    text: string
+    errors: SpellingError[]
     check: boolean
   }> = new Map()
   const spellcheck: string[] = []
