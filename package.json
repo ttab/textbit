@@ -86,7 +86,7 @@
     "is-hotkey": "^0.2.0",
     "is-url": "^1.2.4",
     "slate": "^0.110.2",
-    "slate-history": "^0.109.0",
+    "slate-history": "^0.110.3",
     "slate-hyperscript": "^0.100.0",
     "slate-react": "^0.111.0",
     "uuid": "^11.0.2"
