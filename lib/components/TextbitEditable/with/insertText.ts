@@ -1,6 +1,6 @@
-import { Editor } from "slate"
-import { type Plugin } from "../../../types"
-import { pasteToConsumers } from "../../../lib/pasteToConsumer"
+import { Editor } from 'slate'
+import { type Plugin } from '../../../types'
+import { pasteToConsumers } from '../../../lib/pasteToConsumer'
 import { TextbitPlugin } from '../../../lib'
 
 type Consumers = {
@@ -29,7 +29,7 @@ export const withInsertText = (editor: Editor, plugins: Plugin.Definition[]) => 
       return
     }
 
-    handle.then(response => {
+    handle.then((response) => {
       const newText = typeof response === 'string' ? response : text
       insertText(newText)
     })

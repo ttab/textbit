@@ -8,7 +8,7 @@ export const withEditableVoids = (editor: Editor, components: Map<string, Plugin
   const allComponents: string[] = []
   const voidComponents: string[] = []
 
-  components.forEach(comp => {
+  components.forEach((comp) => {
     allComponents.push(comp.type)
 
     if (comp.class === 'void') {

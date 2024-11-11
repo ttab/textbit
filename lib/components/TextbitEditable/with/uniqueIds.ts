@@ -76,7 +76,7 @@ function idExists(editor: Editor, node: NodeWithId) {
   const existingNodes = Array.from(Editor.nodes(editor, {
     at: [],
     mode: 'highest',
-    match: n => !Editor.isEditor(n) && n.id !== node.id
+    match: (n) => !Editor.isEditor(n) && n.id !== node.id
   }))
 
   return !!existingNodes.length

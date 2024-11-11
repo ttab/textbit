@@ -1,4 +1,4 @@
-import { type Plugin } from "../types"
+import { type Plugin } from '../types'
 
 export function componentConstraints(entry: Plugin.ComponentEntry) {
   const {

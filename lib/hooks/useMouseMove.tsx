@@ -58,10 +58,10 @@ export function useMouseMove<T extends Element>(): [
       })
     }
 
-    document.addEventListener("mousemove", handleMouseMove)
+    document.addEventListener('mousemove', handleMouseMove)
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove)
+      document.removeEventListener('mousemove', handleMouseMove)
     }
   }, [])
 

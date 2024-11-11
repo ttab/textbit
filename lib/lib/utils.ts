@@ -9,7 +9,7 @@ import {
   type NodeEntry,
   Text as SlateText,
   Range
-} from "slate"
+} from 'slate'
 import { ReactEditor } from 'slate-react'
 
 /**
@@ -72,7 +72,7 @@ export function getNodeById(editor: Editor, id: string): NodeEntry<SlateNode> | 
   const matches = Array.from(
     Editor.nodes(editor, {
       at: [0],
-      match: n => {
+      match: (n) => {
         if (Editor.isEditor(n) || !SlateElement.isElement(n)) {
           return false
         }
@@ -90,7 +90,7 @@ export function getSelectedNodeEntries(editor: Editor): NodeEntry<SlateNode>[] {
   const matches = Array.from(
     Editor.nodes(editor, {
       at: Editor.unhangRange(editor, selection as BaseRange),
-      match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && ['block', 'void', 'text', 'textblock'].includes(n.class || "")
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['block', 'void', 'text', 'textblock'].includes(n.class || '')
     })
   )
 
@@ -98,7 +98,7 @@ export function getSelectedNodeEntries(editor: Editor): NodeEntry<SlateNode>[] {
 }
 
 export function getSelectedNodes(editor: Editor): SlateNode[] {
-  return getSelectedNodeEntries(editor).map(nodeEntry => nodeEntry[0])
+  return getSelectedNodeEntries(editor).map((nodeEntry) => nodeEntry[0])
 }
 
 export function cloneChildren(children: Descendant[]): Descendant[] {
@@ -122,7 +122,7 @@ export function getTextNodesInTopAncestor(editor: Editor, includeEditor: boolean
   const [start] = Editor.edges(editor, editor.selection)
   const topAncestor = Editor.above(editor, {
     at: start.path,
-    match: n => (!includeEditor || !Editor.isEditor(n)) && SlateElement.isElement(n),
+    match: (n) => (!includeEditor || !Editor.isEditor(n)) && SlateElement.isElement(n),
     mode: 'lowest'
   })
 
@@ -175,17 +175,15 @@ export function getDecorationRangeFromMouseEvent(editor: ReactEditor, event: Mou
   // @ts-expect-error Limited availability as per https://developer.mozilla.org/en-US/docs/Web/API/Document/caretPositionFromPoint
   if (document.caretPositionFromPoint) {
     // @ts-expect-error Does not exist in all browsers
-    const domPoint = document.caretPositionFromPoint(event.clientX, event.clientY) as { offsetNode: Node, offset: number } | null
+    const domPoint = document.caretPositionFromPoint(event.clientX, event.clientY) as { offsetNode: Node, offset: number } | null // eslint-disable-line
     textNode = domPoint?.offsetNode
     offset = domPoint?.offset ?? 0
-  }
-  else if (document.caretRangeFromPoint) {
+  } else if (document.caretRangeFromPoint) {
     // Fallback to deprecated function (mainly for Safari)
     const domRange = document.caretRangeFromPoint(event.clientX, event.clientY)
     textNode = domRange?.startContainer
     offset = domRange?.startOffset ?? 0
-  }
-  else {
+  } else {
     return
   }
 

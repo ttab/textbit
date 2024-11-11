@@ -33,8 +33,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
       const leafStyle = plugin.getStyle()
       if (typeof leafStyle === 'string') {
         className += leafStyle ? ` ${leafStyle}` : ''
-      }
-      else {
+      } else {
         style = {
           ...style,
           ...leafStyle
@@ -72,9 +71,7 @@ function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSPr
       className={className}
       {...attributes}
     >
-      {leaf.placeholder && placeholders === 'multiple' &&
-        <Placeholder value={leaf.placeholder} style={style} />
-      }
+      {leaf.placeholder && placeholders === 'multiple' && <Placeholder value={leaf.placeholder} style={style} />}
       {props.children}
     </span>
   </>
@@ -93,8 +90,7 @@ function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSS
       data-spelling-error={spellingError?.id || ''}
       {...attributes}
     >
-      {leaf.placeholder && placeholders === 'multiple' &&
-        <Placeholder value={leaf.placeholder} style={style} />}
+      {leaf.placeholder && placeholders === 'multiple' && <Placeholder value={leaf.placeholder} style={style} />}
       {props.children}
     </span>
   </>

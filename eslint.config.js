@@ -73,10 +73,10 @@ export default tseslint.config(
 
       // These should be enabled as they add great value
       // Only level warn for now
-      // '@typescript-eslint/no-unsafe-return': 'warn',
-      // '@typescript-eslint/no-unsafe-call': 'warn',
-      // '@typescript-eslint/no-unsafe-member-access': 'warn',
-      // '@typescript-eslint/no-unsafe-assignment': 'warn',
+      '@typescript-eslint/no-unsafe-return': 'warn',
+      '@typescript-eslint/no-unsafe-call': 'warn',
+      '@typescript-eslint/no-unsafe-member-access': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'warn',
 
       // Disable prop-types rule as we're using TypeScript
       'react/prop-types': 'off',
@@ -87,14 +87,7 @@ export default tseslint.config(
       // FIXME: These offs should be removed
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/require-await': 'off',
-
       'react-hooks/exhaustive-deps': 'off',
-
-      '@stylistic/brace-style': 'off',
-      '@stylistic/arrow-parens': 'off',
-      '@stylistic/quotes': 'off',
-      '@stylistic/operator-linebreak': 'off',
-      '@stylistic/padded-blocks': 'off',
       '@stylistic/no-multi-spaces': 'off',
       '@stylistic/indent': 'off',
       '@stylistic/jsx-wrap-multilines': 'off',
@@ -104,7 +97,7 @@ export default tseslint.config(
       '@stylistic/jsx-max-props-per-line': 'off',
 
       // Keep these off
-      '@typescript-eslint/no-unsafe-call': 'off',
+      '@stylistic/operator-linebreak': 'off',
       '@typescript-eslint/no-namespace': 'off',
       '@stylistic/jsx-curly-newline': 'off'
     }

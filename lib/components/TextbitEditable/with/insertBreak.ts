@@ -1,4 +1,4 @@
-import { Editor, Transforms, Range, Path, Node, Text } from "slate"
+import { Editor, Transforms, Range, Path, Node, Text } from 'slate'
 import * as uuid from 'uuid'
 
 import { Element as SlateElement, type BaseRange } from 'slate'
@@ -39,7 +39,7 @@ export const withInsertBreak = (editor: Editor, components: Map<string, PluginRe
       const [node] = Array.from(
         Editor.nodes(editor, {
           at: Editor.unhangRange(editor, selection as BaseRange),
-          match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.class !== 'inline'
+          match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.class !== 'inline'
         })
       )
 
@@ -49,7 +49,7 @@ export const withInsertBreak = (editor: Editor, components: Map<string, PluginRe
           id: uuid.v4(),
           class: 'text',
           type: 'core/text',
-          children: [{ text: "" }]
+          children: [{ text: '' }]
         })
       }
     }

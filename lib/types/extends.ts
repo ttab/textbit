@@ -3,10 +3,10 @@ import type {
   BaseText,
   BaseEditor,
   BaseRange
-} from "slate"
+} from 'slate'
 
 
-import { ReactEditor } from "slate-react"
+import { ReactEditor } from 'slate-react'
 import { HistoryEditor } from 'slate-history'
 
 export type SpellingError = {

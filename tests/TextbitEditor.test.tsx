@@ -9,7 +9,7 @@ import { Editor, Element } from 'slate'
 
 describe('TextbitEditor', () => {
   // Mocked (simplified) structuredClone() that works for this purpose
-  global.structuredClone = jest.fn(val => {
+  global.structuredClone = jest.fn((val) => {
     return JSON.parse(JSON.stringify(val)) as Element
   })
 
@@ -57,7 +57,7 @@ describe('TextbitEditor', () => {
     expect(editor.children[0]?.id).not.toEqual(editor.children[initialValue.length]?.id)
 
     // Expect all children to have unique IDs
-    const ids = Array.from(new Set(Object.values(editor.children).map(child => child.id)))
+    const ids = Array.from(new Set(Object.values(editor.children).map((child) => child.id)))
     expect(ids).toHaveLength(initialValue.length + 1)
   })
 })

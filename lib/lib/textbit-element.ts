@@ -3,7 +3,7 @@ import {
   Element as SlateElement,
   Text as SlateText,
   type ElementInterface
-} from "slate"
+} from 'slate'
 
 interface TextbitElementInterface extends ElementInterface {
   isBlock: (value: unknown) => value is Ancestor

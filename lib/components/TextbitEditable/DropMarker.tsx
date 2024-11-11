@@ -35,8 +35,7 @@ export const DropMarker = ({ className }: { className?: string }) => {
       pos.backgroundColor = 'rgba(191, 191, 191, 0.4)'
       pos.borderRadius = '4px'
     }
-  }
-  else {
+  } else {
     // Position above or below element
     dragOverState = 'between'
     pos.top = (

@@ -32,7 +32,7 @@ export const Droppable = ({ children, element }: PropsWithChildren & {
   const { plugins } = usePluginRegistry()
   const ref = useRef<HTMLDivElement>(null)
 
-  const plugin = plugins.find(p => p.name === element?.type)
+  const plugin = plugins.find((p) => p.name === element?.type)
   const isDroppable = TextbitPlugin.isElementPlugin(plugin) && !!plugin?.componentEntry?.droppable
 
   return (
@@ -184,14 +184,11 @@ function dropHints(event: React.DragEvent, domEl: HTMLDivElement | null, isDropp
 
   if (percentage <= 20) {
     position = ['above', false]
-  }
-  else if (percentage <= 50) {
+  } else if (percentage <= 50) {
     position = ['above', isDroppable]
-  }
-  else if (percentage >= 80) {
+  } else if (percentage >= 80) {
     position = ['below', isDroppable]
-  }
-  else {
+  } else {
     position = ['below', false]
   }
 

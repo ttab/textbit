@@ -1,11 +1,10 @@
 import { type ChangeEvent } from 'react'
-import { Editor, Transforms, Element } from "slate"
-import { HistoryEditor } from "slate-history"
+import { Editor, Transforms, Element } from 'slate'
+import { HistoryEditor } from 'slate-history'
 import * as uuid from 'uuid'
-import { getSelectedNodeEntries } from "./utils"
+import { getSelectedNodeEntries } from './utils'
 import type { Plugin } from '../types'
 import { TextbitPlugin } from './textbit-plugin'
-
 
 export type PipeConsumer = {
   name: string
@@ -68,11 +67,10 @@ export function pipeFromFileInput(editor: Editor, plugins: Plugin.Definition[], 
   if (entries) {
     const [_, entry] = entries[entries.length - 1]
     position = entry[0] + 1
-  }
-  else {
+  } else {
     const nodes = Array.from(Editor.nodes(editor, {
       at: [0],
-      match: n => {
+      match: (n) => {
         return (!Editor.isEditor(n) && Element.isElement(n))
       }
     }))
@@ -101,9 +99,9 @@ export function pipeFromDrop(editor: Editor, plugins: Plugin.Definition[], e: Re
 function aggregateConsumersInPipe(origPipe: Pipe) {
   const aggregatedPipe: AggregatedPipe = []
 
-  origPipe.forEach(origItem => {
-    const aggrItem = aggregatedPipe.find(aggrItem => {
-      return aggrItem.consumer.find(aggrConsumer => !!origItem.consumer.find(origConsumer => origConsumer.name === aggrConsumer.name))
+  origPipe.forEach((origItem) => {
+    const aggrItem = aggregatedPipe.find((aggrItem) => {
+      return aggrItem.consumer.find((aggrConsumer) => !!origItem.consumer.find((origConsumer) => origConsumer.name === aggrConsumer.name))
     })
 
     if (!aggrItem) {
@@ -111,10 +109,9 @@ function aggregateConsumersInPipe(origPipe: Pipe) {
         consumer: origItem.consumer,
         pipe: [origItem]
       })
-    }
-    else {
-      origItem.consumer.forEach(origConsumer => {
-        if (!aggrItem.consumer.find(aggrConsumer => aggrConsumer.name === origConsumer.name)) {
+    } else {
+      origItem.consumer.forEach((origConsumer) => {
+        if (!aggrItem.consumer.find((aggrConsumer) => aggrConsumer.name === origConsumer.name)) {
           aggrItem.consumer.push(origConsumer)
         }
       })
@@ -129,7 +126,7 @@ function initConsumersForPipe(plugins: Plugin.Definition[], pipe: Pipe) {
   for (const item of pipe) {
     const { source, type, input } = item
 
-    plugins.forEach(plugin => {
+    plugins.forEach((plugin) => {
       if (!TextbitPlugin.isElementPlugin(plugin) || typeof plugin.consumer?.consumes !== 'function') {
         return false
       }
@@ -169,19 +166,15 @@ function initPipeForDrop(dt: DataTransfer) {
 
     if (item.kind === 'file') {
       pipe.push(getFileItem('drop', item))
-    }
-    else if (item.type === 'text/uri-list') {
+    } else if (item.type === 'text/uri-list') {
       pipe.push(...geUriListItems('drop', dt, item, !handleTextPlain))
-    }
-    else if (item.type === 'text/html') {
+    } else if (item.type === 'text/html') {
       pipe.push(getHtmlItem('drop', dt, item, !handleTextPlain))
-    }
-    else if (item.type === 'text/plain') {
+    } else if (item.type === 'text/plain') {
       if (handleTextPlain) {
         pipe.push(getDataItem('drop', dt, item))
       }
-    }
-    else {
+    } else {
       pipe.push(getDataItem('drop', dt, item))
     }
   }
@@ -213,11 +206,10 @@ async function executeAggregatedPipe(editor: Editor, aggregatedPipe: AggregatedP
       const len = pipe.consumer.length
 
       if (len === 0) {
-        if (pipe.pipe.find(pipeItem => pipeItem.type === 'textbit/droppable-id')) {
+        if (pipe.pipe.find((pipeItem) => pipeItem.type === 'textbit/droppable-id')) {
           moveNode(editor, pipe.pipe[0].input as string, position)
-        }
-        else {
-          const types = pipe.pipe.map(i => i.type).join(', ')
+        } else {
+          const types = pipe.pipe.map((i) => i.type).join(', ')
           console.warn(`Ignored dropped data/files of type ${types}`)
         }
         continue
@@ -245,7 +237,7 @@ async function executePipe(pipe: AggregatedPipeItem, editor: Editor, plugins: Pl
 
   let localOffset = 0
   if (consumer.aggregate) {
-    const input = pipe.pipe.map(p => {
+    const input = pipe.pipe.map((p) => {
       return {
         source: p.source,
         type: p.type,
@@ -254,8 +246,7 @@ async function executePipe(pipe: AggregatedPipeItem, editor: Editor, plugins: Pl
     })
     executePipeItem(consume, input, produces, editor, position + offset)
     localOffset++
-  }
-  else {
+  } else {
     for (const pipeItem of pipe.pipe) {
       const input = {
         source: pipeItem.source,
@@ -282,8 +273,7 @@ async function executePipeItem(consume: Plugin.ConsumeFunction, input: Plugin.Re
       )
       offset++
     }
-  }
-  catch (ex) {
+  } catch (ex) {
     console.warn((ex as Error).message)
   }
 
@@ -329,7 +319,7 @@ function geUriListItems(source: string, dt: DataTransfer, item: DataTransferItem
   const items: PipeItem[] = []
   const alternate = hasTextFallback ? dt.getData('text/plain') : undefined
 
-  for (const line of data.split("\r\n")) {
+  for (const line of data.split('\r\n')) {
     items.push({
       kind: item.kind,
       type: item.type,
@@ -371,7 +361,6 @@ function removeLoader(editor: Editor, position: number) {
   if (typeof position !== 'number') {
     console.warn('Could not remove loader, identifier was neither number or string')
     return
-
   }
 
   HistoryEditor.withoutSaving(editor, () => {

@@ -1,7 +1,7 @@
 import { TextbitElement } from '../../../lib'
 import { debounce } from '../../../lib/debounce'
 import { type SpellingError } from '../../../types'
-import { Editor, Node } from "slate"
+import { Editor, Node } from 'slate'
 
 type SpellcheckLookupTable = Map<string, {
   text: string
@@ -39,7 +39,7 @@ export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback 
     onChange(options)
 
     const operations = editor.operations.filter(
-      op => ['insert_text', 'remove_text', 'split_node', 'merge_node'].includes(op.type)
+      (op) => ['insert_text', 'remove_text', 'split_node', 'merge_node'].includes(op.type)
     )
 
     if (!operations.length) {
@@ -87,8 +87,7 @@ async function updateSpellcheck(
       if (!isEmpty) {
         spellcheck.push(node.id)
       }
-    }
-    else {
+    } else {
       // Existing unchanged node, no spellchecking needed
       tracker.set(node.id, {
         ...currentEntry,
@@ -105,8 +104,8 @@ async function updateSpellcheck(
   // Send all changed or added strings to spellcheck in one call
   const result = await onSpellcheck(
     Array.from(tracker.values())
-      .filter(entry => entry.check) // Spellcheck those without spelling info
-      .map(entry => entry.text)
+      .filter((entry) => entry.check) // Spellcheck those without spelling info
+      .map((entry) => entry.text)
   )
 
   // Ignore mismatching results

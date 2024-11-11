@@ -12,9 +12,9 @@ export const registerActions = (plugins: Plugin.Definition[]) => {
   const actions: PluginRegistryAction[] = []
 
   plugins
-    .filter(plugin => Array.isArray(plugin.actions) && plugin.actions.length)
+    .filter((plugin) => Array.isArray(plugin.actions) && plugin.actions.length)
     .forEach((plugin) => {
-      plugin.actions?.forEach(action => {
+      plugin.actions?.forEach((action) => {
         const isHotkeyForAction = (typeof action.hotkey === 'string')
           ? isHotkey(action.hotkey)
           : () => false

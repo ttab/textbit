@@ -102,7 +102,7 @@ function initializePlugins(state: PluginRegistryProviderState, plugins: Plugin.D
   actions: PluginRegistryAction[]
   components: Map<string, PluginRegistryComponent>
 } {
-  plugins.forEach(p => {
+  plugins.forEach((p) => {
     state.plugins = registerPlugin(state.plugins, p, options)
     state.actions = registerActions(state.plugins)
 

@@ -1,6 +1,6 @@
-import type { PropsWithChildren, ReactNode } from "react"
-import { Node, type NodeEntry } from "slate"
-import { type RenderElementProps } from "slate-react"
+import type { PropsWithChildren, ReactNode } from 'react'
+import { Node, type NodeEntry } from 'slate'
+import { type RenderElementProps } from 'slate-react'
 import { Editor, Element } from 'slate'
 
 export namespace Plugin {

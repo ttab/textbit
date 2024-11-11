@@ -60,7 +60,7 @@ const registerComponent = (
   })
 
   const { children = [] } = entry
-  children.forEach(childComponent => {
+  children.forEach((childComponent) => {
     if (!childComponent.type) {
       throw (new Error(`Child component of ${componentType} is missing mandatory type`))
     }

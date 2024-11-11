@@ -1,7 +1,7 @@
-import { Editor, Transforms, Range, Path, Element, Node } from "slate"
+import { Editor, Transforms, Range, Path, Element, Node } from 'slate'
 import * as uuid from 'uuid'
-import { componentConstraints } from "./componentConstraints"
-import { TextbitEditor } from "./textbit-editor"
+import { componentConstraints } from './componentConstraints'
+import { TextbitEditor } from './textbit-editor'
 import { type PluginRegistryComponent } from '../components/PluginRegistry/lib/types'
 
 
@@ -23,8 +23,8 @@ export function pasteToParagraphs(
   }
 
   // Split text into paragraphs based on newlines or carriage returns
-  const paragraphedText = text.replace(/[\r\n]{2,}/g, "\n").trim()
-  const paragraphs = paragraphedText.split("\n").map(t => t.trim())
+  const paragraphedText = text.replace(/[\r\n]{2,}/g, '\n').trim()
+  const paragraphs = paragraphedText.split('\n').map((t) => t.trim())
   if (paragraphs.length < 2) {
     return false
   }

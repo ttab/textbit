@@ -59,8 +59,8 @@ export const TextbitRoot = ({
           <PluginRegistryContextProvider
             verbose={!!verbose}
             plugins={[
-              ...basePlugins.map(p => p()),
-              ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map(sp => sp())
+              ...basePlugins.map((p) => p()),
+              ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map((sp) => sp())
             ]}
           >
             <ContextMenuHintsProvider>

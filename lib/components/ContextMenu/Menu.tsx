@@ -89,11 +89,9 @@ function Popover({ children, className }: PropsWithChildren & {
 
     if (!menu?.position) {
       return hidePopover()
-    }
-    else if (spelling === undefined) {
+    } else if (spelling === undefined) {
       return hidePopover()
-    }
-    else {
+    } else {
       revealPopover()
     }
   }, [ref?.current, menu?.position])

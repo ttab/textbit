@@ -22,8 +22,7 @@ export const Group = ({ children, className }: PropsWithChildren & {
       return children
     }
 
-
-    return Children.toArray(children).filter(child => {
+    return Children.toArray(children).filter((child) => {
       if (!Range.isCollapsed(selection)) {
         return true
       }
@@ -34,7 +33,6 @@ export const Group = ({ children, className }: PropsWithChildren & {
 
       return (child.props as Record<string, PluginRegistryAction>)?.action?.plugin?.class === 'inline'
     })
-
   }, [leafEntry, editor])
 
   const filteredChildren = filter(children)

@@ -1,5 +1,5 @@
-import { Editor, Element } from "slate"
-import { type Plugin } from "../../../types"
+import { Editor, Element } from 'slate'
+import { type Plugin } from '../../../types'
 import type { PluginRegistryComponent } from '../../../components/PluginRegistry/lib/types'
 
 // type NormalizerFunc = (editor: Editor, entry: NodeEntry) => true | void

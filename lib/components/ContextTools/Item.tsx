@@ -19,7 +19,7 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
   }).next().value || undefined
 
   const inlineNode = Editor.nodes(editor, {
-    match: n => TextbitElement.isElement(n) && n.class === 'inline'
+    match: (n) => TextbitElement.isElement(n) && n.class === 'inline'
   }).next().value
 
   const isActiveInlineNode = TextbitElement.isElement(inlineNode?.[0]) && inlineNode[0].type === action.plugin.name

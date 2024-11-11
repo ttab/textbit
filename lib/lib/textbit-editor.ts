@@ -11,7 +11,7 @@ import {
   Transforms,
   type Descendant,
   Range
-} from "slate"
+} from 'slate'
 
 interface TextbitEditorInterface extends EditorInterface {
   position: (editor: Editor) => number
@@ -47,7 +47,7 @@ export const TextbitEditor: TextbitEditorInterface = {
       Editor.nodes(editor, {
         at: [],
         mode: 'highest',
-        match: n => TextbitElement.isElement(n)
+        match: (n) => TextbitElement.isElement(n)
       })).length
   },
 
@@ -56,7 +56,7 @@ export const TextbitEditor: TextbitEditorInterface = {
     return Editor.nodes(editor, {
       at: [],
       mode: 'highest',
-      match: n => TextbitElement.isElement(n)
+      match: (n) => TextbitElement.isElement(n)
     })
   },
 
@@ -93,10 +93,10 @@ export const TextbitEditor: TextbitEditorInterface = {
     const [match] = Array.from(
       Editor.nodes(editor, {
         at: Editor.unhangRange(editor, selection),
-        match: node =>
-          !Editor.isEditor(node) &&
-          TextbitElement.isElement(node) &&
-          node.type === type
+        match: (node) =>
+          !Editor.isEditor(node)
+          && TextbitElement.isElement(node)
+          && node.type === type
       })
     )
 
@@ -241,7 +241,7 @@ export const TextbitEditor: TextbitEditorInterface = {
       Editor.nodes(editor, {
         mode: 'highest',
         at: Editor.unhangRange(editor, editor.selection),
-        match: n => !Editor.isEditor(n)
+        match: (n) => !Editor.isEditor(n)
       })
     )
 
@@ -254,8 +254,8 @@ export const TextbitEditor: TextbitEditorInterface = {
         const [child, childPath] = targetNodes[n]
 
         if (!TextbitElement.isOfType(child, 'core/text') && (
-          TextbitElement.isTextblock(child) ||
-          TextbitElement.isText(child)
+          TextbitElement.isTextblock(child)
+          || TextbitElement.isText(child)
         )) {
           Transforms.removeNodes(editor, { at: childPath })
 

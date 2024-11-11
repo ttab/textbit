@@ -24,10 +24,10 @@ export function useKeydownGlobal<T extends HTMLElement>(cb: (e: KeyboardEvent) =
       }
     }
 
-    document.addEventListener("keydown", handler, { capture: true })
+    document.addEventListener('keydown', handler, { capture: true })
 
     return () => {
-      document.removeEventListener("keydown", handler, { capture: true })
+      document.removeEventListener('keydown', handler, { capture: true })
     }
   }, [])
 
