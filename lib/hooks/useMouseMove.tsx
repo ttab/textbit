@@ -6,12 +6,12 @@ import {
 
 
 export type MousePosition = {
-  x: number;
-  y: number;
-  elementX: number;
-  elementY: number;
-  elementPositionX: number;
-  elementPositionY: number;
+  x: number
+  y: number
+  elementX: number
+  elementY: number
+  elementPositionX: number
+  elementPositionY: number
 }
 
 
@@ -32,7 +32,7 @@ export function useMouseMove<T extends Element>(): [
 
   useLayoutEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      let newState: Partial<MousePosition> = {
+      const newState: Partial<MousePosition> = {
         x: event.pageX,
         y: event.pageY
       }
@@ -58,10 +58,10 @@ export function useMouseMove<T extends Element>(): [
       })
     }
 
-    document.addEventListener("mousemove", handleMouseMove)
+    document.addEventListener('mousemove', handleMouseMove)
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove)
+      document.removeEventListener('mousemove', handleMouseMove)
     }
   }, [])
 

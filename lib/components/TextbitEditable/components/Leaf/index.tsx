@@ -1,4 +1,4 @@
-import { type CSSProperties } from 'react' // Necessary for esbuild
+import { type CSSProperties } from 'react'
 import { usePluginRegistry } from '../../../../components/PluginRegistry'
 import { type RenderLeafProps } from 'slate-react'
 import { TextbitPlugin } from '../../../../lib'
@@ -33,8 +33,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
       const leafStyle = plugin.getStyle()
       if (typeof leafStyle === 'string') {
         className += leafStyle ? ` ${leafStyle}` : ''
-      }
-      else {
+      } else {
         style = {
           ...style,
           ...leafStyle
@@ -56,7 +55,7 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
     }
   }
 
-  return (!!leaf.spellingError)
+  return (leaf.spellingError)
     ? <MisspelledLeaf {...props} className={className} style={style} />
     : <OrdinaryLeaf {...props} className={className} style={style} />
 }
@@ -64,52 +63,55 @@ export const Leaf = (props: RenderLeafProps): JSX.Element => {
 
 function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }): JSX.Element {
   const { placeholders } = useTextbit()
-  const { leaf, attributes, children, style, className } = props
+  const { leaf, attributes, style, className } = props
 
-  return <>
-    <span
-      style={{ ...style }}
-      className={className}
-      {...attributes}
-    >
-      {leaf.placeholder && placeholders === 'multiple' &&
-        <Placeholder value={leaf.placeholder} style={style} />
-      }
-      {children}
-    </span>
-  </>
+  return (
+    <>
+      <span
+        style={{ ...style }}
+        className={className}
+        {...attributes}
+      >
+        {leaf.placeholder && placeholders === 'multiple' && <Placeholder value={leaf.placeholder} style={style} />}
+        {props.children}
+      </span>
+    </>
+  )
 }
 
 
 function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }): JSX.Element {
   const { placeholders } = useTextbit()
-  const { leaf, attributes, children, style, className } = props
+  const { leaf, attributes, style, className } = props
   const spellingError = leaf.spellingError as unknown as SpellingError | undefined
 
-  return <>
-    <span
-      style={{ ...style }}
-      className={className}
-      data-spelling-error={spellingError?.id || ''}
-      {...attributes}
-    >
-      {leaf.placeholder && placeholders === 'multiple' &&
-        <Placeholder value={leaf.placeholder} style={style} />}
-      {children}
-    </span>
-  </>
+  return (
+    <>
+      <span
+        style={{ ...style }}
+        className={className}
+        data-spelling-error={spellingError?.id || ''}
+        {...attributes}
+      >
+        {leaf.placeholder && placeholders === 'multiple' && <Placeholder value={leaf.placeholder} style={style} />}
+        {props.children}
+      </span>
+    </>
+  )
 }
 
 
 function Placeholder({ value, style }: { value: string, style: CSSProperties }): JSX.Element {
-  return <span
-    style={{
-      ...style,
-      position: 'absolute',
-      opacity: 0.333
-    }}
-    contentEditable={false}
-  >
-    {value}
-  </span>
+  return (
+    <span
+      style={{
+        ...style,
+        position: 'absolute',
+        opacity: 0.333
+      }}
+      contentEditable={false}
+    >
+      {value}
+    </span>
+  )
 }

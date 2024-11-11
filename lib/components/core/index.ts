@@ -3,9 +3,9 @@ import {
   Bold,
   Italic,
   Underline
-} from "./Leafs"
-import { Navigation } from "./Navigation"
-import { Loader } from "./Loader"
+} from './Leafs'
+import { Navigation } from './Navigation'
+import { Loader } from './Loader'
 
 
 export const StandardPlugins = [

@@ -36,11 +36,11 @@ export const TextbitRoot = ({
   className?: string
 }) => {
   const style: React.CSSProperties = {
-    position: "relative",
-    boxSizing: "border-box",
-    textRendering: "optimizeLegibility",
-    WebkitFontSmoothing: "antialiased",
-    MozOsxFontSmoothing: "grayscale",
+    position: 'relative',
+    boxSizing: 'border-box',
+    textRendering: 'optimizeLegibility',
+    WebkitFontSmoothing: 'antialiased',
+    MozOsxFontSmoothing: 'grayscale'
   }
 
   return (
@@ -56,10 +56,13 @@ export const TextbitRoot = ({
           placeholder={placeholder}
           placeholders={placeholders}
         >
-          <PluginRegistryContextProvider verbose={!!verbose} plugins={[
-            ...basePlugins.map(p => p()),
-            ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map(sp => sp())
-          ]}>
+          <PluginRegistryContextProvider
+            verbose={!!verbose}
+            plugins={[
+              ...basePlugins.map((p) => p()),
+              ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map((sp) => sp())
+            ]}
+          >
             <ContextMenuHintsProvider>
               {children}
             </ContextMenuHintsProvider>

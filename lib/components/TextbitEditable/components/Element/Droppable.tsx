@@ -32,14 +32,14 @@ export const Droppable = ({ children, element }: PropsWithChildren & {
   const { plugins } = usePluginRegistry()
   const ref = useRef<HTMLDivElement>(null)
 
-  const plugin = plugins.find(p => p.name === element?.type)
+  const plugin = plugins.find((p) => p.name === element?.type)
   const isDroppable = TextbitPlugin.isElementPlugin(plugin) && !!plugin?.componentEntry?.droppable
 
   return (
     <div
       data-id={element?.id || ''}
       ref={ref}
-      className="h-full w-full"
+      className='h-full w-full'
       draggable={['block', 'void'].includes(element?.class || '') ? 'true' : 'false'}
       onDragStartCapture={(e) => {
         if (!element?.id) {
@@ -130,7 +130,7 @@ function createDragImage(el: HTMLDivElement, e: React.DragEvent<HTMLDivElement>,
 
   el.style.opacity = '0.5'
   e.dataTransfer.clearData()
-  e.dataTransfer.setData("textbit/droppable-id", dataId)
+  e.dataTransfer.setData('textbit/droppable-id', dataId)
   e.dataTransfer.setDragImage(
     clone,
     (e.clientX - left),
@@ -140,13 +140,13 @@ function createDragImage(el: HTMLDivElement, e: React.DragEvent<HTMLDivElement>,
 
 
 /**
- * This function now only give you a drop position above or below the target node.
+ * This function currently only give you a drop position above or below the target node.
  *
  * TODO: Allow for nodes to receive and handle drops.
  */
 function dropPosition(editor: Editor, e: React.DragEvent, container: HTMLDivElement, id: string, isDroppable: boolean): [number, Descendant | undefined] {
   let position = -1
-  const node = editor.children.find((el: any, idx: number) => {
+  const node = editor.children.find((el, idx: number) => {
     position = idx
     return el.id === id
   })
@@ -158,7 +158,7 @@ function dropPosition(editor: Editor, e: React.DragEvent, container: HTMLDivElem
 
 /**
  * Calculate bounding box of current dom element as well as whether the pointer
- * position will result in a drop above or below or "on" the hovered element
+ * position will result in a drop above or below or 'on' the hovered element
  */
 function dropHints(event: React.DragEvent, domEl: HTMLDivElement | null, isDroppable: boolean): MouseInfo | undefined {
   if (!domEl) {
@@ -184,14 +184,11 @@ function dropHints(event: React.DragEvent, domEl: HTMLDivElement | null, isDropp
 
   if (percentage <= 20) {
     position = ['above', false]
-  }
-  else if (percentage <= 50) {
+  } else if (percentage <= 50) {
     position = ['above', isDroppable]
-  }
-  else if (percentage >= 80) {
+  } else if (percentage >= 80) {
     position = ['below', isDroppable]
-  }
-  else {
+  } else {
     position = ['below', false]
   }
 

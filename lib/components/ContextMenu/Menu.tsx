@@ -89,21 +89,23 @@ function Popover({ children, className }: PropsWithChildren & {
 
     if (!menu?.position) {
       return hidePopover()
-    }
-    else if (spelling === undefined) {
+    } else if (spelling === undefined) {
       return hidePopover()
-    }
-    else {
+    } else {
       revealPopover()
     }
   }, [ref?.current, menu?.position])
 
   return (
-    <div ref={ref} className={className} style={{
-      opacity: '0',
-      zIndex: '-1',
-      position: 'absolute'
-    }}>
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: '0',
+        zIndex: '-1',
+        position: 'absolute'
+      }}
+    >
       {children}
     </div>
   )

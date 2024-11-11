@@ -25,7 +25,7 @@ export const Menu = ({ children, className }: PropsWithChildren & {
 
   return (
     <MenuContext.Provider value={[isOpen, setIsOpen]}>
-      {!!gutterBox && !!bounds &&
+      {!!gutterBox && !!bounds && (
         <div
           ref={ref}
           className={className}
@@ -37,7 +37,7 @@ export const Menu = ({ children, className }: PropsWithChildren & {
         >
           {children}
         </div>
-      }
+      )}
     </MenuContext.Provider>
   )
 }

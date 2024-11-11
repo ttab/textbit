@@ -15,9 +15,9 @@ export const SlateSlate = ({ editor, value, onChange, children }: PropsWithChild
 }): JSX.Element => {
   const inValue = value || [{
     id: uuid.v4(),
-    type: "core/text",
-    class: "text",
-    children: [{ text: "" }]
+    type: 'core/text',
+    class: 'text',
+    children: [{ text: '' }]
   }]
 
   const { dispatch } = useTextbit()
@@ -34,7 +34,7 @@ export const SlateSlate = ({ editor, value, onChange, children }: PropsWithChild
       editor={editor}
       initialValue={inValue}
       onChange={(value) => {
-        if (!editor.operations.some(op => 'set_selection' !== op.type)) {
+        if (!editor.operations.some((op) => 'set_selection' !== op.type)) {
           return
         }
 

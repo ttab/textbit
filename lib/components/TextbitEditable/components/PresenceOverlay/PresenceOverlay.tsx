@@ -1,16 +1,20 @@
 import React, { type PropsWithChildren } from 'react'
-import { RemoteCursorOverlay } from "./RemoteCursorOverlay"
+import { RemoteCursorOverlay } from './RemoteCursorOverlay'
 
 type PresenceOverylayProps = PropsWithChildren<{ isCollaborative: boolean }>
 
 export function PresenceOverlay({ children, isCollaborative }: PresenceOverylayProps): React.ReactElement {
   if (!isCollaborative) {
-    return <>
-      {children}
-    </>
+    return (
+      <>
+        {children}
+      </>
+    )
   }
 
-  return <RemoteCursorOverlay>
-    {children}
-  </RemoteCursorOverlay>
+  return (
+    <RemoteCursorOverlay>
+      {children}
+    </RemoteCursorOverlay>
+  )
 }

@@ -1,6 +1,6 @@
-import type { PropsWithChildren, ReactNode } from "react"
-import { Node, type NodeEntry } from "slate"
-import { type RenderElementProps } from "slate-react"
+import type { PropsWithChildren, ReactNode } from 'react'
+import { Node, type NodeEntry } from 'slate'
+import { type RenderElementProps } from 'slate-react'
 import { Editor, Element } from 'slate'
 
 export namespace Plugin {
@@ -43,7 +43,7 @@ export namespace Plugin {
    * Action handler props interface
    */
   export interface Action {
-    name: string,
+    name: string
     title?: string
     description?: string
     hotkey?: string
@@ -109,7 +109,7 @@ export namespace Plugin {
     type: string
 
     /** Indata to consumer, e.g a File, text, url, etc */
-    data: any
+    data: unknown
   }
 
   /**
@@ -139,10 +139,8 @@ export namespace Plugin {
    * either individually or in bulk depending on what the the consumes function responded.
    *
    * Should return data as specified by the second value of the consumes function response.
-   *
-   * @returns any | undefined
    */
-  export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resource | Resource[] }) => Promise<any | undefined>
+  export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resource | Resource[] }) => Promise<Resource | undefined>
 
   /**
    * @type Options
@@ -180,7 +178,7 @@ export namespace Plugin {
      * Optional consumer definition. One for each consumes() and consume() functions.
      */
     consumer?: {
-      consumes: ConsumesFunction  // Can you consume [data], [true/false, provides `type` as response]
+      consumes: ConsumesFunction // Can you consume [data], [true/false, provides `type` as response]
       consume: ConsumeFunction // Consume [data] please
     }
 

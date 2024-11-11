@@ -32,7 +32,7 @@ const registerComponent = (
   componentType: string,
   entry: Plugin.ComponentEntry,
   options: {
-    verbose?: boolean,
+    verbose?: boolean
     parent?: Plugin.ComponentEntry
   },
   pluginOptions: Record<string, unknown>
@@ -60,7 +60,7 @@ const registerComponent = (
   })
 
   const { children = [] } = entry
-  children.forEach(childComponent => {
+  children.forEach((childComponent) => {
     if (!childComponent.type) {
       throw (new Error(`Child component of ${componentType} is missing mandatory type`))
     }

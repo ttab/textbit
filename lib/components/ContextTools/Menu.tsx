@@ -45,7 +45,7 @@ function Popover({ children, className }: PropsWithChildren & {
     if (Range.isCollapsed(selection)) {
       const node = Editor.nodes(editor, {
         at: selection,
-        match: n => TextbitElement.isElement(n) && n.class === 'inline'
+        match: (n) => TextbitElement.isElement(n) && n.class === 'inline'
       }).next().value
 
       if (!node) {
@@ -67,11 +67,15 @@ function Popover({ children, className }: PropsWithChildren & {
   }, [ref, bounds, editor.selection])
 
   return (
-    <div ref={ref} className={className} style={{
-      opacity: '0',
-      zIndex: '-1',
-      position: 'absolute'
-    }}>
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: '0',
+        zIndex: '-1',
+        position: 'absolute'
+      }}
+    >
       {children}
     </div>
   )

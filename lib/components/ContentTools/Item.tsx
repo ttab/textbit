@@ -16,7 +16,7 @@ export const Item = ({ children, className, action: actionName }: PropsWithChild
   const { plugins, actions } = usePluginRegistry()
   const editor = useSlateStatic()
   const selection = useSlateSelection()
-  const action = actions.find(a => a.name === actionName)
+  const action = actions.find((a) => a.name === actionName)
 
   if (!action) {
     return <></>
@@ -65,9 +65,8 @@ const visibilityBySelection = (editor: Editor, selection: BaseSelection, action:
   const [match] = Array.from(
     Editor.nodes(editor, {
       at: Editor.unhangRange(editor, selection),
-      match: el => {
-        return !Editor.isEditor(el) &&
-          Element.isElement(el)
+      match: (el) => {
+        return !Editor.isEditor(el) && Element.isElement(el)
       }
     })
   )

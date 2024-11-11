@@ -9,8 +9,7 @@ export function isFromTarget(element: HTMLElement, options: { id?: string, class
 
       el = el.parentElement
     }
-  }
-  else if (options.id) {
+  } else if (options.id) {
     while (el) {
       if (el.id === options.id) {
         return true

@@ -9,7 +9,7 @@ import {
   type NodeEntry,
   Text as SlateText,
   Range
-} from "slate"
+} from 'slate'
 import { ReactEditor } from 'slate-react'
 
 /**
@@ -27,7 +27,7 @@ import { ReactEditor } from 'slate-react'
  * @param toTextType String The type to convert to (eg "paragraph")
  */
 export function convertLastSibling(editor: Editor, node: SlateNode, path: Path, fromType: string, toTextType: string): void {
-  const siblingNodes: Array<any> = []
+  const siblingNodes: Array<NodeEntry> = []
   for (const [child, childPath] of SlateNode.elements(node)) {
     if (child.type === fromType) {
       siblingNodes.push([child, childPath])
@@ -45,7 +45,7 @@ export function convertLastSibling(editor: Editor, node: SlateNode, path: Path, 
       editor,
       {
         type: toTextType, children: [{
-          text: SlateNode.string(siblingNodes[n][0] as SlateNode)
+          text: SlateNode.string(siblingNodes[n][0])
         }]
       } as SlateNode,
       {
@@ -72,7 +72,7 @@ export function getNodeById(editor: Editor, id: string): NodeEntry<SlateNode> | 
   const matches = Array.from(
     Editor.nodes(editor, {
       at: [0],
-      match: n => {
+      match: (n) => {
         if (Editor.isEditor(n) || !SlateElement.isElement(n)) {
           return false
         }
@@ -90,7 +90,7 @@ export function getSelectedNodeEntries(editor: Editor): NodeEntry<SlateNode>[] {
   const matches = Array.from(
     Editor.nodes(editor, {
       at: Editor.unhangRange(editor, selection as BaseRange),
-      match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && ['block', 'void', 'text', 'textblock'].includes(n.class || "")
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['block', 'void', 'text', 'textblock'].includes(n.class || '')
     })
   )
 
@@ -98,7 +98,7 @@ export function getSelectedNodeEntries(editor: Editor): NodeEntry<SlateNode>[] {
 }
 
 export function getSelectedNodes(editor: Editor): SlateNode[] {
-  return getSelectedNodeEntries(editor).map(nodeEntry => nodeEntry[0])
+  return getSelectedNodeEntries(editor).map((nodeEntry) => nodeEntry[0])
 }
 
 export function cloneChildren(children: Descendant[]): Descendant[] {
@@ -106,7 +106,7 @@ export function cloneChildren(children: Descendant[]): Descendant[] {
     if (SlateElement.isElement(node)) {
       return {
         ...node,
-        children: cloneChildren(node.children as Descendant[])
+        children: cloneChildren(node.children)
       }
     }
 
@@ -122,7 +122,7 @@ export function getTextNodesInTopAncestor(editor: Editor, includeEditor: boolean
   const [start] = Editor.edges(editor, editor.selection)
   const topAncestor = Editor.above(editor, {
     at: start.path,
-    match: n => (!includeEditor || !Editor.isEditor(n)) && SlateElement.isElement(n),
+    match: (n) => (!includeEditor || !Editor.isEditor(n)) && SlateElement.isElement(n),
     mode: 'lowest'
   })
 
@@ -146,7 +146,9 @@ export function getNodeEntryFromDomNode(editor: ReactEditor, domNode: Node): Nod
 
       return [node, path]
     }
-  } catch (error) { }
+  } catch (_) {
+    // Ignored
+  }
 
   return undefined
 }
@@ -167,31 +169,32 @@ export function getNodeEntryFromDomNode(editor: ReactEditor, domNode: Node): Nod
  * @returns Range | undefined
  */
 export function getDecorationRangeFromMouseEvent(editor: ReactEditor, event: MouseEvent): Range | undefined {
-  let textNode
-  let offset
+  let textNode: Node | undefined
+  let offset: number | undefined
 
   // @ts-expect-error Limited availability as per https://developer.mozilla.org/en-US/docs/Web/API/Document/caretPositionFromPoint
   if (document.caretPositionFromPoint) {
     // @ts-expect-error Does not exist in all browsers
-    const domPoint = document.caretPositionFromPoint(event.clientX, event.clientY)
+    const domPoint = document.caretPositionFromPoint(event.clientX, event.clientY) as { offsetNode: Node, offset: number } | null // eslint-disable-line
     textNode = domPoint?.offsetNode
-    offset = domPoint?.offset
-  }
-  else if (document.caretRangeFromPoint) {
+    offset = domPoint?.offset ?? 0
+  } else if (document.caretRangeFromPoint) {
     // Fallback to deprecated function (mainly for Safari)
     const domRange = document.caretRangeFromPoint(event.clientX, event.clientY)
     textNode = domRange?.startContainer
-    offset = domRange?.startOffset
+    offset = domRange?.startOffset ?? 0
+  } else {
+    return
   }
 
-  if (textNode?.nodeType !== 3) {
+  if (!textNode || textNode?.nodeType !== 3) {
     return
   }
 
   const slateRange = ReactEditor.findEventRange(editor, event)
 
   const ltr = slateRange.anchor.offset <= slateRange.focus.offset
-  const length = textNode.nodeValue.length
+  const length = textNode.nodeValue?.length || 0
 
   return {
     anchor: {

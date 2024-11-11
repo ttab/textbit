@@ -14,15 +14,14 @@ export function registerPlugin(registryPlugins: Plugin.Definition[], plugin: Plu
   }
 
   const plugins = [...registryPlugins]
-  const idx = plugins.findIndex(existingPlugin => existingPlugin.name === plugin.name)
+  const idx = plugins.findIndex((existingPlugin) => existingPlugin.name === plugin.name)
   if (idx !== -1) {
     console.info(
       `%c Overriding already registered plugin ${plugin.name}`,
       globals.consoleInfoWarningCSS
     )
     plugins[idx] = plugin
-  }
-  else {
+  } else {
     plugins.push(plugin)
   }
 

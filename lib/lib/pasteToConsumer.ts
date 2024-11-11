@@ -1,5 +1,5 @@
-import { Editor, Transforms, Range, Element, Node } from "slate"
-import type { Plugin } from "../types"
+import { Editor, Transforms, Range, Element, Node } from 'slate'
+import type { Plugin } from '../types'
 
 type Consumers = {
   consumes: Plugin.ConsumesFunction
@@ -16,14 +16,12 @@ export function pasteToConsumers(editor: Editor, consumers: Consumers, input: Pl
   return new Promise((resolve) => {
     consume({ input, editor }).then((result) => {
       if (typeof result === 'object' && output === result.type) {
-        insertNodes(editor, result)
+        insertNodes(editor, result as unknown as Element)
         resolve() // It is handled
-      }
-      else if (typeof result === 'string' && output === 'text/plain') {
+      } else if (typeof result === 'string' && output === 'text/plain') {
         resolve(result) // It is transformed to text, handle it further
-      }
-      else {
-        console.warn(`Unexpected output from consumer when handling paste, expected ${output}`, result)
+      } else {
+        console.warn(`Unexpected output from consumer when handling paste`, result)
         resolve()
       }
     })
@@ -33,7 +31,6 @@ export function pasteToConsumers(editor: Editor, consumers: Consumers, input: Pl
 
 function findConsumer(consumers: Consumers, input: Plugin.Resource) {
   for (const consumer of consumers) {
-
     const [accept, output] = consumer?.consumes({ input }) || [false]
 
     if (accept) {
@@ -44,7 +41,7 @@ function findConsumer(consumers: Consumers, input: Plugin.Resource) {
   return [undefined, undefined]
 }
 
-function insertNodes(editor: Editor, object: any) {
+function insertNodes(editor: Editor, object: Element) {
   if (!Range.isRange(editor.selection)) {
     return
   }
@@ -60,8 +57,7 @@ function insertNodes(editor: Editor, object: any) {
   if (node?.class === 'text' && Editor.string(editor, [at]) === '') {
     // This highest level node is a text node and is empty, remove it
     Transforms.removeNodes(editor, { at: [at] })
-  }
-  else {
+  } else {
     // When not touching current node, put it after current node
     at++
   }

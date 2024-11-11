@@ -1,9 +1,9 @@
-import { Editor, Element, Node } from "slate"
+import { Editor, Element, Node } from 'slate'
 
 export default function calculateStats(editor: Editor): [number, number] {
   const textNodes = Array.from(Editor.nodes(editor, {
     at: [],
-    match: n => Element.isElement(n) && ['text', 'textblock'].includes(n.class || '')
+    match: (n) => Element.isElement(n) && ['text', 'textblock'].includes(n.class || '')
   }))
 
   let words = 0,
@@ -11,7 +11,7 @@ export default function calculateStats(editor: Editor): [number, number] {
 
   for (const [node] of textNodes) {
     const str = Node.string(node).trim()
-    words = words + str.split(/\s+/).filter(i => i !== '').length
+    words = words + str.split(/\s+/).filter((i) => i !== '').length
     characters = characters + str.length
   }
 

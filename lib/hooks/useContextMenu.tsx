@@ -89,17 +89,17 @@ function getSpellingHints(
   range: Range | undefined
   apply: (replacement: string) => void
 } | undefined {
-  const ancestor = element.closest('[data-spelling-error]') as HTMLElement | null
+  const ancestor = element.closest('[data-spelling-error]') as HTMLElement
   const errorId = ancestor?.dataset['spellingError']
   if (!topNode.id || !errorId) {
     return
   }
 
   const spelling = editor.spellingLookupTable.get(topNode.id)?.errors || []
-  const spellingError = spelling.find(error => error.id === errorId)
+  const spellingError = spelling.find((error) => error.id === errorId)
 
   try {
-    return !!spellingError
+    return (spellingError)
       ? {
         ...spellingError,
         range: getDecorationRangeFromMouseEvent(editor, event),
@@ -112,5 +112,7 @@ function getSpellingHints(
         }
       }
       : undefined
-  } catch (_) { }
+  } catch (_) {
+    // Ignored
+  }
 }

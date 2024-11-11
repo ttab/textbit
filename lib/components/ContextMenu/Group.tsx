@@ -5,10 +5,12 @@ export const Group = ({ children, className }: PropsWithChildren & {
 }) => {
   const hasChildren = Children.count(children) > 0
 
-  return <>
-    {hasChildren
-      ? <div className={className}>{children}</div>
-      : <></>
-    }
-  </>
+  return (
+    <>
+      {hasChildren
+        ? <div className={className}>{children}</div>
+        : <></>
+      }
+    </>
+  )
 }

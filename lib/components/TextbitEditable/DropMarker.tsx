@@ -7,11 +7,13 @@ export const DropMarker = ({ className }: { className?: string }) => {
   const { gutterBox } = useContext(GutterContext)
   const { offset, dragOver } = useContext(DragstateContext)
 
-  const def = !!className ? {} : {
-    height: '3px',
-    backgroundColor: 'rgb(191, 191, 191)',
-    borderRadius: '2px'
-  }
+  const def = (className)
+    ? {}
+    : {
+      height: '3px',
+      backgroundColor: 'rgb(191, 191, 191)',
+      borderRadius: '2px'
+    }
 
   const pos: React.CSSProperties = {
     display: 'block'
@@ -23,7 +25,7 @@ export const DropMarker = ({ className }: { className?: string }) => {
   pos.left = gutterBox?.width || 0
   pos.width = bbox?.width
 
-  if (!!position?.[1]) {
+  if (position?.[1]) {
     // Position around element
     dragOverState = 'around'
     pos.top = (bbox?.top || 0) - (gutterBox?.top || 0)
@@ -33,8 +35,7 @@ export const DropMarker = ({ className }: { className?: string }) => {
       pos.backgroundColor = 'rgba(191, 191, 191, 0.4)'
       pos.borderRadius = '4px'
     }
-  }
-  else {
+  } else {
     // Position above or below element
     dragOverState = 'between'
     pos.top = (
@@ -46,15 +47,18 @@ export const DropMarker = ({ className }: { className?: string }) => {
 
   pos.display = dragOver ? 'block' : 'none'
 
-  return <div
-    ref={ref}
-    className={className}
-    data-dragover={dragOver ? dragOverState : 'none'}
-    style={{
-      pointerEvents: 'none',
-      position: 'absolute',
-      userSelect: 'none',
-      ...def,
-      ...pos
-    }} />
+  return (
+    <div
+      ref={ref}
+      className={className}
+      data-dragover={dragOver ? dragOverState : 'none'}
+      style={{
+        pointerEvents: 'none',
+        position: 'absolute',
+        userSelect: 'none',
+        ...def,
+        ...pos
+      }}
+    />
+  )
 }

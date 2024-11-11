@@ -6,7 +6,7 @@ export const useAction = (pluginName: string, actionName: string): ((args?: Reco
   const { actions } = usePluginRegistry()
 
   const name = `${pluginName}/${actionName}`
-  const action = actions.find(a => a.name === name)
+  const action = actions.find((a) => a.name === name)
 
   if (!action) {
     return

@@ -10,7 +10,7 @@ import {
 type GutterContextInterface = {
   triggerSize: number
   setTriggerSize: Dispatch<SetStateAction<number>>
-  gutterBox?: DOMRect,
+  gutterBox?: DOMRect
   setGutterBox: React.Dispatch<React.SetStateAction<DOMRect | undefined>>
 }
 
@@ -33,12 +33,14 @@ export const GutterProvider = ({ dir = 'ltr', children }: PropsWithChildren & {
   const [gutterBox, setGutterBox] = useState<DOMRect | undefined>(undefined)
 
   return (
-    <GutterContext.Provider value={{
-      triggerSize,
-      setTriggerSize,
-      gutterBox,
-      setGutterBox
-    }}>
+    <GutterContext.Provider
+      value={{
+        triggerSize,
+        setTriggerSize,
+        gutterBox,
+        setGutterBox
+      }}
+    >
       <div
         contentEditable={false}
         style={{
@@ -49,7 +51,7 @@ export const GutterProvider = ({ dir = 'ltr', children }: PropsWithChildren & {
         ref={ref}
       >
         {children}
-      </div >
+      </div>
     </GutterContext.Provider>
   )
 }

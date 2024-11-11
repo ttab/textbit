@@ -4,9 +4,9 @@ import {
   useCallback,
   useEffect
 } from 'react'
-import { createEditor, Editor as SlateEditor, type Descendant, Editor, type NodeEntry, Node, Text, Range } from "slate"
-import { withHistory } from "slate-history"
-import { type RenderElementProps, type RenderLeafProps, withReact } from "slate-react"
+import { createEditor, Editor as SlateEditor, type Descendant, Editor, type NodeEntry, Node, Text, Range } from 'slate'
+import { withHistory } from 'slate-history'
+import { type RenderElementProps, type RenderLeafProps, withReact } from 'slate-react'
 import { YHistoryEditor } from '@slate-yjs/core'
 
 import { DragStateProvider } from './DragStateProvider'
@@ -131,7 +131,7 @@ export const TextbitEditable = ({
 
         </Gutter.Provider>
       </SlateSlate>
-    </DragStateProvider >
+    </DragStateProvider>
   )
 }
 
@@ -166,10 +166,10 @@ function decorate(
       if (spelling?.errors.length) {
         const text = node.text
 
-        spelling.errors.forEach(spellingError => {
+        spelling.errors.forEach((spellingError) => {
           const indices = [...text.matchAll(new RegExp(`\\b${spellingError.text}\\b`, 'gi'))]
 
-          indices.forEach(match => {
+          indices.forEach((match) => {
             ranges.push({
               anchor: { path, offset: match.index },
               focus: { path, offset: match.index + spellingError.text.length },

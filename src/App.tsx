@@ -223,8 +223,8 @@ function fakeSpellChecker(text: string): SpellcheckedText {
 }
 
 interface Suggestion {
-  text: string;
-  description?: string;
+  text: string
+  description?: string
 }
 
 function Editor({ initialValue }: { initialValue: Descendant[] }) {
@@ -304,7 +304,11 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
                           spelling.apply(text)
                         }}
                       >
-                        {text} - <em>{description}</em>
+                        {text}
+                        {' '}
+                        -
+                        {' '}
+                        <em>{description}</em>
                       </ContextMenu.Item>
                     )
                   })}

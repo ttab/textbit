@@ -78,7 +78,7 @@ export const TextbitSelectionBoundsProvider = ({ children }: PropsWithChildren) 
   }, [])
 
   const notifySubscribers = useCallback(() => {
-    subscribersRef.current.forEach(callback => {
+    subscribersRef.current.forEach((callback) => {
       callback(boundsRef.current)
     })
   }, [])

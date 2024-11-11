@@ -24,12 +24,12 @@ export function useClickGlobal<T extends HTMLElement>(cb: (e: MouseEvent | Touch
       }
     }
 
-    document.addEventListener("mousedown", handler)
-    document.addEventListener("touchstart", handler)
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
 
     return () => {
-      document.removeEventListener("mousedown", handler)
-      document.removeEventListener("touchstart", handler)
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
     }
   }, [])
 

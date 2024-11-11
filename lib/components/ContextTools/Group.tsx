@@ -1,4 +1,4 @@
-import {
+import React, {
   type PropsWithChildren,
   Children,
   useCallback,
@@ -6,6 +6,7 @@ import {
 } from 'react'
 import { useSlateSelection, useSlateStatic } from 'slate-react'
 import { Editor, Range } from 'slate'
+import type { PluginRegistryAction } from '../PluginRegistry'
 
 export const Group = ({ children, className }: PropsWithChildren & {
   className?: string
@@ -21,25 +22,28 @@ export const Group = ({ children, className }: PropsWithChildren & {
       return children
     }
 
-
-    return Children.toArray(children).filter(child => {
+    return Children.toArray(children).filter((child) => {
       if (!Range.isCollapsed(selection)) {
         return true
       }
 
-      // @ts-ignore
-      return child?.props?.action?.plugin?.class === 'inline'
-    })
+      if (!React.isValidElement(child)) {
+        return false
+      }
 
+      return (child.props as Record<string, PluginRegistryAction>)?.action?.plugin?.class === 'inline'
+    })
   }, [leafEntry, editor])
 
   const filteredChildren = filter(children)
   const hasChildren = Children.count(filteredChildren) > 0
 
-  return <>
-    {hasChildren
-      ? <div className={className || ''}>{children}</div>
-      : <></>
-    }
-  </>
+  return (
+    <>
+      {hasChildren
+        ? <div className={className || ''}>{children}</div>
+        : <></>
+      }
+    </>
+  )
 }

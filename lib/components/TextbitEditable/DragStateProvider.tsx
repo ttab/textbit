@@ -27,7 +27,7 @@ const DragstateContext = createContext<DragStateContextInterface>({
   onDragEnter: () => { },
   onDragLeave: () => { },
   onDrop: () => { },
-  setOffset: () => { },
+  setOffset: () => { }
 })
 
 const DragStateProvider = ({ children }: PropsWithChildren) => {
@@ -55,7 +55,7 @@ const DragStateProvider = ({ children }: PropsWithChildren) => {
   return (
     <DragstateContext.Provider value={{ dragOver, offset, setOffset, onDragEnter, onDragLeave, onDrop }}>
       {children}
-    </DragstateContext.Provider >
+    </DragstateContext.Provider>
   )
 }
 

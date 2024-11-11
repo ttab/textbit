@@ -11,19 +11,18 @@ import {
   Transforms,
   type Descendant,
   Range
-} from "slate"
-import * as uuid from 'uuid'
+} from 'slate'
 
 interface TextbitEditorInterface extends EditorInterface {
   position: (editor: Editor) => number
   length: (editor: Editor) => number
-  parents: (editor: Editor, options?: EditorNodesOptions<TBElement> | undefined) => Generator<NodeEntry<TBElement>, void, undefined>
+  parents: (editor: Editor, options?: EditorNodesOptions<TBElement>) => Generator<NodeEntry<TBElement>, void, undefined>
   selectedTextEntries: (editor: Editor) => NodeEntry<Node>[]
-  includes: (editor: Editor, type: string) => boolean,
-  getSelectedText: (editor: Editor, range?: BaseRange) => string | undefined,
+  includes: (editor: Editor, type: string) => boolean
+  getSelectedText: (editor: Editor, range?: BaseRange) => string | undefined
   replaceStringAtPosition: (editor: Editor, targetString: string, replacementString: string) => void
-  insertAt: (editor: Editor, position: number, nodes: Node | Node[]) => void,
-  hasText: (nodes: NodeEntry<Descendant>[]) => boolean,
+  insertAt: (editor: Editor, position: number, nodes: Node | Node[]) => void
+  hasText: (nodes: NodeEntry<Descendant>[]) => boolean
   convertToTextNode: (editor: Editor, type: string, role?: string, nodes?: NodeEntry<Node>[]) => void
 }
 
@@ -48,7 +47,7 @@ export const TextbitEditor: TextbitEditorInterface = {
       Editor.nodes(editor, {
         at: [],
         mode: 'highest',
-        match: n => TextbitElement.isElement(n)
+        match: (n) => TextbitElement.isElement(n)
       })).length
   },
 
@@ -57,7 +56,7 @@ export const TextbitEditor: TextbitEditorInterface = {
     return Editor.nodes(editor, {
       at: [],
       mode: 'highest',
-      match: n => TextbitElement.isElement(n)
+      match: (n) => TextbitElement.isElement(n)
     })
   },
 
@@ -94,10 +93,10 @@ export const TextbitEditor: TextbitEditorInterface = {
     const [match] = Array.from(
       Editor.nodes(editor, {
         at: Editor.unhangRange(editor, selection),
-        match: node =>
-          !Editor.isEditor(node) &&
-          TextbitElement.isElement(node) &&
-          node.type === type
+        match: (node) =>
+          !Editor.isEditor(node)
+          && TextbitElement.isElement(node)
+          && node.type === type
       })
     )
 
@@ -188,13 +187,6 @@ export const TextbitEditor: TextbitEditorInterface = {
       return
     }
 
-    // Ensure all nodes have an id
-    nodeArray.forEach((node: any) => {
-      if (!node.id) {
-        node.id = uuid.v4()
-      }
-    })
-
     Transforms.insertNodes(
       editor,
       nodes,
@@ -249,7 +241,7 @@ export const TextbitEditor: TextbitEditorInterface = {
       Editor.nodes(editor, {
         mode: 'highest',
         at: Editor.unhangRange(editor, editor.selection),
-        match: n => !Editor.isEditor(n)
+        match: (n) => !Editor.isEditor(n)
       })
     )
 
@@ -262,8 +254,8 @@ export const TextbitEditor: TextbitEditorInterface = {
         const [child, childPath] = targetNodes[n]
 
         if (!TextbitElement.isOfType(child, 'core/text') && (
-          TextbitElement.isTextblock(child) ||
-          TextbitElement.isText(child)
+          TextbitElement.isTextblock(child)
+          || TextbitElement.isText(child)
         )) {
           Transforms.removeNodes(editor, { at: childPath })
 

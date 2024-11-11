@@ -2,50 +2,50 @@ import {
   type Ancestor,
   Element as SlateElement,
   Text as SlateText,
-  type ElementInterface,
-} from "slate"
+  type ElementInterface
+} from 'slate'
 
 interface TextbitElementInterface extends ElementInterface {
-  isBlock: (value: any) => value is Ancestor
-  isTextblock: (value: any) => value is SlateElement
-  isText: (value: any) => value is SlateElement
-  isVoid: (value: any) => value is SlateElement
-  isInline: (value: any) => value is SlateElement
-  isOfType: <T extends SlateElement>(value: any, type: string) => value is T
-  hasId: (value: any, id: string) => value is SlateElement
-  isTextLeaf: (value: any) => value is SlateText
+  isBlock: (value: unknown) => value is Ancestor
+  isTextblock: (value: unknown) => value is SlateElement
+  isText: (value: unknown) => value is SlateElement
+  isVoid: (value: unknown) => value is SlateElement
+  isInline: (value: unknown) => value is SlateElement
+  isOfType: <T extends SlateElement>(value: unknown, type: string) => value is T
+  hasId: (value: unknown, id: string) => value is SlateElement
+  isTextLeaf: (value: unknown) => value is SlateText
 }
 
 export const TextbitElement: TextbitElementInterface = {
-  isTextLeaf: (value: any): value is SlateText => {
+  isTextLeaf: (value: unknown): value is SlateText => {
     return SlateText.isText(value)
   },
   ...SlateElement,
-  isBlock: (value: any): value is Ancestor => {
+  isBlock: (value: unknown): value is Ancestor => {
     return SlateElement.isAncestor(value) && SlateElement.isElement(value) && value.class === 'block'
   },
 
-  isTextblock: (value: any): value is SlateElement => {
+  isTextblock: (value: unknown): value is SlateElement => {
     return SlateElement.isElement(value) && value.class === 'textblock'
   },
 
-  isText: (value: any): value is SlateElement => {
+  isText: (value: unknown): value is SlateElement => {
     return SlateElement.isElement(value) && value.class === 'text'
   },
 
-  isVoid: (value: any): value is SlateElement => {
+  isVoid: (value: unknown): value is SlateElement => {
     return SlateElement.isElement(value) && value.class === 'void'
   },
 
-  isInline: (value: any): value is SlateElement => {
+  isInline: (value: unknown): value is SlateElement => {
     return SlateElement.isElement(value) && value.class === 'inline'
   },
 
-  isOfType: <T extends SlateElement>(value: any, type: string): value is T => {
+  isOfType: <T extends SlateElement>(value: unknown, type: string): value is T => {
     return SlateElement.isElement(value) && value?.type === type
   },
 
-  hasId: (value: any, id: string): value is SlateElement => {
+  hasId: (value: unknown, id: string): value is SlateElement => {
     return SlateElement.isElement(value) && value?.id === id
   }
 }

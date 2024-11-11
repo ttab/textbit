@@ -37,7 +37,7 @@ export const withInsertHtml = (
 
     const handle = pasteToConsumers(editor, consumers, input)
     if (handle instanceof Promise) {
-      handle.then(response => {
+      handle.then((response) => {
         // If a consumer have processed the input and in turn produced
         // text, use that instead of the original text
         if (typeof response === 'string') {

@@ -1,8 +1,6 @@
-import React, {
-  useRef,
-} from 'react'
-import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, type NodeEntry } from "slate"
-import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused } from "slate-react"
+import React, { useRef } from 'react'
+import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, type NodeEntry } from 'slate'
+import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused } from 'slate-react'
 import { toggleLeaf } from '../../../../lib/toggleLeaf'
 import type { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '../../../../components/TextbitRoot'
@@ -34,7 +32,7 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
         className={className}
         renderElement={renderSlateElement}
         renderLeaf={renderLeafComponent}
-        onKeyDown={event => handleOnKeyDown(textbitEditor, actions, event)}
+        onKeyDown={(event) => handleOnKeyDown(textbitEditor, actions, event)}
         decorate={onDecorate}
         onBlur={onBlur}
         spellCheck={false}
@@ -74,7 +72,7 @@ function setInitialSelection(textbitEditor: Editor) {
     const nodes = Array.from(
       Editor.nodes(textbitEditor, {
         at: [],
-        match: el => {
+        match: (el) => {
           return Text.isText(el)
         }
       })
@@ -112,13 +110,12 @@ function handleOnKeyDown(editor: SlateEditor, actions: PluginRegistryAction[], e
 
     if (action.plugin.class === 'leaf') {
       toggleLeaf(editor, action.plugin.name)
-    }
-    else if (action.plugin.class === 'text') {
+    } else if (action.plugin.class === 'text') {
       // FIXME: Should not allow transforming blocks (only text class element)
       Transforms.setNodes(
         editor,
         { type: action.plugin.name },
-        { match: n => SlateElement.isElement(n) && SlateEditor.isBlock(editor, n) }
+        { match: (n) => SlateElement.isElement(n) && SlateEditor.isBlock(editor, n) }
       )
     }
     break

@@ -19,7 +19,7 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
   }).next().value || undefined
 
   const inlineNode = Editor.nodes(editor, {
-    match: n => TextbitElement.isElement(n) && n.class === 'inline'
+    match: (n) => TextbitElement.isElement(n) && n.class === 'inline'
   }).next().value
 
   const isActiveInlineNode = TextbitElement.isElement(inlineNode?.[0]) && inlineNode[0].type === action.plugin.name
@@ -35,25 +35,29 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
   }
 
   if (isActiveInlineNode) {
-    return <div data-state='active'>
-      {!Children.count(children)
-        ? <Tool editor={editor} active={isActive} entry={inlineNode} />
-        : <Tool editor={editor} active={isActive} entry={inlineNode}>{children}</Tool>
-      }
-      <em className='active'></em>
-    </div>
+    return (
+      <div data-state='active'>
+        {!Children.count(children)
+          ? <Tool editor={editor} active={isActive} entry={inlineNode} />
+          : <Tool editor={editor} active={isActive} entry={inlineNode}>{children}</Tool>
+        }
+        <em className='active'></em>
+      </div>
+    )
   }
 
-  return <div
-    data-state={isActive ? 'active' : 'inactive'}
-    className={className || ''}
-    onMouseDown={(e) => {
-      e.preventDefault()
-      if (true === action.handler({ editor })) {
-        toggleLeaf(editor, action.plugin.name)
-      }
-    }}
-  >
-    <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
-  </div >
+  return (
+    <div
+      data-state={isActive ? 'active' : 'inactive'}
+      className={className || ''}
+      onMouseDown={(e) => {
+        e.preventDefault()
+        if (true === action.handler({ editor })) {
+          toggleLeaf(editor, action.plugin.name)
+        }
+      }}
+    >
+      <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
+    </div>
+  )
 }

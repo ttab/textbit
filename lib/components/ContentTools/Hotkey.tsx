@@ -7,10 +7,12 @@ export const Hotkey = ({ className, children }: PropsWithChildren & {
 }) => {
   const { action } = useContext(ItemContext)
 
-  return <div className={className}>
-    {Children.count(children)
-      ? children
-      : modifier(action?.hotkey || '')
-    }
-  </div>
+  return (
+    <div className={className}>
+      {Children.count(children)
+        ? children
+        : modifier(action?.hotkey || '')
+      }
+    </div>
+  )
 }

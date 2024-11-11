@@ -11,12 +11,14 @@ export const TextbitEditableElement = ({ children, className, draggable, content
 }): JSX.Element => {
   const selected = useSelected()
 
-  return <div
-    className={className}
-    data-state={selected ? 'active' : 'inactive'}
-    draggable={draggable ?? undefined}
-    contentEditable={contentEditable === false ? false : undefined}
-  >
-    {children}
-  </div>
+  return (
+    <div
+      className={className}
+      data-state={selected ? 'active' : 'inactive'}
+      draggable={draggable ?? undefined}
+      contentEditable={contentEditable === false ? false : undefined}
+    >
+      {children}
+    </div>
+  )
 }

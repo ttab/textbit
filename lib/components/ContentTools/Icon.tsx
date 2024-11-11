@@ -12,7 +12,7 @@ export const Icon = ({ children, className }: PropsWithChildren & {
   if (Tool && !Children.count(children)) {
     return (
       <div className={className}>
-        {isActive && "✓"}
+        {isActive && '✓'}
         {!isActive && Tool && <Tool editor={editor} />}
       </div>
     )
