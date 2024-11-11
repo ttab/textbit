@@ -1,7 +1,9 @@
 import type { PropsWithChildren } from 'react'
 
 export const Content = ({ children }: PropsWithChildren) => {
-  return <div style={{ flexGrow: 1, position: 'relative' }}>
-    {children}
-  </div>
+  return (
+    <div style={{ flexGrow: 1, position: 'relative' }}>
+      {children}
+    </div>
+  )
 }

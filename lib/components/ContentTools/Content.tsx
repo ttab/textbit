@@ -56,9 +56,11 @@ const Popover = ({ children, className }: PropsWithChildren & {
     el.style.left = `${left}px`
   }, [bounds, gutterBox, triggerSize])
 
-  return <div ref={ref} className={className} style={{ position: 'absolute' }}>
-    {children}
-  </div>
+  return (
+    <div ref={ref} className={className} style={{ position: 'absolute' }}>
+      {children}
+    </div>
+  )
 }
 
 

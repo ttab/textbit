@@ -38,10 +38,12 @@ export const Group = ({ children, className }: PropsWithChildren & {
   const filteredChildren = filter(children)
   const hasChildren = Children.count(filteredChildren) > 0
 
-  return <>
-    {hasChildren
-      ? <div className={className || ''}>{children}</div>
-      : <></>
-    }
-  </>
+  return (
+    <>
+      {hasChildren
+        ? <div className={className || ''}>{children}</div>
+        : <></>
+      }
+    </>
+  )
 }

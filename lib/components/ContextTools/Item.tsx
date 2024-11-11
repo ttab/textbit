@@ -35,13 +35,15 @@ export const Item = ({ action, className, children }: PropsWithChildren & {
   }
 
   if (isActiveInlineNode) {
-    return <div data-state='active'>
-      {!Children.count(children)
-        ? <Tool editor={editor} active={isActive} entry={inlineNode} />
-        : <Tool editor={editor} active={isActive} entry={inlineNode}>{children}</Tool>
-      }
-      <em className='active'></em>
-    </div>
+    return (
+      <div data-state='active'>
+        {!Children.count(children)
+          ? <Tool editor={editor} active={isActive} entry={inlineNode} />
+          : <Tool editor={editor} active={isActive} entry={inlineNode}>{children}</Tool>
+        }
+        <em className='active'></em>
+      </div>
+    )
   }
 
   return (

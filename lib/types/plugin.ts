@@ -178,7 +178,7 @@ export namespace Plugin {
      * Optional consumer definition. One for each consumes() and consume() functions.
      */
     consumer?: {
-      consumes: ConsumesFunction  // Can you consume [data], [true/false, provides `type` as response]
+      consumes: ConsumesFunction // Can you consume [data], [true/false, provides `type` as response]
       consume: ConsumeFunction // Consume [data] please
     }
 

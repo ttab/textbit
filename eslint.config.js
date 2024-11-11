@@ -88,15 +88,15 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/require-await': 'off',
       'react-hooks/exhaustive-deps': 'off',
-      '@stylistic/no-multi-spaces': 'off',
-      '@stylistic/indent': 'off',
-      '@stylistic/jsx-wrap-multilines': 'off',
-      '@stylistic/jsx-one-expression-per-line': 'off',
-      '@stylistic/jsx-closing-tag-location': 'off',
+      // '@stylistic/no-multi-spaces': 'off',
+      // '@stylistic/jsx-wrap-multilines': 'off',
+      // '@stylistic/jsx-one-expression-per-line': 'off',
+      // '@stylistic/jsx-closing-tag-location': 'off',
       '@stylistic/jsx-first-prop-new-line': 'off',
       '@stylistic/jsx-max-props-per-line': 'off',
 
       // Keep these off
+      '@stylistic/indent': 'off',
       '@stylistic/operator-linebreak': 'off',
       '@typescript-eslint/no-namespace': 'off',
       '@stylistic/jsx-curly-newline': 'off'

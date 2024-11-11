@@ -6,10 +6,12 @@ export const Label = ({ children, className }: PropsWithChildren & {
 }) => {
   const { action } = useContext(ItemContext)
 
-  return <div className={className}>
-    {Children.count(children)
-      ? children
-      : action?.title || ''
-    }
-  </div>
+  return (
+    <div className={className}>
+      {Children.count(children)
+        ? children
+        : action?.title || ''
+      }
+    </div>
+  )
 }

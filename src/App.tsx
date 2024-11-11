@@ -304,7 +304,11 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
                           spelling.apply(text)
                         }}
                       >
-                        {text} - <em>{description}</em>
+                        {text}
+                        {' '}
+                        -
+                        {' '}
+                        <em>{description}</em>
                       </ContextMenu.Item>
                     )
                   })}

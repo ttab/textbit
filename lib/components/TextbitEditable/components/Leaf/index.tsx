@@ -65,16 +65,18 @@ function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSPr
   const { placeholders } = useTextbit()
   const { leaf, attributes, style, className } = props
 
-  return <>
-    <span
-      style={{ ...style }}
-      className={className}
-      {...attributes}
-    >
-      {leaf.placeholder && placeholders === 'multiple' && <Placeholder value={leaf.placeholder} style={style} />}
-      {props.children}
-    </span>
-  </>
+  return (
+    <>
+      <span
+        style={{ ...style }}
+        className={className}
+        {...attributes}
+      >
+        {leaf.placeholder && placeholders === 'multiple' && <Placeholder value={leaf.placeholder} style={style} />}
+        {props.children}
+      </span>
+    </>
+  )
 }
 
 
@@ -83,17 +85,19 @@ function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSS
   const { leaf, attributes, style, className } = props
   const spellingError = leaf.spellingError as unknown as SpellingError | undefined
 
-  return <>
-    <span
-      style={{ ...style }}
-      className={className}
-      data-spelling-error={spellingError?.id || ''}
-      {...attributes}
-    >
-      {leaf.placeholder && placeholders === 'multiple' && <Placeholder value={leaf.placeholder} style={style} />}
-      {props.children}
-    </span>
-  </>
+  return (
+    <>
+      <span
+        style={{ ...style }}
+        className={className}
+        data-spelling-error={spellingError?.id || ''}
+        {...attributes}
+      >
+        {leaf.placeholder && placeholders === 'multiple' && <Placeholder value={leaf.placeholder} style={style} />}
+        {props.children}
+      </span>
+    </>
+  )
 }
 
 

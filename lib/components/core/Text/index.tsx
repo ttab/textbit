@@ -35,12 +35,17 @@ function TextComponent(props: Plugin.ComponentProps): JSX.Element {
     <>
       {props.element?.properties?.type === undefined
         ? props.children
-        : <div style={{
-          fontStyle: 'italic',
-          textDecoration: 'line-through',
-          padding: '0.25rem',
-          opacity: '0.6'
-        }}>{props.children}</div>
+        : (
+          <div style={{
+            fontStyle: 'italic',
+            textDecoration: 'line-through',
+            padding: '0.25rem',
+            opacity: '0.6'
+          }}
+          >
+            {props.children}
+          </div>
+        )
       }
     </>
   )
