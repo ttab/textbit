@@ -71,8 +71,6 @@ export default tseslint.config(
         }
       ],
 
-      // These should be enabled as they add great value
-      // Only level warn for now
       '@typescript-eslint/no-unsafe-return': 'warn',
       '@typescript-eslint/no-unsafe-call': 'warn',
       '@typescript-eslint/no-unsafe-member-access': 'warn',
@@ -84,20 +82,13 @@ export default tseslint.config(
       // FIXME: This can be turned on when using vitest instead of jest
       // 'prefer-const': 'off',
 
-      // FIXME: These offs should be removed
-      '@typescript-eslint/no-floating-promises': 'off',
-      '@typescript-eslint/require-await': 'off',
-      'react-hooks/exhaustive-deps': 'off',
-      // '@stylistic/no-multi-spaces': 'off',
-      // '@stylistic/jsx-wrap-multilines': 'off',
-      // '@stylistic/jsx-one-expression-per-line': 'off',
-      // '@stylistic/jsx-closing-tag-location': 'off',
-      '@stylistic/jsx-first-prop-new-line': 'off',
-      '@stylistic/jsx-max-props-per-line': 'off',
+      // FIXME: These offs should result in errors in the future
+      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/require-await': 'warn',
+      'react-hooks/exhaustive-deps': 'warn',
 
       // Keep these off
       '@stylistic/indent': 'off',
-      '@stylistic/operator-linebreak': 'off',
       '@typescript-eslint/no-namespace': 'off',
       '@stylistic/jsx-curly-newline': 'off'
     }
