@@ -18,10 +18,11 @@ Building ESM and CJS.
 ```
 npm run build`
 ```
+
 This will produce both an ESM and CJS modules in as well as a typescript definition (_index.d.ts_) file in `dist/`.
 
-
 ## Using it in your project
+
 ### Installing
 
 Textbit is available as NPM package published on Github. To install the Textbit package in your project add `@ttab:registry=https://npm.pkg.github.com/` to your `.npmrc`. It should look something like below.
@@ -42,6 +43,7 @@ npm i @ttab/textbit
 Below is the basic structure of the components and their usage. The example is lacking necessary styling and actions. Gutter, Menu and Toolbar components all receive a `className` property for styling. Clone the repo and see the directory `local/` for a more thorough example including additional link, list item plugins and example CSS.
 
 **MyEditor.tsx**
+
 ```jsx
 import React, { useState } from 'react'
 import Textbit, {
@@ -127,6 +129,7 @@ function MyEditor() {
 Top level Texbit component. Receives all plugins. Base plugins is exported from Textbit as `Textbit.Plugins[]`.
 
 ### Props
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | verbose | boolean | Optional, default false|
@@ -172,6 +175,7 @@ TextbitContext: access through convenience hook `useTextbit()`.
 Editable area component, acts as wrapper around Slate.
 
 ### Props
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | value | Descendant[] | Optional, initial content |
@@ -181,9 +185,11 @@ Editable area component, acts as wrapper around Slate.
 | yjsEditor | BaseEditor | BaseEditor created with `withYjs()` and `withCursors()` |
 | gutter | boolean | Optional, defaults to true (render gutter). |
 | className | string |  |
-| children |  |
+| readOnly | boolean | Optional, defaults to false |
+| children | React.ReactNode \| undefined  |  |
 
 ### Provides GutterContext (_used internally_)
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | gutter | boolean | |
@@ -191,6 +197,7 @@ Editable area component, acts as wrapper around Slate.
 | offset | { left: number, top: number } | |
 
 ### Data attribute
+
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | [data-state] | "focused" \| "" | Indicate whether editor has focus or not. |
@@ -225,19 +232,20 @@ const editor = useMemo(() => {
 Can be used to wrap all elements in plugin components. Provides data state attribute used for styling.
 
 ### Props
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
 | children |  |  |
 
-
 ### Data attribute
+
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | [data-state] | "active" \| "inactive" | Indicate that cursor is in element or element is part of a selection. |
 
-
 ### Styling spelling errors
+
 When using the spellchecking functionality words (or combination of words) that are misspelled
 are rendered as `<span>` child elements having the data attribute `data-spelling-error`. This
 can be used to style all the spelling errors. See context menu handling for handling spelling errors
@@ -258,6 +266,7 @@ in more detail.
 ```
 
 **Using Tailwind**
+
 ```JSX
 return (
   <Textbit.Editable
@@ -276,15 +285,16 @@ return (
 Provides a drop marker indicator. Handles positioning and displaying automatically. Provides a html data attribute to use for styling when dragOver is happening and what type of dragOver is wanted. If `data-dragover` is `between` a line should be displayed between elements. This is the default behaviour. If a plugin component has property `droppable` set to `true` the droppable marker will encompass the whole element component. The `data-dragover` attribute will be set to `around`.
 
 ### Props
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
 
 ### Data attribute
+
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | [data-dragover] | "none" \| "between" \| "around" | True when dragover is active |
-
 
 ## Textbit.Gutter
 
@@ -297,16 +307,19 @@ Provides a gutter for the content tool menu. Handles positioning automatically. 
 Root component for the Menu structure.
 
 ### Props
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string | |
 
 ### Data attribute
+
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | [data-state] | "open" \| "closed" | |
 
 ### Provides context (_used internally_)
+
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | isOpen | boolean | |
@@ -315,6 +328,7 @@ Root component for the Menu structure.
 ## Menu.Trigger
 
 ### Props
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string | |
@@ -322,6 +336,7 @@ Root component for the Menu structure.
 ## Menu.Content
 
 ### Props
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string | |
@@ -329,6 +344,7 @@ Root component for the Menu structure.
 ## Menu.Group
 
 ### Props
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string | |
@@ -336,17 +352,20 @@ Root component for the Menu structure.
 ## Menu.Item
 
 ### Props
+
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
 | className | string |  |
 | action | PluginRegistryAction | _Retrieved from hook usePluginRegistry()_ |
 
 ### Data attribute
+
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | [data-state] | "active" \| "inactive" | Cursor or selection on content type. |
 
 ### Provides context (_used internally_)
+
 | Name | Type |
 | ----------- | ----------- |
 | active | boolean |
@@ -423,6 +442,7 @@ Root component around the context toolbox in the editor area providing access to
 | action | PluginRegistryAction | _Retrieved from hook usePluginRegistry()_ |
 
 ### Data attribute
+
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | [data-state] | "active" \| "inactive" | Cursor or selection on leaf or inline like bold, italic, link. |
@@ -517,6 +537,7 @@ interface {
 Content objects are handled by plugins. Plugins are defined by a structure which define hooks, render components and other parts of the plugin. Examples below should outline the general structure, they are not complete.
 
 Plugins can be either
+
 | class | |
 | ----------- | ----------- |
 | leaf | Bold, italic, etc. |
@@ -530,6 +551,7 @@ Plugins can be either
 ### Examples
 
 **Bold example**
+
 ```jsx
 import { BoldIcon } from 'lucide-react'
 
@@ -551,6 +573,7 @@ const Bold: Plugin.InitFunction = () => {
 ```
 
 **Blockquote example**
+
 ```jsx
 const Blockquote: Plugin.InitFunction = () => {
   return {
@@ -600,6 +623,7 @@ const Blockquote: Plugin.InitFunction = () => {
 A component is used to render an element. One plugin can have many different child components and even allow other plugin components as children.
 
 Each component receives the props
+
 | class | Type | Description |
 | ----------- | ----------- | ----------- |
 | children | `TBElement[]` | Child components that should be rendered |
@@ -610,6 +634,7 @@ Each component receives the props
 Components should be wrapped using `<Element>...</Element>` imported from `@ttab/textbit`. Using the hook `useAction()` it is possible to call a named action defined in the plugin specification, including providing a argument object (`Record<string, unknown>`).
 
 **Example**
+
 ```javascript
 import { Element, useAction, type Plugin } from '@ttab/textbit'
 
@@ -644,6 +669,7 @@ export const Factbox = ({ children, element }: Plugin.ComponentProps): JSX.Eleme
 The format of an element, or content object, in Texbit is based on Slate Element. Note the use of `properties` which is used to carry data about the element as well as how formatting like bold, italic et al is added directly on the text node.
 
 **A text element of type 'h1'**
+
 ```json
 {
     type: 'core/text',
@@ -659,6 +685,7 @@ The format of an element, or content object, in Texbit is based on Slate Element
 ```
 
 **Example of bold/italic**
+
 ```json
 {
     type: 'core/text',
@@ -679,6 +706,7 @@ The format of an element, or content object, in Texbit is based on Slate Element
 ```
 
 **Image example**
+
 ```json
 {
   id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
