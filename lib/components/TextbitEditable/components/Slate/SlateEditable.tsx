@@ -7,7 +7,7 @@ import { useTextbit } from '../../../../components/TextbitRoot'
 import { TextbitEditor } from '../../../../lib'
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 
-export const SlateEditable = ({ className = '', renderSlateElement, renderLeafComponent, textbitEditor, actions, autoFocus, onBlur, onFocus, onDecorate }: {
+export const SlateEditable = ({ className = '', renderSlateElement, renderLeafComponent, textbitEditor, actions, autoFocus, onBlur, onFocus, onDecorate, readOnly }: {
   className?: string
   renderSlateElement: (props: RenderElementProps) => JSX.Element
   renderLeafComponent: (props: RenderLeafProps) => JSX.Element
@@ -17,6 +17,7 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
   onBlur?: React.FocusEventHandler<HTMLDivElement>
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   onDecorate?: ((entry: NodeEntry) => Range[]) | undefined
+  readOnly?: boolean
 }): JSX.Element => {
   const focused = useFocused()
   const { placeholder } = useTextbit()
@@ -28,6 +29,7 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
     <div ref={ref}>
       <Editable
         placeholder={placeholder}
+        readOnly={readOnly}
         data-state={focused ? 'focused' : ''}
         className={className}
         renderElement={renderSlateElement}

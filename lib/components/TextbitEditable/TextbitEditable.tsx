@@ -41,6 +41,7 @@ export interface TextbitEditableProps extends PropsWithChildren {
   gutter?: boolean
   dir?: 'ltr' | 'rtl'
   className?: string
+  readOnly?: boolean
 }
 
 export const TextbitEditable = ({
@@ -50,7 +51,8 @@ export const TextbitEditable = ({
   onSpellcheck,
   yjsEditor,
   dir = 'ltr',
-  className = ''
+  className = '',
+  readOnly = false
 }: TextbitEditableProps) => {
   const { plugins, components, actions } = usePluginRegistry()
   const { autoFocus, onBlur, onFocus, placeholders } = useTextbit()
@@ -110,6 +112,7 @@ export const TextbitEditable = ({
           <Gutter.Content>
             <PresenceOverlay isCollaborative={!!yjsEditor}>
               <SlateEditable
+                readOnly={readOnly}
                 className={className}
                 autoFocus={autoFocus}
                 onBlur={onBlur}
