@@ -2,7 +2,8 @@ import {
   type PropsWithChildren,
   useMemo,
   useCallback,
-  useEffect
+  useEffect,
+  forwardRef
 } from 'react'
 import { createEditor, Editor as SlateEditor, type Descendant, Editor, type NodeEntry, Node, Text, Range } from 'slate'
 import { withHistory } from 'slate-history'
@@ -44,7 +45,7 @@ export interface TextbitEditableProps extends PropsWithChildren {
   readOnly?: boolean
 }
 
-export const TextbitEditable = ({
+export const TextbitEditable = forwardRef<HTMLDivElement, TextbitEditableProps>(function TextbitEditable({
   children,
   value,
   onChange,
@@ -53,7 +54,7 @@ export const TextbitEditable = ({
   dir = 'ltr',
   className = '',
   readOnly = false
-}: TextbitEditableProps) => {
+}: TextbitEditableProps, ref: React.LegacyRef<HTMLDivElement>) {
   const { plugins, components, actions } = usePluginRegistry()
   const { autoFocus, onBlur, onFocus, placeholders } = useTextbit()
   const { dispatch, debounce: debounceTimeout, spellcheckDebounce: spellcheckDebounceTimeout } = useTextbit()
@@ -112,6 +113,7 @@ export const TextbitEditable = ({
           <Gutter.Content>
             <PresenceOverlay isCollaborative={!!yjsEditor}>
               <SlateEditable
+                ref={ref}
                 readOnly={readOnly}
                 className={className}
                 autoFocus={autoFocus}
@@ -136,7 +138,7 @@ export const TextbitEditable = ({
       </SlateSlate>
     </DragStateProvider>
   )
-}
+})
 
 
 /**

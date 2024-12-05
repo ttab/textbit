@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, forwardRef } from 'react'
 import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, type NodeEntry } from 'slate'
 import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused } from 'slate-react'
 import { toggleLeaf } from '../../../../lib/toggleLeaf'
@@ -7,7 +7,7 @@ import { useTextbit } from '../../../../components/TextbitRoot'
 import { TextbitEditor } from '../../../../lib'
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 
-export const SlateEditable = ({ className = '', renderSlateElement, renderLeafComponent, textbitEditor, actions, autoFocus, onBlur, onFocus, onDecorate, readOnly }: {
+interface SlateEditableProps {
   className?: string
   renderSlateElement: (props: RenderElementProps) => JSX.Element
   renderLeafComponent: (props: RenderLeafProps) => JSX.Element
@@ -18,16 +18,30 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   onDecorate?: ((entry: NodeEntry) => Range[]) | undefined
   readOnly?: boolean
-}): JSX.Element => {
+}
+
+export const SlateEditable = forwardRef(function SlateEditable({
+  className = '',
+  renderSlateElement,
+  renderLeafComponent,
+  textbitEditor,
+  actions,
+  autoFocus,
+  onBlur,
+  onFocus,
+  onDecorate,
+  readOnly
+}: SlateEditableProps, ref: React.LegacyRef<HTMLDivElement>): JSX.Element {
   const focused = useFocused()
   const { placeholder } = useTextbit()
-  const ref = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
-  useContextMenu(ref)
+  useContextMenu(wrapperRef)
 
   return (
-    <div ref={ref}>
+    <div ref={wrapperRef}>
       <Editable
+        ref={ref}
         placeholder={placeholder}
         readOnly={readOnly}
         data-state={focused ? 'focused' : ''}
@@ -57,10 +71,11 @@ export const SlateEditable = ({ className = '', renderSlateElement, renderLeafCo
             onFocus(event)
           }
         }}
-      />
+      >
+      </Editable>
     </div>
   )
-}
+})
 
 
 /**
