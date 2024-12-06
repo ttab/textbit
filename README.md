@@ -187,6 +187,7 @@ Editable area component, acts as wrapper around Slate.
 | className | string |  |
 | readOnly | boolean | Optional, defaults to false |
 | children | React.ReactNode \| undefined  |  |
+| ref | React.LegacyRef<HTMLDivElement> | Provides reference to Slate Editable dom node |
 
 ### Provides GutterContext (_used internally_)
 
