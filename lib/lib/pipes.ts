@@ -269,7 +269,7 @@ async function executePipeItem(consume: Plugin.ConsumeFunction, input: Plugin.Re
     const result = await consume({ input, editor })
     if (typeof result === 'object' && produces === result?.type) {
       Transforms.insertNodes(
-        editor, result as unknown as Element, { at: [position], select: false }
+        editor, result.data as Element, { at: [position], select: false }
       )
       offset++
     }
