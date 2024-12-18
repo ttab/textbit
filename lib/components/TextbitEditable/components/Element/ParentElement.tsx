@@ -1,4 +1,4 @@
-import type { RenderElementProps } from 'slate-react'
+import { useSelected, type RenderElementProps } from 'slate-react'
 import { Droppable } from './Droppable'
 import type { Plugin } from '../../../../types'
 
@@ -15,14 +15,21 @@ interface ParentElementProps extends RenderElementProps {
  * @returns JSX.Element
  */
 export const ParentElement = (renderProps: ParentElementProps) => {
+  const selected = useSelected()
   const { element, attributes, entry } = renderProps
 
-  // Relative position is needed for slate default placeholder to be positioned correctly
+  /*
+   * Class "relative" is needed for slate default placeholder to be positioned correctly.
+   * Class "group" add support for tailwind so that plugin components can use tw class
+   * selectors like "group-data-[state='active']:ring-1"
+   */
+
   return (
     <Droppable element={element}>
       <div
-        className={`${element.class} ${element.type} ${entry.class} relative`}
         data-id={element.id}
+        data-state={selected ? 'active' : 'inactive'}
+        className={`${element.class} ${element.type} ${entry.class} relative group`}
         {...attributes}
       >
         {entry.component(renderProps)}

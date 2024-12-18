@@ -8,7 +8,7 @@ export namespace Plugin {
    * @interface
    * Textbit component props
    */
-  export interface ComponentProps extends RenderElementProps {
+  export interface ComponentProps extends Omit<RenderElementProps, 'attributes'> {
     rootNode?: Node
     options?: Options
   }
@@ -17,7 +17,7 @@ export namespace Plugin {
    * @interface
    * Textbit component for rendering a TBElement (Slate Element)
    */
-  export type Component<Props = { rootNode?: Node, options?: Options } & RenderElementProps> = {
+  export type Component<Props = ComponentProps> = {
     (props: Props): ReactNode
   }
 

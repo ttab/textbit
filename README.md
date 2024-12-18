@@ -639,12 +639,12 @@ _If a child component is using a html element as its rendered root element (e.g 
 **Example**
 
 ```javascript
-import { Element, useAction, type Plugin } from '@ttab/textbit'
+import { useAction, type Plugin } from '@ttab/textbit'
 
 export const Factbox = ({ children, element }: Plugin.ComponentProps): JSX.Element => {
   const setFactIsChecked = useAction('core/factbox', 'fact-is-checked') // Use a defined action in a specified plugin
 
-  return <Element>
+  return <>
     <a
       href="#"
       contentEditable={false}
@@ -663,7 +663,7 @@ export const Factbox = ({ children, element }: Plugin.ComponentProps): JSX.Eleme
     <div>
       {children}
     </div>
-  </Element>
+  </>
 }
 ```
 

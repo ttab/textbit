@@ -71,7 +71,7 @@ export const ChildElement = ({
   // Regular function component
   return (
     <div className='child' data-id={element.id} {...attributes}>
-      <Component element={element} rootNode={rootNode} options={options} attributes={attributes}>
+      <Component element={element} rootNode={rootNode} options={options}>
         {children}
       </Component>
     </div>
