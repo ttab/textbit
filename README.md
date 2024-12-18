@@ -632,7 +632,9 @@ Each component receives the props
 | rootNode | `TBElement` | If the rendered component is a child node, rootNode gives access to the topmost root node which carries properties etc |
 | options | `Record<string, unknown>` | An object with plugin options provided at plugin instantiation |
 
-Components should be wrapped using `<Element>...</Element>` imported from `@ttab/textbit`. Using the hook `useAction()` it is possible to call a named action defined in the plugin specification, including providing a argument object (`Record<string, unknown>`).
+Root components should be wrapped using `<Element>...</Element>` imported from `@ttab/textbit`. Using the hook `useAction()` it is possible to call a named action defined in the plugin specification, including providing a argument object (`Record<string, unknown>`).
+
+_If a child component is using a html element as its rendered root element (e.g `<tr>`, `<td>`, etc) the child component must be defined as a ForwardedRef component. This allows Textbit to not add extra wrapper elements._
 
 **Example**
 
@@ -663,6 +665,16 @@ export const Factbox = ({ children, element }: Plugin.ComponentProps): JSX.Eleme
     </div>
   </Element>
 }
+```
+
+```javascript
+import { forwardRef, type PropsWithChildren } from 'react'
+
+export const TableRow = forwardRef<HTMLTableRowElement, PropsWithChildren>(({ children }, ref) => (
+  <tr ref={ref}>{children}</tr>
+))
+
+TableRow.displayName = 'TableRow'
 ```
 
 ### TextbitElement

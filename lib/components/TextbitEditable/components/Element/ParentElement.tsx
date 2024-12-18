@@ -23,11 +23,9 @@ export const ParentElement = (renderProps: ParentElementProps) => {
       <div
         className={`${element.class} ${element.type} ${entry.class} relative`}
         data-id={element.id}
+        {...attributes}
       >
-        {/* FIXME: @ts-expect-error FIXME: */}
-        <div {...attributes}>
-          {entry.component(renderProps)}
-        </div>
+        {entry.component(renderProps)}
       </div>
     </Droppable>
   )
