@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Plugin } from '../../../../lib'
 
-export const Link = ({ attributes, children, element }: Plugin.ComponentProps): JSX.Element => {
+export const Link = ({ children, element }: Plugin.ComponentProps): JSX.Element => {
   const url: string = element.properties?.url as string || ''
   const [isPressed, setIsPressed] = useState<boolean>(false)
   const [isHovering, setIsHovering] = useState<boolean>(false)

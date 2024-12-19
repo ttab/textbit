@@ -16,7 +16,7 @@ export const InlineElement = ({ attributes, children, element, entry, options }:
   return (
     <span className={`inline ${entry.type}`} data-id={element.id} {...attributes}>
       {/* eslint-disable-next-line */}
-      {entry.component({ element, attributes, children, options })}
+      {entry.component({ element, children, options })}
     </span>
   )
 }

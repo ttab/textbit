@@ -1,5 +1,4 @@
 import { Plugin } from '../../../../lib/types'
-import { Element } from '../../../../lib/index'
 
 export const List: Plugin.Component = ({ element, children }) => {
   const style = {
@@ -9,10 +8,10 @@ export const List: Plugin.Component = ({ element, children }) => {
   }
 
   return (
-    <Element className='foo'>
+    <>
       {element.type === 'core/number-list'
         ? <ol role='list' style={style}>{children}</ol>
         : <ul role='list' style={style}>{children}</ul>}
-    </Element>
+    </>
   )
 }
