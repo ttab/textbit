@@ -28,9 +28,8 @@ export const Link = ({ children, element }: Plugin.ComponentProps): JSX.Element 
   })
 
   return (
-    // FIXME: @ts-expect-error FIXME:
     <a
-      {...attributes}
+      {...element.attributes}
       href={url}
       onClick={(event) => {
         if (event.ctrlKey || event.metaKey) {

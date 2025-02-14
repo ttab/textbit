@@ -33,14 +33,16 @@ import { type PluginRegistryComponent } from '../PluginRegistry/lib/types'
 import { type PlaceholdersVisibility } from '../TextbitRoot/TextbitContext'
 import { withSpelling } from './with/withSpelling'
 import type { SpellingError } from '../../types'
+import { withLang } from './with/lang'
 
 export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
-  onSpellcheck?: (texts: string[]) => Promise<Omit<SpellingError, 'id'>[][]>
+  onSpellcheck?: (texts: { lang: string, text: string }[]) => Promise<Omit<SpellingError, 'id'>[][]>
   value?: Descendant[]
   yjsEditor?: Editor
   gutter?: boolean
   dir?: 'ltr' | 'rtl'
+  lang?: string
   className?: string
   readOnly?: boolean
 }
@@ -52,6 +54,7 @@ export const TextbitEditable = forwardRef<HTMLDivElement, TextbitEditableProps>(
   onSpellcheck,
   yjsEditor,
   dir = 'ltr',
+  lang,
   className = '',
   readOnly = false
 }: TextbitEditableProps, ref: React.LegacyRef<HTMLDivElement>) {
@@ -66,6 +69,7 @@ export const TextbitEditable = forwardRef<HTMLDivElement, TextbitEditableProps>(
       withHistory(e)
     }
     withReact(e)
+    withLang(e, lang)
     withSpelling(e, onSpellcheck, spellcheckDebounceTimeout)
     withInline(e)
     withInsertText(e, plugins)

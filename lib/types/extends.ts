@@ -20,10 +20,12 @@ export type SpellingError = {
 
 export type TBEditor = BaseEditor & ReactEditor & HistoryEditor & {
   spellingLookupTable: Map<string, {
+    lang: string
     text: string
     errors: SpellingError[]
   }>
   spellcheck: () => void
+  lang: string
 }
 
 /**
@@ -36,6 +38,8 @@ export type TBElement = BaseElement & {
   type: string
   hotKey?: string
   properties?: {
+    lang?: string
+  } & {
     [key: string]: string | number | boolean
   }
   attributes?: {

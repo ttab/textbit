@@ -8,7 +8,7 @@ import {
   type ForwardedRef
 } from 'react'
 import { Node } from 'slate'
-import type { RenderElementProps } from 'slate-react'
+import { useSlateStatic, type RenderElementProps } from 'slate-react'
 import type { Plugin } from '../../../../types'
 
 interface ChildElementProps extends RenderElementProps {
@@ -38,7 +38,9 @@ export const ChildElement = ({
   rootNode,
   options
 }: ChildElementProps): ReactElement => {
+  const editor = useSlateStatic()
   const { component: Component } = entry
+  const lang = element.properties?.lang
 
   // Check if the component is forwardRef
   if (isForwardRefComponent<ComponentProps>(Component)) {
@@ -58,6 +60,7 @@ export const ChildElement = ({
 
       // Clone element and merge props
       return cloneElement(childElement, {
+        lang: (lang?.length) ? lang : editor.lang,
         'data-id': element.id,
         className: ['child', childElement.props?.className].filter(Boolean).join(' '),
         ...attributes
@@ -70,7 +73,12 @@ export const ChildElement = ({
 
   // Regular function component
   return (
-    <div className='child' data-id={element.id} {...attributes}>
+    <div
+      lang={(lang?.length) ? lang : editor.lang}
+      data-id={element.id}
+      className='child'
+      {...attributes}
+    >
       <Component element={element} rootNode={rootNode} options={options}>
         {children}
       </Component>

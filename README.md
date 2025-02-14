@@ -182,6 +182,7 @@ Editable area component, acts as wrapper around Slate.
 | onChange | (Descendant[] => void) | Function to receive all changes |
 | onSpellcheck | onSpellcheck?: (texts: string[]) => Array<Array<{<br> str: string,<br> pos: number,<br> sub: string[]<br> }>> | Optional, callback function to handle spellchecking of strings |
 | dir | "ltr" \| "rtl" | Optional, defaults to _ltr_ |
+| lang | string | Optional langage (e.g en, en-BR, sv, sv_FI). Falls back to html document language, then browser language and last "en".
 | yjsEditor | BaseEditor | BaseEditor created with `withYjs()` and `withCursors()` |
 | gutter | boolean | Optional, defaults to true (render gutter). |
 | className | string |  |

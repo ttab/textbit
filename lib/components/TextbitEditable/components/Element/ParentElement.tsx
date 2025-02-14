@@ -1,4 +1,4 @@
-import { useSelected, type RenderElementProps } from 'slate-react'
+import { useSelected, useSlateStatic, type RenderElementProps } from 'slate-react'
 import { Droppable } from './Droppable'
 import type { Plugin } from '../../../../types'
 
@@ -16,7 +16,10 @@ interface ParentElementProps extends RenderElementProps {
  */
 export const ParentElement = (renderProps: ParentElementProps) => {
   const selected = useSelected()
+  const editor = useSlateStatic()
   const { element, attributes, entry } = renderProps
+
+  const lang = renderProps.element.properties?.lang
 
   /*
    * Class "relative" is needed for slate default placeholder to be positioned correctly.
@@ -27,6 +30,7 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   return (
     <Droppable element={element}>
       <div
+        lang={(lang?.length) ? lang : editor.lang}
         data-id={element.id}
         data-state={selected ? 'active' : 'inactive'}
         className={`${element.class} ${element.type} ${entry.class} relative group`}
