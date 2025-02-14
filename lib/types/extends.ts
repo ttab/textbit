@@ -20,6 +20,7 @@ export type SpellingError = {
 
 export type TBEditor = BaseEditor & ReactEditor & HistoryEditor & {
   spellingLookupTable: Map<string, {
+    lang: string
     text: string
     errors: SpellingError[]
   }>

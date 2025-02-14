@@ -37,7 +37,7 @@ import { withLang } from './with/lang'
 
 export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
-  onSpellcheck?: (texts: string[]) => Promise<Omit<SpellingError, 'id'>[][]>
+  onSpellcheck?: (texts: { lang: string, text: string }[]) => Promise<Omit<SpellingError, 'id'>[][]>
   value?: Descendant[]
   yjsEditor?: Editor
   gutter?: boolean

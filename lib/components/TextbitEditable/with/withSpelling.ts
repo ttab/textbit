@@ -4,10 +4,11 @@ import { type SpellingError } from '../../../types'
 import { Editor, Node } from 'slate'
 
 type SpellcheckLookupTable = Map<string, {
+  lang: string
   text: string
   errors: SpellingError[]
 }>
-export type OnSpellcheckCallback = (texts: string[]) => Promise<Omit<SpellingError, 'id'>[][]>
+export type OnSpellcheckCallback = (texts: { text: string, lang: string }[]) => Promise<Omit<SpellingError, 'id'>[][]>
 
 export const withSpelling = (editor: Editor, onSpellcheck: OnSpellcheckCallback | undefined, debounceTimeout: number): Editor => {
   const { onChange } = editor
@@ -61,6 +62,7 @@ async function updateSpellcheck(
 ): Promise<[SpellcheckLookupTable, boolean]> {
   // Find all nodes that need spellchecking
   const tracker: Map<string, {
+    lang: string
     text: string
     errors: SpellingError[]
     check: boolean
@@ -74,11 +76,13 @@ async function updateSpellcheck(
 
     const currentEntry = currentSpellcheckTable.get(node.id)
     const text = Node.string(node)
+    const lang = node.properties?.lang
 
     if (!currentEntry || currentEntry.text !== text) {
       // New node, or existing changed node, spellchecking needed
       const isEmpty = text.trim() === ''
       tracker.set(node.id, {
+        lang: (typeof lang === 'string' && lang.length) ? lang : editor.lang,
         text,
         errors: [],
         check: !isEmpty
@@ -105,7 +109,12 @@ async function updateSpellcheck(
   const result = await onSpellcheck(
     Array.from(tracker.values())
       .filter((entry) => entry.check) // Spellcheck those without spelling info
-      .map((entry) => entry.text)
+      .map((entry) => {
+        return {
+          text: entry.text,
+          lang: entry.lang
+        }
+      })
   )
 
   // Ignore mismatching results

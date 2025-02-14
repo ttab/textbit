@@ -76,6 +76,25 @@ const initialValue: Descendant[] = [
   },
   {
     type: 'core/text',
+    id: '538343b5-badd-48f9-8ef0-1219891b6061',
+    class: 'text',
+    properties: {
+      lang: 'sv-se'
+    },
+    children: [
+      { text: 'Här följer text som är på svenska och följaktligen bör stavningskollas på svenska. ' },
+      {
+        text: 'Stavningskontrollen fungerar '
+      },
+      {
+        text: 'korrrekt',
+        'core/italic': true
+      },
+      { text: ' på flera språk.' }
+    ]
+  },
+  {
+    type: 'core/text',
     id: '538343b5-badd-48f9-8ef0-1219891b6066',
     class: 'text',
     children: [
@@ -99,25 +118,6 @@ const initialValue: Descendant[] = [
     class: 'text',
     children: [
       { text: '' }
-    ]
-  },
-  {
-    type: 'core/text',
-    id: '538343b5-badd-48f9-8ef0-1219891b6061',
-    class: 'text',
-    children: [
-      { text: 'An example paragraph that contains text that is a wee bit ' },
-      {
-        text: 'stronger',
-        'core/bold': true,
-        'core/italic': true
-      },
-      { text: ' than normal but also text that is somewhat ' },
-      {
-        text: 'emphasized',
-        'core/italic': true
-      },
-      { text: ' compared to the normal styled text found elsewhere in the document.' }
     ]
   }
 ]
@@ -191,10 +191,17 @@ export function App() {
 
 type SpellcheckedText = SpellingError[]
 
-function fakeSpellChecker(text: string): SpellcheckedText {
+function fakeSpellChecker(text: string, lang: string): SpellcheckedText {
   const result: SpellcheckedText = []
 
-  const allSuggestions: Record<string, Suggestion[]> = {
+  const svSuggestions: Record<string, Suggestion[]> = {
+    korrrekt: [
+      { text: 'korrekt' },
+      { text: 'korrektur' }
+    ]
+  }
+
+  const enSuggestions: Record<string, Suggestion[]> = {
     wee: [
       { text: 'we', description: 'Alternative single word' },
       { text: 'teeny', description: 'Alternative single word' },
@@ -209,12 +216,15 @@ function fakeSpellChecker(text: string): SpellcheckedText {
     ]
   }
 
-  for (const misspelled of Object.keys(allSuggestions)) {
+  // Choose suggestions dict based on lang
+  const suggestions = (lang.startsWith('sv')) ? svSuggestions : enSuggestions
+
+  for (const misspelled of Object.keys(suggestions)) {
     if (text.toLowerCase().includes(misspelled.toLowerCase())) {
       result.push({
         id: '',
         text: misspelled,
-        suggestions: allSuggestions[misspelled]
+        suggestions: suggestions[misspelled]
       })
     }
   }
@@ -249,9 +259,10 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             setValue(value)
           }}
           onSpellcheck={(texts) => {
+            debugger
             return new Promise((resolve) => {
               setTimeout(() => {
-                resolve(texts.map(fakeSpellChecker))
+                resolve(texts.map((text) => fakeSpellChecker(text.text, text.lang)))
               }, 100)
             })
           }}
