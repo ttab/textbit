@@ -179,7 +179,6 @@ export function App() {
           verbose={true}
           debounce={1000}
           plugins={[...Textbit.Plugins.map((p) => p())]}
-          locale='sv_SE'
         >
           <strong>Long debounce</strong>
           <Editor initialValue={initialValue} />
