@@ -24,6 +24,7 @@ export type TBEditor = BaseEditor & ReactEditor & HistoryEditor & {
     errors: SpellingError[]
   }>
   spellcheck: () => void
+  lang: string
 }
 
 /**
