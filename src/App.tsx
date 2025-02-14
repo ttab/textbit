@@ -259,7 +259,6 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             setValue(value)
           }}
           onSpellcheck={(texts) => {
-            debugger
             return new Promise((resolve) => {
               setTimeout(() => {
                 resolve(texts.map((text) => fakeSpellChecker(text.text, text.lang)))
