@@ -38,6 +38,8 @@ export type TBElement = BaseElement & {
   type: string
   hotKey?: string
   properties?: {
+    lang?: string
+  } & {
     [key: string]: string | number | boolean
   }
   attributes?: {

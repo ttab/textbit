@@ -30,7 +30,7 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   return (
     <Droppable element={element}>
       <div
-        lang={(typeof lang === 'string' && lang.length) ? lang : editor.lang}
+        lang={(lang?.length) ? lang : editor.lang}
         data-id={element.id}
         data-state={selected ? 'active' : 'inactive'}
         className={`${element.class} ${element.type} ${entry.class} relative group`}

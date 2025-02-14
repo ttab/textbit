@@ -60,7 +60,7 @@ export const ChildElement = ({
 
       // Clone element and merge props
       return cloneElement(childElement, {
-        lang: (typeof lang === 'string' && lang.length) ? lang : editor.lang,
+        lang: (lang?.length) ? lang : editor.lang,
         'data-id': element.id,
         className: ['child', childElement.props?.className].filter(Boolean).join(' '),
         ...attributes
@@ -74,7 +74,7 @@ export const ChildElement = ({
   // Regular function component
   return (
     <div
-      lang={(typeof lang === 'string' && lang.length) ? lang : editor.lang}
+      lang={(lang?.length) ? lang : editor.lang}
       data-id={element.id}
       className='child'
       {...attributes}
