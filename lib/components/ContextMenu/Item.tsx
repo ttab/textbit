@@ -1,9 +1,11 @@
 import { type PropsWithChildren, useContext } from 'react'
 import { ContextMenuHintsContext } from './ContextMenuHintsContext'
+import { useSlateStatic } from 'slate-react'
+import { Editor } from 'slate'
 
 type ItemProps = PropsWithChildren & {
   className?: string
-  func?: () => void
+  func?: (editor: Editor) => void
 }
 
 export const Item = ({
@@ -11,6 +13,7 @@ export const Item = ({
   className,
   func = undefined
 }: ItemProps) => {
+  const editor = useSlateStatic()
   const menuCtx = useContext(ContextMenuHintsContext)
 
   return (
@@ -19,7 +22,7 @@ export const Item = ({
       onMouseDown={(e) => {
         e.preventDefault()
         if (func) {
-          func()
+          func(editor)
         }
         menuCtx?.dispatch({
           menu: undefined,
