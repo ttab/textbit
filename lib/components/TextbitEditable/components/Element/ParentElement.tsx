@@ -19,8 +19,6 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   const editor = useSlateStatic()
   const { element, attributes, entry } = renderProps
 
-  const lang = renderProps.element.properties?.lang
-
   /*
    * Class "relative" is needed for slate default placeholder to be positioned correctly.
    * Class "group" add support for tailwind so that plugin components can use tw class
@@ -30,7 +28,7 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   return (
     <Droppable element={element}>
       <div
-        lang={(lang?.length) ? lang : editor.lang}
+        lang={renderProps.element.lang || editor.lang}
         data-id={element.id}
         data-state={selected ? 'active' : 'inactive'}
         className={`${element.class} ${element.type} ${entry.class} relative group`}

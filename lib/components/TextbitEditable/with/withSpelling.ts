@@ -76,13 +76,12 @@ async function updateSpellcheck(
 
     const currentEntry = currentSpellcheckTable.get(node.id)
     const text = Node.string(node)
-    const lang = node.properties?.lang
 
     if (!currentEntry || currentEntry.text !== text) {
       // New node, or existing changed node, spellchecking needed
       const isEmpty = text.trim() === ''
       tracker.set(node.id, {
-        lang: (lang?.length) ? lang : editor.lang,
+        lang: node.lang || editor.lang,
         text,
         errors: [],
         check: !isEmpty

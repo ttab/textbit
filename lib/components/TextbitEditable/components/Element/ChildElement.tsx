@@ -40,7 +40,7 @@ export const ChildElement = ({
 }: ChildElementProps): ReactElement => {
   const editor = useSlateStatic()
   const { component: Component } = entry
-  const lang = element.properties?.lang
+  const lang = element.lang
 
   // Check if the component is forwardRef
   if (isForwardRefComponent<ComponentProps>(Component)) {
@@ -60,7 +60,7 @@ export const ChildElement = ({
 
       // Clone element and merge props
       return cloneElement(childElement, {
-        lang: (lang?.length) ? lang : editor.lang,
+        lang: lang || editor.lang,
         'data-id': element.id,
         className: ['child', childElement.props?.className].filter(Boolean).join(' '),
         ...attributes
@@ -74,7 +74,7 @@ export const ChildElement = ({
   // Regular function component
   return (
     <div
-      lang={(lang?.length) ? lang : editor.lang}
+      lang={lang || editor.lang}
       data-id={element.id}
       className='child'
       {...attributes}
