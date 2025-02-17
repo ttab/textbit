@@ -1,4 +1,4 @@
-import { type PropsWithChildren, useContext } from 'react'
+import { Children, type PropsWithChildren, useContext } from 'react'
 import { ContextMenuHintsContext } from './ContextMenuHintsContext'
 import { useSlateStatic } from 'slate-react'
 import { Editor } from 'slate'
@@ -15,6 +15,10 @@ export const Item = ({
 }: ItemProps) => {
   const editor = useSlateStatic()
   const menuCtx = useContext(ContextMenuHintsContext)
+
+  if (!Children.count(children)) {
+    return <></>
+  }
 
   return (
     <a

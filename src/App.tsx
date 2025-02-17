@@ -292,18 +292,16 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
             </Menu.Root>
           </Textbit.Gutter>
 
-          <ContextMenu.Root className='textbit-contextmenu'>
-            {!!spelling?.suggestions && (
-              <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
-                <>
-                  {spelling.suggestions.length === 0 && (
+          {!!spelling && (
+            <ContextMenu.Root className='textbit-contextmenu'>
+                <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
+                  {spelling?.suggestions.length === 0 && (
                     <ContextMenu.Item className='textbit-contextmenu-item'>
                       No spelling suggestions
                     </ContextMenu.Item>
                   )}
-                </>
-                <>
-                  {spelling.suggestions.map((suggestion) => {
+
+                  {spelling?.suggestions.map((suggestion) => {
                     const { text, description } = suggestion
 
                     return (
@@ -322,11 +320,9 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
                       </ContextMenu.Item>
                     )
                   })}
-                </>
-              </ContextMenu.Group>
-            )}
-          </ContextMenu.Root>
-
+                </ContextMenu.Group>
+            </ContextMenu.Root>
+          )}
           <Toolbar.Root className='textbit-contexttools-menu'>
             <Toolbar.Group key='leafs' className='textbit-contexttools-group'>
               {actions.filter((action) => ['leaf'].includes(action.plugin.class)).map((action) => {

@@ -1,4 +1,4 @@
-import { type PropsWithChildren, useCallback, useContext, useEffect, useLayoutEffect, useRef, Children } from 'react'
+import { type PropsWithChildren, useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useContextMenuHints } from './useContextMenuHints'
 import { ContextMenuHintsContext } from './ContextMenuHintsContext'
@@ -88,13 +88,11 @@ function Popover({ children, className }: PropsWithChildren & {
     }
 
     if (!menu?.position) {
-      return hidePopover()
-    } else if (!Children.count(children)) {
-      return hidePopover()
+      hidePopover()
     } else {
       revealPopover()
     }
-  }, [menu?.position, children, hidePopover, revealPopover])
+  }, [menu?.position, hidePopover, revealPopover])
 
   return (
     <div
