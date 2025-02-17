@@ -172,9 +172,7 @@ export function getDecorationRangeFromMouseEvent(editor: ReactEditor, event: Mou
   let textNode: Node | undefined
   let offset: number | undefined
 
-  // @ts-expect-error Limited availability as per https://developer.mozilla.org/en-US/docs/Web/API/Document/caretPositionFromPoint
   if (document.caretPositionFromPoint) {
-    // @ts-expect-error Does not exist in all browsers
     const domPoint = document.caretPositionFromPoint(event.clientX, event.clientY) as { offsetNode: Node, offset: number } | null // eslint-disable-line
     textNode = domPoint?.offsetNode
     offset = domPoint?.offset ?? 0
