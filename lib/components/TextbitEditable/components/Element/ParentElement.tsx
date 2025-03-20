@@ -34,7 +34,7 @@ export const ParentElement = (renderProps: ParentElementProps) => {
         className={`${element.class} ${element.type} ${entry.class} relative group`}
         {...attributes}
       >
-        {entry.component(renderProps)}
+        <entry.component {...renderProps} editor={editor} />
       </div>
     </Droppable>
   )

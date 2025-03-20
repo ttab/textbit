@@ -8,7 +8,7 @@ import {
   type ForwardedRef
 } from 'react'
 import { Node } from 'slate'
-import { useSlateStatic, type RenderElementProps } from 'slate-react'
+import { useSlateStatic, type ReactEditor, type RenderElementProps } from 'slate-react'
 import type { Plugin } from '../../../../types'
 
 interface ChildElementProps extends RenderElementProps {
@@ -28,6 +28,7 @@ interface ComponentProps {
   rootNode: Node
   options?: Record<string, unknown>
   children?: ReactNode
+  editor: ReactEditor
 }
 
 export const ChildElement = ({
@@ -50,7 +51,8 @@ export const ChildElement = ({
         attributes,
         children,
         rootNode,
-        options
+        options,
+        editor
       }, attributes.ref as ForwardedRef<HTMLElement>) as ReactElement
 
       if (!isValidElement(childElement as unknown)) {
@@ -79,7 +81,7 @@ export const ChildElement = ({
       className='child'
       {...attributes}
     >
-      <Component element={element} rootNode={rootNode} options={options}>
+      <Component element={element} rootNode={rootNode} options={options} editor={editor}>
         {children}
       </Component>
     </div>
