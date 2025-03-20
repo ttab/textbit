@@ -16,7 +16,7 @@ export const ElementComponent = (props: RenderElementProps) => {
   const { components } = usePluginRegistry()
   const component = components.get(element.type)
   if (!component) {
-    return UnknownElement(props)
+    return <UnknownElement {...props} />
   }
 
   // Get the path for this element
@@ -24,28 +24,34 @@ export const ElementComponent = (props: RenderElementProps) => {
 
   // No parents found in path, render a root element
   if (path.length === 1) {
-    return ParentElement({
-      ...props,
-      entry: component.componentEntry,
-      options: component.pluginOptions
-    })
+    return (
+      <ParentElement
+        {...props}
+        entry={component.componentEntry}
+        options={component.pluginOptions}
+      />
+    )
   }
 
   // Render an inline child element
   if (component.class === 'inline') {
-    return InlineElement({
-      ...props,
-      entry: component.componentEntry,
-      options: component.pluginOptions
-    })
+    return (
+      <InlineElement
+        {...props}
+        entry={component.componentEntry}
+        options={component.pluginOptions}
+      />
+    )
   }
 
   // Render a child element and pass it the rootNode for reference
   const rootNode = Node.get(editor, [path[0]])
-  return ChildElement({
-    ...props,
-    entry: component.componentEntry,
-    rootNode,
-    options: component.pluginOptions
-  })
+  return (
+    <ChildElement
+      {...props}
+      entry={component.componentEntry}
+      rootNode={rootNode}
+      options={component.pluginOptions}
+    />
+  )
 }

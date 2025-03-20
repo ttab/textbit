@@ -1,6 +1,6 @@
 import type { PropsWithChildren, ReactNode } from 'react'
 import { Node, type NodeEntry } from 'slate'
-import { type RenderElementProps } from 'slate-react'
+import type { RenderElementProps } from 'slate-react'
 import { Editor, Element } from 'slate'
 
 export namespace Plugin {
@@ -11,6 +11,7 @@ export namespace Plugin {
   export interface ComponentProps extends Omit<RenderElementProps, 'attributes'> {
     rootNode?: Node
     options?: Options
+    editor: Editor
   }
 
   /**
