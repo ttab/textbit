@@ -29,7 +29,7 @@ export const withInsertText = (editor: Editor, plugins: Plugin.Definition[]) => 
       return
     }
 
-    handle.then((response) => {
+    void handle.then((response) => {
       const newText = typeof response === 'string' ? response : text
       insertText(newText)
     })
