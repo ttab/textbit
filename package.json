@@ -57,7 +57,7 @@
     "@types/react-dom": "^19.0.0",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react-swc": "^3.8.0",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.25.2",
     "esbuild-serve": "^1.0.1",
     "eslint": "^9.20.1",
     "eslint-plugin-jest": "^28.8.3",
