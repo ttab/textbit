@@ -30,7 +30,6 @@ export const withInsertHtml = (
     // Figure out if pasting contains line breaks and if that is allowed,
     // then we can't allow Slate to handle slate fragments. Instead we will
     // treat it as text and paste without linebreaks.
-    // FIXME: Should the same logic be for non collapsed selections?
     let allowBreaks = true
 
     if (selection && Range.isCollapsed(selection)) {
