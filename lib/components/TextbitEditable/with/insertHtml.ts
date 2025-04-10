@@ -34,7 +34,8 @@ export const withInsertHtml = (
     let allowBreaks = true
 
     if (selection && Range.isCollapsed(selection)) {
-      const node = getSelectedNodes(editor)?.[0]
+      const nodes = getSelectedNodes(editor)
+      const node = nodes.length && nodes[nodes.length - 1]
       if (Element.isElement(node)) {
         const component = components.get(node.type || '')
         allowBreaks = component?.componentEntry.constraints?.allowBreak ?? true
