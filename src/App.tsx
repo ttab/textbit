@@ -14,7 +14,8 @@ import Textbit, {
 import {
   BulletList,
   NumberList,
-  Link
+  Link,
+  CodeBlock
 } from './plugins'
 
 import './editor-variables.css'
@@ -72,6 +73,23 @@ const initialValue: Descendant[] = [
     class: 'text',
     children: [
       { text: '' }
+    ]
+  },
+  {
+    type: 'core/codeblock',
+    id: '538345e5-aad1-58f9-8ef0-b2198a1a60a2',
+    class: 'block',
+    children: [
+      {
+        type: 'core/codeblock/title',
+        class: 'text',
+        children: [{ text: '' }]
+      },
+      {
+        type: 'core/codeblock/body',
+        class: 'text',
+        children: [{ text: '' }]
+      }
     ]
   },
   {
@@ -165,7 +183,8 @@ export function App() {
             NumberList(),
             Link({
               option1: true // Example option
-            })
+            }),
+            CodeBlock()
           ]}
         >
           <strong>Multiple placeholders</strong>
@@ -294,33 +313,33 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
 
           {!!spelling && (
             <ContextMenu.Root className='textbit-contextmenu'>
-                <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
-                  {spelling?.suggestions.length === 0 && (
-                    <ContextMenu.Item className='textbit-contextmenu-item'>
-                      No spelling suggestions
+              <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
+                {spelling?.suggestions.length === 0 && (
+                  <ContextMenu.Item className='textbit-contextmenu-item'>
+                    No spelling suggestions
+                  </ContextMenu.Item>
+                )}
+
+                {spelling?.suggestions.map((suggestion) => {
+                  const { text, description } = suggestion
+
+                  return (
+                    <ContextMenu.Item
+                      className='textbit-contextmenu-item'
+                      key={text}
+                      func={() => {
+                        spelling.apply(text)
+                      }}
+                    >
+                      {text}
+                      {' '}
+                      -
+                      {' '}
+                      <em>{description}</em>
                     </ContextMenu.Item>
-                  )}
-
-                  {spelling?.suggestions.map((suggestion) => {
-                    const { text, description } = suggestion
-
-                    return (
-                      <ContextMenu.Item
-                        className='textbit-contextmenu-item'
-                        key={text}
-                        func={() => {
-                          spelling.apply(text)
-                        }}
-                      >
-                        {text}
-                        {' '}
-                        -
-                        {' '}
-                        <em>{description}</em>
-                      </ContextMenu.Item>
-                    )
-                  })}
-                </ContextMenu.Group>
+                  )
+                })}
+              </ContextMenu.Group>
             </ContextMenu.Root>
           )}
           <Toolbar.Root className='textbit-contexttools-menu'>

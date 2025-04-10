@@ -6,3 +6,7 @@ export {
 export {
   Link
 } from './Link'
+
+export {
+  CodeBlock
+} from './CodeBlock'
