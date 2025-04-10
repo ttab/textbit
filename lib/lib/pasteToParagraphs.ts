@@ -3,6 +3,7 @@ import * as uuid from 'uuid'
 import { componentConstraints } from './componentConstraints'
 import { TextbitEditor } from './textbit-editor'
 import { type PluginRegistryComponent } from '../components/PluginRegistry/lib/types'
+import { normalizeWhitespace } from './normalizeWhitespace'
 
 
 export function pasteToParagraphs(
@@ -22,13 +23,6 @@ export function pasteToParagraphs(
     return false
   }
 
-  // Split text into paragraphs based on newlines or carriage returns
-  const paragraphedText = text.replace(/[\r\n]{2,}/g, '\n').trim()
-  const paragraphs = paragraphedText.split('\n').map((t) => t.trim())
-  if (paragraphs.length < 2) {
-    return false
-  }
-
   // Find node and which component this is related to
   const parent = TextbitEditor.parent(editor, selection)
   const node = parent[0] as Element
@@ -43,9 +37,14 @@ export function pasteToParagraphs(
   }
 
   // If we don't allow break, let default put all text in same node
+  let paragraphs
   const { allowBreak } = componentConstraints(tbComponent)
   if (!allowBreak) {
-    return false
+    paragraphs = [normalizeWhitespace(text)]
+  } else {
+    // Split text into paragraphs based on newlines or carriage returns
+    const paragraphedText = text.replace(/[\r\n]{2,}/g, '\n').trim()
+    paragraphs = paragraphedText.split('\n').map((t) => t.trim())
   }
 
   // If we have a longer path, paste happens in a child node, all

@@ -1,9 +1,10 @@
-import { Editor } from 'slate'
+import { Editor, Element, Range } from 'slate'
 import { pasteToParagraphs } from '../../../lib/pasteToParagraphs'
 import { type Plugin } from '../../../types'
 import { pasteToConsumers } from '../../../lib/pasteToConsumer'
 import { type PluginRegistryComponent } from '../../../components/PluginRegistry/lib/types'
 import { TextbitPlugin } from '../../../lib'
+import { getSelectedNodeEntries, getSelectedNodes } from '../../../lib/utils'
 
 type Consumers = {
   consumes: Plugin.ConsumesFunction
@@ -24,8 +25,24 @@ export const withInsertHtml = (
   editor.insertData = (data) => {
     const { types } = data
 
-    // Let slate handle slate stuff, works best most of the time
-    if (types.includes('application/x-slate-fragment')) {
+    const { selection } = editor
+
+    // Figure out if pasting contains line breaks and if that is allowed,
+    // then we can't allow Slate to handle slate fragments. Instead we will
+    // treat it as text and paste without linebreaks.
+    // FIXME: Should the same logic be for non collapsed selections?
+    let allowBreaks = true
+
+    if (selection && Range.isCollapsed(selection)) {
+      const node = getSelectedNodes(editor)?.[0]
+      if (Element.isElement(node)) {
+        const component = components.get(node.type || '')
+        allowBreaks = component?.componentEntry.constraints?.allowBreak ?? true
+      }
+    }
+
+    // 1. Let slate handle slate fragments, but only if linebreaks are allowed
+    if (allowBreaks && types.includes('application/x-slate-fragment')) {
       return insertData(data)
     }
 
@@ -35,9 +52,10 @@ export const withInsertHtml = (
       data
     }
 
+    // 2. Allow willing consumers to handle input
     const handle = pasteToConsumers(editor, consumers, input)
     if (handle instanceof Promise) {
-      handle.then((response) => {
+      void handle.then((response) => {
         // If a consumer have processed the input and in turn produced
         // text, use that instead of the original text
         if (typeof response === 'string') {
@@ -48,18 +66,18 @@ export const withInsertHtml = (
       return
     }
 
-    // If we originally got html/text now try to paste it as paragraphs
+    // 3. If we originally got html/text now try to paste it as paragraphs
     // If we don't, Slate will hand it over to insertText(), but when we
     // can handle it we actually do this better than insertText() of Slate
     // which often produces excessive amounts of newlines.
-    if (types.includes('text/plain') && types.includes('text/html')) {
+    if (types.includes('text/plain') && (!allowBreaks || types.includes('text/html'))) {
       const text = data.getData('text/plain')
-      if (text && true === pasteToParagraphs(editor, components, text)) {
+      if (text && pasteToParagraphs(editor, components, text)) {
         return
       }
     }
 
-    // Fallback to Slate
+    // 4. Fallback to Slate
     insertData(data)
   }
 }
