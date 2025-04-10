@@ -4,7 +4,7 @@ import { type Plugin } from '../../../types'
 import { pasteToConsumers } from '../../../lib/pasteToConsumer'
 import { type PluginRegistryComponent } from '../../../components/PluginRegistry/lib/types'
 import { TextbitPlugin } from '../../../lib'
-import { getSelectedNodeEntries, getSelectedNodes } from '../../../lib/utils'
+import { getSelectedNodes } from '../../../lib/utils'
 
 type Consumers = {
   consumes: Plugin.ConsumesFunction
