@@ -83,12 +83,12 @@ const initialValue: Descendant[] = [
       {
         type: 'core/codeblock/title',
         class: 'text',
-        children: [{ text: '' }]
+        children: [{ text: 'Title' }]
       },
       {
         type: 'core/codeblock/body',
         class: 'text',
-        children: [{ text: '' }]
+        children: [{ text: 'Body' }]
       }
     ]
   },
