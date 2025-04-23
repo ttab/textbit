@@ -235,6 +235,57 @@ function handleBlockOperations(
     }
     return
   }
+
+  // 3. If backspace without block selection, don't allow backspace in offset 0 of first child
+  // FIXME: This should be turned into a constraint in the plugin component defenitions
+  // which should also handle delete.
+  if (!blockSelection && event.key === 'Backspace') {
+    const { selection } = textbitEditor
+
+    if (selection && Range.isCollapsed(selection)) {
+      const focusPath = selection.focus.path
+
+      // Check if offset is 0
+      if (selection.focus.offset !== 0) return
+
+      // Find the top-level block above the selection
+      const [blockNode, blockPath] = Editor.above(textbitEditor, {
+        at: focusPath,
+        match: (n) => TextbitElement.isBlock(n)
+      }) ?? []
+
+      if (!blockNode || !blockPath) return
+
+      // Get the path to the first text node in the block
+      const firstTextEntry = Editor.first(textbitEditor, blockPath)
+
+      if (!firstTextEntry) return
+
+      const [, firstTextPath] = firstTextEntry
+
+      if (Path.equals(focusPath, firstTextPath) && selection.focus.offset === 0) {
+        event.preventDefault()
+      }
+    }
+
+    return
+  }
+
+
+  // 4. Handle insertion of new line after selected block
+  if (blockSelection && event.key === 'Enter') {
+    const nextPath = Path.next(blockSelection.path)
+    Transforms.insertNodes(textbitEditor, {
+      id: crypto.randomUUID(),
+      class: 'text',
+      type: 'core/text',
+      children: [{ text: '' }]
+    }, { at: nextPath })
+
+    Transforms.select(textbitEditor, Editor.start(textbitEditor, nextPath))
+    setBlockSelection(undefined)
+    event.preventDefault()
+  }
 }
 
 function isMovingIntoBlockNode(editor: Editor, key: NavigationKey): BlockSelection | undefined {
