@@ -1,5 +1,5 @@
 import React, { useRef, forwardRef, useState, useCallback } from 'react'
-import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, type NodeEntry, Node, type BaseRange, Path, Point } from 'slate'
+import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, type NodeEntry, Node, type BaseRange, Path, Point, Selection } from 'slate'
 import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused } from 'slate-react'
 import { toggleLeaf } from '../../../../lib/toggleLeaf'
 import type { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
@@ -25,6 +25,7 @@ type NavigationKey = 'ArrowRight' | 'ArrowDown' | 'ArrowUp' | 'ArrowLeft'
 type BlockSelection = {
   edge: string
   path: Path
+  direction: 'in' | 'out'
 } | undefined
 
 export const SlateEditable = forwardRef(function SlateEditable({
@@ -180,7 +181,9 @@ function handleNavigation(
   setBlockSelection: React.Dispatch<React.SetStateAction<BlockSelection>>
 ) {
   if (isNavigationKey(event.key)) {
-    const newBlockSelection = isMovingTowardsChild(textbitEditor, event.key)
+    const inToBlockSelection = blockSelection ? undefined : isMovingIntoBlockNode(textbitEditor, event.key)
+    const outFromBlockSelection = inToBlockSelection ? undefined : isMovingOutOfBlockNode(textbitEditor, event.key)
+    const newBlockSelection = inToBlockSelection || outFromBlockSelection
 
     if (newBlockSelection?.path?.[0] !== blockSelection?.path?.[0]) {
       if (blockSelection) {
@@ -222,20 +225,12 @@ function handleNavigation(
   }
 }
 
-
-function isMovingTowardsChild(editor: Editor, key: NavigationKey): {
-  edge: string
-  path: Path
-} | undefined {
+function isMovingIntoBlockNode(editor: Editor, key: NavigationKey): BlockSelection | undefined {
   const { selection } = editor
   if (!selection || !selection.focus) return
 
-  const [node] = Editor.node(editor, selection.focus.path)
-
   // If we navigate "horisontally" and are not at the edges we can stop
-  if (key === 'ArrowRight' && selection.focus.offset !== Node.string(node).length) {
-    return
-  } else if (key === 'ArrowLeft' && selection.focus.offset !== 0) {
+  if (isAtTextEdges(editor, key, selection) === false) {
     return
   }
 
@@ -253,7 +248,34 @@ function isMovingTowardsChild(editor: Editor, key: NavigationKey): {
     && Object.prototype.hasOwnProperty.call(nextChildNode, 'text')) {
     return {
       edge: getEdge(key, 'in'),
-      path: [nextPoint.path[0]]
+      path: [nextPoint.path[0]],
+      direction: 'in'
+    }
+  }
+}
+
+function isMovingOutOfBlockNode(editor: Editor, key: NavigationKey): BlockSelection | undefined {
+  const { selection } = editor
+  if (!selection || !selection.focus) return
+
+  if (isAtTextEdges(editor, key, selection) === false) {
+    return
+  }
+
+  const [parentBlock] = Editor.above(editor, {
+    at: selection.focus,
+    match: (n) => TextbitElement.isBlock(n)
+  }) ?? []
+
+  if (!TextbitElement.isBlock(parentBlock)) return
+
+  const nextPoint = getNextPoint(editor, selection, key)
+
+  if (selection.focus.path[0] !== nextPoint?.path[0]) {
+    return {
+      edge: getEdge(key, 'out'),
+      path: [selection.focus.path[0]],
+      direction: 'out'
     }
   }
 }
@@ -268,6 +290,29 @@ function getNextPoint(editor: Editor, selection: BaseRange, key: NavigationKey) 
   } else if (key === 'ArrowUp') {
     return Editor.before(editor, selection.focus.path)
   }
+}
+
+/**
+ * Find out out whether the cursor is at any of the edges of the text when
+ * navigating horisontally. (Even though it does not take into account that
+ * it can be in an inline node it does save us from a lot of calculations.)
+ */
+function isAtTextEdges(editor: Editor, key: NavigationKey, selection: BaseRange) {
+  const [node] = Editor.node(editor, selection.focus.path)
+
+  if (key === 'ArrowUp' || key === 'ArrowDown') {
+    return
+  }
+
+  if (key === 'ArrowRight' && selection.focus.offset === Node.string(node).length) {
+    return true
+  }
+
+  if (key === 'ArrowLeft' && selection.focus.offset === 0) {
+    return true
+  }
+
+  return false
 }
 
 /**
