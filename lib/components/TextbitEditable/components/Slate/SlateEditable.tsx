@@ -208,6 +208,8 @@ function handleNavigation(
 
       event.preventDefault()
       setBlockSelection(newBlockSelection)
+    } else if (blockSelection) {
+      setBlockSelection(undefined)
     }
   }
 
