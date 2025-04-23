@@ -1,6 +1,6 @@
 import React, { useRef, forwardRef, useState, useCallback } from 'react'
-import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, type NodeEntry, Node, BaseRange, Path } from 'slate'
-import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused, useSlateStatic } from 'slate-react'
+import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, type NodeEntry, Node, type BaseRange, Path, Location, Point } from 'slate'
+import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused } from 'slate-react'
 import { toggleLeaf } from '../../../../lib/toggleLeaf'
 import type { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '../../../../components/TextbitRoot'
@@ -20,6 +20,13 @@ interface SlateEditableProps {
   readOnly?: boolean
 }
 
+type NavigationKey = 'ArrowRight' | 'ArrowDown' | 'ArrowUp' | 'ArrowLeft'
+
+type BlockSelection = {
+  edge: string
+  path: Path
+} | undefined
+
 export const SlateEditable = forwardRef(function SlateEditable({
   className = '',
   textbitEditor,
@@ -33,10 +40,7 @@ export const SlateEditable = forwardRef(function SlateEditable({
   const focused = useFocused()
   const { placeholder } = useTextbit()
   const wrapperRef = useRef<HTMLDivElement>(null)
-  const [blockSelection, setBlockSelection] = useState<{
-    edge: string
-    path: Path
-  } | undefined>(undefined)
+  const [blockSelection, setBlockSelection] = useState<BlockSelection>(undefined)
 
   useContextMenu(wrapperRef)
 
@@ -62,35 +66,11 @@ export const SlateEditable = forwardRef(function SlateEditable({
         renderElement={renderSlateElement}
         renderLeaf={renderLeafComponent}
         onKeyDown={(event) => {
-          if (['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
-            const newBlockSelection = isMovingTowardsChild(textbitEditor, event.key)
-            if (!!newBlockSelection?.path !== !!blockSelection) {
-              if (blockSelection) {
-                // We are already inside the block and have a block selection. The real
-                // selection are already the first postion. So when we clear the block
-                // selection the current cursor position will be rendered correctly
-                event.preventDefault()
-              }
+          handleNavigation(textbitEditor, event, blockSelection, setBlockSelection)
 
-              // Block selection will be cleared or set
-              setBlockSelection(newBlockSelection)
-            }
+          if (!event.defaultPrevented) {
+            handleOnKeyDown(textbitEditor, actions, event)
           }
-
-          // Special cases
-          if (blockSelection && ['Backspace', 'Delete'].includes(event.key)) {
-            // FIXME: Handle special backspace case:
-            // Add check if we are in the first pos of the first child in block node children
-            // - then we should ignore the backspace.
-            console.log('REMOVE IT')
-          } else if (blockSelection && event.key === 'Enter') {
-            // FIXME: Handle special enter case:
-            // Add check if we are in the last pos of the last child in block node children
-            // and that child is a single line - then we also want to add line after.
-            console.log('Add line after')
-          }
-
-          handleOnKeyDown(textbitEditor, actions, event)
         }}
         decorate={onDecorate}
         onBlur={onBlur}
@@ -187,8 +167,63 @@ function handleOnKeyDown(editor: SlateEditor, actions: PluginRegistryAction[], e
   }
 }
 
+/**
+ * Handle navigation into and out from blocks using arrow keys. This kind of navigation
+ * should always be handle in two steps, first the whole block is selected and the cursor
+ * hidden, the next navigation should move in to or out of the block. Slate does not have
+ * the concept of block node selections which is why this is needed.
+ */
+function handleNavigation(
+  textbitEditor: Editor,
+  event: React.KeyboardEvent<HTMLDivElement>,
+  blockSelection: BlockSelection,
+  setBlockSelection: React.Dispatch<React.SetStateAction<BlockSelection>>
+) {
+  if (isNavigationKey(event.key)) {
+    const newBlockSelection = isMovingTowardsChild(textbitEditor, event.key)
 
-function isMovingTowardsChild(editor: Editor, key: string): {
+    if (newBlockSelection?.path?.[0] !== blockSelection?.path?.[0]) {
+      if (blockSelection) {
+        let outsideSelection: Point | undefined
+
+        if (['ArrowLeft', 'ArrowUp'].includes(event.key) && blockSelection.edge === 'start') {
+          outsideSelection = Editor.before(textbitEditor, blockSelection.path)
+        } else if (['ArrowRight', 'ArrowDown'].includes(event.key) && blockSelection.edge === 'end') {
+          outsideSelection = Editor.after(textbitEditor, blockSelection.path)
+        }
+
+        if (outsideSelection) {
+          Transforms.select(textbitEditor, outsideSelection)
+        }
+      } else if (newBlockSelection?.path) {
+        if (newBlockSelection.edge === 'start') {
+          Transforms.select(textbitEditor, Editor.start(textbitEditor, newBlockSelection.path))
+        } else {
+          Transforms.select(textbitEditor, Editor.end(textbitEditor, newBlockSelection.path))
+        }
+      }
+
+      event.preventDefault()
+      setBlockSelection(newBlockSelection)
+    }
+  }
+
+  // Special cases
+  if (blockSelection && ['Backspace', 'Delete'].includes(event.key)) {
+    // FIXME: Handle special backspace case:
+    // Add check if we are in the first pos of the first child in block node children
+    // - then we should ignore the backspace.
+    console.log('REMOVE IT')
+  } else if (blockSelection && event.key === 'Enter') {
+    // FIXME: Handle special enter case:
+    // Add check if we are in the last pos of the last child in block node children
+    // and that child is a single line - then we also want to add line after.
+    console.log('Add line after')
+  }
+}
+
+
+function isMovingTowardsChild(editor: Editor, key: NavigationKey): {
   edge: string
   path: Path
 } | undefined {
@@ -217,32 +252,41 @@ function isMovingTowardsChild(editor: Editor, key: string): {
     && selection.focus.path[0] !== nextPoint.path[0]
     && Object.prototype.hasOwnProperty.call(nextChildNode, 'text')) {
     return {
-      edge: getEdge(key),
+      edge: getEdge(key, 'in'),
       path: [nextPoint.path[0]]
     }
   }
 }
 
-function getNextPoint(editor: Editor, selection: BaseRange, key: string) {
+function getNextPoint(editor: Editor, selection: BaseRange, key: NavigationKey) {
   if (key === 'ArrowRight') {
-    return Editor.after(editor, selection.focus)
+    return Editor.after(editor, selection.focus.path)
   } else if (key === 'ArrowDown') {
-    return Editor.after(editor, selection)
+    return Editor.after(editor, selection.focus.path)
   } else if (key === 'ArrowLeft') {
-    return Editor.before(editor, selection.focus)
+    return Editor.before(editor, selection.focus.path)
   } else if (key === 'ArrowUp') {
-    return Editor.before(editor, selection)
+    return Editor.before(editor, selection.focus.path)
   }
 }
 
-function getEdge(key: string) {
-  if (key === 'ArrowRight') {
-    return 'start'
-  } else if (key === 'ArrowDown') {
-    return 'start'
-  } else if (key === 'ArrowLeft') {
-    return 'end'
+/**
+ * Identify which edge of a block we are at when navigating into or out from a block.
+ */
+function getEdge(
+  key: NavigationKey,
+  direction: 'in' | 'out'
+): 'end' | 'start' {
+  if (['ArrowRight', 'ArrowDown'].includes(key)) {
+    return direction === 'in' ? 'start' : 'end'
   } else {
-    return 'end'
+    return direction === 'in' ? 'end' : 'start'
   }
+}
+
+/**
+ * Type guard for navigation keys-
+ */
+function isNavigationKey(value: unknown): value is NavigationKey {
+  return typeof value === 'string' && ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(value)
 }

@@ -1,0 +1,13 @@
+div[role="textbox"] {
+  margin: 5px 10px;
+}
+
+div:focus {
+  outline-color: transparent;
+}
+
+div[data-state="selected"] {
+  outline: rgba(0, 123, 255, .5) solid 2px;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
