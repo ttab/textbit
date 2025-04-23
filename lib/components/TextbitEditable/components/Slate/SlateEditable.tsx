@@ -67,7 +67,7 @@ export const SlateEditable = forwardRef(function SlateEditable({
         renderElement={renderSlateElement}
         renderLeaf={renderLeafComponent}
         onKeyDown={(event) => {
-          handleNavigation(textbitEditor, event, blockSelection, setBlockSelection)
+          handleBlockOperations(textbitEditor, event, blockSelection, setBlockSelection)
 
           if (!event.defaultPrevented) {
             handleOnKeyDown(textbitEditor, actions, event)
@@ -169,17 +169,22 @@ function handleOnKeyDown(editor: SlateEditor, actions: PluginRegistryAction[], e
 }
 
 /**
- * Handle navigation into and out from blocks using arrow keys. This kind of navigation
+ * 1. Handle navigation into and out from blocks using arrow keys. This kind of navigation
  * should always be handle in two steps, first the whole block is selected and the cursor
  * hidden, the next navigation should move in to or out of the block. Slate does not have
  * the concept of block node selections which is why this is needed.
+ *
+ * 2. Handle deletion of block node through backspace and delete.
+ *
+ * 3. Prevent deletion when in offset 0 in first child.
  */
-function handleNavigation(
+function handleBlockOperations(
   textbitEditor: Editor,
   event: React.KeyboardEvent<HTMLDivElement>,
   blockSelection: BlockSelection,
   setBlockSelection: React.Dispatch<React.SetStateAction<BlockSelection>>
 ) {
+  // 1. Handle navigation with arrow keys and selecting/deselecting block node
   if (isNavigationKey(event.key)) {
     const inToBlockSelection = blockSelection ? undefined : isMovingIntoBlockNode(textbitEditor, event.key)
     const outFromBlockSelection = inToBlockSelection ? undefined : isMovingOutOfBlockNode(textbitEditor, event.key)
@@ -211,19 +216,24 @@ function handleNavigation(
     } else if (blockSelection) {
       setBlockSelection(undefined)
     }
+
+    return
   }
 
-  // Special cases
+  // 2. If there is a block selection and the user hits delete
   if (blockSelection && ['Backspace', 'Delete'].includes(event.key)) {
-    // FIXME: Handle special backspace case:
-    // Add check if we are in the first pos of the first child in block node children
-    // - then we should ignore the backspace.
-    console.log('REMOVE IT')
-  } else if (blockSelection && event.key === 'Enter') {
-    // FIXME: Handle special enter case:
-    // Add check if we are in the last pos of the last child in block node children
-    // and that child is a single line - then we also want to add line after.
-    console.log('Add line after')
+    event.preventDefault()
+
+    const [blockNode] = Editor.node(textbitEditor, blockSelection.path)
+    if (SlateElement.isElement(blockNode)) {
+      Transforms.removeNodes(textbitEditor, {
+        at: blockSelection.path,
+        match: (n) => SlateElement.isElement(n) && TextbitElement.isBlock(n)
+      })
+
+      setBlockSelection(undefined)
+    }
+    return
   }
 }
 
