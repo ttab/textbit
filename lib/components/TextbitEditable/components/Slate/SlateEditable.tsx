@@ -1,5 +1,5 @@
 import React, { useRef, forwardRef, useState, useCallback } from 'react'
-import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, type NodeEntry, Node, type BaseRange, Path, Location, Point } from 'slate'
+import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, type NodeEntry, Node, type BaseRange, Path, Point } from 'slate'
 import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused } from 'slate-react'
 import { toggleLeaf } from '../../../../lib/toggleLeaf'
 import type { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
