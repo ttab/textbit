@@ -236,15 +236,11 @@ function handleBlockOperations(
   if (blockSelection && ['Backspace', 'Delete'].includes(event.key)) {
     event.preventDefault()
 
-    const [blockNode] = Editor.node(textbitEditor, blockSelection.path)
-    if (SlateElement.isElement(blockNode)) {
-      Transforms.removeNodes(textbitEditor, {
-        at: blockSelection.path,
-        match: (n) => SlateElement.isElement(n) && TextbitElement.isBlock(n)
-      })
+    Transforms.removeNodes(textbitEditor, {
+      at: [blockSelection.path[0]]
+    })
 
-      setBlockSelection(undefined)
-    }
+    setBlockSelection(undefined)
     return
   }
 
