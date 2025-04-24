@@ -355,11 +355,11 @@ function getNextPoint(editor: Editor, selection: BaseRange, key: NavigationKey) 
   if (key === 'ArrowRight') {
     return Editor.after(editor, selection.focus.path)
   } else if (key === 'ArrowDown') {
-    return Editor.after(editor, selection.focus.path)
+    return Editor.after(editor, selection.focus.path, { unit: 'line' })
   } else if (key === 'ArrowLeft') {
     return Editor.before(editor, selection.focus.path)
   } else if (key === 'ArrowUp') {
-    return Editor.before(editor, selection.focus.path)
+    return Editor.before(editor, selection.focus.path, { unit: 'line' })
   }
 }
 
