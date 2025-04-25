@@ -244,7 +244,7 @@ Can be used to wrap all elements in plugin components. Provides data state attri
 
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
-| [data-state] | "selected" \| "active" \| "inactive" | The value "selected" indicates that that the block node is selected as a whole. Values "active" or "inactive" indicates whether the cursor is in the element or the element is part of a selection. |
+| [data-state] | "active" \| "inactive" | The values "active" or "inactive" indicates whether the cursor is in the element or the element is part of a selection. |
 
 ### Styling spelling errors
 
