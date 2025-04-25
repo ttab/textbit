@@ -6,16 +6,13 @@ import {
   Editor,
   Text,
   Range,
-  type NodeEntry,
-  Path,
-  Point,
-  Element
+  type NodeEntry
 } from 'slate'
 import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused } from 'slate-react'
 import { toggleLeaf } from '../../../../lib/toggleLeaf'
 import type { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '../../../../components/TextbitRoot'
-import { TextbitEditor, TextbitElement } from '../../../../lib'
+import { TextbitEditor } from '../../../../lib'
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 import { ElementComponent } from '../Element'
 import { Leaf } from '../Leaf'
@@ -68,11 +65,7 @@ export const SlateEditable = forwardRef(function SlateEditable({
         renderElement={renderSlateElement}
         renderLeaf={renderLeafComponent}
         onKeyDown={(event) => {
-          handleBlockOperations(textbitEditor, event)
-
-          if (!event.defaultPrevented) {
-            handleOnKeyDown(textbitEditor, actions, event)
-          }
+          handleOnKeyDown(textbitEditor, actions, event)
         }}
         decorate={onDecorate}
         onBlur={onBlur}
@@ -161,51 +154,5 @@ function handleOnKeyDown(editor: SlateEditor, actions: PluginRegistryAction[], e
       )
     }
     break
-  }
-}
-
-/**
- * 1. Handle navigation into and out from blocks using arrow keys. This kind of navigation
- * should always be handle in two steps, first the whole block is selected and the cursor
- * hidden, the next navigation should move in to or out of the block. Slate does not have
- * the concept of block node selections which is why this is needed.
- *
- * 2. Handle deletion of block node through backspace and delete.
- *
- * 3. Prevent deletion when in offset 0 in first child.
- */
-function handleBlockOperations(
-  textbitEditor: Editor,
-  event: React.KeyboardEvent<HTMLDivElement>
-) {
-  if (event.key === 'Enter') {
-    const { selection } = textbitEditor
-    if (!selection || !Range.isCollapsed(selection)) return
-
-    const [blockEntry] = Editor.nodes(textbitEditor, {
-      match: (n) => Element.isElement(n) && n.class === 'block',
-      at: selection
-    })
-
-    if (blockEntry) {
-      const [, path] = blockEntry
-      const blockEnd = Editor.end(textbitEditor, path)
-
-      if (Point.equals(selection.anchor, blockEnd)) {
-        const after = Path.next(path)
-        Transforms.select(textbitEditor, blockEnd)
-
-        Transforms.insertNodes(textbitEditor, {
-          id: crypto.randomUUID(),
-          class: 'text',
-          type: 'core/text',
-          children: [{ text: '' }]
-        }, { at: after })
-        Transforms.select(textbitEditor, Editor.start(textbitEditor, after))
-        event.preventDefault()
-        return
-      }
-    }
-    return
   }
 }
