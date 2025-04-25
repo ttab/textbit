@@ -1,4 +1,5 @@
 import { Editor, Element, Node, Path, Range, Text, Transforms } from 'slate'
+import { TextbitElement } from '../../../lib'
 
 export const withDeletionManagement = (editor: Editor) => {
   const { deleteBackward, deleteForward } = editor
@@ -19,10 +20,11 @@ export const withDeletionManagement = (editor: Editor) => {
       const [node, path] = entry
       const string = Node.string(node)
 
-      // If we are at offset 0 in the first child of a block node we
+      // If we are at offset 0 in the first text child of a block node we
       // do not allow backspace at all.
       const firstTextEntry = Editor.first(editor, path)
       if (firstTextEntry
+        && TextbitElement.isBlock(node)
         && Path.equals(selection.focus.path, firstTextEntry[1])
         && selection.focus.offset === 0) {
         return
