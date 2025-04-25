@@ -19,6 +19,15 @@ export const withDeletionManagement = (editor: Editor) => {
       const [node, path] = entry
       const string = Node.string(node)
 
+      // If we are at offset 0 in the first child of a block node we
+      // do not allow backspace at all.
+      const firstTextEntry = Editor.first(editor, path)
+      if (firstTextEntry
+        && Path.equals(selection.focus.path, firstTextEntry[1])
+        && selection.focus.offset === 0) {
+        return
+      }
+
       // If we are on the first node in the document and the node is empty we should
       // delete the node instead of a following block node. Necessary to be able to
       // delete an empty start line first in the document. Allowing backspace to do

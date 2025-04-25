@@ -178,43 +178,6 @@ function handleBlockOperations(
   textbitEditor: Editor,
   event: React.KeyboardEvent<HTMLDivElement>
 ) {
-  // If backspace without block selection, don't allow backspace in offset 0 of first child
-  // FIXME: This should be turned into a constraint in the plugin component defenitions
-  // which should also handle delete.
-  // FIXME: Move this ot withBlockDeletion.ts!!!
-  if (event.key === 'Backspace') {
-    const { selection } = textbitEditor
-
-    if (selection && Range.isCollapsed(selection)) {
-      const focusPath = selection.focus.path
-
-      // Check if offset is 0
-      if (selection.focus.offset !== 0) return
-
-      // Find the top-level block above the selection
-      const [blockNode, blockPath] = Editor.above(textbitEditor, {
-        at: focusPath,
-        match: (n) => TextbitElement.isBlock(n)
-      }) ?? []
-
-      if (!blockNode || !blockPath) return
-
-      // Get the path to the first text node in the block
-      const firstTextEntry = Editor.first(textbitEditor, blockPath)
-
-      if (!firstTextEntry) return
-
-      const [, firstTextPath] = firstTextEntry
-
-      if (Path.equals(focusPath, firstTextPath) && selection.focus.offset === 0) {
-        event.preventDefault()
-      }
-    }
-
-    return
-  }
-
-  // FIXME: Merge this with below enter or move to a withBreak
   if (event.key === 'Enter') {
     const { selection } = textbitEditor
     if (!selection || !Range.isCollapsed(selection)) return
@@ -231,11 +194,7 @@ function handleBlockOperations(
       if (Point.equals(selection.anchor, blockEnd)) {
         const after = Path.next(path)
         Transforms.select(textbitEditor, blockEnd)
-        // Transforms.insertNodes(
-        //   textbitEditor,
-        //   { type: 'paragraph', children: [{ text: '' }] },
-        //   { at: after }
-        // )
+
         Transforms.insertNodes(textbitEditor, {
           id: crypto.randomUUID(),
           class: 'text',
@@ -249,20 +208,4 @@ function handleBlockOperations(
     }
     return
   }
-
-
-  // 4. Handle insertion of new line after selected block
-  // if (blockSelection && event.key === 'Enter') {
-  //   const nextPath = Path.next(blockSelection.path)
-  //   Transforms.insertNodes(textbitEditor, {
-  //     id: crypto.randomUUID(),
-  //     class: 'text',
-  //     type: 'core/text',
-  //     children: [{ text: '' }]
-  //   }, { at: nextPath })
-
-  //   Transforms.select(textbitEditor, Editor.start(textbitEditor, nextPath))
-  //   setBlockSelection(undefined)
-  //   event.preventDefault()
-  // }
 }
