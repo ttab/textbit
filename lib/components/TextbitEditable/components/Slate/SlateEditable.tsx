@@ -1,4 +1,4 @@
-import React, { useRef, forwardRef, useState, useCallback } from 'react'
+import React, { useRef, forwardRef, useCallback } from 'react'
 import {
   Editor as SlateEditor,
   Transforms,
@@ -7,10 +7,9 @@ import {
   Text,
   Range,
   type NodeEntry,
-  Node,
-  type BaseRange,
   Path,
-  Point
+  Point,
+  Element
 } from 'slate'
 import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused } from 'slate-react'
 import { toggleLeaf } from '../../../../lib/toggleLeaf'
@@ -32,14 +31,6 @@ interface SlateEditableProps {
   readOnly?: boolean
 }
 
-type NavigationKey = 'ArrowRight' | 'ArrowDown' | 'ArrowUp' | 'ArrowLeft'
-
-type BlockSelection = {
-  edge: string
-  path: Path
-  direction: 'in' | 'out'
-} | undefined
-
 export const SlateEditable = forwardRef(function SlateEditable({
   className = '',
   textbitEditor,
@@ -53,16 +44,14 @@ export const SlateEditable = forwardRef(function SlateEditable({
   const focused = useFocused()
   const { placeholder } = useTextbit()
   const wrapperRef = useRef<HTMLDivElement>(null)
-  const [blockSelection, setBlockSelection] = useState<BlockSelection>(undefined)
 
   useContextMenu(wrapperRef)
 
   const renderSlateElement = useCallback((props: RenderElementProps) => {
     return ElementComponent({
-      ...props,
-      selectedBlockPath: blockSelection?.path
+      ...props
     })
-  }, [blockSelection])
+  }, [])
 
   const renderLeafComponent = useCallback((props: RenderLeafProps) => {
     return Leaf(props)
@@ -79,7 +68,7 @@ export const SlateEditable = forwardRef(function SlateEditable({
         renderElement={renderSlateElement}
         renderLeaf={renderLeafComponent}
         onKeyDown={(event) => {
-          handleBlockOperations(textbitEditor, event, blockSelection, setBlockSelection)
+          handleBlockOperations(textbitEditor, event)
 
           if (!event.defaultPrevented) {
             handleOnKeyDown(textbitEditor, actions, event)
@@ -90,11 +79,6 @@ export const SlateEditable = forwardRef(function SlateEditable({
         spellCheck={false}
         autoFocus={autoFocus}
         onMouseDown={(event) => {
-          // Always clear block selection
-          if (blockSelection) {
-            setBlockSelection(undefined)
-          }
-
           if (!focused && !textbitEditor.selection) {
             // Especially Firefox does not set it correctly on first click
             const range = ReactEditor.findEventRange(textbitEditor, event)
@@ -192,62 +176,13 @@ function handleOnKeyDown(editor: SlateEditor, actions: PluginRegistryAction[], e
  */
 function handleBlockOperations(
   textbitEditor: Editor,
-  event: React.KeyboardEvent<HTMLDivElement>,
-  blockSelection: BlockSelection,
-  setBlockSelection: React.Dispatch<React.SetStateAction<BlockSelection>>
+  event: React.KeyboardEvent<HTMLDivElement>
 ) {
-  // 1. Handle navigation with arrow keys and selecting/deselecting block node
-  if (isNavigationKey(event.key)) {
-    const inToBlockSelection = blockSelection ? undefined : isMovingIntoBlockNode(textbitEditor, event.key)
-    const outFromBlockSelection = inToBlockSelection ? undefined : isMovingOutOfBlockNode(textbitEditor, event.key)
-    const newBlockSelection = inToBlockSelection || outFromBlockSelection
-
-    if (newBlockSelection?.path?.[0] !== blockSelection?.path?.[0]) {
-      if (blockSelection) {
-        let outsideSelection: Point | undefined
-
-        if (['ArrowLeft', 'ArrowUp'].includes(event.key) && blockSelection.edge === 'start') {
-          outsideSelection = Editor.before(textbitEditor, blockSelection.path)
-        } else if (['ArrowRight', 'ArrowDown'].includes(event.key) && blockSelection.edge === 'end') {
-          outsideSelection = Editor.after(textbitEditor, blockSelection.path)
-        }
-
-        if (outsideSelection) {
-          Transforms.select(textbitEditor, outsideSelection)
-        }
-      } else if (newBlockSelection?.path) {
-        if (newBlockSelection.edge === 'start') {
-          Transforms.select(textbitEditor, Editor.start(textbitEditor, newBlockSelection.path))
-        } else {
-          Transforms.select(textbitEditor, Editor.end(textbitEditor, newBlockSelection.path))
-        }
-      }
-
-      event.preventDefault()
-      setBlockSelection(newBlockSelection)
-    } else if (blockSelection) {
-      setBlockSelection(undefined)
-    }
-
-    return
-  }
-
-  // 2. If there is a block selection and the user hits delete
-  if (blockSelection && ['Backspace', 'Delete'].includes(event.key)) {
-    event.preventDefault()
-
-    Transforms.removeNodes(textbitEditor, {
-      at: [blockSelection.path[0]]
-    })
-
-    setBlockSelection(undefined)
-    return
-  }
-
-  // 3. If backspace without block selection, don't allow backspace in offset 0 of first child
+  // If backspace without block selection, don't allow backspace in offset 0 of first child
   // FIXME: This should be turned into a constraint in the plugin component defenitions
   // which should also handle delete.
-  if (!blockSelection && event.key === 'Backspace') {
+  // FIXME: Move this ot withBlockDeletion.ts!!!
+  if (event.key === 'Backspace') {
     const { selection } = textbitEditor
 
     if (selection && Range.isCollapsed(selection)) {
@@ -279,130 +214,55 @@ function handleBlockOperations(
     return
   }
 
+  // FIXME: Merge this with below enter or move to a withBreak
+  if (event.key === 'Enter') {
+    const { selection } = textbitEditor
+    if (!selection || !Range.isCollapsed(selection)) return
+
+    const [blockEntry] = Editor.nodes(textbitEditor, {
+      match: (n) => Element.isElement(n) && n.class === 'block',
+      at: selection
+    })
+
+    if (blockEntry) {
+      const [, path] = blockEntry
+      const blockEnd = Editor.end(textbitEditor, path)
+
+      if (Point.equals(selection.anchor, blockEnd)) {
+        const after = Path.next(path)
+        Transforms.select(textbitEditor, blockEnd)
+        // Transforms.insertNodes(
+        //   textbitEditor,
+        //   { type: 'paragraph', children: [{ text: '' }] },
+        //   { at: after }
+        // )
+        Transforms.insertNodes(textbitEditor, {
+          id: crypto.randomUUID(),
+          class: 'text',
+          type: 'core/text',
+          children: [{ text: '' }]
+        }, { at: after })
+        Transforms.select(textbitEditor, Editor.start(textbitEditor, after))
+        event.preventDefault()
+        return
+      }
+    }
+    return
+  }
+
 
   // 4. Handle insertion of new line after selected block
-  if (blockSelection && event.key === 'Enter') {
-    const nextPath = Path.next(blockSelection.path)
-    Transforms.insertNodes(textbitEditor, {
-      id: crypto.randomUUID(),
-      class: 'text',
-      type: 'core/text',
-      children: [{ text: '' }]
-    }, { at: nextPath })
+  // if (blockSelection && event.key === 'Enter') {
+  //   const nextPath = Path.next(blockSelection.path)
+  //   Transforms.insertNodes(textbitEditor, {
+  //     id: crypto.randomUUID(),
+  //     class: 'text',
+  //     type: 'core/text',
+  //     children: [{ text: '' }]
+  //   }, { at: nextPath })
 
-    Transforms.select(textbitEditor, Editor.start(textbitEditor, nextPath))
-    setBlockSelection(undefined)
-    event.preventDefault()
-  }
-}
-
-function isMovingIntoBlockNode(editor: Editor, key: NavigationKey): BlockSelection | undefined {
-  const { selection } = editor
-  if (!selection || !selection.focus) return
-
-  // If we navigate "horisontally" and are not at the edges we can stop
-  if (isAtTextEdges(editor, key, selection) === false) {
-    return
-  }
-
-  // Get the next point
-  const nextPoint = getNextPoint(editor, selection, key)
-  if (!nextPoint) return
-
-  const [nextNode] = Editor.node(editor, [nextPoint.path[0]])
-  const [nextChildNode] = Editor.node(editor, nextPoint.path)
-
-  if (TextbitElement.isBlock(nextNode)
-    && SlateElement.isElement(nextNode)
-    && !!nextNode.children.length
-    && selection.focus.path[0] !== nextPoint.path[0]
-    && Object.prototype.hasOwnProperty.call(nextChildNode, 'text')) {
-    return {
-      edge: getEdge(key, 'in'),
-      path: [nextPoint.path[0]],
-      direction: 'in'
-    }
-  }
-}
-
-function isMovingOutOfBlockNode(editor: Editor, key: NavigationKey): BlockSelection | undefined {
-  const { selection } = editor
-  if (!selection || !selection.focus) return
-
-  if (isAtTextEdges(editor, key, selection) === false) {
-    return
-  }
-
-  const [parentBlock] = Editor.above(editor, {
-    at: selection.focus,
-    match: (n) => TextbitElement.isBlock(n)
-  }) ?? []
-
-  if (!TextbitElement.isBlock(parentBlock)) return
-
-  const nextPoint = getNextPoint(editor, selection, key)
-
-  if (selection.focus.path[0] !== nextPoint?.path[0]) {
-    return {
-      edge: getEdge(key, 'out'),
-      path: [selection.focus.path[0]],
-      direction: 'out'
-    }
-  }
-}
-
-function getNextPoint(editor: Editor, selection: BaseRange, key: NavigationKey) {
-  if (key === 'ArrowRight') {
-    return Editor.after(editor, selection.focus.path)
-  } else if (key === 'ArrowDown') {
-    return Editor.after(editor, selection.focus.path, { unit: 'line' })
-  } else if (key === 'ArrowLeft') {
-    return Editor.before(editor, selection.focus.path)
-  } else if (key === 'ArrowUp') {
-    return Editor.before(editor, selection.focus.path, { unit: 'line' })
-  }
-}
-
-/**
- * Find out out whether the cursor is at any of the edges of the text when
- * navigating horisontally. (Even though it does not take into account that
- * it can be in an inline node it does save us from a lot of calculations.)
- */
-function isAtTextEdges(editor: Editor, key: NavigationKey, selection: BaseRange) {
-  const [node] = Editor.node(editor, selection.focus.path)
-
-  if (key === 'ArrowUp' || key === 'ArrowDown') {
-    return
-  }
-
-  if (key === 'ArrowRight' && selection.focus.offset === Node.string(node).length) {
-    return true
-  }
-
-  if (key === 'ArrowLeft' && selection.focus.offset === 0) {
-    return true
-  }
-
-  return false
-}
-
-/**
- * Identify which edge of a block we are at when navigating into or out from a block.
- */
-function getEdge(
-  key: NavigationKey,
-  direction: 'in' | 'out'
-): 'end' | 'start' {
-  if (['ArrowRight', 'ArrowDown'].includes(key)) {
-    return direction === 'in' ? 'start' : 'end'
-  } else {
-    return direction === 'in' ? 'end' : 'start'
-  }
-}
-
-/**
- * Type guard for navigation keys-
- */
-function isNavigationKey(value: unknown): value is NavigationKey {
-  return typeof value === 'string' && ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(value)
+  //   Transforms.select(textbitEditor, Editor.start(textbitEditor, nextPath))
+  //   setBlockSelection(undefined)
+  //   event.preventDefault()
+  // }
 }

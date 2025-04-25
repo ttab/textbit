@@ -6,7 +6,6 @@ import type { Plugin } from '../../../../types'
 interface ParentElementProps extends RenderElementProps {
   entry: Plugin.ComponentEntry
   options?: Record<string, unknown>
-  isSelected?: boolean
 }
 
 /**
@@ -18,7 +17,7 @@ interface ParentElementProps extends RenderElementProps {
 export const ParentElement = (renderProps: ParentElementProps) => {
   const active = useSelected() // Whether cursor is inside block
   const editor = useSlateStatic()
-  const { element, attributes, entry, isSelected = false } = renderProps
+  const { element, attributes, entry } = renderProps
 
   /*
    * Class "relative" is needed for slate default placeholder to be positioned correctly.
@@ -29,24 +28,15 @@ export const ParentElement = (renderProps: ParentElementProps) => {
   /*
    * inactive : cursor is elsewhere
    * active   : cursor is inside
-   * selected : cursor is "around", whole block is selected
    */
-  let dataState
-  if (isSelected) {
-    dataState = 'selected'
-  } else {
-    dataState = active ? 'active' : 'inactive'
-  }
-
   return (
     <Droppable element={element}>
       <div
         lang={renderProps.element.lang || editor.lang}
         data-id={element.id}
-        data-state={dataState}
+        data-state={active ? 'active' : 'inactive'}
         className={`${element.class} ${element.type} ${entry.class} relative group`}
         {...attributes}
-        contentEditable={isSelected ? false : undefined}
       >
         <entry.component {...renderProps} editor={editor} />
       </div>

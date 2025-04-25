@@ -23,9 +23,6 @@ export const ElementComponent = (props: RenderElementProps & {
   // Get the path for this element
   const path = ReactEditor.findPath(editor, element)
 
-  // Get selected block path if exists
-  const selectedBlockPath = props.selectedBlockPath
-
   // No parents found in path, render a root element
   if (path.length === 1) {
     return (
@@ -33,7 +30,6 @@ export const ElementComponent = (props: RenderElementProps & {
         {...props}
         entry={component.componentEntry}
         options={component.pluginOptions}
-        isSelected={selectedBlockPath && Path.equals(path, selectedBlockPath)}
       />
     )
   }

@@ -32,6 +32,7 @@ import { type PlaceholdersVisibility } from '../TextbitRoot/TextbitContext'
 import { withSpelling } from './with/withSpelling'
 import type { SpellingError } from '../../types'
 import { withLang } from './with/lang'
+import { withDeletionManagement } from './with/withDeletionManagement'
 
 export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
@@ -77,6 +78,7 @@ export const TextbitEditable = forwardRef<HTMLDivElement, TextbitEditableProps>(
     withInsertBreak(e, components)
     withInsertHtml(e, components, plugins)
     withUniqueIds(e)
+    withDeletionManagement(e)
     return e
   }, [])
 
