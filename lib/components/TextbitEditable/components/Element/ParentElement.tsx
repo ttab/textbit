@@ -15,7 +15,7 @@ interface ParentElementProps extends RenderElementProps {
  * @returns JSX.Element
  */
 export const ParentElement = (renderProps: ParentElementProps) => {
-  const selected = useSelected()
+  const active = useSelected() // Whether cursor is inside block
   const editor = useSlateStatic()
   const { element, attributes, entry } = renderProps
 
@@ -25,12 +25,16 @@ export const ParentElement = (renderProps: ParentElementProps) => {
    * selectors like "group-data-[state='active']:ring-1"
    */
 
+  /*
+   * inactive : cursor is elsewhere
+   * active   : cursor is inside
+   */
   return (
     <Droppable element={element}>
       <div
         lang={renderProps.element.lang || editor.lang}
         data-id={element.id}
-        data-state={selected ? 'active' : 'inactive'}
+        data-state={active ? 'active' : 'inactive'}
         className={`${element.class} ${element.type} ${entry.class} relative group`}
         {...attributes}
       >

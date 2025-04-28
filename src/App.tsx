@@ -23,6 +23,7 @@ import './toolmenu.css'
 import './toolbox.css'
 import './spelling.css'
 import './contextmenu.css'
+import './app.css'
 
 const initialValue: Descendant[] = [
   {
@@ -83,12 +84,12 @@ const initialValue: Descendant[] = [
       {
         type: 'core/codeblock/title',
         class: 'text',
-        children: [{ text: '' }]
+        children: [{ text: 'Title' }]
       },
       {
         type: 'core/codeblock/body',
         class: 'text',
-        children: [{ text: '' }]
+        children: [{ text: 'Body' }]
       }
     ]
   },
@@ -270,7 +271,7 @@ function Editor({ initialValue }: { initialValue: Descendant[] }) {
         {characters}
       </div>
 
-      <div tabIndex={-1} style={{ flex: '1', display: 'flex', flexDirection: 'column', maxHeight: '150px', overflow: 'scroll' }}>
+      <div tabIndex={-1} style={{ flex: '1', display: 'flex', flexDirection: 'column', maxHeight: '250px', overflow: 'scroll' }}>
         <Textbit.Editable
           value={value}
           onChange={(value) => {

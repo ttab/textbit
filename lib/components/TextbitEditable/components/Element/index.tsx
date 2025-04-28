@@ -1,4 +1,4 @@
-import { Node } from 'slate'
+import { Node, Path } from 'slate'
 import { type RenderElementProps, ReactEditor, useSlateStatic } from 'slate-react'
 import { ChildElement } from './ChildElement'
 import { ParentElement } from './ParentElement'
@@ -9,9 +9,10 @@ import { usePluginRegistry } from '../../../../components/PluginRegistry'
 /**
  * Render a custom Slate element
  */
-export const ElementComponent = (props: RenderElementProps) => {
+export const ElementComponent = (props: RenderElementProps & {
+  selectedBlockPath?: Path
+}) => {
   const editor = useSlateStatic()
-
   const { element } = props
   const { components } = usePluginRegistry()
   const component = components.get(element.type)

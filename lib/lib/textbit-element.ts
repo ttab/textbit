@@ -7,6 +7,7 @@ import {
 
 interface TextbitElementInterface extends ElementInterface {
   isBlock: (value: unknown) => value is Ancestor
+  /** @deprecated */
   isTextblock: (value: unknown) => value is SlateElement
   isText: (value: unknown) => value is SlateElement
   isVoid: (value: unknown) => value is SlateElement
@@ -25,6 +26,7 @@ export const TextbitElement: TextbitElementInterface = {
     return SlateElement.isAncestor(value) && SlateElement.isElement(value) && value.class === 'block'
   },
 
+  /** @deprecated */
   isTextblock: (value: unknown): value is SlateElement => {
     return SlateElement.isElement(value) && value.class === 'textblock'
   },

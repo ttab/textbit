@@ -7,14 +7,12 @@ import {
 } from 'react'
 import { createEditor, Editor as SlateEditor, type Descendant, Editor, type NodeEntry, Node, Text, Range } from 'slate'
 import { withHistory } from 'slate-history'
-import { type RenderElementProps, type RenderLeafProps, withReact } from 'slate-react'
+import { withReact } from 'slate-react'
 import { YHistoryEditor } from '@slate-yjs/core'
 
 import { DragStateProvider } from './DragStateProvider'
 import { withInline } from './with/inline'
 
-import { ElementComponent } from './components/Element'
-import { Leaf } from './components/Leaf'
 import { withInsertText } from './with/insertText'
 import { withNormalizeNode } from './with/normalizeNode'
 import { withEditableVoids } from './with/editableVoids'
@@ -34,6 +32,7 @@ import { type PlaceholdersVisibility } from '../TextbitRoot/TextbitContext'
 import { withSpelling } from './with/withSpelling'
 import type { SpellingError } from '../../types'
 import { withLang } from './with/lang'
+import { withDeletionManagement } from './with/withDeletionManagement'
 
 export interface TextbitEditableProps extends PropsWithChildren {
   onChange?: (value: Descendant[]) => void
@@ -79,15 +78,8 @@ export const TextbitEditable = forwardRef<HTMLDivElement, TextbitEditableProps>(
     withInsertBreak(e, components)
     withInsertHtml(e, components, plugins)
     withUniqueIds(e)
+    withDeletionManagement(e)
     return e
-  }, [])
-
-  const renderSlateElement = useCallback((props: RenderElementProps) => {
-    return ElementComponent(props)
-  }, [])
-
-  const renderLeafComponent = useCallback((props: RenderLeafProps) => {
-    return Leaf(props)
   }, [])
 
   // Debounced onChange handler
@@ -126,8 +118,6 @@ export const TextbitEditable = forwardRef<HTMLDivElement, TextbitEditableProps>(
                 onDecorate={(entry: NodeEntry) => {
                   return decorate(textbitEditor, entry, components, placeholders)
                 }}
-                renderSlateElement={renderSlateElement}
-                renderLeafComponent={renderLeafComponent}
                 textbitEditor={textbitEditor}
                 actions={actions}
               />

@@ -244,7 +244,7 @@ Can be used to wrap all elements in plugin components. Provides data state attri
 
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
-| [data-state] | "active" \| "inactive" | Indicate that cursor is in element or element is part of a selection. |
+| [data-state] | "active" \| "inactive" | The values "active" or "inactive" indicates whether the cursor is in the element or the element is part of a selection. |
 
 ### Styling spelling errors
 
@@ -545,7 +545,7 @@ Plugins can be either
 | leaf | Bold, italic, etc. |
 | inline | Inline blocks in the text, like links. |
 | text | Normal text of various types. |
-| textblock | Very similar to a block, but used for text that is not draggable, like code or a blockquote. |
+| _textblock_ | **deprecated** _Use block instead._ |
 | block | Regular block elements like image, video. Automatically becomes draggable. |
 | void | Non editable objects, like a spinning loader. Should seldom be used.|
 | generic| Non rendered plugins. Like transforming input characters. |

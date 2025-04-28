@@ -1,16 +1,24 @@
-import React, { useRef, forwardRef } from 'react'
-import { Editor as SlateEditor, Transforms, Element as SlateElement, Editor, Text, Range, type NodeEntry } from 'slate'
+import React, { useRef, forwardRef, useCallback } from 'react'
+import {
+  Editor as SlateEditor,
+  Transforms,
+  Element as SlateElement,
+  Editor,
+  Text,
+  Range,
+  type NodeEntry
+} from 'slate'
 import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused } from 'slate-react'
 import { toggleLeaf } from '../../../../lib/toggleLeaf'
 import type { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '../../../../components/TextbitRoot'
 import { TextbitEditor } from '../../../../lib'
 import { useContextMenu } from '../../../../hooks/useContextMenu'
+import { ElementComponent } from '../Element'
+import { Leaf } from '../Leaf'
 
 interface SlateEditableProps {
   className?: string
-  renderSlateElement: (props: RenderElementProps) => JSX.Element
-  renderLeafComponent: (props: RenderLeafProps) => JSX.Element
   textbitEditor: Editor
   actions: PluginRegistryAction[]
   autoFocus: boolean
@@ -22,8 +30,6 @@ interface SlateEditableProps {
 
 export const SlateEditable = forwardRef(function SlateEditable({
   className = '',
-  renderSlateElement,
-  renderLeafComponent,
   textbitEditor,
   actions,
   autoFocus,
@@ -38,6 +44,16 @@ export const SlateEditable = forwardRef(function SlateEditable({
 
   useContextMenu(wrapperRef)
 
+  const renderSlateElement = useCallback((props: RenderElementProps) => {
+    return ElementComponent({
+      ...props
+    })
+  }, [])
+
+  const renderLeafComponent = useCallback((props: RenderLeafProps) => {
+    return Leaf(props)
+  }, [])
+
   return (
     <div ref={wrapperRef}>
       <Editable
@@ -48,7 +64,9 @@ export const SlateEditable = forwardRef(function SlateEditable({
         className={className}
         renderElement={renderSlateElement}
         renderLeaf={renderLeafComponent}
-        onKeyDown={(event) => handleOnKeyDown(textbitEditor, actions, event)}
+        onKeyDown={(event) => {
+          handleOnKeyDown(textbitEditor, actions, event)
+        }}
         decorate={onDecorate}
         onBlur={onBlur}
         spellCheck={false}

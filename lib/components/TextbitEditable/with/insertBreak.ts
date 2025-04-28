@@ -1,73 +1,88 @@
-import { Editor, Transforms, Range, Path, Node, Text } from 'slate'
-import * as uuid from 'uuid'
-
-import { Element as SlateElement, type BaseRange } from 'slate'
+import {
+  Editor,
+  Range,
+  Element as SlateElement,
+  Path,
+  Text,
+  Transforms,
+  Location
+} from 'slate'
 import { type PluginRegistryComponent } from '../../../components/PluginRegistry/lib/types'
+import { TextbitElement } from '../../../lib'
 
-/**
- * FIXME: Important bugs!
- * BUG: When hitting <enter> in the middle of a text block an empty paragraph is inserted.
- * BUG: When hitting <enter> in the middle of a text block the split paragraphs both get the same id.
- */
 export const withInsertBreak = (editor: Editor, components: Map<string, PluginRegistryComponent>) => {
   const { insertBreak } = editor
 
   editor.insertBreak = () => {
-    const { selection } = editor
-
-    if (!selection) {
-      return // Not sure this could happen, ignore it
+    if (!allowBreak(editor, components)) {
+      return
     }
 
-    const [{ path: start }, { path: end }] = Range.edges(selection)
-    const pathIsEqual = Path.equals(start, end)
+    const { isAtEnd, next } = isAtEndOfTopLevelNode(editor) || {}
+    if (isAtEnd) {
+      Transforms.insertNodes(editor, {
+        id: crypto.randomUUID(),
+        class: 'text',
+        type: 'core/text',
+        children: [{ text: '' }]
+      }, next ? { at: next } : undefined)
 
-    // Ensure allowBreak constraint is met in collapsed node break
-    if (Range.isCollapsed(selection) || pathIsEqual) {
-      const elements = Array.from(Node.elements(editor, { from: start, to: end }))
-      const [element] = elements[elements.length - 1]
-      const component = components.get(element?.type || '')
-
-      if (component?.componentEntry?.constraints?.allowBreak === false) {
-        return
+      if (next) {
+        Transforms.select(editor, Editor.start(editor, next))
       }
+      return
     }
 
-    if (isSelectionAtLastOffset(editor, selection)) {
-      // If last in the node, always create a new paragraph instead of the same as current node.
-      // But only if on the highest level (not in a blockquote sub element for example)
-      const [node] = Array.from(
-        Editor.nodes(editor, {
-          at: Editor.unhangRange(editor, selection as BaseRange),
-          match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.class !== 'inline'
-        })
-      )
-
-      if (Range.isCollapsed(selection) && node) {
-        // New nodes should be paragraph with a newly generated id
-        return Transforms.insertNodes(editor, {
-          id: uuid.v4(),
-          class: 'text',
-          type: 'core/text',
-          children: [{ text: '' }]
-        })
-      }
-    }
-
-    return insertBreak()
+    insertBreak()
   }
 
   return editor
 }
 
+/**
+ * Check whether break is allowed in either anchor or focus of the selection
+ */
+function allowBreak(
+  editor: Editor,
+  components: Map<string, PluginRegistryComponent>
+): boolean {
+  const { selection } = editor
+  if (!selection) return true
 
-function isSelectionAtLastOffset(editor: Editor, selection: Range): boolean {
-  const { offset, path } = selection.focus
-  const node = Editor.node(editor, path)
-  if (!Text.isText(node[0])) {
-    return false
+  const points = Range.isCollapsed(selection)
+    ? [selection.anchor]
+    : [selection.anchor, selection.focus]
+
+  for (const point of points) {
+    for (const [node] of Editor.levels(editor, { at: point })) {
+      if (SlateElement.isElement(node)) {
+        const component = components.get(node.type)
+        if (component?.componentEntry?.constraints?.allowBreak === false) {
+          return false
+        }
+      }
+    }
   }
 
-  const lastOffset = node[0].text.length
-  return offset === lastOffset
+  return true
+}
+
+function isAtEndOfTopLevelNode(editor: Editor): {
+  isAtEnd: boolean
+  next?: Location
+} | undefined {
+  const { selection } = editor
+  if (!selection || !Range.isCollapsed(selection)) return
+
+  const [node, path] = Editor.node(editor, selection)
+  if (!Text.isText(node)) return
+
+  const topLevelPath = [path[0]]
+  const topEntry = Editor.node(editor, topLevelPath)
+  const lastText = Editor.last(editor, topLevelPath)
+
+  return {
+    isAtEnd: Editor.isEnd(editor, selection.anchor, lastText?.[1] ?? path),
+    next: TextbitElement.isBlock(topEntry[0]) ? Path.next(topEntry[1]) : undefined
+  }
 }
