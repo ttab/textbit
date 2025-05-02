@@ -35,7 +35,6 @@ export const withDeletionManagement = (editor: Editor) => {
       // delete an empty start line first in the document. Allowing backspace to do
       // this as Mac users don't have a DEl button.
       if (!string.length && path[0] === 0) {
-        Transforms.removeNodes(editor, { at: path })
         return
       }
 
