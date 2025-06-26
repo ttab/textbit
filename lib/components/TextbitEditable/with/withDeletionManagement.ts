@@ -53,13 +53,15 @@ export const withDeletionManagement = (editor: Editor) => {
 
       // If the previous node is a block node we want to remove the whole block
       // node instead of moving inside.
-      const prevPath = Path.previous(path)
-      const prevEntry = Editor.node(editor, prevPath)
-      if (prevEntry) {
-        const [prevNode] = prevEntry
-        if (Element.isElement(prevNode) && prevNode.class === 'block') {
-          Transforms.removeNodes(editor, { at: prevPath })
-          return
+      if (path[0] > 0) {
+        const prevPath = Path.previous(path)
+        const prevEntry = Editor.node(editor, prevPath)
+        if (prevEntry) {
+          const [prevNode] = prevEntry
+          if (Element.isElement(prevNode) && prevNode.class === 'block') {
+            Transforms.removeNodes(editor, { at: prevPath })
+            return
+          }
         }
       }
     }
