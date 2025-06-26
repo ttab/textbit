@@ -85,8 +85,9 @@ export const withDeletionManagement = (editor: Editor) => {
 
       // If we are on the first node in the document and the node is empty we should
       // delete the node instead of a following block node. Necessary to be able to
-      // delete an empty start line first in the document.
-      if (!string.length && path[0] === 0) {
+      // delete an empty start line first in the document. But only if there are more
+      // nodes in the document.
+      if (!string.length && path[0] === 0 && editor.children.length > 1) {
         Transforms.removeNodes(editor, { at: path })
         return
       }
