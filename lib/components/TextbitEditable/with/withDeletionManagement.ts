@@ -53,13 +53,15 @@ export const withDeletionManagement = (editor: Editor) => {
 
       // If the previous node is a block node we want to remove the whole block
       // node instead of moving inside.
-      const prevPath = Path.previous(path)
-      const prevEntry = Editor.node(editor, prevPath)
-      if (prevEntry) {
-        const [prevNode] = prevEntry
-        if (Element.isElement(prevNode) && prevNode.class === 'block') {
-          Transforms.removeNodes(editor, { at: prevPath })
-          return
+      if (path[0] > 0) {
+        const prevPath = Path.previous(path)
+        const prevEntry = Editor.node(editor, prevPath)
+        if (prevEntry) {
+          const [prevNode] = prevEntry
+          if (Element.isElement(prevNode) && prevNode.class === 'block') {
+            Transforms.removeNodes(editor, { at: prevPath })
+            return
+          }
         }
       }
     }
@@ -85,8 +87,9 @@ export const withDeletionManagement = (editor: Editor) => {
 
       // If we are on the first node in the document and the node is empty we should
       // delete the node instead of a following block node. Necessary to be able to
-      // delete an empty start line first in the document.
-      if (!string.length && path[0] === 0) {
+      // delete an empty start line first in the document. But only if there are more
+      // nodes in the document.
+      if (!string.length && path[0] === 0 && editor.children.length > 1) {
         Transforms.removeNodes(editor, { at: path })
         return
       }
