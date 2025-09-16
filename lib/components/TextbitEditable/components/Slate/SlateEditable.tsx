@@ -1,4 +1,4 @@
-import React, { useRef, forwardRef, useCallback } from 'react'
+import React, { useRef, forwardRef, useCallback, useState } from 'react'
 import {
   Editor as SlateEditor,
   Transforms,
@@ -8,7 +8,7 @@ import {
   Range,
   type NodeEntry
 } from 'slate'
-import { Editable, ReactEditor, type RenderElementProps, type RenderLeafProps, useFocused } from 'slate-react'
+import { Editable, type RenderElementProps, ReactEditor, type RenderLeafProps, useFocused } from 'slate-react'
 import { toggleLeaf } from '../../../../lib/toggleLeaf'
 import type { PluginRegistryAction } from '../../../PluginRegistry/lib/types'
 import { useTextbit } from '../../../../components/TextbitRoot'
@@ -41,6 +41,7 @@ export const SlateEditable = forwardRef(function SlateEditable({
   const focused = useFocused()
   const { placeholder } = useTextbit()
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const [initiallyFocused, setInitiallyFocused] = useState(false)
 
   useContextMenu(wrapperRef)
 
@@ -81,8 +82,9 @@ export const SlateEditable = forwardRef(function SlateEditable({
           }
         }}
         onFocus={(event) => {
-          if (!textbitEditor.selection) {
+          if (!initiallyFocused && !textbitEditor.selection) {
             setInitialSelection(textbitEditor)
+            setInitiallyFocused(true)
           }
 
           if (onFocus) {
