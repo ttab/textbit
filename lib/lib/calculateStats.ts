@@ -1,6 +1,6 @@
 import { Editor, Element, Node } from 'slate'
 import type { NodeEntry } from 'slate'
-import { TextbitStats } from '../components/TextbitRoot/TextbitContext'
+import type { TextbitStats } from '../components/TextbitRoot/TextbitContext'
 
 export default function calculateStats(editor: Editor): TextbitStats {
   const textNodesArticle = Array.from(Editor.nodes(editor, {
