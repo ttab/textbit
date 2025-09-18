@@ -27,9 +27,9 @@ function collectStats(nodes: NodeEntry<Node>[]): { words: number, characters: nu
     characters = 0
 
   for (const [node] of nodes) {
-      const str = Node.string(node).trim()
-      words = words + str.split(/\s+/).filter((i) => i !== '').length
-      characters = characters + str.length
+    const str = Node.string(node).trim()
+    words = words + str.split(/\s+/).filter((i) => i !== '').length
+    characters = characters + str.length
   }
 
   return { words, characters }
