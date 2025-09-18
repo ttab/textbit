@@ -50,6 +50,17 @@ const initialValue: Descendant[] = [
   },
   {
     type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6033',
+    class: 'text',
+    properties: {
+      type: 'vignette'
+    },
+    children: [
+      { text: 'test' }
+    ]
+  },
+  {
+    type: 'core/text',
     id: '538345e5-bacc-48f9-8ef0-1219891b6024',
     class: 'text',
     children: [
@@ -259,16 +270,14 @@ interface Suggestion {
 
 function Editor({ initialValue }: { initialValue: Descendant[] }) {
   const [value, setValue] = useState<Descendant[]>(initialValue)
-  const { characters } = useTextbit()
+  const { stats } = useTextbit()
   const { actions } = usePluginRegistry()
   const { spelling } = useContextMenuHints()
 
   return (
     <>
       <div style={{ lineHeight: '47px', marginLeft: '3.25rem' }}>
-        Characters:
-        {' '}
-        {characters}
+        {`Characters: ${stats.short.characters} (${stats.full.characters})`}
       </div>
 
       <div tabIndex={-1} style={{ flex: '1', display: 'flex', flexDirection: 'column', maxHeight: '250px', overflow: 'scroll' }}>

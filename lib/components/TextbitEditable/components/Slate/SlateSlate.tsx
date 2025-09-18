@@ -25,8 +25,8 @@ export const SlateSlate = ({ editor, value, onChange, children }: PropsWithChild
   // Initialize stats
   // FIXME: This does not work for yjs editors
   useEffect(() => {
-    const [words, characters] = calculateStats(editor)
-    dispatch({ words, characters })
+    const stats = calculateStats(editor)
+    dispatch({ stats })
   }, [editor])
 
   return (

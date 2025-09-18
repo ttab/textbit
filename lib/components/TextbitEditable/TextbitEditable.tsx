@@ -89,8 +89,8 @@ export const TextbitEditable = forwardRef<HTMLDivElement, TextbitEditableProps>(
         onChange(value)
       }
 
-      const [words, characters] = calculateStats(textbitEditor)
-      dispatch({ words, characters })
+      const stats = calculateStats(textbitEditor)
+      dispatch({ stats })
     }, debounceTimeout),
     [textbitEditor, onChange, debounceTimeout]
   )
