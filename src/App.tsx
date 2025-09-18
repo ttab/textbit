@@ -50,17 +50,6 @@ const initialValue: Descendant[] = [
   },
   {
     type: 'core/text',
-    id: '538345e5-bacc-48f9-8ef0-1219891b6033',
-    class: 'text',
-    properties: {
-      type: 'vignette'
-    },
-    children: [
-      { text: 'test' }
-    ]
-  },
-  {
-    type: 'core/text',
     id: '538345e5-bacc-48f9-8ef0-1219891b6024',
     class: 'text',
     children: [
