@@ -17,17 +17,23 @@ export interface TextbitProviderProps {
   placeholders?: PlaceholdersVisibility
 }
 
+export interface TextbitStats {
+  full: { words: number, characters: number }
+  short: { words: number, characters: number }
+}
+
 export interface TextbitProviderState extends TextbitProviderProps {
   debounce: number
   spellcheckDebounce: number
-  words: number
-  characters: number
+  stats: TextbitStats
   dispatch: React.Dispatch<Partial<TextbitProviderState>>
 }
 
 const initialState: TextbitProviderState = {
-  words: 0,
-  characters: 0,
+  stats: {
+    full: { words: 0, characters: 0 },
+    short: { words: 0, characters: 0 }
+  },
   autoFocus: false,
   onBlur: undefined,
   onFocus: undefined,
@@ -46,8 +52,7 @@ export const TextbitContext = createContext(initialState)
 // Define the reducer function
 const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderState>): TextbitProviderState => {
   const {
-    words,
-    characters,
+    stats,
     autoFocus,
     onBlur,
     onFocus,
@@ -58,12 +63,8 @@ const reducer = (state: TextbitProviderState, action: Partial<TextbitProviderSta
   } = action
   const partialState: Partial<TextbitProviderState> = {}
 
-  if (typeof words === 'number') {
-    partialState.words = words
-  }
-
-  if (typeof characters === 'number') {
-    partialState.characters = characters
+  if (stats) {
+    partialState.stats = stats
   }
 
   if (typeof verbose === 'boolean') {

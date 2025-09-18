@@ -161,11 +161,10 @@ TextbitContext: access through convenience hook `useTextbit()`.
 
 | Name | Type | Description |
 | ----------- | ----------- | ----------- |
-| characters | number | Number of characters in article |
-| words | number | Number of words in article |
+| stats | TextbitStats | words and characters in article parts or full document  |
 | verbose | boolean | Output extra info on console |
 | autoFocus | boolean | Whether autoFocus is true or false |
-| onBlur | React.FocusEventHandler<HTMLDivElement> | Event handler for when editor looses focus |
+| onBlur | React.FocusEventHandler<HTMLDivElement> | Event handler for when editor loses focus |
 | onFocus | React.FocusEventHandler<HTMLDivElement> | Event handler for when editor receives focus |
 
 ---
