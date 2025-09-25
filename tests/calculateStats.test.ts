@@ -87,4 +87,42 @@ describe('calculateStats', () => {
     expect(stats.full.words).toBe(1)
     expect(stats.full.characters).toBe(4)
   })
+
+  it('count full stats for everything with class text', () => {
+    const nodes: Descendant[] = [
+      {
+        id: 'd653b9ff-fe7e-469c-8438-4e00c4b75570',
+        class: 'text',
+        type: 'core/factbox/title',
+        children: [
+          {
+            text: 'Fakta: Schimpans'
+          }
+        ]
+      },
+      {
+        id: 'a73c880b-3a63-4138-906c-d039b0dbd9af',
+        class: 'block',
+        type: 'core/factbox/body',
+        children: [
+          {
+            id: 'ef166300-2d05-4182-ab9b-235310562914',
+            type: 'core/text',
+            properties: {},
+            class: 'text',
+            children: [
+              {
+                text: 'Schimpansen (Pan troglodytes) är, tillsammans med bonobon (Pan paniscus), människans närmaste släkting. Den delar nära 99 procent av sitt dna med den moderna människan.'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+    const editor = createEditor()
+    editor.children = nodes
+    const stats = calculateStats(editor)
+    expect(stats.full.words).toBe(25)
+    expect(stats.full.characters).toBe(184)
+  })
 })
