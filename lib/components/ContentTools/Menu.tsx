@@ -1,6 +1,5 @@
 import {
   type Dispatch,
-  type PropsWithChildren,
   type SetStateAction,
   createContext,
   useContext,
@@ -8,16 +7,18 @@ import {
   useState
 } from 'react'
 import { GutterContext } from '../../components/GutterProvider/GutterProvider'
-import { useTextbitSelectionBoundsState } from '../TextbitRoot'
+import { useTextbitSelectionBoundsState } from '../../hooks/useSelectionBounds'
 
+// FIXME: Refactor out
 export const MenuContext = createContext<[boolean, Dispatch<SetStateAction<boolean>>]>([false, () => { }])
 
 /**
  * Menu.root
  */
-export const Menu = ({ children, className }: PropsWithChildren & {
+export function Menu({ children, className }: {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const bounds = useTextbitSelectionBoundsState()

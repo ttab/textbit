@@ -1,11 +1,12 @@
 import { type PropsWithChildren, useContext, useLayoutEffect } from 'react'
-import { useClickGlobal } from '../../hooks'
+import { useClickGlobal } from '../../hooks/useClickGlobal'
 import { MenuContext } from './Menu'
 import { GutterContext } from '../GutterProvider'
 
-export const Trigger = ({ children, className }: PropsWithChildren & {
+export function Trigger({ children, className }: PropsWithChildren & {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   const [isOpen, setIsOpen] = useContext(MenuContext)
   const { gutterBox, setTriggerSize } = useContext(GutterContext)
   const mouseTriggerRef = useClickGlobal<HTMLAnchorElement>(() => {

@@ -57,7 +57,7 @@ const reducer = (state: ContextMenuHintsProviderState, action: Partial<ContextMe
 
 
 // Create the context provider component
-export const ContextMenuHintsProvider = ({ children }: PropsWithChildren): JSX.Element => {
+export function ContextMenuHintsProvider({ children }: PropsWithChildren) {
   const [state, dispatch] = useReducer(reducer, { ...initialState })
   const value = { ...state, dispatch }
 

@@ -1,8 +1,8 @@
-import type { Plugin } from '../../../types'
+import type { Component, InitFunction } from '../../../types'
 
 import './style.css'
 
-const render: Plugin.Component = () => {
+const render: Component = () => {
   const style = {
     minHeight: '10rem'
   }
@@ -27,7 +27,7 @@ const render: Plugin.Component = () => {
   )
 }
 
-export const Loader: Plugin.InitFunction = () => {
+export const Loader: InitFunction = () => {
   return {
     class: 'void',
     name: 'core/loader',

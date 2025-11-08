@@ -1,14 +1,15 @@
-import { type PropsWithChildren, useLayoutEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useFocused, useSlateSelection, useSlateStatic } from 'slate-react'
-import { useTextbitSelectionBounds } from '../TextbitRoot'
 import { Editor, Range } from 'slate'
-import { TextbitElement } from '../../lib'
+import { TextbitElement } from '../../utils/textbit-element'
+import { useTextbitSelectionBounds } from '../../hooks/useSelectionBounds'
 
 
-export const Menu = ({ children, className }: PropsWithChildren & {
+export function Menu({ children, className }: {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   return (
     <>
       {createPortal(
@@ -21,8 +22,9 @@ export const Menu = ({ children, className }: PropsWithChildren & {
 }
 
 
-function Popover({ children, className }: PropsWithChildren & {
+function Popover({ children, className }: {
   className?: string
+  children?: React.ReactNode
 }) {
   const editor = useSlateStatic()
   const selection = useSlateSelection()
@@ -55,10 +57,15 @@ function Popover({ children, className }: PropsWithChildren & {
       }
     }
 
-    const { top, left } = calculatePosition(
-      ref.current?.getBoundingClientRect(),
-      bounds.current
-    )
+    const { top, left } = (ref.current)
+      ? calculatePosition(
+        ref.current.getBoundingClientRect(),
+        bounds.current
+      )
+      : {
+        top: 0,
+        left: 0
+      }
 
     el.style.opacity = '1'
     el.style.zIndex = 'auto'

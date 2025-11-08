@@ -1,8 +1,8 @@
-import { TextbitEditor } from '../../../lib'
-import { type Plugin } from '../../../types'
+import { TextbitEditor } from '../../../utils/textbit-editor'
+import { InitFunction, ComponentProps } from '../../../types'
 
 
-export const Text: Plugin.InitFunction = () => {
+export const Text: InitFunction = () => {
   return {
     class: 'text',
     name: 'core/text',
@@ -30,7 +30,7 @@ export const Text: Plugin.InitFunction = () => {
 }
 
 
-function TextComponent(props: Plugin.ComponentProps): JSX.Element {
+function TextComponent(props: ComponentProps) {
   return (
     <>
       {props.element?.properties?.type === undefined

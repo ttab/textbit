@@ -1,12 +1,13 @@
-import { type PropsWithChildren, useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react'
+import { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useContextMenuHints } from './useContextMenuHints'
 import { ContextMenuHintsContext } from './ContextMenuHintsContext'
 
 
-export const Menu = ({ children, className }: PropsWithChildren & {
+export function Menu({ children, className }: {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   return (
     <>
       {createPortal(
@@ -19,8 +20,9 @@ export const Menu = ({ children, className }: PropsWithChildren & {
 }
 
 
-function Popover({ children, className }: PropsWithChildren & {
+function Popover({ children, className }: {
   className?: string
+  children?: React.ReactNode
 }) {
   const contextMenuContext = useContext(ContextMenuHintsContext)
   const ref = useRef<HTMLDivElement>(null)

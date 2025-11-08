@@ -252,9 +252,12 @@ are rendered as `<span>` child elements having the data attribute `data-spelling
 can be used to style all the spelling errors. See context menu handling for handling spelling errors
 in more detail.
 
+It is possible to differentiate between spelling errors and suggestions using the `data-spelling-level` which is set to `suggestion` if supported by the spellchecking functionality.
+
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
 | [data-spelling-error] | string | Id of individual spelling error |
+| [data-spelling-level] | `error`| `suggestion` | Level of the spelling error |
 
 **Using a CSS style rule**
 
@@ -262,7 +265,12 @@ in more detail.
 [data-spelling-error] {
   text-decoration: underline;
   text-decoration-style: dotted;
-  text-decoration-color: rgb(239, 68, 68);
+}
+[data-spelling-level="error"] {
+    text-decoration-color: rgb(239, 68, 68);
+}
+[data-spelling-level="suggestion"] {
+  text-decoration-color: rgb(68, 68, 239);
 }
 ```
 
@@ -272,7 +280,13 @@ in more detail.
 return (
   <Textbit.Editable
     onSpellcheck={async (texts) => checkSpelling(texts)}
-    className="outline-none h-full dark:text-slate-100 [&_[data-spelling-error]]:underline [&_[data-spelling-error]]:decoration-dotted [&_[data-spelling-error]]:decoration-red-500"
+    className={`outline-none
+      h-full
+      dark:text-slate-100
+      [&_[data-spelling-error]]:underline
+      [&_[data-spelling-error]]:decoration-dotted
+      [&_[data-spelling-level="error"]]:decoration-red-500
+      [&_[data-spelling-level="suggestion"]]:decoration-blue-500`}
   >
     <ContextMenu />
   </Textbit.Editable>
@@ -502,6 +516,7 @@ interface {
     nodeEntry?: NodeEntry
     spelling?: {
       text: string
+      level?: 'error' | 'suggestion'
       suggestions: string[]
       range?: Range
       apply: (replacementString: string) => void

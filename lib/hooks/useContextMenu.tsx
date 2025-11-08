@@ -1,9 +1,9 @@
-import { getDecorationRangeFromMouseEvent, getNodeEntryFromDomNode } from '../lib/utils'
+import { getDecorationRangeFromMouseEvent, getNodeEntryFromDomNode } from '../utils/utils'
 import { type RefObject, useContext, useEffect, useState } from 'react'
 import { Range, Editor, Element as SlateElement } from 'slate'
 import { ReactEditor, useFocused, useSlateStatic } from 'slate-react'
-import { TextbitEditor } from '../lib/textbit-editor'
-import { type SpellingError } from '../types/extends'
+import { TextbitEditor } from '../utils/textbit-editor'
+import { type SpellingError } from '../types/slate'
 import { ContextMenuHintsContext } from '../components/ContextMenu/ContextMenuHintsContext'
 
 export function useContextMenu(
@@ -112,7 +112,7 @@ function getSpellingHints(
         }
       }
       : undefined
-  } catch (_) {
-    // Ignored
+  } catch (error) {
+    console.warn(error)
   }
 }

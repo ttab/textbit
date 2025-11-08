@@ -1,10 +1,11 @@
-import { Children, type PropsWithChildren, useContext } from 'react'
-import { modifier } from '../../lib/modifier'
+import { Children, useContext } from 'react'
+import { modifier } from '../../utils/modifier'
 import { ItemContext } from './Item'
 
-export const Hotkey = ({ className, children }: PropsWithChildren & {
+export function Hotkey({ className, children }: {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   const { action } = useContext(ItemContext)
 
   return (

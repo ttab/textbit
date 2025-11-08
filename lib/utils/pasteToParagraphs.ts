@@ -1,0 +1,82 @@
+import { Editor, Transforms, Range, Path, Element, Node } from 'slate'
+import { componentConstraints } from './componentConstraints'
+import { TextbitEditor } from './textbit-editor'
+import { normalizeWhitespace } from './normalizeWhitespace'
+import type { PluginRegistryComponent } from '../contexts/PluginRegistry/lib/types'
+
+
+export function pasteToParagraphs(
+  editor: Editor,
+  components: Map<string, PluginRegistryComponent>,
+  text: string
+): boolean | void {
+  const { selection } = editor
+  if (!selection) {
+    return false
+  }
+
+  // We only take care of simple collapsed selections or range selections
+  // in the same text node.
+  const edges = Range.edges(selection)
+  if (!Range.isCollapsed(selection) && 0 !== Path.compare(edges[0].path, edges[1].path)) {
+    return false
+  }
+
+  // Find node and which component this is related to
+  const parent = TextbitEditor.parent(editor, selection)
+  const node = parent[0] as Element
+  const { componentEntry: tbComponent = undefined } = components.get(node.type) || {}
+  if (!tbComponent) {
+    return false
+  }
+
+  // Only handle paste inside of text elements
+  if (node.class !== 'text') {
+    return false
+  }
+
+  // If we don't allow break, let default put all text in same node
+  let paragraphs
+  const { allowBreak } = componentConstraints(tbComponent)
+  if (!allowBreak) {
+    paragraphs = [normalizeWhitespace(text)]
+  } else {
+    // Split text into paragraphs based on newlines or carriage returns
+    const paragraphedText = text.replace(/[\r\n]{2,}/g, '\n').trim()
+    paragraphs = paragraphedText.split('\n').map((t) => t.trim())
+  }
+
+  // If we have a longer path, paste happens in a child node, all
+  // new nodes should be of the same type then
+  let nodeType = 'core/text'
+  let properties: {
+    [key: string]: string | number | boolean
+  } | undefined
+
+  if (parent[1].length > 1) {
+    nodeType = node.type
+    properties = node.properties
+  }
+
+  const nodes: Node[] = paragraphs.map((s) => {
+    return {
+      id: crypto.randomUUID(),
+      type: nodeType,
+      class: 'text',
+      children: [
+        { text: s }
+      ],
+      properties: properties
+    }
+  })
+
+  const firstNode = nodes.shift()
+  if (firstNode) {
+    // The first text should end up in the text where the paste is happening
+    Transforms.insertFragment(editor, [firstNode])
+  }
+
+  Transforms.insertNodes(editor, nodes)
+
+  return true
+}

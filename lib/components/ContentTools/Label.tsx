@@ -1,9 +1,10 @@
-import { Children, type PropsWithChildren, useContext } from 'react'
+import { Children, useContext } from 'react'
 import { ItemContext } from './Item'
 
-export const Label = ({ children, className }: PropsWithChildren & {
+export function Label({ children, className }: {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   const { action } = useContext(ItemContext)
 
   return (

@@ -1,18 +1,14 @@
-import {
-  type PropsWithChildren,
-  useContext,
-  useLayoutEffect,
-  useRef
-} from 'react'
+import { useContext, useLayoutEffect, useRef } from 'react'
 import { MenuContext } from './Menu'
-import { useKeydownGlobal } from '../../hooks'
+import { useKeydownGlobal } from '../../hooks/useKeydownGlobal'
 import { createPortal } from 'react-dom'
+import { useTextbitSelectionBoundsState } from '../../hooks/useSelectionBounds'
 import { GutterContext } from '../GutterProvider'
-import { useTextbitSelectionBoundsState } from '../TextbitRoot'
 
-export const Content = ({ children, className }: PropsWithChildren & {
+export function Content({ children, className }: {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   const [isOpen, setIsOpen] = useContext(MenuContext)
   const keyTriggerRef = useKeydownGlobal<HTMLDivElement>((e) => {
     if (isOpen && (e.key === 'Escape' || e.key === 'Tab')) {
@@ -32,10 +28,10 @@ export const Content = ({ children, className }: PropsWithChildren & {
   )
 }
 
-
-const Popover = ({ children, className }: PropsWithChildren & {
+function Popover({ children, className }: {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   const { triggerSize, gutterBox } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
   const bounds = useTextbitSelectionBoundsState()
@@ -46,11 +42,16 @@ const Popover = ({ children, className }: PropsWithChildren & {
       return
     }
 
-    const { top, left } = calculatePosition(
-      ref.current?.getBoundingClientRect(),
-      bounds,
-      gutterBox
-    )
+    const { top, left } = (ref.current)
+      ? calculatePosition(
+        ref.current?.getBoundingClientRect(),
+        bounds,
+        gutterBox
+      )
+      : {
+        top: 0,
+        left: 0
+      }
 
     el.style.top = `${top}px`
     el.style.left = `${left}px`

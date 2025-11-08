@@ -2,6 +2,7 @@ import { Menu as Root } from './Menu'
 import { Group } from './Group'
 import { Item } from './Item'
 
+// FIXME: Restructure and refactor
 export const ContextMenu = {
   Root,
   Group,
