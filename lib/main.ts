@@ -57,7 +57,7 @@ export { ContextMenu }
 export { useAction } from './hooks/useAction'
 export { usePluginRegistry } from './hooks/usePluginRegistry'
 export { useTextbit } from './hooks/useTextbit'
-export { useContextMenuHints } from './components/ContextMenu'
+export { useContextMenuHints } from './components/ContextMenu/useContextMenuHints'
 
 export {
   pipeFromDrop as consumeFileDropEvent,

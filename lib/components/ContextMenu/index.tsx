@@ -7,6 +7,3 @@ export const ContextMenu = {
   Group,
   Item
 }
-
-export { useContextMenuHints } from './useContextMenuHints'
-export { ContextMenuHintsProvider as ContextMenuProvider } from './ContextMenuHintsProvider'
