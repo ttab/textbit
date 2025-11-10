@@ -29,12 +29,10 @@ function Popover({ children, className }: {
   const { menu } = useContextMenuHints()
 
   const hidePopover = useCallback(() => {
-    if (!ref?.current) {
-      return
+    if (ref?.current) {
+      ref.current.style.opacity = '0'
+      ref.current.style.zIndex = '-1'
     }
-
-    ref.current.style.opacity = '0'
-    ref.current.style.zIndex = '-1'
   }, [])
 
   const revealPopover = useCallback(() => {
@@ -59,14 +57,14 @@ function Popover({ children, className }: {
       if (!ref?.current) {
         return
       }
-
       if (ref.current.contains(event.target as Node)) {
         return
       }
-
       if (!contextMenuContext.menu) {
         return
       }
+
+      console.log('Clearing context menu')
 
       contextMenuContext?.dispatch({
         menu: undefined,
@@ -84,11 +82,6 @@ function Popover({ children, className }: {
   }, [contextMenuContext])
 
   useLayoutEffect(() => {
-    const el = ref?.current
-    if (!el) {
-      return
-    }
-
     if (!menu?.position) {
       hidePopover()
     } else {

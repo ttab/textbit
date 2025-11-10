@@ -7,7 +7,7 @@ import { type SpellingError } from '../types/slate'
 import { ContextMenuHintsContext } from '../components/ContextMenu/ContextMenuHintsContext'
 
 export function useContextMenu(
-  ref: RefObject<HTMLElement>,
+  ref: RefObject<HTMLDivElement>,
   preventDefault = true
 ) {
   const editor = useSlateStatic()
@@ -22,10 +22,11 @@ export function useContextMenu(
       }
       editor.setSelection(range)
     }
-  }, [editor, range])
+  }, [editor, range, isFocused]) // Keep isFocused here - this is fine
 
   useEffect(() => {
     const element = ref.current
+
     if (!element) {
       return
     }
@@ -35,17 +36,19 @@ export function useContextMenu(
         ? (event.target as Text).parentElement
         : (event.target as HTMLElement)
 
-      if (!targetElement || !element.contains(targetElement)) {
-        setRange(undefined)
+      if (!targetElement) {
         return
       }
 
-      const [targetNode, targetPath] = getNodeEntryFromDomNode(editor, targetElement) || []
+      const nodeEntry = getNodeEntryFromDomNode(editor, targetElement)
+      const [targetNode, targetPath] = nodeEntry || []
+
       if (!targetNode || !Array.isArray(targetPath)) {
         return
       }
 
       const topNode = editor.children[targetPath[0]]
+
       if (!SlateElement.isElement(topNode)) {
         return
       }
@@ -56,6 +59,7 @@ export function useContextMenu(
       }
 
       const spelling = getSpellingHints(editor, topNode, targetElement, event)
+
       if (preventDefault) {
         event.preventDefault()
       }
@@ -74,10 +78,12 @@ export function useContextMenu(
       })
     }
 
-    window.addEventListener('contextmenu', contextMenuHandler)
+    element.addEventListener('contextmenu', contextMenuHandler)
 
-    return () => window.removeEventListener('contextmenu', contextMenuHandler)
-  }, [ref, contextMenuHintsContext, preventDefault, setRange])
+    return () => {
+      element.removeEventListener('contextmenu', contextMenuHandler)
+    }
+  }, [ref, contextMenuHintsContext, preventDefault, editor]) // Remove isFocused from here!
 }
 
 function getSpellingHints(
@@ -91,6 +97,7 @@ function getSpellingHints(
 } | undefined {
   const ancestor = element.closest('[data-spelling-error]') as HTMLElement
   const errorId = ancestor?.dataset['spellingError']
+
   if (!topNode.id || !errorId) {
     return
   }

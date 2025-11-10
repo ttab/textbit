@@ -5,7 +5,7 @@ import type { PluginDefinition, SpellingError } from '../types'
 import type { Awareness } from 'y-protocols/awareness'
 
 import { basePlugins, StandardPlugins } from './core'
-import { ContextMenuHintsProvider } from '../contexts/ContextMenuHintsProvider'
+import { ContextMenuHintsProvider } from './ContextMenu/ContextMenuHintsProvider'
 import { TextbitSelectionBoundsProvider } from '../contexts/SelectionBoundsProvider'
 import { Descendant } from 'slate'
 import * as Y from 'yjs'

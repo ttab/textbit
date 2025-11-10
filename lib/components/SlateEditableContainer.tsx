@@ -8,6 +8,7 @@ import { usePluginRegistry } from '../hooks/usePluginRegistry'
 import { useTextbit } from '../hooks/useTextbit'
 import type { PluginRegistryAction } from '../contexts/PluginRegistry/lib/types'
 import { toggleLeaf } from '../utils/toggleLeaf'
+import { useContextMenu } from '../hooks/useContextMenu'
 
 interface SlateEditableProps {
   editor: Editor
@@ -28,6 +29,8 @@ export function SlateEditableContainer(props: SlateEditableProps) {
   const { components, actions } = usePluginRegistry()
   const isFocused = useFocused()
   const containerRef = useRef<HTMLDivElement>(null)
+
+  useContextMenu(containerRef)
 
   const renderElement = useCallback((props: RenderElementProps) => {
     return ElementComponent({
