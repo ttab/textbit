@@ -1,5 +1,6 @@
-import './App.css'
-import { ContextMenu, Textbit, useContextMenuHints, useTextbit } from '../lib/main'
+import './assets/app.css'
+import './assets/toolmenu.css'
+import { ContextMenu, Menu, Textbit, Toolbar, useContextMenuHints, usePluginRegistry, useTextbit } from '../lib/main'
 import { document } from './assets/document'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Y from 'yjs'
@@ -82,15 +83,22 @@ function TextbitFormatEditor({ style, headerStyle, readOnly }: {
     >
       <strong style={headerStyle}>Multi line - {readOnly ? 'read-only' : 'editable'}</strong>
 
-      <Textbit.Editable
-        style={{
-          ...style,
-          backgroundColor: readOnly ? '#eee' : '#fff'
-        }}
-      >
-        <Textbit.DropMarker />
-        <EditorSpellingContextmenu />
-      </Textbit.Editable>
+      <div style={{display: 'grid', gridTemplateColumns: '50px 1fr'}}>
+        <div style={{overflow: 'hidden'}}>
+          <ContentMenu />
+        </div>
+
+        <Textbit.Editable
+          style={{
+            ...style,
+            backgroundColor: readOnly ? '#eee' : '#fff'
+          }}
+        >
+          <Textbit.DropMarker />
+          <ContextTools/>
+          <EditorSpellingContextmenu />
+        </Textbit.Editable>
+      </div>
 
       <EditorFooter />
     </Textbit.Root>
@@ -112,7 +120,7 @@ function TextEditor({ style, headerStyle }: {
       onChange={setValue}
       onSpellcheck={(texts) => {
         return new Promise((resolve) => {
-          // Fake asyn response from an external spellchecker service
+          // Fake async response from an external spellchecker service
           setTimeout(() => {
             resolve(texts.map((text) => spellChecker(text.text, text.lang)))
           }, 100)
@@ -120,17 +128,24 @@ function TextEditor({ style, headerStyle }: {
       }}
     >
       <strong style={headerStyle}>Text/string based editor - with placeholder</strong>
-      <Textbit.Editable
-        autoFocus={true}
-        placeholder='Type text here...'
-        style={style}
-      >
-        <Textbit.DropMarker />
-        <EditorSpellingContextmenu />
-      </Textbit.Editable>
+
+      <div style={{display: 'grid', gridTemplateColumns: '50px 1fr'}}>
+        <div>
+          <ContentMenu />
+        </div>
+
+        <Textbit.Editable
+          autoFocus={true}
+          placeholder='Type text here...'
+          style={style}
+        >
+          <Textbit.DropMarker />
+          <ContextTools/>
+          <EditorSpellingContextmenu />
+        </Textbit.Editable>
+      </div>
 
       <EditorFooter />
-
     </Textbit.Root>
   )
 }
@@ -175,10 +190,17 @@ function YjsEditor({ style, headerStyle }: {
     >
 
       <strong style={headerStyle}>Yjs editor</strong>
-      <Textbit.Editable style={style}>
-        <Textbit.DropMarker />
-        <EditorSpellingContextmenu />
-      </Textbit.Editable>
+
+      <div style={{display: 'grid', gridTemplateColumns: '50px 1fr'}}>
+        <div>
+          <ContentMenu />
+        </div>
+
+          <Textbit.Editable style={style}>
+            <Textbit.DropMarker />
+            <EditorSpellingContextmenu />
+          </Textbit.Editable>
+      </div>
 
       <EditorFooter />
     </Textbit.Root>
@@ -202,6 +224,64 @@ function EditorFooter() {
         Words: {stats.full.words}, Characters: {stats.full.characters}
       </div>
     </div>
+  )
+}
+
+function ContentMenu() {
+  const { actions } = usePluginRegistry()
+
+  return (
+    <Menu.Root className='textbit-contenttools-menu'>
+      <Menu.Trigger className='textbit-contenttools-trigger'>⋮</Menu.Trigger>
+      <Menu.Content className='textbit-contenttools-popover'>
+        <Menu.Group className='textbit-contenttools-group'>
+          {actions.filter((action) => !['leaf', 'generic', 'inline'].includes(action.plugin.class)).map((action) => {
+            return (
+              <Menu.Item
+                className='textbit-contenttools-item'
+                key={action.name}
+                action={action.name}
+              >
+                <Menu.Icon className='textbit-contenttools-icon' />
+                <Menu.Label className='textbit-contenttools-label' />
+                <Menu.Hotkey className='textbit-contenttools-hotkey' />
+              </Menu.Item>
+            )
+          })}
+        </Menu.Group>
+      </Menu.Content>
+    </Menu.Root>
+  )
+}
+
+function ContextTools() {
+  const { actions } = usePluginRegistry()
+
+  return (
+    <Toolbar.Root className='textbit-contexttools-menu'>
+      <Toolbar.Group key='leafs' className='textbit-contexttools-group'>
+        {actions.filter((action) => ['leaf'].includes(action.plugin.class)).map((action) => {
+          return (
+            <Toolbar.Item
+              className='textbit-contexttools-item'
+              action={action}
+              key={action.name}
+            />
+          )
+        })}
+      </Toolbar.Group>
+      <Toolbar.Group key='inlines' className='textbit-contexttools-group'>
+        {actions.filter((action) => ['inline'].includes(action.plugin.class)).map((action) => {
+          return (
+            <Toolbar.Item
+              className='textbit-contexttools-item'
+              action={action}
+              key={action.name}
+            />
+          )
+        })}
+      </Toolbar.Group>
+    </Toolbar.Root>
   )
 }
 

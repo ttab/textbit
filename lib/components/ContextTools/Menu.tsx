@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useFocused, useSlateSelection, useSlateStatic } from 'slate-react'
 import { Editor, Range } from 'slate'
 import { TextbitElement } from '../../utils/textbit-element'
-import { useTextbitSelectionBounds } from '../../hooks/useSelectionBounds'
+import { useSelectionBoundsNonReactive } from '../../hooks/useSelectionBounds'
 
 
 export function Menu({ children, className }: {
@@ -28,7 +28,7 @@ function Popover({ children, className }: {
 }) {
   const editor = useSlateStatic()
   const selection = useSlateSelection()
-  const bounds = useTextbitSelectionBounds()
+  const bounds = useSelectionBoundsNonReactive()
   const focused = useFocused()
   const ref = useRef<HTMLDivElement>(null)
 

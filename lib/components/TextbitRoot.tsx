@@ -6,7 +6,7 @@ import type { Awareness } from 'y-protocols/awareness'
 
 import { basePlugins, StandardPlugins } from './core'
 import { ContextMenuHintsProvider } from './ContextMenu/ContextMenuHintsProvider'
-import { TextbitSelectionBoundsProvider } from '../contexts/SelectionBoundsProvider'
+import { SelectionBoundsProvider } from '../contexts/SelectionBoundsProvider'
 import { Descendant } from 'slate'
 import * as Y from 'yjs'
 import { SlateContainer } from './SlateContainer'
@@ -72,7 +72,6 @@ export function TextbitRoot(props: TextbitRootProps) {
 
   return (
     <div className={className} style={style}>
-      <TextbitSelectionBoundsProvider>
         <TextbitProvider
           verbose={!!verbose}
           readOnly={readOnly}
@@ -90,13 +89,14 @@ export function TextbitRoot(props: TextbitRootProps) {
           >
             {/* @ts-expect-error - Props are correctly typed at the public interface level */}
             <SlateContainer {...props}>
-              <ContextMenuHintsProvider>
-                {children}
-              </ContextMenuHintsProvider>
+              <SelectionBoundsProvider>
+                <ContextMenuHintsProvider>
+                  {children}
+                </ContextMenuHintsProvider>
+              </SelectionBoundsProvider>
             </SlateContainer>
           </PluginRegistryProvider>
         </TextbitProvider>
-      </TextbitSelectionBoundsProvider>
     </div>
   )
 }

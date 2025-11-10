@@ -16,7 +16,7 @@ import { DropMarker } from './components/DropMarker'
 import { StandardPlugins } from './components/core'
 import { ContextTools } from './components/ContextTools'
 import { ContentTools } from './components/ContentTools'
-import { ContextMenu } from './components/ContextMenu'
+import { ContextMenu } from './components/ContextMenu/'
 
 // Main library composed exports
 export const Textbit = {
@@ -58,6 +58,7 @@ export { useAction } from './hooks/useAction'
 export { usePluginRegistry } from './hooks/usePluginRegistry'
 export { useTextbit } from './hooks/useTextbit'
 export { useContextMenuHints } from './components/ContextMenu/useContextMenuHints'
+export { useSelectionBounds } from './hooks/useSelectionBounds'
 
 export {
   pipeFromDrop as consumeFileDropEvent,

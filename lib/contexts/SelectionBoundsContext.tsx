@@ -4,7 +4,8 @@ import { Node, type NodeEntry } from 'slate'
 export type SelectionBounds = Omit<DOMRect & {
   isCollapsed: boolean
   leafEntry?: NodeEntry<Node>
-  blockEntry?: NodeEntry<Node>
+  blockEntry?: NodeEntry<Node>,
+  box?: DOMRect
 }, 'toJSON'>
 
 export type SelectionBoundsCallback = (param: SelectionBounds | undefined) => void

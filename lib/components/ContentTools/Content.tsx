@@ -2,7 +2,7 @@ import { useContext, useLayoutEffect, useRef } from 'react'
 import { MenuContext } from './Menu'
 import { useKeydownGlobal } from '../../hooks/useKeydownGlobal'
 import { createPortal } from 'react-dom'
-import { useTextbitSelectionBoundsState } from '../../hooks/useSelectionBounds'
+import { useSelectionBounds } from '../../hooks/useSelectionBounds'
 import { GutterContext } from '../GutterProvider/GutterContext'
 
 export function Content({ children, className }: {
@@ -34,7 +34,7 @@ function Popover({ children, className }: {
 }) {
   const { triggerSize, gutterBox } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
-  const bounds = useTextbitSelectionBoundsState()
+  const bounds = useSelectionBounds()
 
   useLayoutEffect(() => {
     const el = ref?.current

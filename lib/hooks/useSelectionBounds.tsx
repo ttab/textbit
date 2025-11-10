@@ -4,7 +4,7 @@ import { SelectionBoundsContext } from '../contexts/SelectionBoundsContext'
 /**
  * Non reactive hook
  */
-export const useTextbitSelectionBounds = () => {
+export const useSelectionBoundsNonReactive = () => {
   const context = useContext(SelectionBoundsContext)
 
   if (!context) {
@@ -18,7 +18,7 @@ export const useTextbitSelectionBounds = () => {
 /**
  * Reactive hook
  */
-export const useTextbitSelectionBoundsState = () => {
+export const useSelectionBounds = () => {
   const context = useContext(SelectionBoundsContext)
 
   if (!context) {
