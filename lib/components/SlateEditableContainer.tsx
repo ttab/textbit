@@ -19,6 +19,7 @@ interface SlateEditableProps {
   className?: string
   style?: React.CSSProperties
   decorationKey?: number
+  children?: React.ReactNode
 }
 
 export function SlateEditableContainer(props: SlateEditableProps) {
@@ -63,7 +64,8 @@ export function SlateEditableContainer(props: SlateEditableProps) {
         className={props?.className}
         style={props?.style}
         spellCheck={false}
-      ></Editable>
+      />
+      {props.children}
     </div>
   )
 }

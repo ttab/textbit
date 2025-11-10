@@ -50,13 +50,12 @@ export function TextbitEditable(props: TextbitEditableProps): React.ReactElement
               onBlur={props?.onBlur}
               style={props?.style}
               className={props?.className}
-            />
+            >
+              {props.children}
+            </SlateEditableContainer>
           </PresenceOverlay>
         </Gutter.Content>
 
-        <div style={{ position: 'relative' }}>
-          {props.children}
-        </div>
 
       </Gutter.Provider>
     </DragStateProvider>

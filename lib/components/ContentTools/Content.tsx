@@ -3,7 +3,7 @@ import { MenuContext } from './Menu'
 import { useKeydownGlobal } from '../../hooks/useKeydownGlobal'
 import { createPortal } from 'react-dom'
 import { useTextbitSelectionBoundsState } from '../../hooks/useSelectionBounds'
-import { GutterContext } from '../GutterProvider'
+import { GutterContext } from '../GutterProvider/GutterContext'
 
 export function Content({ children, className }: {
   className?: string

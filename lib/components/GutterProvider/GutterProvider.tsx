@@ -1,33 +1,16 @@
 import {
   useRef,
-  type PropsWithChildren,
-  createContext,
   useState,
-  type Dispatch,
-  type SetStateAction
 } from 'react'
-
-type GutterContextInterface = {
-  triggerSize: number
-  setTriggerSize: Dispatch<SetStateAction<number>>
-  gutterBox?: DOMRect
-  setGutterBox: React.Dispatch<React.SetStateAction<DOMRect | undefined>>
-}
-
-
-export const GutterContext = createContext<GutterContextInterface>({
-  triggerSize: 0,
-  setTriggerSize: () => { },
-  gutterBox: undefined,
-  setGutterBox: () => { }
-})
+import { GutterContext } from './GutterContext'
 
 /**
  * Set prop dir to "rtl" to put gutter on right hand side
  */
-export const GutterProvider = ({ dir = 'ltr', children }: PropsWithChildren & {
+export function GutterProvider({ dir = 'ltr', children }: {
   dir?: 'ltr' | 'rtl'
-}) => {
+  children: React.ReactNode
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const [triggerSize, setTriggerSize] = useState<number>(0)
   const [gutterBox, setGutterBox] = useState<DOMRect | undefined>(undefined)

@@ -6,7 +6,7 @@ import {
   useRef,
   useState
 } from 'react'
-import { GutterContext } from '../../components/GutterProvider/GutterProvider'
+import { GutterContext } from '../../components/GutterProvider/GutterContext'
 import { useTextbitSelectionBoundsState } from '../../hooks/useSelectionBounds'
 
 // FIXME: Refactor out

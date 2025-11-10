@@ -1,5 +1,5 @@
 import React, { useContext, useRef } from 'react'
-import { GutterContext } from './GutterProvider'
+import { GutterContext } from './GutterProvider/GutterContext'
 import { DragstateContext } from '../contexts/DragStateContext'
 
 export function DropMarker({ className, style = {} }: {
@@ -23,7 +23,7 @@ export function DropMarker({ className, style = {} }: {
   const { bbox, position } = offset || {}
   let dragOverState: 'none' | 'around' | 'between' = 'none'
 
-  pos.left = gutterBox?.width || 0
+  pos.left = 0 // gutterBox?.width || 0
   pos.width = bbox?.width
 
   if (position?.[1]) {
