@@ -206,6 +206,7 @@ function YjsEditor({ style, headerStyle }: {
         </div>
 
           <Textbit.Editable style={style}>
+            <ContextTools/>
             <Textbit.DropMarker />
             <EditorSpellingContextmenu />
           </Textbit.Editable>
