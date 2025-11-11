@@ -1,7 +1,6 @@
 import { render, screen, renderHook } from '@testing-library/react'
-import { describe, test, expect, vi, beforeAll } from 'vitest'
+import { describe, test, expect, vi } from 'vitest'
 import { useSlateStatic } from 'slate-react'
-import { Element } from 'slate'
 import { PropsWithChildren } from 'react'
 import { TextbitRoot } from '../lib/components/TextbitRoot'
 import { TextbitEditable } from '../lib/components/TextbitEditable'
