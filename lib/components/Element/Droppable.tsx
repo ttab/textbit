@@ -6,7 +6,7 @@ import { TextbitPlugin } from '../../utils/textbit-plugin'
 import { DragstateContext } from '../../contexts/DragStateContext'
 import { pipeFromDrop } from '../../utils/pipes'
 import { usePluginRegistry } from '../../hooks/usePluginRegistry'
-
+import { useTextbit } from '../../hooks/useTextbit'
 
 type Position = ['above' | 'below', boolean] | undefined
 
@@ -20,6 +20,7 @@ export function Droppable({ children, element }: {
   children: React.ReactNode
   element?: SlateElement
 }) {
+  const { readOnly } = useTextbit()
   const editor = useSlateStatic()
   const ctx = useContext(DragstateContext)
   const { plugins } = usePluginRegistry()
@@ -35,7 +36,7 @@ export function Droppable({ children, element }: {
       className='h-full w-full'
       draggable={['block', 'void'].includes(element?.class || '') ? 'true' : 'false'}
       onDragStartCapture={(e) => {
-        if (!element?.id) {
+        if (readOnly || !element?.id) {
           return
         }
 
@@ -45,21 +46,35 @@ export function Droppable({ children, element }: {
         }
       }}
       onDragEnterCapture={(e) => {
+        if (readOnly) {
+          return
+        }
+
         e.preventDefault()
         e.stopPropagation()
         ctx?.onDragEnter()
       }}
       onDragLeaveCapture={(e) => {
+        if (readOnly) {
+          return
+        }
         e.preventDefault()
         e.stopPropagation()
         ctx?.onDragLeave()
       }}
       onDragOverCapture={(e) => {
+        if (readOnly) {
+          return
+        }
         e.stopPropagation()
         e.preventDefault()
         ctx.setOffset(dropHints(e, ref?.current, isDroppable))
       }}
       onDropCapture={(e) => {
+        if (readOnly) {
+          e.preventDefault()
+          return
+        }
         if (ctx?.onDrop) {
           ctx.onDrop(e)
         }
@@ -76,6 +91,10 @@ export function Droppable({ children, element }: {
         pipeFromDrop(editor, plugins, e, position)
       }}
       onDragEnd={() => {
+        if (readOnly) {
+          return
+        }
+
         ctx?.onDragLeave()
         if (ref?.current) {
           ref.current.style.opacity = '1'
