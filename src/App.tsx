@@ -25,7 +25,8 @@ export function App() {
     fontSize: '16px',
     lineHeight: '1.5',
     maxHeight: '175px',
-    overflow: 'scroll'
+    overflow: 'scroll',
+    backgroundColor: '#fff'
   }
 
   return (
@@ -50,6 +51,9 @@ export function App() {
   )
 }
 
+/**
+ * Textbit (slate extended) format editor
+ */
 function TextbitFormatEditor({ style, headerStyle, readOnly }: {
   style: React.CSSProperties
   headerStyle: React.CSSProperties
@@ -105,7 +109,9 @@ function TextbitFormatEditor({ style, headerStyle, readOnly }: {
   )
 }
 
-
+/**
+ * Text editor
+ */
 function TextEditor({ style, headerStyle }: {
   style: React.CSSProperties
   headerStyle: React.CSSProperties
@@ -151,6 +157,9 @@ function TextEditor({ style, headerStyle }: {
 }
 
 
+/**
+ * YJS Editor
+ */
 function YjsEditor({ style, headerStyle }: {
   style: React.CSSProperties
   headerStyle: React.CSSProperties
@@ -174,7 +183,7 @@ function YjsEditor({ style, headerStyle }: {
       value={value}
       onSpellcheck={(texts) => {
         return new Promise((resolve) => {
-          // Fake asyn response from an external spellchecker service
+          // Fake async response from an external spellchecker service
           setTimeout(() => {
             resolve(texts.map((text) => spellChecker(text.text, text.lang)))
           }, 100)
@@ -207,6 +216,9 @@ function YjsEditor({ style, headerStyle }: {
   )
 }
 
+/**
+ * Footer with stats
+ */
 function EditorFooter() {
   const { stats } = useTextbit()
 
@@ -227,6 +239,9 @@ function EditorFooter() {
   )
 }
 
+/**
+ * Content menu
+ */
 function ContentMenu() {
   const { actions } = usePluginRegistry()
 
@@ -254,6 +269,9 @@ function ContentMenu() {
   )
 }
 
+/**
+ * Context tools (bold, italic, et al)
+ */
 function ContextTools() {
   const { actions } = usePluginRegistry()
 
@@ -285,6 +303,9 @@ function ContextTools() {
   )
 }
 
+/**
+ * Context menu on spellchecked words
+ */
 function EditorSpellingContextmenu() {
   const { spelling } = useContextMenuHints()
 
