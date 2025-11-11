@@ -1,5 +1,8 @@
 import './assets/app.css'
+import './assets/contextmenu.css'
+import './assets/contexttools.css'
 import './assets/toolmenu.css'
+
 import { ContextMenu, Menu, Textbit, Toolbar, useContextMenuHints, usePluginRegistry, useTextbit } from '../lib/main'
 import { document } from './assets/document'
 import { useEffect, useMemo, useRef, useState } from 'react'

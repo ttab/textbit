@@ -1,12 +1,7 @@
 div.textbit-contenttools-menu {
-  position:absolute;
-  user-select: none;
   margin-left: 0.5rem;
+  margin-top: -0.2rem;
   box-sizing: border-box;
-  width: 30px;
-  border-radius: 100%;
-  box-shadow: 1px 1px 5px -3px;
-  background-color: #fff;
 }
 
 a.textbit-contenttools-trigger {
@@ -17,11 +12,15 @@ a.textbit-contenttools-trigger {
   user-select: none;
   transition: all 0.05s cubic-bezier(.25, .8, .25, 1);
   font-weight: bold;
-  background-color: hsl(var(--popup));
-  color: hsl(var(--popup-foreground));
-  border: 1px solid hsl(var(--border));
+  background-color: hsl(0 0% 100%);
+  color: hsl(240 10% 3.9%);
 
-  /* Centering svg child */
+  width: 30px;
+  border-radius: 100%;
+  box-shadow: 1px 1px 5px -3px;
+  background-color: #fff;
+
+  /* Centering child */
   display: flex;
   flex-direction: row;
   flex-basis: fit-content;
@@ -30,33 +29,27 @@ a.textbit-contenttools-trigger {
 }
 
 div.textbit-contenttools-popover {
-  margin: 1.5rem 0 0 -1rem;
+  margin: -0.5rem 0 0 1.5rem;
   min-width: 16rem;
-  border-radius: calc(var(--radius) * 0.8);
-  background-color: hsl(var(--popover));
-  box-shadow: 0px 3px 10px -6px hsl(var(--foreground));
-  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  background-color: hsl(0 0% 100%);
+  box-shadow: 0px 3px 10px -6px hsl(240 10% 3.9%);
   font-size: 0.9rem;
   line-height: 2.3rem;
   letter-spacing: 0.03rem;
-}
-
-.dark .textbit-contenttools-popover {
-  box-shadow: none;
-  border: 1px solid hsl(var(--border))
+  background-color: #fff;
 }
 
 a.textbit-contenttools-item {
   display: grid;
   user-select: none;
+  border-radius: 0.5rem;
   grid-template-columns: 2rem minmax(max-content, 220px) 90px;
   grid-column-gap: 0;
   grid-row-gap: 0;
-  font-family: var(--font-family-ui);
-  color: hsl(var(--popover-foreground));
-  border-radius: calc(var(--radius) * 0.85);
+  font-family: 'system-ui';
+  color: hsl(240 10% 3.9%);
   cursor: pointer;
-  border: 1px solid hsl(var(--popover));
   border-width: 0 3px;
 }
 a.textbit-contenttools-item:first-child {
@@ -66,7 +59,7 @@ a.textbit-contenttools-item:last-child {
   border-bottom-width: 3px;
 }
 a.textbit-contenttools-item:hover {
-  background: hsl(var(--secondary));
+  background: hsl(240 4.8% 95.9%);
 }
 
 
@@ -106,7 +99,7 @@ div.textbit-contenttools-group {
 /* Separator between tool groups */
 div.textbit-contenttools-group::after {
   content: "";
-  background-color: hsl(var(--border));
+  background-color: hsl(240 5.9% 90%);
   align-self: stretch;
   margin: 0 3px;
   height: 1px;

@@ -1,7 +1,6 @@
 import { useContext, useLayoutEffect, useRef } from 'react'
 import { MenuContext } from './Menu'
 import { useKeydownGlobal } from '../../hooks/useKeydownGlobal'
-import { createPortal } from 'react-dom'
 import { useSelectionBounds } from '../../hooks/useSelectionBounds'
 import { GutterContext } from '../GutterProvider/GutterContext'
 
@@ -19,11 +18,10 @@ export function Content({ children, className }: {
 
   return (
     <div ref={keyTriggerRef}>
-      {isOpen && createPortal(
+      {isOpen && (
         <Popover className={className}>
           {children}
-        </Popover>,
-        document.body)}
+        </Popover>)}
     </div>
   )
 }
