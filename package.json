@@ -31,8 +31,7 @@
     "preversion": "npm test && npm run build",
     "postversion": "git push && git push --tags",
     "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:ui": "vitest --ui"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/ttab"
