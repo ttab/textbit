@@ -1,6 +1,6 @@
 import { Children, useContext } from 'react'
 import { useSlateStatic } from 'slate-react'
-import { ItemContext } from './Item'
+import { ItemContext } from './ItemContext'
 
 export function Icon({ children, className }: {
   className?: string

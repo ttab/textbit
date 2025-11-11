@@ -1,6 +1,6 @@
 import { type PropsWithChildren, useContext, useLayoutEffect } from 'react'
 import { useClickGlobal } from '../../hooks/useClickGlobal'
-import { MenuContext } from './Menu'
+import { MenuContext } from './MenuContext'
 import { GutterContext } from '../GutterProvider/GutterContext'
 
 export function Trigger({ children, className }: PropsWithChildren & {

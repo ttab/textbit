@@ -1,5 +1,5 @@
 import { useContext, useLayoutEffect, useRef } from 'react'
-import { MenuContext } from './Menu'
+import { MenuContext } from './MenuContext'
 import { useKeydownGlobal } from '../../hooks/useKeydownGlobal'
 import { useSelectionBounds } from '../../hooks/useSelectionBounds'
 import { GutterContext } from '../GutterProvider/GutterContext'

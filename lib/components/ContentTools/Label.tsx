@@ -1,5 +1,5 @@
 import { Children, useContext } from 'react'
-import { ItemContext } from './Item'
+import { ItemContext } from './ItemContext'
 
 export function Label({ children, className }: {
   className?: string

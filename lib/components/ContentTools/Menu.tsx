@@ -1,16 +1,7 @@
-import {
-  type Dispatch,
-  type SetStateAction,
-  createContext,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSelectionBounds } from '../../hooks/useSelectionBounds'
 import { useFocused } from 'slate-react'
-
-// FIXME: Refactor out
-export const MenuContext = createContext<[boolean, Dispatch<SetStateAction<boolean>>]>([false, () => { }])
+import { MenuContext } from './MenuContext'
 
 /**
  * Menu.root

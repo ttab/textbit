@@ -1,14 +1,11 @@
-import React, { type PropsWithChildren, createContext } from 'react'
+import React, { type PropsWithChildren } from 'react'
 import { useSlateSelection, useSlateStatic } from 'slate-react'
 import { type BaseSelection, Editor, Element } from 'slate'
-import type { Action } from '../../types'
 import { pipeFromFileInput } from '../../utils/pipes'
 import { TextbitElement } from '../../utils/textbit-element'
 import type { PluginRegistryAction } from '../../contexts/PluginRegistry/lib/types'
 import { usePluginRegistry } from '../../hooks/usePluginRegistry'
-
-// FIXME: Refactor out
-export const ItemContext = createContext<{ isActive: boolean, action?: Action }>({ isActive: false })
+import { ItemContext } from './ItemContext'
 
 export function Item({ children, className, action: actionName }: PropsWithChildren & {
   className?: string

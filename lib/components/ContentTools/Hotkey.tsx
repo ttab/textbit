@@ -1,6 +1,6 @@
 import { Children, useContext } from 'react'
 import { modifier } from '../../utils/modifier'
-import { ItemContext } from './Item'
+import { ItemContext } from './ItemContext'
 
 export function Hotkey({ className, children }: {
   className?: string
