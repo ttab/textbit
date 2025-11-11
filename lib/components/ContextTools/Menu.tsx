@@ -71,7 +71,7 @@ function Popover({ children, className }: {
     el.style.zIndex = 'auto'
     el.style.top = `${top}px`
     el.style.left = `${left}px`
-  }, [ref, bounds, editor.selection])
+  }, [ref, bounds, editor, focused, selection])
 
   return (
     <div

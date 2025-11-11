@@ -7,7 +7,7 @@ import { type SpellingError } from '../types/slate'
 import { ContextMenuHintsContext } from '../components/ContextMenu/ContextMenuHintsContext'
 
 export function useContextMenu(
-  ref: RefObject<HTMLDivElement>,
+  ref: RefObject<HTMLDivElement | null>,
   preventDefault = true
 ) {
   const editor = useSlateStatic()

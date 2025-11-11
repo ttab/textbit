@@ -33,7 +33,7 @@ export function Group({ children, className }: {
 
       return (child.props as Record<string, PluginRegistryAction>)?.action?.plugin?.class === 'inline'
     })
-  }, [leafEntry, editor])
+  }, [leafEntry, selection])
 
   const filteredChildren = filter(children)
   const hasChildren = Children.count(filteredChildren) > 0
