@@ -116,7 +116,7 @@ function TextEditor({ style, headerStyle }: {
   style: React.CSSProperties
   headerStyle: React.CSSProperties
 }) {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState('This is some text')
 
   return (
     <Textbit.Root
@@ -141,7 +141,6 @@ function TextEditor({ style, headerStyle }: {
         </div>
 
         <Textbit.Editable
-          autoFocus={true}
           placeholder='Type text here...'
           style={style}
         >

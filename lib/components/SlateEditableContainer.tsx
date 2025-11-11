@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react'
-import { Editor, Element, NodeEntry, Transforms } from 'slate'
+import { Editor, Element, NodeEntry, Text, Transforms } from 'slate'
 import { Editable, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../utils/getDecorationRanges'
 import { ElementComponent } from './Element/Element'
@@ -50,6 +50,16 @@ export function SlateEditableContainer(props: SlateEditableProps) {
     handleOnKeyDown(editor, actions, event)
   }, [editor, actions])
 
+  const handleFocus = useCallback((event: React.FocusEvent<HTMLDivElement>) => {
+    if (!editor.selection) {
+      setInitialSelection(editor)
+    }
+
+    if (onFocus) {
+      onFocus(event)
+    }
+  }, [editor, onFocus])
+
   return (
     <div ref={containerRef}>
       <Editable
@@ -60,7 +70,7 @@ export function SlateEditableContainer(props: SlateEditableProps) {
         autoFocus={autoFocus}
         renderElement={renderElement}
         renderLeaf={renderLeaf}
-        onFocus={onFocus}
+        onFocus={handleFocus}
         onBlur={onBlur}
         onKeyDown={onKeyDown}
         decorate={decorate}
@@ -103,4 +113,30 @@ function handleOnKeyDown(editor: Editor, actions: PluginRegistryAction[], event:
     }
     break
   }
+}
+
+/**
+ * Set iniital selection on load or on focus.
+ *
+ * Set it to beginning if there are multiple lines, otherwise to the end of the first.
+ * Needs setTimout() when in yjs env.
+ */
+function setInitialSelection(editor: Editor) {
+  const nodes = Array.from(
+    Editor.nodes(editor, {
+      at: [],
+      match: (el) => {
+        return Text.isText(el)
+      }
+    })
+  )
+
+  const node = nodes.length ? nodes[0][0] : null
+  const offset = (editor.children.length <= 1 && Text.isText(node)) ? node.text.length : 0
+  const initialSelection = {
+    anchor: { path: [0, 0], offset },
+    focus: { path: [0, 0], offset }
+  }
+
+  Transforms.select(editor, initialSelection)
 }
