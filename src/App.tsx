@@ -103,8 +103,8 @@ function TextbitFormatEditor({ style, headerStyle, readOnly }: {
           }}
         >
           <ContextTools/>
-          <EditorSpellingContextmenu />
           <Textbit.DropMarker />
+          <EditorSpellingContextmenu />
         </Textbit.Editable>
       </div>
 

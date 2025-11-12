@@ -15,6 +15,7 @@ export function DropMarker({ className, style = {} }: {
 
     // Find the contenteditable element (the actual Slate editable area)
     const container = ref.current.parentElement
+
     if (container) {
       const editable = Array.from(container.children).find(
         child => child.getAttribute('role') === 'textbox'

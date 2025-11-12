@@ -25,9 +25,15 @@ export function DragStateProvider({ children }: {
     setDragOver(false)
   }
 
+  // Div relative is necessary for DropMarker positioning
   return (
     <DragstateContext.Provider value={{ dragOver, offset, setOffset, onDragEnter, onDragLeave, onDrop }}>
+    <div style={{
+      height: '100%',
+      position: 'relative'
+    }}>
       {children}
+    </div>
     </DragstateContext.Provider>
   )
 }
