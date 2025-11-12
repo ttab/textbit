@@ -4,7 +4,6 @@ import { ReactEditor, useSlateStatic } from 'slate-react'
 import { SlateEditableContainer } from './SlateEditableContainer'
 import { useTextbit } from '../hooks/useTextbit'
 import { DragStateProvider } from '../contexts/DragStateProvider'
-import { Gutter } from './GutterProvider'
 import { PresenceOverlay } from './PresenceOverlay'
 
 interface TextbitEditableProps {
@@ -37,27 +36,19 @@ export function TextbitEditable(props: TextbitEditableProps): React.ReactElement
 
   return (
     <DragStateProvider>
-      <Gutter.Provider dir={ctx.dir}>
-
-        <Gutter.Content>
-          <PresenceOverlay isCollaborative={ctx?.collaborative}>
-            <SlateEditableContainer
-              placeholder={props?.placeholder}
-              editor={editor}
-              readOnly={ctx.readOnly}
-              autoFocus={props.autoFocus}
-              onFocus={props?.onFocus}
-              onBlur={props?.onBlur}
-              style={props?.style}
-              className={props?.className}
-            >
-              {props.children}
-            </SlateEditableContainer>
-          </PresenceOverlay>
-        </Gutter.Content>
-
-
-      </Gutter.Provider>
+      <PresenceOverlay isCollaborative={ctx?.collaborative}>
+        <SlateEditableContainer
+          placeholder={props?.placeholder}
+          editor={editor}
+          readOnly={ctx.readOnly}
+          autoFocus={props.autoFocus}
+          onFocus={props?.onFocus}
+          onBlur={props?.onBlur}
+          style={props?.style}
+          className={props?.className}
+        />
+        {props.children}
+      </PresenceOverlay>
     </DragStateProvider>
   )
 }

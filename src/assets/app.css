@@ -23,7 +23,3 @@ div[data-state="focused"] {
 [data-spelling-level='suggestion'] {
     border-bottom: 1px dotted cornflowerblue;
 }
-
-[data-dragover] {
-    margin: 0 10px;
-}

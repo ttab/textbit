@@ -25,7 +25,7 @@ import { ContextMenu } from './components/ContextMenu/'
 export const Textbit = {
   Root: TextbitRoot,
   Editable: TextbitEditable,
-  Gutter: Gutter$1.Gutter,
+  Gutter: Gutter$1.Content,
   DropMarker,
   Plugins: StandardPlugins,
   ContextMenu
@@ -53,7 +53,7 @@ export { TextbitRoot as Root }
 export { TextbitEditable as Editable }
 export { DropMarker }
 export { StandardPlugins as Plugins }
-export const Gutter = Gutter$1.Gutter
+export const Gutter = Gutter$1.Content
 export { ContextMenu }
 
 // Hooks

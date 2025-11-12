@@ -1,7 +1,6 @@
 import { useContext, useLayoutEffect, useRef } from 'react'
 import { MenuContext } from './MenuContext'
 import { useKeydownGlobal } from '../../hooks/useKeydownGlobal'
-import { useSelectionBounds } from '../../hooks/useSelectionBounds'
 import { GutterContext } from '../GutterProvider/GutterContext'
 
 export function Content({ children, className }: {
@@ -21,7 +20,8 @@ export function Content({ children, className }: {
       {isOpen && (
         <Popover className={className}>
           {children}
-        </Popover>)}
+        </Popover>
+      )}
     </div>
   )
 }
@@ -30,61 +30,46 @@ function Popover({ children, className }: {
   className?: string
   children?: React.ReactNode
 }) {
-  const { triggerSize, gutterBox } = useContext(GutterContext)
+  const { triggerBox } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
-  const bounds = useSelectionBounds()
 
   useLayoutEffect(() => {
-    const el = ref?.current
-    if (!gutterBox || !bounds || !el) {
+    const el = ref.current
+    if (!triggerBox || !el) {
       return
     }
 
-    const { top, left } = (ref.current)
-      ? calculatePosition(
-        ref.current?.getBoundingClientRect(),
-        bounds,
-        gutterBox
-      )
-      : {
-        top: 0,
-        left: 0
-      }
+    const popoverRect = el.getBoundingClientRect()
+    const gap = 8
 
-    el.style.top = `${top}px`
-    el.style.left = `${left}px`
-  }, [bounds, gutterBox, triggerSize])
+    // Position to the right of the trigger button
+    let left = triggerBox.right + gap
+    let top = triggerBox.top
+
+    // Constrain to viewport
+    const maxLeft = window.innerWidth - popoverRect.width - gap
+    left = Math.min(left, maxLeft)
+
+    // Flip down if not enough space
+    if (top + popoverRect.height > window.innerHeight - gap) {
+      top = Math.max(gap, window.innerHeight - popoverRect.height - gap)
+    }
+
+    el.style.transform = `translate(${left}px, ${top}px)`
+  }, [triggerBox])
 
   return (
-    <div ref={ref} className={className} style={{ position: 'absolute' }}>
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        willChange: 'transform'
+      }}
+    >
       {children}
     </div>
   )
-}
-
-
-type Rect = Omit<DOMRect, 'toJSON'>
-
-function calculatePosition(
-  popoverBounds: Rect,
-  selectionBounds: Rect,
-  gutterBounds: Rect) {
-  const gap = 2
-
-  // Calculate initial position
-  let left = gutterBounds.right - window.scrollX
-  let top = selectionBounds.top - gap
-
-  // Constrain to viewport bounds
-  const viewportWidth = window.innerWidth
-
-  // Prevent going off left or right edges
-  left = Math.max(gap, Math.min(left, viewportWidth - popoverBounds.width - gap))
-
-  // When going above viewport, position below selection instead
-  if (top + popoverBounds.height > window.innerHeight) {
-    top = selectionBounds.top - popoverBounds.height
-  }
-
-  return { top, left }
 }

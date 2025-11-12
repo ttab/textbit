@@ -1,40 +1,19 @@
-import {
-  useRef,
-  useState,
-} from 'react'
+import { useState } from 'react'
 import { GutterContext } from './GutterContext'
 
-/**
- * Set prop dir to "rtl" to put gutter on right hand side
- */
-export function GutterProvider({ dir = 'ltr', children }: {
-  dir?: 'ltr' | 'rtl'
+export function GutterProvider({ children }: {
   children: React.ReactNode
 }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [triggerSize, setTriggerSize] = useState<number>(0)
-  const [gutterBox, setGutterBox] = useState<DOMRect | undefined>(undefined)
+  const [triggerBox, setTriggerBox] = useState<DOMRect | undefined>(undefined)
 
   return (
     <GutterContext.Provider
       value={{
-        triggerSize,
-        setTriggerSize,
-        gutterBox,
-        setGutterBox
+        triggerBox,
+        setTriggerBox
       }}
     >
-      <div
-        contentEditable={false}
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: dir === 'rtl' ? 'row' : 'row-reverse'
-        }}
-        ref={ref}
-      >
-        {children}
-      </div>
+      {children}
     </GutterContext.Provider>
   )
 }

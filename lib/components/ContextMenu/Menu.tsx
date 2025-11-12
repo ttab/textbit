@@ -1,24 +1,19 @@
-import { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react'
+import { useCallback, useContext, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useContextMenuHints } from './useContextMenuHints'
 import { ContextMenuHintsContext } from './ContextMenuHintsContext'
-
 
 export function Menu({ children, className }: {
   className?: string
   children?: React.ReactNode
 }) {
-  return (
-    <>
-      {createPortal(
-        <Popover className={className}>
-          {children}
-        </Popover>,
-        document.body)}
-    </>
+  return createPortal(
+    <Popover className={className}>
+      {children}
+    </Popover>,
+    document.body
   )
 }
-
 
 function Popover({ children, className }: {
   className?: string
@@ -28,104 +23,80 @@ function Popover({ children, className }: {
   const ref = useRef<HTMLDivElement>(null)
   const { menu } = useContextMenuHints()
 
-  const hidePopover = useCallback(() => {
-    if (ref?.current) {
-      ref.current.style.opacity = '0'
-      ref.current.style.zIndex = '-1'
-    }
-  }, [])
-
-  const revealPopover = useCallback(() => {
-    if (!ref?.current || !menu?.position) {
+  const updatePosition = useCallback(() => {
+    const el = ref.current
+    if (!el || !menu?.position) {
       return
     }
 
-    const { top, left } = calculatePosition(
-      menu.position.x,
-      menu.position.y,
-      ref.current?.getBoundingClientRect()
-    )
+    const rect = el.getBoundingClientRect()
+    const { x, y } = menu.position
+    const gap = 8
 
-    ref.current.style.opacity = '1'
-    ref.current.style.zIndex = ''
-    ref.current.style.top = `${top}px`
-    ref.current.style.left = `${left}px`
+    let left = x
+    let top = y + gap // Position below by default
+
+    // Horizontal bounds
+    const maxLeft = window.innerWidth - rect.width - gap
+    left = Math.max(gap, Math.min(left, maxLeft))
+
+    // Vertical bounds - flip to below if not enough space above
+    if (top + rect.height > window.innerHeight - gap) {
+      top = y - rect.height - gap
+    }
+
+    el.style.transform = `translate(${left}px, ${top}px)`
   }, [menu?.position])
 
+  // Close menu on outside interaction
   useEffect(() => {
-    const clearContextMenu = (event: Event) => {
-      if (!ref?.current) {
-        return
-      }
-      if (ref.current.contains(event.target as Node)) {
-        return
-      }
-      if (!contextMenuContext.menu) {
-        return
-      }
+    if (!menu?.position) return
 
-      console.log('Clearing context menu')
-
+    const handleOutsideInteraction = (event: Event) => {
+      if (ref.current?.contains(event.target as Node)) {
+        return
+      }
       contextMenuContext?.dispatch({
         menu: undefined,
         spelling: undefined
       })
     }
 
-    window.addEventListener('keydown', clearContextMenu, { passive: true, capture: true })
-    window.addEventListener('click', clearContextMenu, { passive: true, capture: true })
+    // Use one handler for both events
+    window.addEventListener('pointerdown', handleOutsideInteraction, { capture: true })
+    window.addEventListener('keydown', handleOutsideInteraction, { capture: true })
 
     return () => {
-      window.removeEventListener('keydown', clearContextMenu, { capture: true })
-      window.removeEventListener('click', clearContextMenu, { capture: true })
+      window.removeEventListener('pointerdown', handleOutsideInteraction, { capture: true })
+      window.removeEventListener('keydown', handleOutsideInteraction, { capture: true })
     }
-  }, [contextMenuContext])
+  }, [menu?.position, contextMenuContext])
 
-  useLayoutEffect(() => {
-    if (!menu?.position) {
-      hidePopover()
-    } else {
-      revealPopover()
+  // Update position when menu appears or position changes
+  useEffect(() => {
+    if (menu?.position) {
+      // Use requestAnimationFrame for smooth positioning
+      requestAnimationFrame(updatePosition)
     }
-  }, [menu?.position, hidePopover, revealPopover])
+  }, [menu?.position, updatePosition])
+
+  if (!menu?.position) {
+    return null
+  }
 
   return (
     <div
       ref={ref}
       className={className}
       style={{
-        opacity: '0',
-        zIndex: '-1',
-        position: 'absolute'
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        willChange: 'transform',
+        pointerEvents: 'auto'
       }}
     >
       {children}
     </div>
   )
-}
-
-function calculatePosition(x: number, y: number, popoverBounds: {
-  top: number
-  left: number
-  width: number
-  height: number
-}) {
-  const gap = 2
-
-  // Calculate initial centered position
-  let left = x
-  let top = y
-
-  // Constrain to viewport bounds
-  const viewportWidth = window.innerWidth
-
-  // Prevent going off left or right edges
-  left = Math.max(gap, Math.min(left, viewportWidth - popoverBounds.width - gap))
-
-  // When going above viewport, position below selection instead
-  if (top + popoverBounds.height > window.innerHeight) {
-    top = y - popoverBounds.height - gap
-  }
-
-  return { top, left }
 }

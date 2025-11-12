@@ -5,15 +5,11 @@ import {
 } from 'react'
 
 export type GutterContextInterface = {
-  triggerSize: number
-  setTriggerSize: Dispatch<SetStateAction<number>>
-  gutterBox?: DOMRect
-  setGutterBox: React.Dispatch<React.SetStateAction<DOMRect | undefined>>
+  triggerBox?: DOMRect
+  setTriggerBox: Dispatch<SetStateAction<DOMRect | undefined>>
 }
 
 export const GutterContext = createContext<GutterContextInterface>({
-  triggerSize: 0,
-  setTriggerSize: () => { },
-  gutterBox: undefined,
-  setGutterBox: () => { }
+  triggerBox: undefined,
+  setTriggerBox: () => { }
 })

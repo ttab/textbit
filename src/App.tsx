@@ -43,13 +43,14 @@ export function App() {
     }}
     >
 
+      <YjsEditor style={editorStyle} headerStyle={headerStyle} />
+
       <TextbitFormatEditor style={editorStyle} headerStyle={headerStyle} />
 
       <TextbitFormatEditor style={editorStyle} headerStyle={headerStyle} readOnly />
 
       <TextEditor style={editorStyle} headerStyle={headerStyle} />
 
-      <YjsEditor style={editorStyle} headerStyle={headerStyle} />
     </div >
   )
 }
@@ -91,9 +92,9 @@ function TextbitFormatEditor({ style, headerStyle, readOnly }: {
       <strong style={headerStyle}>Multi line - {readOnly ? 'read-only' : 'editable'}</strong>
 
       <div style={{display: 'grid', gridTemplateColumns: '50px 1fr'}}>
-        <div style={{overflow: 'hidden'}}>
+        <Textbit.Gutter>
           <ContentMenu />
-        </div>
+        </Textbit.Gutter>
 
         <Textbit.Editable
           style={{
@@ -101,9 +102,9 @@ function TextbitFormatEditor({ style, headerStyle, readOnly }: {
             backgroundColor: readOnly ? '#eee' : '#fff'
           }}
         >
-          <Textbit.DropMarker />
           <ContextTools/>
           <EditorSpellingContextmenu />
+          <Textbit.DropMarker />
         </Textbit.Editable>
       </div>
 
@@ -139,9 +140,9 @@ function TextEditor({ style, headerStyle }: {
       <strong style={headerStyle}>Text/string based editor - with placeholder</strong>
 
       <div style={{display: 'grid', gridTemplateColumns: '50px 1fr'}}>
-        <div>
+        <Textbit.Gutter>
           <ContentMenu />
-        </div>
+        </Textbit.Gutter>
 
         <Textbit.Editable
           placeholder='Type text here...'
@@ -203,15 +204,15 @@ function YjsEditor({ style, headerStyle }: {
       <strong style={headerStyle}>Yjs editor</strong>
 
       <div style={{display: 'grid', gridTemplateColumns: '50px 1fr'}}>
-        <div>
+        <Textbit.Gutter>
           <ContentMenu />
-        </div>
+        </Textbit.Gutter>
 
-          <Textbit.Editable style={style}>
-            <ContextTools/>
-            <Textbit.DropMarker />
-            <EditorSpellingContextmenu />
-          </Textbit.Editable>
+        <Textbit.Editable style={style}>
+          <ContextTools/>
+          <Textbit.DropMarker />
+          <EditorSpellingContextmenu />
+        </Textbit.Editable>
       </div>
 
       <EditorFooter />

@@ -10,6 +10,7 @@ import { SelectionBoundsProvider } from '../contexts/SelectionBoundsProvider'
 import { Descendant } from 'slate'
 import * as Y from 'yjs'
 import { SlateContainer } from './SlateContainer'
+import { GutterProvider } from './GutterProvider/GutterProvider'
 
 interface TextbitRootBaseProps {
   children: React.ReactNode
@@ -62,7 +63,7 @@ export function TextbitRoot(props: TextbitRootProps) {
   } = props
 
   const style: React.CSSProperties = {
-    position: 'relative',
+    // position: 'relative',
     boxSizing: 'border-box',
     textRendering: 'optimizeLegibility',
     WebkitFontSmoothing: 'antialiased',
@@ -91,7 +92,9 @@ export function TextbitRoot(props: TextbitRootProps) {
           <SlateContainer {...props}>
             <SelectionBoundsProvider>
               <ContextMenuHintsProvider>
-                {children}
+                <GutterProvider>
+                  {children}
+                </GutterProvider>
               </ContextMenuHintsProvider>
             </SelectionBoundsProvider>
           </SlateContainer>

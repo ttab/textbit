@@ -179,7 +179,7 @@ function dropHints(event: React.DragEvent, domEl: HTMLDivElement | null, isDropp
   const bbox = domEl.getBoundingClientRect()
   const mouseY = event.clientY
 
-  // If mouse is within horizontal bounds
+  // If mouse is outside horizontal bounds
   if (event.clientX < bbox.left || event.clientX > bbox.right) {
     return {
       position: undefined,

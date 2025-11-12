@@ -8,19 +8,17 @@ export function Trigger({ children, className }: PropsWithChildren & {
   children?: React.ReactNode
 }) {
   const [isOpen, setIsOpen] = useContext(MenuContext)
-  const { gutterBox, setTriggerSize } = useContext(GutterContext)
+  const { setTriggerBox } = useContext(GutterContext)
   const mouseTriggerRef = useClickGlobal<HTMLAnchorElement>(() => {
     setIsOpen(false)
   })
 
   useLayoutEffect(() => {
-    if (!gutterBox || !mouseTriggerRef?.current) {
-      return
+    if (mouseTriggerRef?.current) {
+      const rect = mouseTriggerRef.current.getBoundingClientRect()
+      setTriggerBox(rect)
     }
-
-    const { width: triggerWidth } = mouseTriggerRef?.current?.getBoundingClientRect() || {}
-    setTriggerSize(triggerWidth || 0)
-  }, [mouseTriggerRef, gutterBox, setTriggerSize])
+  }, [mouseTriggerRef, setTriggerBox, isOpen])
 
   return (
     <a
