@@ -33,7 +33,6 @@ export function Droppable({ children, element }: {
     <div
       data-id={element?.id || ''}
       ref={ref}
-      className='h-full w-full'
       draggable={['block', 'void'].includes(element?.class || '') ? 'true' : 'false'}
       onDragStartCapture={(e) => {
         if (readOnly || !element?.id) {

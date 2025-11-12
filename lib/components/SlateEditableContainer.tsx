@@ -61,25 +61,26 @@ export function SlateEditableContainer(props: SlateEditableProps) {
   }, [editor, onFocus])
 
   return (
-    <div ref={containerRef} style={{height: '100%'}} className='foo bar'>
-      <Editable
-        key={decorationKey}
-        placeholder={placeholder}
-        data-state={isFocused ? 'focused' : ''}
-        readOnly={readOnly}
-        autoFocus={autoFocus}
-        renderElement={renderElement}
-        renderLeaf={renderLeaf}
-        onFocus={handleFocus}
-        onBlur={onBlur}
-        onKeyDown={onKeyDown}
-        decorate={decorate}
-        className={props?.className}
-        style={props?.style}
-        spellCheck={false}
-      />
-      {props.children}
-    </div>
+    <Editable
+      ref={containerRef}
+      key={decorationKey}
+      placeholder={placeholder}
+      data-state={isFocused ? 'focused' : ''}
+      readOnly={readOnly}
+      autoFocus={autoFocus}
+      renderElement={renderElement}
+      renderLeaf={renderLeaf}
+      onFocus={handleFocus}
+      onBlur={onBlur}
+      onKeyDown={onKeyDown}
+      decorate={decorate}
+      className={props?.className}
+      style={{
+        height: '100%',
+        ...props?.style
+      }}
+      spellCheck={false}
+    />
   )
 }
 
