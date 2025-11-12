@@ -11,8 +11,7 @@ interface TextbitProps {
   debounce?: number
   spellcheckDebounce?: number
   placeholder?: string
-  placeholders?: PlaceholdersVisibility,
-  className?: string
+  placeholders?: PlaceholdersVisibility
 }
 
 const reducer = (state: TextbitState, action: Partial<TextbitState>): TextbitState => {
@@ -41,8 +40,7 @@ export function TextbitProvider({
   debounce,
   spellcheckDebounce,
   placeholder,
-  placeholders,
-  className
+  placeholders
 }: TextbitProps) {
   const [value, dispatch] = useReducer(reducer, {
     verbose: verbose ?? false,
@@ -62,10 +60,8 @@ export function TextbitProvider({
   })
 
   return (
-    <div className={className}>
-      <TextbitContext.Provider value={{ ...value, dispatch }}>
-        {children}
-      </TextbitContext.Provider>
-    </div>
+    <TextbitContext.Provider value={{ ...value, dispatch }}>
+      {children}
+    </TextbitContext.Provider>
   )
 }

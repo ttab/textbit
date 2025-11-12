@@ -72,31 +72,31 @@ export function TextbitRoot(props: TextbitRootProps) {
 
   return (
     <div className={className} style={style}>
-        <TextbitProvider
+      <TextbitProvider
+        verbose={!!verbose}
+        readOnly={readOnly}
+        collaborative={props.value instanceof Y.XmlText && !readOnly}
+        debounce={debounce}
+        spellcheckDebounce={spellcheckDebounce}
+        placeholders={placeholders}
+      >
+        <PluginRegistryProvider
           verbose={!!verbose}
-          readOnly={readOnly}
-          collaborative={props.value instanceof Y.XmlText && !readOnly}
-          debounce={debounce}
-          spellcheckDebounce={spellcheckDebounce}
-          placeholders={placeholders}
+          plugins={[
+            ...basePlugins.map((p) => p()),
+            ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map((sp) => sp())
+          ]}
         >
-          <PluginRegistryProvider
-            verbose={!!verbose}
-            plugins={[
-              ...basePlugins.map((p) => p()),
-              ...Array.isArray(plugins) && plugins.length ? plugins : StandardPlugins.map((sp) => sp())
-            ]}
-          >
-            {/* @ts-expect-error - Props are correctly typed at the public interface level */}
-            <SlateContainer {...props}>
-              <SelectionBoundsProvider>
-                <ContextMenuHintsProvider>
-                  {children}
-                </ContextMenuHintsProvider>
-              </SelectionBoundsProvider>
-            </SlateContainer>
-          </PluginRegistryProvider>
-        </TextbitProvider>
+          {/* @ts-expect-error - Props are correctly typed at the public interface level */}
+          <SlateContainer {...props}>
+            <SelectionBoundsProvider>
+              <ContextMenuHintsProvider>
+                {children}
+              </ContextMenuHintsProvider>
+            </SelectionBoundsProvider>
+          </SlateContainer>
+        </PluginRegistryProvider>
+      </TextbitProvider>
     </div>
   )
 }
