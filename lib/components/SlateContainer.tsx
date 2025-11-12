@@ -67,8 +67,8 @@ export function SlateContainer(props: SlateContainerProps) {
   // Preserve editor across HMR
   const editorRef = useRef<Editor | null>(null)
 
-  // Force re-render on initial spellcheck only
-  const [spellcheckKey, setSpellcheckKey] = useState(0)
+  // Force re-render when decorations have been updated.
+  const [decorationsKey, setDecorationsKey] = useState(0)
 
   if (!editorRef.current) {
     let editor = withReact(createEditor())
@@ -105,7 +105,7 @@ export function SlateContainer(props: SlateContainerProps) {
 
     editor.onUpdatedDecorations = () => {
       // Trigger an immediate rerender to show updated decorations
-      setSpellcheckKey(v => v + 1)
+      setDecorationsKey(v => v + 1)
     }
     editorRef.current = editor
   }
@@ -142,9 +142,6 @@ export function SlateContainer(props: SlateContainerProps) {
       }
     }
 
-    // Update stats
-    dispatch({ stats: calculateStats(editor) })
-
     // Specifically only depend on onChange, value and dispatch
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.onChange, props.value, dispatch])
@@ -163,11 +160,19 @@ export function SlateContainer(props: SlateContainerProps) {
 
   return (
     <Slate editor={editor} initialValue={initialValue} onChange={onChangeCallback}>
-      <div key={spellcheckKey}>
+      <InnerSlateContainer key={decorationsKey}>
         {children}
-      </div>
+      </InnerSlateContainer>
     </Slate>
   )
+}
+
+/**
+ * Exists solely for the purpose of being able to use the key prop on
+ * the SlateContainer and force rerenders when decorations are updated.
+ */
+function InnerSlateContainer({children}: { children: React.ReactNode}) {
+  return <>{children}</>
 }
 
 function stringToDescentant(value: string): Descendant[] {

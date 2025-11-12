@@ -61,7 +61,7 @@ export function SlateEditableContainer(props: SlateEditableProps) {
   }, [editor, onFocus])
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} style={{height: '100%'}} className='foo bar'>
       <Editable
         key={decorationKey}
         placeholder={placeholder}

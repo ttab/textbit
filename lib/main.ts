@@ -1,10 +1,13 @@
 export type {
   SpellingError,
-  // TextbitEditor,
-  // TextbitElement,
-  // TextbitText,
-  // TextbitRange
+  PluginDefinition,
+  TextbitEditor as TBEditor,
+  TextbitElement as TBElement,
+  TextbitText as TBText,
+  TextbitRange as TBRange
 } from './types'
+
+export type { PluginRegistryAction } from './contexts/PluginRegistry/lib/types'
 
 // Import the types file to ensure declaration merging happens
 import './types'
@@ -70,15 +73,17 @@ export { TextbitEditor } from './utils/textbit-editor'
 export { TextbitElement } from './utils/textbit-element'
 export { TextbitPlugin } from './utils/textbit-plugin'
 
-// Re-export slate
+// Re-export slate types to ensure correct overloaded types are exported
 export type {
   BaseEditor,
   BaseElement,
   BaseText,
   BaseRange,
-  Descendant
+  Descendant,
+  Ancestor
 } from 'slate'
 
+// Re-export overloaded slate types to ensure correct overloaded types
 export {
   Element,
   Text,

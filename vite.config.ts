@@ -24,14 +24,15 @@ export default defineConfig({
       fileName: (format) => `index.${format}.js`
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'slate', 'slate-react', 'slate-history'],
+      external: ['react', 'react-dom', 'slate', 'slate-react', 'slate-history', 'yjs'],
       output: {
         globals: {
           'react': 'React',
           'react-dom': 'ReactDOM',
           'slate': 'Slate',
           'slate-react': 'SlateReact',
-          'slate-history': 'SlateHistory'
+          'slate-history': 'SlateHistory',
+          'yjs': 'Y'
         }
       }
     }

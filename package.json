@@ -43,7 +43,12 @@
   "peerDependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "yjs": "^13.6.26"
+    "yjs": "^13.6.26",
+    "slate": "^0.114.0",
+    "slate-history": "^0.113.1",
+    "slate-react": "^0.119.0",
+    "@slate-yjs/core": "^1.0.2",
+    "@slate-yjs/react": "^1.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
@@ -67,11 +72,6 @@
     "vitest": "^4.0.8"
   },
   "dependencies": {
-    "@slate-yjs/core": "^1.0.2",
-    "@slate-yjs/react": "^1.1.0",
-    "is-hotkey": "^0.2.0",
-    "slate": "^0.117.2",
-    "slate-history": "^0.113.1",
-    "slate-react": "^0.117.2"
+    "is-hotkey": "^0.2.0"
   }
 }
