@@ -17,7 +17,7 @@ export function DropMarker({ className, style = {} }: {
     const container = ref.current.parentElement
     if (container) {
       const editable = Array.from(container.children).find(
-        child => child.getAttribute('contenteditable') === 'true'
+        child => child.getAttribute('role') === 'textbox'
       ) as HTMLElement
 
       if (editable) {
