@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useSelectionBounds } from '../../hooks/useSelectionBounds'
 import { useFocused } from 'slate-react'
 import { MenuContext } from './MenuContext'
@@ -15,13 +15,12 @@ export function Menu({ children, className, style: inStyle = {} }: {
   const isFocused = useFocused()
   const { readOnly } = useTextbit()
 
-  const updatePosition = useCallback(() => {
+  useLayoutEffect(() => {
     const el = ref.current
-    if (!el || !bounds || readOnly) {
+    if (!el || !bounds || readOnly || !isFocused) {
       return
     }
 
-    // Get the positioned ancestor (likely the Textbit.Gutter component)
     const offsetParent = el.offsetParent as HTMLElement
     if (!offsetParent) {
       return
@@ -34,14 +33,7 @@ export function Menu({ children, className, style: inStyle = {} }: {
     const top = selectionTop - containerRect.top
 
     el.style.top = `${top}px`
-  }, [bounds, readOnly])
-
-  // Update position when bounds change
-  useEffect(() => {
-    if (!readOnly && bounds && isFocused) {
-      requestAnimationFrame(updatePosition)
-    }
-  }, [readOnly, bounds, isFocused, updatePosition])
+  }, [bounds, readOnly, isFocused])
 
   // Don't render if editor not focused or no selection
   if (readOnly || !isFocused || !bounds) {
