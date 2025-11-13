@@ -212,7 +212,7 @@ export interface LeafDefinition extends BaseDefinition {
 export type PluginDefinition = ElementDefinition | LeafDefinition
 
 /**
- * @type InitFunction
+ * @type PluginInitFunction
  * Plugin initialization function
  */
-export type InitFunction = (options?: Options) => PluginDefinition
+export type PluginInitFunction = (options?: Options) => PluginDefinition

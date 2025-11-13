@@ -1,4 +1,4 @@
-import type { Component, InitFunction } from '../../../types'
+import type { Component, PluginInitFunction } from '../../../types'
 
 import './style.css'
 
@@ -27,7 +27,7 @@ const render: Component = () => {
   )
 }
 
-export const Loader: InitFunction = () => {
+export const Loader: PluginInitFunction = () => {
   return {
     class: 'void',
     name: 'core/loader',

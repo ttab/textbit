@@ -1,8 +1,8 @@
 import { TextbitEditor } from '../../../utils/textbit-editor'
-import { InitFunction, ComponentProps } from '../../../types'
+import { PluginInitFunction, ComponentProps } from '../../../types'
 
 
-export const Text: InitFunction = () => {
+export const Text: PluginInitFunction = () => {
   return {
     class: 'text',
     name: 'core/text',

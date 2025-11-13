@@ -1,6 +1,6 @@
-import type { InitFunction } from '../../../types'
+import type { PluginInitFunction } from '../../../types'
 
-const Bold: InitFunction = () => {
+const Bold: PluginInitFunction = () => {
   return {
     class: 'leaf',
     name: 'core/bold',
@@ -18,7 +18,7 @@ const Bold: InitFunction = () => {
   }
 }
 
-const Italic: InitFunction = () => {
+const Italic: PluginInitFunction = () => {
   return {
     class: 'leaf',
     name: 'core/italic',
@@ -36,7 +36,7 @@ const Italic: InitFunction = () => {
   }
 }
 
-const Underline: InitFunction = () => {
+const Underline: PluginInitFunction = () => {
   return {
     class: 'leaf',
     name: 'core/underline',

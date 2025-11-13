@@ -1,4 +1,3 @@
-// src/types.ts
 import type { BaseEditor, BaseElement, BaseRange, BaseText, Element } from 'slate'
 import type { ReactEditor } from 'slate-react'
 import type { HistoryEditor } from 'slate-history'

@@ -1,8 +1,8 @@
 import { Transforms } from 'slate'
-import type { InitFunction } from '../../types'
+import type { PluginInitFunction } from '../../types'
 import { TextbitEditor } from '../../utils/textbit-editor'
 
-export const Navigation: InitFunction = () => {
+export const Navigation: PluginInitFunction = () => {
   return {
     class: 'generic',
     name: 'navigation',

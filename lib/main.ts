@@ -1,13 +1,24 @@
 export type {
-  SpellingError,
-  PluginDefinition,
+  SpellingError as TBSpellingError,
+  PluginDefinition as TBPluginDefinition,
   TextbitEditor as TBEditor,
   TextbitElement as TBElement,
   TextbitText as TBText,
-  TextbitRange as TBRange
+  TextbitRange as TBRange,
+  PluginInitFunction as TBPluginInitFunction,
+  Resource as TBResource,
+  ComponentEntry as TBComponentEntry,
+  ComponentEntry as TBComponent,
+  ComponentProps as TBComponentProps,
+  ToolComponent as TBToolComponent,
+  ToolComponentProps as TBToolComponentProps,
+  Action as TBAction,
+  ConsumeFunction as TBConsumeFunction,
+  ConsumesFunction as TBConsumesFunction,
+  Options as TBPluginOptions
 } from './types'
 
-export type { PluginRegistryAction } from './contexts/PluginRegistry/lib/types'
+export type { PluginRegistryAction as TBPluginRegistryAction } from './contexts/PluginRegistry/lib/types'
 
 // Import the types file to ensure declaration merging happens
 import './types'
@@ -89,5 +100,6 @@ export {
   Text,
   Editor,
   Range,
-  Node
+  Node,
+  Transforms
 } from 'slate'
