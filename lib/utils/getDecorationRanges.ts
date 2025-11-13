@@ -16,7 +16,8 @@ export function getDecorationRanges(
   editor: Editor,
   nodeEntry: NodeEntry,
   components: Map<string, PluginRegistryComponent>,
-  placeholders?: PlaceholdersVisibility
+  placeholders?: PlaceholdersVisibility,
+  placeholder?: string
 ): Range[] {
   const [node, path] = nodeEntry
   const ranges: Range[] = []
@@ -51,15 +52,21 @@ export function getDecorationRanges(
   }
 
   // Placeholders
-  if (path.length === 2 && Text.isText(node) && node.text === '' && placeholders === 'multiple') {
+  if (path.length === 2 && Text.isText(node) && !node.text && placeholders !== 'none') {
     const parentNode = Node.parent(editor, path)
 
     if (Element.isElement(parentNode) && Node.string(parentNode) === '') {
-      const componentEntry = components.get(parentNode.type)
+      const entryPlaceholder = components.get(parentNode.type)?.componentEntry?.placeholder
+      const value = (placeholders === 'single')
+        ? placeholder
+        : (typeof entryPlaceholder === 'function')
+          ? entryPlaceholder(parentNode)
+          : entryPlaceholder ?? ''
+
       ranges.push({
         anchor: { path, offset: 0 },
         focus: { path, offset: 0 },
-        placeholder: (componentEntry?.componentEntry?.placeholder) ? componentEntry.componentEntry.placeholder : ''
+        placeholder: value
       })
     }
   }

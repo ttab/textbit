@@ -20,6 +20,7 @@ interface TextbitRootBaseProps {
   onSpellcheck?: (texts: { lang: string, text: string }[]) => Promise<Omit<SpellingError, 'id'>[][]>
   spellcheckDebounce?: number
   placeholders?: PlaceholdersVisibility
+  placeholder?: string
   plugins?: PluginDefinition[]
   className?: string
   style?: React.CSSProperties
@@ -59,11 +60,11 @@ export function TextbitRoot(props: TextbitRootProps) {
     placeholders,
     plugins,
     className,
-    style: inStyle
+    style: inStyle,
+    placeholder
   } = props
 
   const style: React.CSSProperties = {
-    // position: 'relative',
     boxSizing: 'border-box',
     textRendering: 'optimizeLegibility',
     WebkitFontSmoothing: 'antialiased',
@@ -80,6 +81,7 @@ export function TextbitRoot(props: TextbitRootProps) {
         debounce={debounce}
         spellcheckDebounce={spellcheckDebounce}
         placeholders={placeholders}
+        placeholder={placeholder}
       >
         <PluginRegistryProvider
           verbose={!!verbose}

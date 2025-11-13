@@ -43,7 +43,7 @@ export type TextbitText = BaseText & {
 }
 
 export type TextbitRange = BaseRange & {
-  placeholder?: string
+  placeholder?: React.ReactNode
   spellingError?: SpellingError
 }
 

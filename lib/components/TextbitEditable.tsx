@@ -11,7 +11,6 @@ interface TextbitEditableProps {
   style?: React.CSSProperties
   children?: React.ReactNode
   autoFocus?: boolean
-  placeholder?: string
   dir?: 'ltr' | 'rtl'
   lang?: string
   onFocus?: React.FocusEventHandler<HTMLDivElement>
@@ -38,7 +37,6 @@ export function TextbitEditable(props: TextbitEditableProps): React.ReactElement
     <DragStateProvider>
       <PresenceOverlay isCollaborative={ctx?.collaborative}>
         <SlateEditableContainer
-          placeholder={props?.placeholder}
           editor={editor}
           readOnly={ctx.readOnly}
           autoFocus={props.autoFocus}

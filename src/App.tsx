@@ -71,6 +71,7 @@ function TextbitFormatEditor({ style, headerStyle, readOnly }: {
       debounce={200}
       readOnly={readOnly}
       value={value}
+      placeholders='multiple'
       onChange={() => {
         if (readOnly) {
           // This should not happen if readOnly = true
@@ -120,12 +121,14 @@ function TextEditor({ style, headerStyle }: {
   style: React.CSSProperties
   headerStyle: React.CSSProperties
 }) {
-  const [value, setValue] = useState('This is some text')
+  const [value, setValue] = useState('')
 
   return (
     <Textbit.Root
       verbose={true}
       debounce={200}
+      placeholder='Type text here...'
+      placeholders='single'
       value={value}
       onChange={setValue}
       onSpellcheck={(texts) => {
@@ -144,10 +147,7 @@ function TextEditor({ style, headerStyle }: {
           <ContentMenu />
         </Textbit.Gutter>
 
-        <Textbit.Editable
-          placeholder='Type text here...'
-          style={style}
-        >
+        <Textbit.Editable style={style}>
           <Textbit.DropMarker />
           <ContextTools/>
           <EditorSpellingContextmenu />

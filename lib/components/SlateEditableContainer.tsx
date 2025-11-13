@@ -14,7 +14,6 @@ interface SlateEditableProps {
   editor: Editor
   readOnly?: boolean
   autoFocus?: boolean
-  placeholder?: string
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   onBlur?: React.FocusEventHandler<HTMLDivElement>
   className?: string
@@ -23,8 +22,8 @@ interface SlateEditableProps {
 }
 
 export function SlateEditableContainer(props: SlateEditableProps) {
-  const { editor, readOnly = false, autoFocus = false, onFocus, onBlur, placeholder, decorationKey } = props
-  const { placeholders } = useTextbit()
+  const { editor, readOnly = false, autoFocus = false, onFocus, onBlur, decorationKey } = props
+  const { placeholders, placeholder } = useTextbit()
   const { components, actions } = usePluginRegistry()
   const isFocused = useFocused()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -42,8 +41,8 @@ export function SlateEditableContainer(props: SlateEditableProps) {
   }, [])
 
   const decorate = useCallback((entry: NodeEntry) => {
-    return getDecorationRanges(editor, entry, components, placeholders)
-  }, [editor, components, placeholders])
+    return getDecorationRanges(editor, entry, components, placeholders, placeholder)
+  }, [editor, components, placeholders, placeholder])
 
   const onKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
     handleOnKeyDown(editor, actions, event)
@@ -63,7 +62,6 @@ export function SlateEditableContainer(props: SlateEditableProps) {
     <Editable
       ref={containerRef}
       key={decorationKey}
-      placeholder={placeholder}
       data-state={isFocused ? 'focused' : ''}
       readOnly={readOnly}
       autoFocus={autoFocus}

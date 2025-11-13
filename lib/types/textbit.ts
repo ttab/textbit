@@ -72,7 +72,7 @@ export interface ComponentEntry {
   droppable?: boolean
 
   /** Placeholder text for an empty text node, optional */
-  placeholder?: string
+  placeholder?: string | ((type: Element) => React.ReactNode)
 
   /** Render function for the element, mandatory */
   component: Component

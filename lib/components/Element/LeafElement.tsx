@@ -2,7 +2,6 @@ import { type CSSProperties } from 'react'
 import { type RenderLeafProps } from 'slate-react'
 import { usePluginRegistry } from '../../hooks/usePluginRegistry'
 import { TextbitPlugin } from '../../utils/textbit-plugin'
-import { useTextbit } from '../../hooks/useTextbit'
 import type { SpellingError } from '../../types'
 
 /**
@@ -16,7 +15,6 @@ import type { SpellingError } from '../../types'
 export function LeafElement(props: RenderLeafProps) {
   const { leaf } = props
   const { plugins } = usePluginRegistry()
-  const { placeholders } = useTextbit()
 
   if (!leaf) {
     return <></>
@@ -48,71 +46,80 @@ export function LeafElement(props: RenderLeafProps) {
     // instead of inside the final {text: ''} node.
     // https://github.com/ianstormtaylor/slate/issues/4704#issuecomment-1006696364
     style.paddingLeft = '0.1px'
-
-    if (placeholders === 'multiple' && leaf.placeholder) {
-      style.position = 'relative'
-      style.width = '100%'
-    }
   }
 
-  return (leaf.spellingError)
-    ? <MisspelledLeaf {...props} className={className} style={style} />
-    : <OrdinaryLeaf {...props} className={className} style={style} />
+  if (leaf.spellingError) {
+    return <MisspelledLeaf {...props} className={className} style={style} />
+  } else if (leaf.placeholder) {
+    return <EmptyLeaf {...props} className={className} style={style} />
+  } else {
+    return <OrdinaryLeaf {...props} className={className} style={style} />
+  }
 }
 
-
 function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }) {
-  const { placeholders } = useTextbit()
-  const { leaf, attributes, style, className } = props
+  const { attributes, style, className } = props
 
   return (
-    <>
-      <span
-        style={{ ...style }}
-        className={className}
-        {...attributes}
-      >
-        {leaf.placeholder && placeholders === 'multiple' && <Placeholder value={leaf.placeholder} style={style} />}
-        {props.children}
-      </span>
-    </>
+    <span
+      style={style}
+      className={className}
+      {...attributes}
+    >
+      {props.children}
+    </span>
   )
 }
 
+function EmptyLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }) {
+  const { leaf, attributes, style, className } = props
+
+  return (
+    <div
+      style={{
+        ...style,
+        width: '100%',
+        position: 'relative'
+      }}
+      className={className}
+      {...attributes}
+    >
+      {props.children}
+      {leaf.placeholder && <Placeholder value={leaf.placeholder} style={style} />}
+    </div>
+  )
+}
 
 function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }) {
-  const { placeholders } = useTextbit()
   const { leaf, attributes, style, className } = props
   const spellingError = leaf.spellingError as unknown as SpellingError | undefined
 
   return (
-    <>
-      <span
-        style={{ ...style }}
-        className={className}
-        data-spelling-error={spellingError?.id || ''}
-        data-spelling-level={spellingError?.level || undefined}
-        {...attributes}
-      >
-        {leaf.placeholder && placeholders === 'multiple' && <Placeholder value={leaf.placeholder} style={style} />}
-        {props.children}
-      </span>
-    </>
+    <span
+      style={style}
+      className={className}
+      data-spelling-error={spellingError?.id || ''}
+      data-spelling-level={spellingError?.level || undefined}
+      {...attributes}
+    >
+      {props.children}
+    </span>
   )
 }
 
-
 function Placeholder({ value, style }: { value: string, style: CSSProperties }) {
   return (
-    <span
+    <div
       style={{
         ...style,
+        opacity: 0.333,
         position: 'absolute',
-        opacity: 0.333
+        top: 0,
+        pointerEvents: 'none'
       }}
       contentEditable={false}
     >
       {value}
-    </span>
+    </div>
   )
 }
