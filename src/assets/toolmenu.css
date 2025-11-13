@@ -29,7 +29,6 @@ a.textbit-contenttools-trigger {
 }
 
 div.textbit-contenttools-popover {
-  margin: -0.5rem 0 0 1.5rem;
   min-width: 16rem;
   border-radius: 0.5rem;
   background-color: hsl(0 0% 100%);

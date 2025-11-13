@@ -30,15 +30,19 @@ function Popover({ children, className }: {
   className?: string
   children?: React.ReactNode
 }) {
-  const { triggerBox } = useContext(GutterContext)
+  const { triggerRef } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
     const el = ref.current
-    if (!triggerBox || !el) {
+    const trigger = triggerRef?.current
+
+    if (!trigger || !el) {
       return
     }
 
+    // Get the bounding box of the trigger element
+    const triggerBox = trigger.getBoundingClientRect()
     const popoverRect = el.getBoundingClientRect()
     const gap = 8
 
@@ -56,7 +60,7 @@ function Popover({ children, className }: {
     }
 
     el.style.transform = `translate(${left}px, ${top}px)`
-  }, [triggerBox])
+  }, [triggerRef])
 
   return (
     <div

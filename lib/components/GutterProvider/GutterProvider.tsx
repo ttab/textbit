@@ -1,16 +1,15 @@
-import { useState } from 'react'
+import { useRef } from 'react'
 import { GutterContext } from './GutterContext'
 
 export function GutterProvider({ children }: {
   children: React.ReactNode
 }) {
-  const [triggerBox, setTriggerBox] = useState<DOMRect | undefined>(undefined)
+  const triggerRef = useRef<HTMLElement>(undefined)
 
   return (
     <GutterContext.Provider
       value={{
-        triggerBox,
-        setTriggerBox
+        triggerRef
       }}
     >
       {children}

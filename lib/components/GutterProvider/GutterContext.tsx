@@ -1,15 +1,12 @@
 import {
   createContext,
-  type Dispatch,
-  type SetStateAction
+  type RefObject
 } from 'react'
 
 export type GutterContextInterface = {
-  triggerBox?: DOMRect
-  setTriggerBox: Dispatch<SetStateAction<DOMRect | undefined>>
+  triggerRef?: RefObject<HTMLElement | undefined>
 }
 
 export const GutterContext = createContext<GutterContextInterface>({
-  triggerBox: undefined,
-  setTriggerBox: () => { }
+  triggerRef: undefined
 })
