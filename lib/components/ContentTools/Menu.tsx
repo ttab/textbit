@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelectionBounds } from '../../hooks/useSelectionBounds'
 import { useFocused } from 'slate-react'
 import { MenuContext } from './MenuContext'
+import { useTextbit } from '../../hooks/useTextbit'
 
 export function Menu({ children, className, style: inStyle = {} }: {
   className?: string
@@ -12,10 +13,11 @@ export function Menu({ children, className, style: inStyle = {} }: {
   const ref = useRef<HTMLDivElement>(null)
   const bounds = useSelectionBounds()
   const isFocused = useFocused()
+  const { readOnly } = useTextbit()
 
   const updatePosition = useCallback(() => {
     const el = ref.current
-    if (!el || !bounds) {
+    if (!el || !bounds || readOnly) {
       return
     }
 
@@ -32,17 +34,17 @@ export function Menu({ children, className, style: inStyle = {} }: {
     const top = selectionTop - containerRect.top
 
     el.style.top = `${top}px`
-  }, [bounds])
+  }, [bounds, readOnly])
 
   // Update position when bounds change
   useEffect(() => {
-    if (bounds && isFocused) {
+    if (!readOnly && bounds && isFocused) {
       requestAnimationFrame(updatePosition)
     }
-  }, [bounds, isFocused, updatePosition])
+  }, [readOnly, bounds, isFocused, updatePosition])
 
   // Don't render if editor not focused or no selection
-  if (!isFocused || !bounds) {
+  if (readOnly || !isFocused || !bounds) {
     return null
   }
 

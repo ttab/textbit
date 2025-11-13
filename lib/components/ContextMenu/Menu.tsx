@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useContextMenuHints } from './useContextMenuHints'
 import { ContextMenuHintsContext } from './ContextMenuHintsContext'
+import { useTextbit } from '../../hooks/useTextbit'
 
 export function Menu({ children, className }: {
   className?: string
@@ -19,6 +20,7 @@ function Popover({ children, className }: {
   className?: string
   children?: React.ReactNode
 }) {
+  const { readOnly } = useTextbit()
   const contextMenuContext = useContext(ContextMenuHintsContext)
   const ref = useRef<HTMLDivElement>(null)
   const { menu } = useContextMenuHints()
@@ -50,7 +52,7 @@ function Popover({ children, className }: {
 
   // Close menu on outside interaction
   useEffect(() => {
-    if (!menu?.position) return
+    if (!menu?.position || readOnly) return
 
     const handleOutsideInteraction = (event: Event) => {
       if (ref.current?.contains(event.target as Node)) {
@@ -70,17 +72,17 @@ function Popover({ children, className }: {
       window.removeEventListener('pointerdown', handleOutsideInteraction, { capture: true })
       window.removeEventListener('keydown', handleOutsideInteraction, { capture: true })
     }
-  }, [menu?.position, contextMenuContext])
+  }, [readOnly, menu?.position, contextMenuContext])
 
   // Update position when menu appears or position changes
   useEffect(() => {
-    if (menu?.position) {
+    if (!readOnly && menu?.position) {
       // Use requestAnimationFrame for smooth positioning
       requestAnimationFrame(updatePosition)
     }
-  }, [menu?.position, updatePosition])
+  }, [readOnly, menu?.position, updatePosition])
 
-  if (!menu?.position) {
+  if (!menu?.position || readOnly) {
     return null
   }
 
