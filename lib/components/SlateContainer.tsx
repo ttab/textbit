@@ -142,6 +142,9 @@ export function SlateContainer(props: SlateContainerProps) {
       }
     }
 
+    editor.spellcheck?.()
+    dispatch({ stats: calculateStats(editor) })
+
     // Specifically only depend on onChange, value and dispatch
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.onChange, props.value, dispatch])
