@@ -10,7 +10,7 @@ function escapeRegExp(string: string): string {
 }
 
 /**
- * Create ranges for all decorations needed
+ * Create ranges for all decorations needed, includes spellchecking and placeholders
  */
 export function getDecorationRanges(
   editor: Editor,
@@ -56,18 +56,20 @@ export function getDecorationRanges(
     const parentNode = Node.parent(editor, path)
 
     if (Element.isElement(parentNode) && Node.string(parentNode) === '') {
-      const entryPlaceholder = components.get(parentNode.type)?.componentEntry?.placeholder
-      const value = (placeholders === 'single')
-        ? placeholder
-        : (typeof entryPlaceholder === 'function')
-          ? entryPlaceholder(parentNode)
-          : entryPlaceholder ?? ''
+      if (placeholders === 'multiple' || (placeholders === 'single' && parentNode.id === editor.children[0].id)) {
+        const entryPlaceholder = components.get(parentNode.type)?.componentEntry?.placeholder
+        const value = (placeholders === 'single')
+          ? placeholder
+          : (typeof entryPlaceholder === 'function')
+            ? entryPlaceholder(parentNode)
+            : entryPlaceholder ?? ''
 
-      ranges.push({
-        anchor: { path, offset: 0 },
-        focus: { path, offset: 0 },
-        placeholder: value
-      })
+        ranges.push({
+          anchor: { path, offset: 0 },
+          focus: { path, offset: 0 },
+          placeholder: value
+        })
+      }
     }
   }
 
