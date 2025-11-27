@@ -45,7 +45,7 @@ interface SlateContainerDefaultProps extends SlateContainerBaseProps {
 }
 interface SlateContainerCollaborationProps extends SlateContainerBaseProps {
   value: Y.XmlText
-  awareness?: Awareness
+  awareness?: Awareness | null
   cursor?: {
     stateField?: string
     dataField?: string

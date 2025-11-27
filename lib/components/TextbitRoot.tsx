@@ -36,7 +36,7 @@ interface TextbitRootDefaultProps extends TextbitRootBaseProps {
 }
 interface TextbitRootCollaborationProps extends TextbitRootBaseProps {
   value: Y.XmlText
-  awareness?: Awareness
+  awareness?: Awareness | null
   cursor?: {
     stateField?: string
     dataField?: string
