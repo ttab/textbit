@@ -1,23 +1,25 @@
-import type { PropsWithChildren, ReactNode } from 'react'
-import { Node, type NodeEntry } from 'slate'
+import type { PropsWithChildren, ReactNode, RefObject } from 'react'
 import type { RenderElementProps } from 'slate-react'
-import { Editor, Element } from 'slate'
+import { type NodeEntry, Node, Editor, Element } from 'slate'
 
 /**
  * @interface
  * Textbit component props
  */
-export interface ComponentProps extends Omit<RenderElementProps, 'attributes'> {
+export interface ComponentProps<T extends HTMLElement = HTMLElement> extends Omit<RenderElementProps, 'attributes'> {
   rootNode?: Node
   options?: Options
   editor: Editor
+  children: React.ReactNode
+  ref?: RefObject<T>
+  attributes?: Record<string, unknown>
 }
 
 /**
  * @interface
  * Textbit component for rendering a TBElement (Slate Element)
  */
-export type Component<Props = ComponentProps> = {
+export type Component<T extends HTMLElement = HTMLElement, Props = ComponentProps<T>> = {
   (props: Props): ReactNode
 }
 
@@ -57,7 +59,7 @@ export interface Action {
  * @interface
  * Textbit component interface.
  */
-export interface ComponentEntry {
+export interface ComponentEntry<T extends HTMLElement = HTMLElement> {
   /** Class of the component, inherited from plugin if not specified. ('leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic') */
   class: string
 
@@ -75,9 +77,12 @@ export interface ComponentEntry {
   placeholder?: string | ((type: Element) => React.ReactNode)
 
   /** Render function for the element, mandatory */
-  component: Component
+  component: Component<T>
 
-  children?: ComponentEntry[]
+  // Children must be able to use any element, not only HTMLElement.
+  // Type safety is enforced at the component level through Component<T>.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  children?: ComponentEntry<any>[]
 
   /** Hard constraints for the component */
   constraints?: {

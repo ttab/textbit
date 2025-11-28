@@ -41,22 +41,20 @@
     "url": "git+https://github.com/ttab/textbit.git"
   },
   "peerDependencies": {
+    "@slate-yjs/core": "^1.0.2",
+    "@slate-yjs/react": "^1.1.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
-    "yjs": "^13.6.26",
     "slate": "^0.118.1",
     "slate-history": "^0.113.1",
     "slate-react": "^0.119.0",
-    "@slate-yjs/core": "^1.0.2",
-    "@slate-yjs/react": "^1.1.0"
+    "yjs": "^13.6.26"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/is-hotkey": "^0.1.10",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^4.5.2",
@@ -66,6 +64,8 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
     "jsdom": "^27.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",

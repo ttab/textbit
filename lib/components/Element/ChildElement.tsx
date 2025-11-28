@@ -1,32 +1,15 @@
 import {
   isValidElement,
-  cloneElement,
-  type ReactNode,
-  type ForwardRefExoticComponent,
-  type ForwardRefRenderFunction
+  cloneElement
 } from 'react'
 import { Node } from 'slate'
-import { useSlateStatic, type ReactEditor, type RenderElementProps } from 'slate-react'
+import { useSlateStatic, type RenderElementProps } from 'slate-react'
 import type { ComponentEntry } from '../../types'
 
 interface ChildElementProps extends RenderElementProps {
   entry: ComponentEntry
   rootNode: Node
   options?: Record<string, unknown>
-}
-
-type ForwardRefComponent<P> = ForwardRefExoticComponent<P> & {
-  render: ForwardRefRenderFunction<HTMLElement, P>
-}
-
-// Type for component props
-interface ComponentProps {
-  element: Node
-  attributes?: Record<string, unknown>
-  rootNode: Node
-  options?: Record<string, unknown>
-  children?: ReactNode
-  editor: ReactEditor
 }
 
 export function ChildElement({
@@ -41,37 +24,35 @@ export function ChildElement({
   const { component: Component } = entry
   const lang = element.lang || editor.lang
 
-  // Check if the component is forwardRef
-  if (isForwardRefComponent<ComponentProps>(Component)) {
-    try {
-      const childElement = Component.render({
-        element,
-        attributes,
-        children,
-        rootNode,
-        options,
-        editor
-      }, attributes.ref)
+  // If there's a ref, the component expects to handle attributes itself (no wrapper)
+  if (attributes.ref) {
+    const childElement = (
+      <Component
+        element={element}
+        attributes={attributes}
+        children={children}
+        rootNode={rootNode}
+        options={options}
+        editor={editor}
+        ref={attributes.ref}
+      />
+    )
 
-      if (!childElement || !isValidElement(childElement)) {
-        console.error('entry.component must return a valid React element')
-        return <></>
-      }
-
-      // Clone element and merge props
-      return cloneElement(childElement, {
-        lang,
-        'data-id': element.id,
-        className: ['child', (childElement.props as React.HTMLAttributes<HTMLDivElement>)?.className].filter(Boolean).join(' '),
-        ...attributes
-      } as React.HTMLAttributes<HTMLDivElement>)
-    } catch (error) {
-      console.error('Error rendering forwardRef component:', error)
+    if (!childElement || !isValidElement(childElement)) {
+      console.error('Child component must return a valid React element')
       return <></>
     }
+
+    // Clone and merge attributes directly into the element
+    return cloneElement(childElement, {
+      lang,
+      'data-id': element.id,
+      className: ['child', (childElement.props as React.HTMLAttributes<HTMLDivElement>)?.className].filter(Boolean).join(' '),
+      ...attributes
+    } as React.HTMLAttributes<HTMLDivElement>)
   }
 
-  // Regular function component
+  // No ref means regular component - use wrapper div
   return (
     <div
       lang={lang}
@@ -83,17 +64,5 @@ export function ChildElement({
         {children}
       </Component>
     </div>
-  )
-}
-
-
-// Improved type-safe forwardRef component check
-const isForwardRefComponent = <P,>(
-  component: unknown
-): component is ForwardRefComponent<P> => {
-  return (
-    typeof component === 'object'
-    && component !== null
-    && (component as Record<string, unknown>).$$typeof === Symbol.for('react.forward_ref')
   )
 }

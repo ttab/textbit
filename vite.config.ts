@@ -16,6 +16,18 @@ export default defineConfig({
       exclude: ['**/*.test.*', '**/*.spec.*']
     })
   ],
+  resolve: {
+    dedupe: [
+      'react',
+      'react-dom',
+      'slate',
+      'slate-react',
+      'slate-history',
+      '@slate-yjs/core',
+      '@slate-yjs/react',
+      'yjs'
+    ]
+  },
   publicDir: false,
   build: {
     lib: {

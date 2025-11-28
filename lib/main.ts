@@ -8,7 +8,7 @@ export type {
   PluginInitFunction as TBPluginInitFunction,
   Resource as TBResource,
   ComponentEntry as TBComponentEntry,
-  ComponentEntry as TBComponent,
+  Component as TBComponent,
   ComponentProps as TBComponentProps,
   ToolComponent as TBToolComponent,
   ToolComponentProps as TBToolComponentProps,
