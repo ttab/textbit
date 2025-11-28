@@ -8,7 +8,7 @@ export function Trigger({ children, className }: PropsWithChildren & {
   children?: React.ReactNode
 }) {
   const [isOpen, setIsOpen] = useContext(MenuContext)
-  const { triggerRef } = useContext(GutterContext)
+  const { triggerRef, updateTriggerRef } = useContext(GutterContext)
   const mouseTriggerRef = useClickGlobal<HTMLAnchorElement>(() => {
     setIsOpen(false)
   })
@@ -16,9 +16,9 @@ export function Trigger({ children, className }: PropsWithChildren & {
   // Sync the local ref to the context ref
   useEffect(() => {
     if (triggerRef && mouseTriggerRef.current) {
-      triggerRef.current = mouseTriggerRef.current
+      updateTriggerRef(mouseTriggerRef.current)
     }
-  }, [triggerRef, mouseTriggerRef])
+  }, [triggerRef, updateTriggerRef,mouseTriggerRef])
 
   return (
     <a

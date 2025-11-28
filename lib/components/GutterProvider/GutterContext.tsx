@@ -5,8 +5,10 @@ import {
 
 export type GutterContextInterface = {
   triggerRef?: RefObject<HTMLElement | undefined>
+  updateTriggerRef: (e: HTMLElement) => void
 }
 
 export const GutterContext = createContext<GutterContextInterface>({
-  triggerRef: undefined
+  triggerRef: undefined,
+  updateTriggerRef: () => {}
 })

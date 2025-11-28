@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { GutterContext } from './GutterContext'
 
 export function GutterProvider({ children }: {
@@ -6,10 +6,15 @@ export function GutterProvider({ children }: {
 }) {
   const triggerRef = useRef<HTMLElement>(undefined)
 
+  const updateTriggerRef = useCallback((e: HTMLElement) => {
+    triggerRef.current = e
+  }, [])
+
   return (
     <GutterContext.Provider
       value={{
-        triggerRef
+        triggerRef,
+        updateTriggerRef
       }}
     >
       {children}
