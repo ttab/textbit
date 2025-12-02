@@ -74,6 +74,7 @@ export function SlateEditableContainer(props: SlateEditableProps) {
       className={props?.className}
       style={props?.style}
       spellCheck={false}
+      placeholder={placeholder}
     />
   )
 }

@@ -20,6 +20,7 @@ export default defineConfig({
     dedupe: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
       'slate',
       'slate-react',
       'slate-history',
