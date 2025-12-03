@@ -1,769 +1,1593 @@
-# Textbit editable
+# Textbit
 
-## Description
+An unstyled, plugin-based rich text editor component for React applications. Built on Slate with support for collaborative editing via Yjs.
 
-An unstyled editor component with an easy to use plugin framework for creating custom rich text editors in React applications. Based on Slate. See [Slate documentation](https://docs.slatejs.org/) for more information on Slate.
+## Installation
 
-## Development
-
-Installation and local usage.
-
-```
-npm i
-npm run dev
-```
-
-Building ESM and CJS.
-
-```
-npm run build`
-```
-
-This will produce both an ESM and CJS modules in as well as a typescript definition (_index.d.ts_) file in `dist/`.
-
-## Using it in your project
-
-### Installing
-
-Textbit is available as NPM package published on Github. To install the Textbit package in your project add `@ttab:registry=https://npm.pkg.github.com/` to your `.npmrc`. It should look something like below.
+Textbit is available as an NPM package published on GitHub. Add the following to your `.npmrc`:
 
 ```
 registry=https://registry.npmjs.org/
 @ttab:registry=https://npm.pkg.github.com/
 ```
 
-Then it's just a matter of installing it using your favourite package manager.
+Then install using your favorite package manager:
 
+```bash
+npm install @ttab/textbit
 ```
-npm i @ttab/textbit
+
+## Development
+
+```bash
+npm install
+npm run dev
 ```
 
-### Basic usage
+Build ESM and CJS modules:
 
-Below is the basic structure of the components and their usage. The example is lacking necessary styling and actions. Gutter, Menu and Toolbar components all receive a `className` property for styling. Clone the repo and see the directory `local/` for a more thorough example including additional link, list item plugins and example CSS.
+```bash
+npm run build
+```
 
-**MyEditor.tsx**
+This produces ESM and CJS modules along with TypeScript definitions in `dist/`.
 
-```jsx
-import React, { useState } from 'react'
-import Textbit, {
-  Menu,
-  Toolbar,
-  usePluginRegistry,
-  useTextbit
-} from '@ttab/textbit'
-import './editor-variables.css'
-import {
-  Plugin1,
-  Plugin2
-} from 'plugin-bundle'
+## Quick Start
 
-const initialValue: TBDescendant[] = [
+```tsx
+import { Textbit } from '@ttab/textbit'
+import type { TBElement } from '@ttab/textbit'
+
+const initialValue: TBElement[] = [
   {
     type: 'core/text',
-    id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
+    id: crypto.randomUUID(),
     class: 'text',
-    children: [
-      { text: '' }
-    ]
+    children: [{ text: 'Hello world!' }]
   }
 ]
 
 function MyEditor() {
+  const [value, setValue] = useState(initialValue)
+
   return (
     <Textbit.Root
-      verbose={true}
-      plugins={[
-        Plugin1(),
-        Plugin2({
-          option1: true,
-          option2: false
-        })
-      ]}
+      value={value}
+      onChange={setValue}
+      placeholder="Start typing..."
     >
-      <Textbit.Editable
-        value={initialValue}
-        onChange={value => {
-          console.log(value, null, 2)
-        }}
-      >
-        <Textbit.DropMarker />
+      <Textbit.Editable className="editor" />
+    </Textbit.Root>
+  )
+}
+```
 
-        <Textbit.Gutter>
-          <Menu.Root>
-             <Menu.Trigger>⋮</Menu.Trigger>
-             <Menu.Content>
-              <Menu.Group>
-                  <Menu.Item key="title" action={}>
-                    <Menu.Icon/>
-                    <Menu.Label>Text</Menu.Label>
-                    <Menu.Hotkey>mod+0</Menu.Hotkey>
-                  </Menu.Item>
-                  <Menu.Item key="bodytext" action={}>
-                    <Menu.Icon/>
-                    <Menu.Label/>
-                    <Menu.Hotkey/>
-                  </Menu.Item>
-              </Menu.Group>
-            </Menu.Content>
-          <Menu.Root>
-        </Textbit.Gutter>
+## Table of Contents
 
-        <Toolbar.Root>
-          <Toolbar.Group>
-            <Toolbar.Item key="bold" action={}/>
-            <Toolbar.Item key="italic" action={}/>
-          </Toolbar.Group>
-        </Toolbar.Root>
+- [Core Components](#core-components)
+  - [Textbit.Root](#textbitroot)
+  - [Textbit.Editable](#textbiteditable)
+  - [Textbit.Gutter](#textbitgutter)
+  - [Textbit.DropMarker](#textbitdropmarker)
+- [Menu Components](#menu-components)
+- [Toolbar Components](#toolbar-components)
+- [Context Menu Components](#context-menu-components)
+- [Hooks](#hooks)
+- [Styling](#styling)
+- [Collaborative Editing](#collaborative-editing)
+- [Plugin Development](#plugin-development)
+- [Utilities](#utilities)
+- [TypeScript](#typescript)
 
+---
+
+## Core Components
+
+### Textbit.Root
+
+The root component that provides context for the editor. All other Textbit components must be descendants of `Textbit.Root`.
+
+#### Props
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `string \| Descendant[] \| Y.XmlText` | - | **Required.** Editor content. Can be a string, Slate Descendant array, or Yjs XmlText for collaboration. |
+| `onChange` | `(value: string \| Descendant[]) => void` | - | Called when content changes. Not used with Yjs values. |
+| `awareness` | `Awareness \| null` | - | Yjs awareness instance for collaborative cursors. Only valid when `value` is `Y.XmlText`. |
+| `cursor` | `CursorConfig` | - | Cursor configuration for collaboration. See [Collaborative Editing](#collaborative-editing). |
+| `plugins` | `TBPluginDefinition[]` | - | Array of plugin definitions. |
+| `placeholder` | `string` | `''` | Placeholder text when editor is empty. |
+| `placeholders` | `'none' \| 'single' \| 'multiple'` | `'none'` | Controls placeholder display mode. When using `multiple` text plugins displays their own placeholders per text object. |
+| `readOnly` | `boolean` | `false` | Makes editor read-only. |
+| `debounce` | `number` | `1250` | Debounce time for onChange in milliseconds. |
+| `spellcheckDebounce` | `number` | `1250` | Debounce time for spellcheck in milliseconds. |
+| `onSpellcheck` | `SpellcheckFunction` | - | Async function to handle spellchecking. |
+| `verbose` | `boolean` | `false` | Enables console logging for debugging. |
+| `className` | `string` | - | CSS class for root container. |
+| `style` | `React.CSSProperties` | - | Inline styles for root container. |
+| `dir` | `'ltr' \| 'rtl'` | `'ltr'` | Text direction. |
+| `lang` | `string` | `'en'` | Language code (e.g., 'en', 'sv'). |
+
+#### Spellcheck Function Type
+
+A spellcheck function will receive an array of texts (with language code and the actual text). The function is expected to resolve with an array of spelling issues. Each spelling issue defines the identified string, start position of the string, an array of suggested substitutions and severity level.
+
+When loading the editor the first time the whole text will be spellchecked. After that only the text object changed will be checked.
+
+```typescript
+type SpellcheckFunction = (
+  texts: Array<{ lang: string; text: string }>
+) => Promise<Array<Array<Omit<SpellingError, 'id'>>>>
+
+interface SpellingError {
+  str: string      // The misspelled text
+  pos: number      // Position in the text
+  sub: string[]    // Suggested replacements
+  level?: 'error' | 'suggestion'  // Severity level
+}
+```
+
+#### Examples
+
+**String Mode**
+
+```tsx
+function SimpleEditor() {
+  const [text, setText] = useState('')
+
+  return (
+    <Textbit.Root value={text} onChange={setText}>
+      <Textbit.Editable />
+    </Textbit.Root>
+  )
+}
+```
+
+**Structured Mode**
+
+```tsx
+import { Bold, Italic, Heading } from './plugins'
+
+const initialValue = Descendant[] = [
+  {
+    type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef1-a219891b6011',
+    class: 'text',
+    properties: {
+      role: 'heading-1'
+    },
+    children: [
+      { text: 'The Baltic Sea' }
+    ]
+  },
+  {
+    type: 'core/text',
+    id: '538345e5-bacc-48f9-8ef0-1219891b6024',
+    class: 'text',
+    children: [
+      { text: 'This text editor was built on an island in the ' },
+      {
+        text: 'Baltic Sea',
+        'core/bold': true
+      },
+      {
+        text: '.'
+      }
+    ]
+  }
+]
+
+function RichTextEditor() {
+  const [value, setValue] = useState(initialValue)
+
+  return (
+    <Textbit.Root
+      value={value}
+      onChange={setValue}
+      plugins={[Bold(), Italic(), Heading()]}
+    >
+      <Textbit.Editable />
+    </Textbit.Root>
+  )
+}
+```
+
+**With Spellcheck**
+
+```tsx
+function EditorWithSpellcheck() {
+  const [value, setValue] = useState(initialValue)
+
+  const handleSpellcheck = async (texts) => {
+    return texts.map(({ text, lang }) => {
+      // Return array of spelling errors for each text
+      return [
+        { str: 'teh', pos: 0, sub: ['the', 'tea'], level: 'error' },
+        { str: 'recieve', pos: 10, sub: ['receive'], level: 'error' }
+      ]
+    })
+  }
+
+  return (
+    <Textbit.Root
+      value={value}
+      onChange={setValue}
+      onSpellcheck={handleSpellcheck}
+    >
+      <Textbit.Editable />
+    </Textbit.Root>
+  )
+}
+```
+
+---
+
+### Textbit.Editable
+
+The editable content area. Must be a child of `Textbit.Root`.
+
+#### Props
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `autoFocus` | `boolean \| 'start' \| 'end'` | `false` | Auto-focus behavior. `true`/`'start'` focuses at start, `'end'` focuses at end. |
+| `onFocus` | `React.FocusEventHandler<HTMLDivElement>` | - | Called when editor receives focus. |
+| `onBlur` | `React.FocusEventHandler<HTMLDivElement>` | - | Called when editor loses focus. |
+| `className` | `string` | - | CSS class for editable container. |
+| `style` | `React.CSSProperties` | - | Inline styles for editable container. |
+| `children` | `React.ReactNode` | - | Additional components (Toolbar, Gutter, etc.). |
+
+#### Data Attributes
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `data-state` | `"focused" \| ""` | Indicates whether editor has focus. |
+
+#### Example
+
+```tsx
+<Textbit.Editable
+  autoFocus="end"
+  className="prose dark:prose-invert"
+  onFocus={() => console.log('Editor focused')}
+  onBlur={() => console.log('Editor blurred')}
+>
+  <Textbit.Gutter>
+    <Menu.Root>{/* ... */}</Menu.Root>
+  </Textbit.Gutter>
+  <Toolbar.Root>{/* ... */}</Toolbar.Root>
+</Textbit.Editable>
+```
+
+---
+
+### Textbit.Gutter
+
+Provides a gutter area for content tools (like a menu). Automatically positions itself relative to the active block.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `children` | `React.ReactNode` | Content to display in gutter (typically `Menu.Root`). |
+
+#### Example
+
+```tsx
+<div style={{ display: 'grid', gridTemplateColumns: '50px 1fr' }}>
+  <Textbit.Gutter>
+    <Menu.Root>
+      <Menu.Trigger>⋮</Menu.Trigger>
+      <Menu.Content>
+        {/* Menu items */}
+      </Menu.Content>
+    </Menu.Root>
+  </Textbit.Gutter>
+
+  <Textbit.Editable />
+</div>
+```
+
+---
+
+### Textbit.DropMarker
+
+Visual indicator for drag-and-drop operations. Automatically handles positioning and visibility.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for styling the drop marker. |
+
+#### Data Attributes
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `data-dragover` | `"none" \| "between" \| "around"` | Indicates drag state. `"between"` shows line between elements, `"around"` encompasses droppable element. |
+
+#### Example
+
+```tsx
+<Textbit.Editable>
+  <Textbit.DropMarker className="drop-marker" />
+  {/* Other children */}
+</Textbit.Editable>
+```
+
+**CSS Styling**
+
+```css
+.drop-marker[data-dragover="between"] {
+  height: 2px;
+  background: #3b82f6;
+}
+
+.drop-marker[data-dragover="around"] {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+```
+
+---
+
+### Textbit.Plugins
+
+Array of standard plugins included with Textbit.
+
+```tsx
+import { Textbit } from '@ttab/textbit'
+
+// Use default plugins
+<Textbit.Root plugins={Textbit.Plugins}>
+  <Textbit.Editable />
+</Textbit.Root>
+
+// Use custom plugins
+<Textbit.Root plugins={[...Textbit.Plugins, MyCustomPlugin()]}>
+  <Textbit.Editable />
+</Textbit.Root>
+```
+
+---
+
+## Menu Components
+
+Components for building a content menu (block-level tools). Typically used in the gutter.
+
+### Menu.Root
+
+Root component for the menu structure.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for menu root. |
+| `children` | `React.ReactNode` | Menu content. |
+
+#### Data Attributes
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `data-state` | `"open" \| "closed"` | Indicates menu open state. |
+
+---
+
+### Menu.Trigger
+
+Button that toggles the menu.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for trigger button. |
+| `children` | `React.ReactNode` | Trigger content (text, icon). |
+
+---
+
+### Menu.Content
+
+Container for menu items.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for menu content. |
+| `children` | `React.ReactNode` | Menu groups and items. |
+
+---
+
+### Menu.Group
+
+Groups related menu items.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for group. |
+| `children` | `React.ReactNode` | Menu items. |
+
+---
+
+### Menu.Item
+
+Individual menu item that triggers a plugin action.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `action` | `string \| TBPluginRegistryAction` | **Required.** Action name or action object from plugin registry. |
+| `className` | `string` | CSS class for item. |
+| `children` | `React.ReactNode` | Item content (icon, label, hotkey). |
+
+#### Data Attributes
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `data-state` | `"active" \| "inactive"` | Indicates if item's plugin is active in current selection. |
+
+#### Example
+
+```tsx
+import { usePluginRegistry } from '@ttab/textbit'
+
+function ContentMenu() {
+  const { actions } = usePluginRegistry()
+
+  return (
+    <Menu.Root className="menu">
+      <Menu.Trigger className="menu-trigger">⋮</Menu.Trigger>
+      <Menu.Content className="menu-content">
+        <Menu.Group className="menu-group">
+          {actions
+            .filter(a => a.plugin.class === 'text')
+            .map(action => (
+              <Menu.Item 
+                key={action.name} 
+                action={action.name}
+                className="menu-item"
+              >
+                <Menu.Icon className="menu-icon" />
+                <Menu.Label className="menu-label" />
+                <Menu.Hotkey className="menu-hotkey" />
+              </Menu.Item>
+            ))
+          }
+        </Menu.Group>
+      </Menu.Content>
+    </Menu.Root>
+  )
+}
+```
+
+---
+
+### Menu.Icon
+
+Displays the action's icon. Auto-populated from plugin or can be overridden.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for icon. |
+| `children` | `React.ReactNode` | Optional. Override default icon. |
+
+---
+
+### Menu.Label
+
+Displays the action's label. Auto-populated from plugin or can be overridden.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for label. |
+| `children` | `React.ReactNode` | Optional. Override default label. |
+
+---
+
+### Menu.Hotkey
+
+Displays the action's keyboard shortcut. Automatically formats platform-specific shortcuts (e.g., `mod+b` becomes `⌘B` on Mac, `Ctrl+B` on Windows).
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for hotkey. |
+| `children` | `React.ReactNode` | Optional. Override default hotkey. |
+
+---
+
+## Toolbar Components
+
+Components for building a context toolbar (inline tools like bold, italic). The toolbar automatically positions itself near the current selection.
+
+### Toolbar.Root
+
+Root component for context toolbar.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for toolbar. |
+| `children` | `React.ReactNode` | Toolbar groups and items. |
+
+---
+
+### Toolbar.Group
+
+Groups related toolbar items.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for group. |
+| `children` | `React.ReactNode` | Toolbar items. |
+
+---
+
+### Toolbar.Item
+
+Individual toolbar button that triggers a plugin action.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `action` | `string \| TBPluginRegistryAction` | **Required.** Action name or action object from plugin registry. |
+| `className` | `string` | CSS class for item. |
+
+#### Data Attributes
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `data-state` | `"active" \| "inactive"` | Indicates if item's plugin is active in current selection. |
+
+#### Example
+
+```tsx
+import { usePluginRegistry } from '@ttab/textbit'
+
+function ContextToolbar() {
+  const { actions } = usePluginRegistry()
+
+  return (
+    <Toolbar.Root className="toolbar">
+      <Toolbar.Group className="toolbar-group">
+        {actions
+          .filter(a => a.plugin.class === 'leaf')
+          .map(action => (
+            <Toolbar.Item 
+              key={action.name} 
+              action={action} 
+              className="toolbar-item"
+            />
+          ))
+        }
+      </Toolbar.Group>
+      <Toolbar.Group className="toolbar-group">
+        {actions
+          .filter(a => a.plugin.class === 'inline')
+          .map(action => (
+            <Toolbar.Item 
+              key={action.name} 
+              action={action} 
+              className="toolbar-item"
+            />
+          ))
+        }
+      </Toolbar.Group>
+    </Toolbar.Root>
+  )
+}
+```
+
+---
+
+## Context Menu Components
+
+Components for building a context menu (right-click menu), primarily for spelling suggestions and custom actions.
+
+### Textbit.ContextMenu.Root
+
+Root component for context menu. Automatically positions based on right-click location.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for context menu. |
+| `children` | `React.ReactNode` | Menu groups and items. |
+
+---
+
+### Textbit.ContextMenu.Group
+
+Groups related context menu items.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class for group. |
+| `children` | `React.ReactNode` | Context menu items. |
+
+---
+
+### Textbit.ContextMenu.Item
+
+Individual context menu item.
+
+#### Props
+
+| Name | Type | Description |
+|------|------|-------------|
+| `func` | `() => void` | Callback function executed on click. Optional if only displaying static content. |
+| `className` | `string` | CSS class for item. |
+| `children` | `React.ReactNode` | Item content. |
+
+#### Example
+
+```tsx
+import { useContextMenuHints } from '@ttab/textbit'
+
+function SpellingContextMenu() {
+  const { spelling } = useContextMenuHints()
+
+  return (
+    <Textbit.ContextMenu.Root className="context-menu">
+      <Textbit.ContextMenu.Group className="context-menu-group">
+        {spelling?.suggestions.length === 0 && (
+          <Textbit.ContextMenu.Item className="context-menu-item">
+            No spelling suggestions
+          </Textbit.ContextMenu.Item>
+        )}
+        
+        {spelling?.suggestions.map(({ text, description }) => (
+          <Textbit.ContextMenu.Item
+            key={text}
+            className="context-menu-item"
+            func={() => spelling.apply(text)}
+          >
+            {text}
+            {description && <em> - {description}</em>}
+          </Textbit.ContextMenu.Item>
+        ))}
+      </Textbit.ContextMenu.Group>
+    </Textbit.ContextMenu.Root>
+  )
+}
+
+// Use it in Textbit.Editable
+<Textbit.Editable>
+  <SpellingContextMenu />
+</Textbit.Editable>
+```
+
+---
+
+## Hooks
+
+### useTextbit()
+
+Access Textbit context and editor state.
+
+```typescript
+const {
+  stats,          // TextbitStats
+  verbose,        // boolean
+  readOnly,       // boolean
+  collaborative,  // boolean
+  placeholders,   // PlaceholdersVisibility
+  placeholder,    // string
+  dir,            // 'ltr' | 'rtl'
+  lang,           // string
+  dispatch        // Dispatch<PluginRegistryReducerAction>
+} = useTextbit()
+
+interface TextbitStats {
+  full: { words: number; characters: number }
+  short: { words: number; characters: number }
+}
+```
+
+#### Statistics
+
+Full statistics includes all nodes of class `'text'` regardless of level. Short statistics only include top nodes of type `'core/text'`.
+
+#### Example
+
+```tsx
+function EditorStats() {
+  const { stats } = useTextbit()
+  
+  return (
+    <div>
+      <div>Words: {stats.full.words}</div>
+      <div>Characters: {stats.full.characters}</div>
+      {stats.short.words > 0 && (
+        <div>Short: {stats.short.words} words</div>
+      )}
+    </div>
+  )
+}
+```
+
+---
+
+### usePluginRegistry()
+
+Access registered plugins and actions.
+
+```typescript
+const {
+  plugins,    // TBPluginDefinition[]
+  components, // Map<string, PluginRegistryComponent>
+  actions     // TBPluginRegistryAction[]
+} = usePluginRegistry()
+```
+
+#### Example
+
+```tsx
+function PluginList() {
+  const { plugins, actions } = usePluginRegistry()
+  
+  return (
+    <div>
+      <h3>Registered Plugins: {plugins.length}</h3>
+      <ul>
+        {actions.map(action => (
+          <li key={action.name}>{action.title}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+```
+
+---
+
+### useAction(pluginName, actionName)
+
+Get a specific action function from a plugin. Useful for programmatic control.
+
+```typescript
+const myAction = useAction('core/image', 'upload-image')
+
+// Call it with optional arguments
+myAction({ file: imageFile, url: 'https://...' })
+```
+
+#### Example
+
+```tsx
+function ImageUploader() {
+  const uploadImage = useAction('core/image', 'insert-image')
+  
+  const handleFileSelect = async (file: File) => {
+    const url = await uploadToServer(file)
+    uploadImage({ url, alt: file.name })
+  }
+  
+  return <input type="file" onChange={e => handleFileSelect(e.target.files[0])} />
+}
+```
+
+---
+
+### useContextMenuHints()
+
+Access context menu state and spelling information.
+
+```typescript
+const {
+  isOpen,     // boolean
+  position,   // { x: number; y: number } | undefined
+  target,     // HTMLElement | undefined
+  event,      // MouseEvent | undefined
+  nodeEntry,  // NodeEntry | undefined
+  spelling    // SpellingInfo | undefined
+} = useContextMenuHints()
+
+interface SpellingInfo {
+  text: string
+  level?: 'error' | 'suggestion'
+  suggestions: Array<{
+    text: string
+    description?: string
+  }>
+  range?: Range
+  apply: (replacement: string) => void
+}
+```
+
+#### Example
+
+```tsx
+function ContextMenu() {
+  const { isOpen, spelling, position } = useContextMenuHints()
+  
+  if (!isOpen || !spelling) {
+    return null
+  }
+  
+  return (
+    <div style={{ position: 'fixed', left: position?.x, top: position?.y }}>
+      {spelling.suggestions.map(({ text }) => (
+        <button key={text} onClick={() => spelling.apply(text)}>
+          {text}
+        </button>
+      ))}
+    </div>
+  )
+}
+```
+
+---
+
+### useSelectionBounds()
+
+Get the current selection's bounding rectangle.
+
+```typescript
+const bounds = useSelectionBounds()
+// Returns: DOMRect | null
+```
+
+#### Example
+
+```tsx
+function SelectionHighlight() {
+  const bounds = useSelectionBounds()
+  
+  if (!bounds) return null
+  
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        left: bounds.left,
+        top: bounds.top,
+        width: bounds.width,
+        height: bounds.height,
+        border: '2px solid blue',
+        pointerEvents: 'none'
+      }}
+    />
+  )
+}
+```
+
+---
+
+## Styling
+
+Textbit provides minimal default styling, allowing you to fully customize the appearance.
+
+### Data Attributes for Styling
+
+#### Editor State
+
+```css
+/* When editor has focus */
+[data-state="focused"] {
+  outline: 2px solid #3b82f6;
+}
+```
+
+#### Menu and Toolbar Items
+
+```css
+/* Active plugin */
+[data-state="active"] {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Inactive plugin */
+[data-state="inactive"] {
+  opacity: 0.6;
+}
+```
+
+#### Drag and Drop
+
+```css
+/* Line between elements */
+[data-dragover="between"] {
+  height: 2px;
+  background: #3b82f6;
+  margin: 4px 0;
+}
+
+/* Highlight around droppable element */
+[data-dragover="around"] {
+  outline: 2px dashed #3b82f6;
+  outline-offset: 2px;
+}
+```
+
+### Spelling Errors
+
+Spelling errors are rendered with data attributes for custom styling:
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `data-spelling-error` | `string` | Unique ID of spelling error. |
+| `data-spelling-level` | `"error" \| "suggestion"` | Severity level. |
+
+#### CSS Example
+
+```css
+[data-spelling-error] {
+  text-decoration: underline dotted;
+}
+
+[data-spelling-level="error"] {
+  text-decoration-color: #ef4444;
+}
+
+[data-spelling-level="suggestion"] {
+  text-decoration-color: #3b82f6;
+}
+```
+
+#### Tailwind Example
+
+```tsx
+<Textbit.Editable
+  className="
+    [&_[data-spelling-error]]:underline
+    [&_[data-spelling-error]]:decoration-dotted
+    [&_[data-spelling-level='error']]:decoration-red-500
+    [&_[data-spelling-level='suggestion']]:decoration-blue-500
+  "
+/>
+```
+
+---
+
+## Collaborative Editing
+
+Textbit supports real-time collaboration using Yjs.
+
+### Basic Setup
+
+```tsx
+import * as Y from 'yjs'
+import { WebrtcProvider } from 'y-webrtc'
+import { Textbit } from '@ttab/textbit'
+
+function CollaborativeEditor() {
+  const ydoc = useMemo(() => new Y.Doc(), [])
+  const provider = useMemo(
+    () => new WebrtcProvider('my-room-name', ydoc),
+    [ydoc]
+  )
+  const sharedContent = useMemo(
+    () => ydoc.get('content', Y.XmlText),
+    [ydoc]
+  )
+
+  return (
+    <Textbit.Root
+      value={sharedContent}
+      awareness={provider.awareness}
+      cursor={{
+        data: {
+          name: 'John Doe',
+          color: 'rgb(59, 130, 246)',
+          initials: 'JD'
+        }
+      }}
+    >
+      <Textbit.Editable />
+    </Textbit.Root>
+  )
+}
+```
+
+### Cursor Configuration
+
+When using collaborative editing, configure how cursors are displayed:
+
+```typescript
+interface CursorConfig {
+  stateField?: string              // Awareness field name for cursor state
+  dataField?: string               // Awareness field name for cursor data
+  autoSend?: boolean               // Auto-send cursor updates (default: true)
+  data: {
+    name: string                   // User's display name
+    color: string                  // User's cursor color (rgb/hex)
+    initials: string               // User's initials
+    avatar?: string                // Optional avatar URL
+    [key: string]: unknown         // Additional custom data
+  }
+}
+```
+
+### Full Collaborative Example
+
+```tsx
+import { useMemo, useEffect } from 'react'
+import * as Y from 'yjs'
+import { WebrtcProvider } from 'y-webrtc'
+import { Textbit } from '@ttab/textbit'
+import { slateNodesToInsertDelta } from '@slate-yjs/core'
+
+function CollaborativeEditor() {
+  const ydoc = useMemo(() => new Y.Doc(), [])
+  const provider = useMemo(
+    () => new WebrtcProvider('room-' + roomId, ydoc),
+    [ydoc, roomId]
+  )
+  const content = useMemo(() => ydoc.get('content', Y.XmlText), [ydoc])
+
+  // Initialize with existing content
+  useEffect(() => {
+    if (content.length === 0 && initialContent.length > 0) {
+      content.applyDelta(slateNodesToInsertDelta(initialContent))
+    }
+  }, [content, initialContent])
+
+  return (
+    <Textbit.Root
+      value={content}
+      awareness={provider.awareness}
+      cursor={{
+        autoSend: true,
+        data: {
+          name: currentUser.name,
+          color: currentUser.color,
+          initials: currentUser.initials,
+          avatar: currentUser.avatarUrl
+        }
+      }}
+      plugins={[/* your plugins */]}
+    >
+      <Textbit.Editable>
+        {/* Other components */}
       </Textbit.Editable>
     </Textbit.Root>
   )
 }
 ```
 
-# Component Reference
-
-## Textbit.Root
-
-Top level Texbit component. Receives all plugins. Base plugins is exported from Textbit as `Textbit.Plugins[]`.
-
-### Props
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| verbose | boolean | Optional, default false|
-| autoFocus | boolean | Optional, default false|
-| onBlur | React.FocusEventHandler<HTMLDivElement> | Optional |
-| onFocus | React.FocusEventHandler<HTMLDivElement> | Optional |
-| plugins | Plugin.Definition[] | |
-| debounce | number? | Optional debounce time for calling `onChange()` handler. Defaults to 250 ms.
-| debounceSpellcheck | number? | Optional debounce time for calling `onSpellcheck()` handler. Defaults to 1250 ms.
-
-### Provides PluginRegistryContext
-
-PluginRegistryContext: access through convenience hook `usePluginRegistry()`.
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| plugins | Plugin.Definition[] | All registered plugins |
-| components | Map<string, PluginRegistryComponent> | Slate element render components |
-| actions | PluginRegistryAction[] | Convenience structure |
-| verbose | boolean | Output extra info about plugins and settings in the browsers developer console |
-| debounce | number | Optional, set debounce value for onChange(), default 250ms |
-| placeholder | string | Optional, placeholder text for entire editor, default is empty. Should not be combined with _placeholders_. |
-| placeholders | 'none' | 'single' | 'multiple' | Optional, controls how placeholders are used. Single will display one placeholder for entire editor. Multiple will display plugins placeholders on each textline. Default is 'single' if the _placeholder_ property is set, otherwise 'none'. |
-| dispatch | Dispatch<PluginRegistryReducerAction> | Add or delete plugins |
-
-### Provides TextbitContext, useTextbit()
-
-TextbitContext: access through convenience hook `useTextbit()`.
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| stats | TextbitStats | words and characters in article parts or full document  |
-| verbose | boolean | Output extra info on console |
-| autoFocus | boolean | Whether autoFocus is true or false |
-| onBlur | React.FocusEventHandler<HTMLDivElement> | Event handler for when editor loses focus |
-| onFocus | React.FocusEventHandler<HTMLDivElement> | Event handler for when editor receives focus |
-
 ---
 
-## Textbit.Editable
+## Plugin Development
 
-Editable area component, acts as wrapper around Slate.
+Plugins extend Textbit with custom content types and behaviors.
 
-### Props
+### Plugin Types
 
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| value | Descendant[] | Optional, initial content |
-| onChange | (Descendant[] => void) | Function to receive all changes |
-| onSpellcheck | onSpellcheck?: (texts: string[]) => Array<Array<{<br> str: string,<br> pos: number,<br> sub: string[]<br> }>> | Optional, callback function to handle spellchecking of strings |
-| dir | "ltr" \| "rtl" | Optional, defaults to _ltr_ |
-| lang | string | Optional langage (e.g en, en-BR, sv, sv_FI). Falls back to html document language, then browser language and last "en".
-| yjsEditor | BaseEditor | BaseEditor created with `withYjs()` and `withCursors()` |
-| gutter | boolean | Optional, defaults to true (render gutter). |
-| className | string |  |
-| readOnly | boolean | Optional, defaults to false |
-| children | React.ReactNode \| undefined  |  |
-| ref | React.LegacyRef<HTMLDivElement> | Provides reference to Slate Editable dom node |
+| Class | Description | Examples |
+|-------|-------------|----------|
+| `leaf` | Inline formatting | Bold, italic, underline |
+| `inline` | Inline blocks | Links, mentions |
+| `text` | Text blocks | Paragraphs, headings, blockquotes |
+| `block` | Block elements | Images, videos, embeds |
+| `void` | Non-editable elements | Loaders |
+| `generic` | Non-visual plugins | Input transformers, validators |
 
-### Provides GutterContext (_used internally_)
+Block elements are automatically draggable.
 
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| gutter | boolean | |
-| setOffset | ({ left: number, top: number }) => void | |
-| offset | { left: number, top: number } | |
-
-### Data attribute
-
-| Name | Value | Description |
-| ----------- | ----------- | ----------- |
-| [data-state] | "focused" \| "" | Indicate whether editor has focus or not. |
-
-## Example
-
-Basic, not complete, example of using it with Yjs.
-
-```javascript
-const editor = useMemo(() => {
-  return withYHistory(
-    withCursors(
-      withYjs(
-        createEditor(),
-        provider.document.get('content', Y.XmlText)
-      ),
-      provider.awareness,
-      { data: user as unknown as Record<string, unknown> }
-    )
-  )
-}, [provider.awareness, provider.document, user])
-```
-
-```jsx
-<Textbit.Editable yjsEditor={editor} />
-```
-
----
-
-## Textbit.Element
-
-Can be used to wrap all elements in plugin components. Provides data state attribute used for styling.
-
-### Props
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-| children |  |  |
-
-### Data attribute
-
-| Name | Value | Description |
-| ----------- | ----------- | ----------- |
-| [data-state] | "active" \| "inactive" | The values "active" or "inactive" indicates whether the cursor is in the element or the element is part of a selection. |
-
-### Styling spelling errors
-
-When using the spellchecking functionality words (or combination of words) that are misspelled
-are rendered as `<span>` child elements having the data attribute `data-spelling-error`. This
-can be used to style all the spelling errors. See context menu handling for handling spelling errors
-in more detail.
-
-It is possible to differentiate between spelling errors and suggestions using the `data-spelling-level` which is set to `suggestion` if supported by the spellchecking functionality.
-
-| Name | Value | Description |
-| ----------- | ----------- | ----------- |
-| [data-spelling-error] | string | Id of individual spelling error |
-| [data-spelling-level] | `error`| `suggestion` | Level of the spelling error |
-
-**Using a CSS style rule**
-
-```css
-[data-spelling-error] {
-  text-decoration: underline;
-  text-decoration-style: dotted;
-}
-[data-spelling-level="error"] {
-    text-decoration-color: rgb(239, 68, 68);
-}
-[data-spelling-level="suggestion"] {
-  text-decoration-color: rgb(68, 68, 239);
-}
-```
-
-**Using Tailwind**
-
-```JSX
-return (
-  <Textbit.Editable
-    onSpellcheck={async (texts) => checkSpelling(texts)}
-    className={`outline-none
-      h-full
-      dark:text-slate-100
-      [&_[data-spelling-error]]:underline
-      [&_[data-spelling-error]]:decoration-dotted
-      [&_[data-spelling-level="error"]]:decoration-red-500
-      [&_[data-spelling-level="suggestion"]]:decoration-blue-500`}
-  >
-    <ContextMenu />
-  </Textbit.Editable>
-)
-```
-
----
-
-## Textbit.DropMarker
-
-Provides a drop marker indicator. Handles positioning and displaying automatically. Provides a html data attribute to use for styling when dragOver is happening and what type of dragOver is wanted. If `data-dragover` is `between` a line should be displayed between elements. This is the default behaviour. If a plugin component has property `droppable` set to `true` the droppable marker will encompass the whole element component. The `data-dragover` attribute will be set to `around`.
-
-### Props
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-
-### Data attribute
-
-| Name | Value | Description |
-| ----------- | ----------- | ----------- |
-| [data-dragover] | "none" \| "between" \| "around" | True when dragover is active |
-
-## Textbit.Gutter
-
-Provides a gutter for the content tool menu. Handles positioning automatically. Allows placement to the left or right of the content area. Context is used internally. Has inline styling for size and relative positioning of children.
-
----
-
-## Menu.Root
-
-Root component for the Menu structure.
-
-### Props
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string | |
-
-### Data attribute
-
-| Name | Value | Description |
-| ----------- | ----------- | ----------- |
-| [data-state] | "open" \| "closed" | |
-
-### Provides context (_used internally_)
-
-| Name | Value | Description |
-| ----------- | ----------- | ----------- |
-| isOpen | boolean | |
-| setIsOpen: | (boolean) => void | |
-
-## Menu.Trigger
-
-### Props
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string | |
-
-## Menu.Content
-
-### Props
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string | |
-
-## Menu.Group
-
-### Props
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string | |
-
-## Menu.Item
-
-### Props
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-| action | PluginRegistryAction | _Retrieved from hook usePluginRegistry()_ |
-
-### Data attribute
-
-| Name | Value | Description |
-| ----------- | ----------- | ----------- |
-| [data-state] | "active" \| "inactive" | Cursor or selection on content type. |
-
-### Provides context (_used internally_)
-
-| Name | Type |
-| ----------- | ----------- |
-| active | boolean |
-| action | PluginRegistryAction |
-
-### Example
-
-```jsx
-const { actions } = usePluginRegistry()
-
-// ...
-
-{actions.filter(action => !['leaf', 'generic', 'inline'].includes(action.plugin.class)).map(action => {
-  <Menu.Item
-    className="ct-item"
-    key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
-    action={action}
-  >
-    <Menu.Icon className="ct-icon" />
-    <Menu.Label className="ct-label">{action.title}</Menu.Label>
-    <Menu.Hotkey className="ct-hotkey" />
-  </Menu.Item>
-  })}
-```
-
-## Menu.Icon
-
-Display an icon in the menu item. Can be automatic or overridden by children.
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-| children |  | Optional. Overrides default action tool icon |
-
-## Menu.Label
-
-Display a label for the menu item. Can be automatic or overridden by children when for example different translations are needed.
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-| children |  | Optional. Overrides default label |
-
-## Menu.Hotkey
-
-Displays a keyboard shortcut. If no children are provided it will automatically transform shortcuts from, for example, `mod+b` per platform to `ctrl+b` or `cmd+b`.
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-| children |  | Optional. Overrides default "translation" of action keyboard shortcut |
-
----
-
-## Toolbar.Root
-
-Root component around the context toolbox in the editor area providing access to tools like bold, links etc. Handles some style inline for hiding/showing the toolbox through manipulating _position_, _z-index_, _opacity_, _top_ and _left_.
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-
-## Toolbar.Group
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-
-## Toolbar.Item
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-| action | PluginRegistryAction | _Retrieved from hook usePluginRegistry()_ |
-
-### Data attribute
-
-| Name | Value | Description |
-| ----------- | ----------- | ----------- |
-| [data-state] | "active" \| "inactive" | Cursor or selection on leaf or inline like bold, italic, link. |
-
-### Example
-
-```jsx
-const { actions } = usePluginRegistry()
-
-// ...
-
-{actions.filter(action => ['inline'].includes(action.plugin.class)).map(action => {
-  <Toolbar.Item
-    className="ctx-item"
-    action={action} key={`${action.plugin.class}-${action.plugin.name}-${action.title}`}
-  />
-})}
-```
-
----
-
-## ContextMenu.Root
-
-Root component around the context menu in the editor area providing a way to display spelling suggestions on spelling errors.
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-
-## ## ContextMenu.Group
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-
-## ## ContextMenu.Item
-
-| Name | Type | Description |
-| ----------- | ----------- | ----------- |
-| className | string |  |
-| func | () => void | Callback function to execute on click |
-
-### useContextMenuHints() hook
-
-Provides context click context hints, like which slate node, offset and spelling suggestions if they exist.
+### Plugin Structure
 
 ```typescript
-interface {
-    isOpen: boolean
-    position?: {
-      x: number,
-      y: number
-    }
-    target?: HTMLElement
-    event?: MouseEvent
-    nodeEntry?: NodeEntry
-    spelling?: {
-      text: string
-      level?: 'error' | 'suggestion'
-      suggestions: string[]
-      range?: Range
-      apply: (replacementString: string) => void
-    }
+import type { TBPluginInitFunction } from '@ttab/textbit'
+
+const MyPlugin: TBPluginInitFunction = (options) => {
+  return {
+    class: 'block',
+    name: 'namespace/image',
+    
+    actions: [{
+      name: 'toggle-image',
+      title: 'Image',
+      hotkey: 'mod+i',
+      tool: () => <ImageIcon />,
+      handler: ({ editor, options }) => {
+        // Custom logic here
+        // Return true to also use default behavior
+        // Return false if you handled everything
+        return true
+      }
+    }],
+    
+    componentEntry: {
+      class: 'block',
+      component: Figure,
+      constraints: {
+        normalizeNode: normalizeImage
+      }
+    },
+    
+    // Optional: Plugin options
+    options: options || {}
   }
+}
 ```
 
-### Example
+### Component Props
 
-```jsx
-<ContextMenu.Root className='textbit-contextmenu'>
-  {!!spelling?.suggestions &&
-    <ContextMenu.Group className='textbit-contextmenu-group' key='spelling-suggestions'>
-      {spelling.suggestions.map(suggestion => {
-        return (
-          <ContextMenu.Item
-            className='textbit-contextmenu-item'
-            key={suggestion}
-            func={() => {
-              spelling.apply(suggestion)
-            }}
-          >
-            {suggestion}
-          </ContextMenu.Item>
-        )
-      })}
-    </ContextMenu.Group>
-  }
-</ContextMenu.Root>
+Plugin components receive these props:
+
+```typescript
+interface TBComponentProps {
+  element: TBElement           // Current element being rendered
+  children: React.ReactNode    // Child elements to render
+  rootNode?: TBElement         // Root element if this is a descendant component
+  options?: Record<string, unknown> // Plugin options
+}
 ```
 
-## Plugin development
+### Example: Bold Plugin
 
-Content objects are handled by plugins. Plugins are defined by a structure which define hooks, render components and other parts of the plugin. Examples below should outline the general structure, they are not complete.
-
-Plugins can be either
-
-| class | |
-| ----------- | ----------- |
-| leaf | Bold, italic, etc. |
-| inline | Inline blocks in the text, like links. |
-| text | Normal text of various types. |
-| _textblock_ | **deprecated** _Use block instead._ |
-| block | Regular block elements like image, video. Automatically becomes draggable. |
-| void | Non editable objects, like a spinning loader. Should seldom be used.|
-| generic| Non rendered plugins. Like transforming input characters. |
-
-### Examples
-
-**Bold example**
-
-```jsx
+```tsx
 import { BoldIcon } from 'lucide-react'
+import type { TBPluginInitFunction, TBComponentProps } from '@ttab/textbit'
 
-const Bold: Plugin.InitFunction = () => {
+const Bold: TBPluginInitFunction = () => {
   return {
     class: 'leaf',
     name: 'core/bold',
+    
     actions: [{
       name: 'toggle-bold',
-      tool: () => <BoldIcon style={{ width: '0.8em', height: '0.8em' }} />,
+      title: 'Bold',
       hotkey: 'mod+b',
-      handler: () => true
+      tool: () => <BoldIcon size={16} />,
+      handler: () => true // Use default toggle behavior
     }],
+
     getStyle: () => {
-      return 'font-bold'
+      // Leaf CSS styling
+      return {
+        fontWeight: 'bold'
+      }
     }
   }
 }
+
+export { Bold }
 ```
 
-**Blockquote example**
+### Example: Link Plugin
 
-```jsx
-const Blockquote: Plugin.InitFunction = () => {
+```tsx
+import { LinkIcon } from 'lucide-react'
+import type { TBPluginInitFunction, TBComponentProps } from '@ttab/textbit'
+import { Editor, Transforms } from 'slate'
+
+const Link: TBPluginInitFunction = () => {
   return {
-    class: 'textblock',
-    name: 'core/blockquote',
-    actions: [
-      {
-        name: 'set-blockquote',
-        title: 'Blockquote',
-        tool: () => <MessageSquareQuoteIcon style={{ width: '1em', height: '1em' }} />,
-        hotkey: 'mod+shift+2',
-        handler: actionHandler,
-        visibility: (element) => {
-          return [
-            true, // Always visible
-            true, // Always enabled
-            (element.type === 'core/blockquote') // Active when isBlockquote
+    class: 'inline',
+    name: 'core/link',
+    
+    actions: [{
+      name: 'insert-link',
+      title: 'Link',
+      hotkey: 'mod+k',
+      tool: () => <LinkIcon size={16} />,
+      handler: ({ editor }) => {
+        const url = prompt('Enter URL:')
+        if (!url) return false
+        
+        const link = {
+          type: 'core/link',
+          url,
+          children: [{ text: url }]
+        }
+        
+        if (editor.selection) {
+          Transforms.wrapNodes(editor, link, { split: true })
+        } else {
+          Transforms.insertNodes(editor, link)
+        }
+        
+        return false // We handled everything
+      }
+    }],
+    
+    componentEntry: {
+      class: 'inline',
+      component: LinkComponent
+    }
+  }
+}
+
+function LinkComponent({ element, children }: TBComponentProps) {
+  return (
+    <a 
+      href={element.url} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="text-blue-600 underline"
+    >
+      {children}
+    </a>
+  )
+}
+
+export { Link }
+```
+
+### Example: Image Block Plugin
+
+```tsx
+import { ImageIcon } from 'lucide-react'
+import type { TBPluginInitFunction, TBComponentProps } from '@ttab/textbit'
+import { Transforms } from '@ttab/textbit'
+
+const Image: TBPluginInitFunction = () => {
+  return {
+    class: 'block',
+    name: 'core/image',
+    
+    actions: [{
+      name: 'insert-image',
+      title: 'Image',
+      hotkey: 'mod+shift+i',
+      tool: () => <ImageIcon size={16} />,
+      handler: ({ editor }) => {
+        const url = prompt('Enter image URL:')
+        if (!url) return false
+        
+        const image = {
+          type: 'core/image',
+          class: 'block',
+          id: crypto.randomUUID(),
+          properties: { src: url },
+          children: [
+            {
+              type: 'core/image/caption',
+              class: 'text',
+              children: [{ text: '' }]
+            }
           ]
         }
+        
+        Transforms.insertNodes(editor, image)
+        return false
       }
-    ],
+    }],
+    
     componentEntry: {
-      class: 'textblock',
-      component: BlockquoteComponent,
-      constraints: {
-        normalizeNode: normalizeBlockquote // Render function for main/wrapper component
-      },
+      class: 'block',
+      component: ImageComponent,
+      droppable: true, // Allow files to be dropped on this element
       children: [
-        {
-          type: 'body',
-          class: 'text',
-          component: BlockquoteBody // Render the quote
-        },
         {
           type: 'caption',
           class: 'text',
-          component: BlockquoteCaption // Render the caption
+          component: CaptionComponent
         }
       ]
     }
   }
 }
+
+function ImageComponent({ element, children }: TBComponentProps) {
+  return (
+    <figure className="my-4" contentEditable={false}>
+      <img 
+        src={element.properties.src} 
+        alt=""
+        className="w-full rounded"
+      />
+      <figcaption contentEditable={true}>
+        {children}
+      </figcaption>
+    </figure>
+  )
+}
+
+function CaptionComponent({ children }: TBComponentProps) {
+  return <div className="text-sm text-gray-600 mt-2">{children}</div>
+}
+
+export { Image }
 ```
 
-### Component rendering
+### Using Actions in Components
 
-A component is used to render an element. One plugin can have many different child components and even allow other plugin components as children.
+Use the `useAction` hook to call plugin actions from within components:
 
-Each component receives the props
+```tsx
+import { useAction } from '@ttab/textbit'
+import type { TBComponentProps } from '@ttab/textbit'
 
-| class | Type | Description |
-| ----------- | ----------- | ----------- |
-| children | `TBElement[]` | Child components that should be rendered |
-| element | `TBElement` | The actual element being rendered |
-| rootNode | `TBElement` | If the rendered component is a child node, rootNode gives access to the topmost root node which carries properties etc |
-| options | `Record<string, unknown>` | An object with plugin options provided at plugin instantiation |
-
-Using the hook `useAction()` it is possible to call a named action defined in the plugin specification, including providing a argument object (`Record<string, unknown>`).
-
-_If a child component is using a html element as its rendered root element (e.g `<tr>`, `<td>`, etc) the child component must be defined as a ForwardedRef component. This allows Textbit to not add extra wrapper elements._
-
-**Example**
-
-```javascript
-import { useAction, type Plugin } from '@ttab/textbit'
-
-export const Factbox = ({ children, element }: Plugin.ComponentProps): JSX.Element => {
-  const setFactIsChecked = useAction('core/factbox', 'fact-is-checked') // Use a defined action in a specified plugin
-
-  return <>
-    <a
-      href="#"
-      contentEditable={false}
-      onMouseDown={event) => {
-        // Prevent href click
-        event.preventDefault()
-
-         // Call the specified action
-        setFactIsChecked({
-          state: true
-        })
-      }}
-    >
-      Set is factchecked
-    </a>
-    <div>
-      {children}
-    </div>
-  </>
+function ImageComponent({ element }: TBComponentProps) {
+  const deleteImage = useAction('core/image', 'delete-image')
+  
+  return (
+    <figure contentEditable={false}>
+      <img src={element.properties.src} alt="" />
+      <button onClick={() => deleteImage({ id: element.id })}>
+        Delete
+      </button>
+    </figure>
+  )
 }
 ```
 
-```javascript
-import { forwardRef, type PropsWithChildren } from 'react'
+### Forwarding Refs for HTML Elements
 
-export const TableRow = forwardRef<HTMLTableRowElement, PropsWithChildren>(({ children }, ref) => (
+If your component wants to use a specific wrapper HTML element (like `<tr>`, `<td>`, etc.), use `ref`:
+
+```tsx
+import type { TBComponentProps } from '@ttab/textbit'
+
+export const TableRow = ({ children, ref }: TBComponentProps<HTMLTableRowElement>) => (
   <tr ref={ref}>{children}</tr>
-))
+)
 
 TableRow.displayName = 'TableRow'
+
 ```
 
-### TextbitElement
+---
 
-The format of an element, or content object, in Texbit is based on Slate Element. Note the use of `properties` which is used to carry data about the element as well as how formatting like bold, italic et al is added directly on the text node.
+## Utilities
 
-**A text element of type 'h1'**
+### File Handling
 
-```json
+Process dropped files or file input changes:
+
+```typescript
+import { 
+  consumeFileDropEvent, 
+  consumeFileInputChangeEvent 
+} from '@ttab/textbit'
+
+// Handle drop events
+const handleDrop = async (event: DragEvent) => {
+  const files = await consumeFileDropEvent(event)
+  files.forEach(file => {
+    console.log(file.name, file.type, file.size)
+  })
+}
+
+// Handle file input
+const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  const files = await consumeFileInputChangeEvent(event)
+  files.forEach(file => {
+    console.log(file.name, file.type, file.size)
+  })
+}
+```
+
+### Calculate Statistics
+
+Calculate word and character counts:
+
+```typescript
+import { useTextbit } from '@ttab/textbit'
+
+function EditorStats() {
+  const { stats } = useTextbit()
+  
+  return (
+    <div>
+      <div>Words: {stats.full.words}</div>
+      <div>Characters: {stats.full.characters}</div>
+      {stats.short.words > 0 && (
+        <div>Selected: {stats.short.words} words</div>
+      )}
+    </div>
+  )
+}
+```
+
+### Editor Utilities
+
+Helper utilities for working with the editor:
+
+```typescript
+import { TextbitEditor, TextbitElement, TextbitPlugin } from '@ttab/textbit'
+
+// Check if element is a certain type
+if (TextbitElement.isOfType(element, 'core/text')) {
+  console.log('This is a core text element')
+}
+
+// Get plugin by type
+const plugin = TextbitPlugin.get(plugins, 'core/bold')
+
+```
+
+---
+
+## TypeScript
+
+Textbit is written in TypeScript and provides comprehensive type definitions.
+
+### Exported Types
+
+```typescript
+import type {
+  // Element and editor types
+  TBElement,          // Textbit element
+  TBText,             // Text node
+  TBEditor,           // Extended Slate editor
+  TBRange,            // Range type
+  
+  // Plugin types
+  TBPluginDefinition, // Plugin definition
+  TBPluginInitFunction, // Plugin initialization function
+  TBComponentProps,   // Component props
+  TBAction,           // Action definition
+  TBPluginOptions,    // Plugin options
+  TBPluginRegistryAction, // Registry action
+  
+  // Resource and component types
+  TBResource,         // Resource definition
+  TBComponentEntry,   // Component entry
+  TBComponent,        // Component type
+  TBToolComponent,    // Tool component
+  TBToolComponentProps, // Tool component props
+  
+  // Other types
+  TBSpellingError,    // Spelling error structure
+  TBConsumeFunction,  // Consume function type
+  TBConsumesFunction  // Consumes function type
+} from '@ttab/textbit'
+```
+
+### Re-exported Slate Types
+
+Textbit re-exports Slate types with the correct type augmentation:
+
+```typescript
+import {
+  // Utilities
+  Editor,      // Slate Editor utilities
+  Element,     // Slate Element utilities
+  Text,        // Slate Text utilities
+  Transforms,  // Slate transform operations
+  Node,        // Slate Node utilities
+  Range        // Slate Range utilities
+} from '@ttab/textbit'
+
+import type {
+  // Base types
+  Descendant,  // Slate content node
+  Ancestor,    // Slate ancestor node
+  BaseEditor,  // Base editor type
+  BaseElement, // Base element type
+  BaseText,    // Base text type
+  BaseRange    // Base range type
+} from '@ttab/textbit'
+```
+
+### Type Augmentation
+
+Textbit uses TypeScript declaration merging to extend Slate's types. When you import from `@ttab/textbit`, you get the augmented types automatically:
+
+```typescript
+import { Editor, Element } from '@ttab/textbit'
+
+// These now use Textbit's augmented types
+const editor: Editor // Actually TBEditor
+const element: Element // Actually TBElement
+```
+
+### Custom Plugin Types
+
+When creating plugins, use the type helpers:
+
+```typescript
+import type { 
+  TBPluginInitFunction, 
+  TBComponentProps,
+  TBElement
+} from '@ttab/textbit'
+
+// Plugin initialization
+const MyPlugin: TBPluginInitFunction = (options) => {
+  return {
+    // Plugin definition
+  }
+}
+
+// Component
+function MyComponent({ element, children }: TBComponentProps) {
+  // Component implementation
+}
+
+// Type guard
+function isMyPlugin(element: TBElement): element is TBElement & { 
+  type: 'namespace/my-plugin' 
+} {
+  return element.type === 'namespace/my-plugin'
+}
+```
+
+---
+
+## Element Structure
+
+Textbit elements are based on Slate elements with additional conventions:
+
+### Text Element
+
+```typescript
 {
-    type: 'core/text',
-    id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
-    class: 'text',
-    properties: {
-      type: 'h1'
+  type: 'core/text',
+  id: '538345e5-bacc-48f9-8ef1-a219891b60eb',
+  class: 'text',
+  properties: {
+    role: 'heading-1'  // Optional sub-type
+    // Additional properties can be defined
+  },
+  children: [
+    { text: 'Better music?' }
+  ]
+}
+```
+
+### Formatted Text
+
+```typescript
+{
+  type: 'core/text',
+  id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
+  class: 'text',
+  children: [
+    { text: 'An example paragraph with ' },
+    {
+      text: 'stronger',
+      'core/bold': true,
+      'core/italic': true
     },
-    children: [
-      { text: 'Better music?' }
-    ]
-  }
+    { text: ' text.' }
+  ]
+}
 ```
 
-**Example of bold/italic**
+### Block Element (Image Example)
 
-```json
-{
-    type: 'core/text',
-    id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
-    class: 'text',
-    children: [
-      { text: 'An example paragraph  with ' },
-      {
-        text: 'stronger',
-        'core/bold': true,
-        'core/italic': true
-      },
-      {
-        text: ' text.'
-      }
-    ]
-  }
-```
-
-**Image example**
-
-```json
+```typescript
 {
   id: '538345e5-bacc-48f9-8ef0-1219891b60ef',
   class: 'block',
   type: 'core/image',
   properties: {
-    type: 'image/png',
-    src: 'https://www...image.png',
-    title: 'My image',
-    size: '234300,
+    src: 'https://example.com/image.png',
+    alt: 'Description',
     width: 1024,
-    height: 986
+    height: 768
   },
   children: [
     {
-      type: 'core/image/image',
+      type: 'core/image/caption',
       class: 'text',
-      children: [{ text: '' }]
-    },
-    {
-      type: 'core/image/text',
-      class: 'text',
-      children: [{ text: 'An image of people taken 2001 in the countryside' }]
-    },
-    {
-      type: 'core/image/altText',
-      class: 'text',
-      children: [{ text: 'Three people by a tree' }]
+      children: [{ text: 'An image of people taken 2001' }]
     }
   ]
 }
 ```
+
+---
+
+## Complete Example
+
+See `./src` for several complete examples.
+
+---
+
+## License
+
+MIT

@@ -7,7 +7,7 @@ export function calculateStats(editor: Editor): TextbitStats {
     at: [],
     match: (n, path) => Element.isElement(n)
       && ['core/text'].includes(n.type || '')
-      && n.properties?.role !== 'vignette'
+      && n.properties?.role !== 'vignette' // FIXME: This is userland conditions
       && path.length === 1
   }))
 
