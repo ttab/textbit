@@ -1,6 +1,6 @@
 import type { PlaceholdersVisibility } from '../contexts/TextbitContext'
 import type { PluginDefinition, SpellingError } from '../types'
-import type { Awareness } from 'y-protocols/awareness'
+import { Awareness } from 'y-protocols/awareness'
 
 import { createEditor, Descendant, type Editor, Node } from 'slate'
 import * as Y from 'yjs'
@@ -43,21 +43,24 @@ interface SlateContainerDefaultProps extends SlateContainerBaseProps {
   value: Descendant[]
   onChange?: (value: Descendant[]) => void
 }
-interface SlateContainerCollaborationProps extends SlateContainerBaseProps {
+interface SlateContainerYjsProps extends SlateContainerBaseProps {
   value: Y.XmlText
-  awareness?: Awareness | null
+  onChange?: undefined
+}
+interface SlateContainerCollaborationProps extends SlateContainerYjsProps {
+  awareness: Awareness
   cursor?: {
     stateField?: string
     dataField?: string
     autoSend?: boolean
     data: Record<string, unknown>
   }
-  onChange?: undefined
 }
-type SlateContainerProps = SlateContainerStringProps | SlateContainerDefaultProps | SlateContainerCollaborationProps
+type SlateContainerProps = SlateContainerStringProps | SlateContainerDefaultProps | SlateContainerYjsProps | SlateContainerCollaborationProps
 
 export function SlateContainer(props: SlateContainerStringProps): React.ReactElement
 export function SlateContainer(props: SlateContainerDefaultProps): React.ReactElement
+export function SlateContainer(props: SlateContainerYjsProps): React.ReactElement
 export function SlateContainer(props: SlateContainerCollaborationProps): React.ReactElement
 export function SlateContainer(props: SlateContainerProps) {
   const { children, value, readOnly } = props
@@ -73,21 +76,21 @@ export function SlateContainer(props: SlateContainerProps) {
   if (!editorRef.current) {
     let editor = withReact(createEditor())
 
-    if (isSlateContainerCollaborationProps(props)) {
-      // Create collaborative editor with proper plugin chain
+    if (!isSlateContainerYjsProps(props)) {
+      editor = withHistory(editor)
+    } else {
+      // Create Yjs editor
       editor = withYHistory(withYjs(editor, props.value))
 
       // Add cursors if awareness is provided
-      if (props.awareness && YjsEditor.isYjsEditor(editor)) {
+      if (YjsEditor.isYjsEditor(editor) && isSlateContainerCollaborationProps(props)) {
         editor = withCursors(editor, props.awareness, {
           autoSend: props.cursor?.autoSend ?? true,
-          data: props.cursor?.data ?? {},
+          data: props.cursor?.data ?? undefined,
           cursorStateField: props.cursor?.stateField,
           cursorDataField: props.cursor?.dataField
         })
       }
-    } else {
-      editor = withHistory(editor)
     }
 
     withLang(editor, lang)
@@ -189,10 +192,16 @@ function stringToDescentant(value: string): Descendant[] {
   })
 }
 
+function isSlateContainerYjsProps(
+  props: SlateContainerProps
+): props is SlateContainerYjsProps {
+  return props.value instanceof Y.XmlText
+}
+
 function isSlateContainerCollaborationProps(
   props: SlateContainerProps
 ): props is SlateContainerCollaborationProps {
-  return 'awareness' in props && 'cursor' in props
+  return props.value instanceof Y.XmlText && 'awareness' in props && props.awareness instanceof Awareness
 }
 
 function isSlateContainerStringProps(

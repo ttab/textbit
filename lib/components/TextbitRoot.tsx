@@ -2,7 +2,7 @@ import type { PlaceholdersVisibility } from '../contexts/TextbitContext'
 import { TextbitProvider } from '../contexts/TextbitProvider'
 import { PluginRegistryProvider } from '../contexts/PluginRegistry/PluginRegistryProvider'
 import type { PluginDefinition, SpellingError } from '../types'
-import type { Awareness } from 'y-protocols/awareness'
+import { Awareness } from 'y-protocols/awareness'
 
 import { basePlugins, StandardPlugins } from './core'
 import { ContextMenuHintsProvider } from './ContextMenu/ContextMenuHintsProvider'
@@ -34,8 +34,11 @@ interface TextbitRootDefaultProps extends TextbitRootBaseProps {
   value: Descendant[]
   onChange?: (value: Descendant[]) => void
 }
-interface TextbitRootCollaborationProps extends TextbitRootBaseProps {
+interface TextbitRootYjsProps extends TextbitRootBaseProps {
   value: Y.XmlText
+  onChange?: undefined
+}
+interface TextbitRootCollaborationProps extends TextbitRootYjsProps {
   awareness?: Awareness | null
   cursor?: {
     stateField?: string
@@ -43,9 +46,8 @@ interface TextbitRootCollaborationProps extends TextbitRootBaseProps {
     autoSend?: boolean
     data: Record<string, unknown>
   }
-  onChange?: undefined
 }
-type TextbitRootProps = TextbitRootStringProps | TextbitRootDefaultProps | TextbitRootCollaborationProps
+type TextbitRootProps = TextbitRootStringProps | TextbitRootDefaultProps | TextbitRootYjsProps | TextbitRootCollaborationProps
 
 export function TextbitRoot(props: TextbitRootStringProps): React.ReactElement
 export function TextbitRoot(props: TextbitRootDefaultProps): React.ReactElement
@@ -77,7 +79,7 @@ export function TextbitRoot(props: TextbitRootProps) {
       <TextbitProvider
         verbose={!!verbose}
         readOnly={readOnly}
-        collaborative={props.value instanceof Y.XmlText && !readOnly}
+        collaborative={!readOnly && isTextbitRootCollaborationProps(props)}
         debounce={debounce}
         spellcheckDebounce={spellcheckDebounce}
         placeholders={placeholders}
@@ -104,4 +106,10 @@ export function TextbitRoot(props: TextbitRootProps) {
       </TextbitProvider>
     </div>
   )
+}
+
+function isTextbitRootCollaborationProps(
+  props: TextbitRootProps
+): props is TextbitRootCollaborationProps {
+  return props.value instanceof Y.XmlText && 'awareness' in props && props.awareness instanceof Awareness
 }
