@@ -118,7 +118,10 @@ export function SlateContainer(props: SlateContainerProps) {
   useEffect(() => {
     if (YjsEditor.isYjsEditor(editor)) {
       YjsEditor.connect(editor)
-      return () => YjsEditor.disconnect(editor)
+
+      return () => {
+        YjsEditor.disconnect(editor)
+      }
     }
   }, [editor])
 
@@ -201,7 +204,7 @@ function isSlateContainerYjsProps(
 function isSlateContainerCollaborationProps(
   props: SlateContainerProps
 ): props is SlateContainerCollaborationProps {
-  return props.value instanceof Y.XmlText && 'awareness' in props && props.awareness instanceof Awareness
+  return props.value instanceof Y.XmlText && 'awareness' in props
 }
 
 function isSlateContainerStringProps(
@@ -213,5 +216,5 @@ function isSlateContainerStringProps(
 function isSlateContainerDefaultProps(
   props: SlateContainerProps
 ): props is SlateContainerDefaultProps {
-  return !isSlateContainerCollaborationProps(props) && !isSlateContainerStringProps(props)
+  return !isSlateContainerYjsProps(props) && !isSlateContainerStringProps(props)
 }
