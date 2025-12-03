@@ -24,6 +24,8 @@ interface TextbitRootBaseProps {
   plugins?: PluginDefinition[]
   className?: string
   style?: React.CSSProperties
+  dir?: 'ltr' | 'rtl'
+  lang?: string
 }
 
 interface TextbitRootStringProps extends TextbitRootBaseProps {
@@ -84,6 +86,8 @@ export function TextbitRoot(props: TextbitRootProps) {
         spellcheckDebounce={spellcheckDebounce}
         placeholders={placeholders}
         placeholder={placeholder}
+        dir={props.dir}
+        lang={props.lang}
       >
         <PluginRegistryProvider
           verbose={!!verbose}

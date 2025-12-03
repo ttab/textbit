@@ -43,13 +43,13 @@ export function App() {
     }}
     >
 
+      <TextEditor style={editorStyle} headerStyle={headerStyle} />
+
       <YjsEditor style={editorStyle} headerStyle={headerStyle} />
 
       <TextbitFormatEditor style={editorStyle} headerStyle={headerStyle} />
 
       <TextbitFormatEditor style={editorStyle} headerStyle={headerStyle} readOnly />
-
-      <TextEditor style={editorStyle} headerStyle={headerStyle} />
 
     </div >
   )
