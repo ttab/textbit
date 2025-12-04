@@ -128,41 +128,8 @@ function setInitialSelection(editor: Editor, autoFocus: boolean | 'start' | 'end
   setTimeout(() => {
     if (autoFocus === 'end') {
       Transforms.select(editor, Editor.end(editor, []))
-    } else {
+    } else if (autoFocus) {
       Transforms.select(editor, Editor.start(editor, []))
     }
   }, 0)
 }
-
-// import { SlateEditableContainer } from './SlateEditableContainer'
-// import { useTextbit } from '../hooks/useTextbit'
-// import { DragStateProvider } from '../contexts/DragStateProvider'
-// import { PresenceOverlay } from './PresenceOverlay'
-
-// interface TextbitEditableProps {
-//   className?: string
-//   style?: React.CSSProperties
-//   children?: React.ReactNode
-//   onFocus?: React.FocusEventHandler<HTMLDivElement>
-//   onBlur?: React.FocusEventHandler<HTMLDivElement>
-//   autoFocus?: boolean | 'start' | 'end'
-// }
-
-// export function TextbitEditable(props: TextbitEditableProps): React.ReactElement {
-//   const ctx = useTextbit()
-
-//   return (
-//     <DragStateProvider>
-//       <PresenceOverlay isCollaborative={ctx?.collaborative}>
-//         <SlateEditableContainer
-//           autoFocus={props.autoFocus}
-//           onFocus={props.onFocus}
-//           onBlur={props.onBlur}
-//           style={props?.style}
-//           className={props?.className}
-//         />
-//         {props.children}
-//       </PresenceOverlay>
-//     </DragStateProvider>
-//   )
-// }
