@@ -38,7 +38,7 @@ interface TextbitRootDefaultProps extends TextbitRootBaseProps {
 }
 interface TextbitRootYjsProps extends TextbitRootBaseProps {
   value: Y.XmlText
-  onChange?: undefined
+  onChange?: (value: Descendant[]) => void
 }
 interface TextbitRootCollaborationProps extends TextbitRootYjsProps {
   awareness?: Awareness | null

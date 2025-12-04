@@ -45,7 +45,7 @@ interface SlateContainerDefaultProps extends SlateContainerBaseProps {
 }
 interface SlateContainerYjsProps extends SlateContainerBaseProps {
   value: Y.XmlText
-  onChange?: undefined
+  onChange?: (value: Descendant[]) => void
 }
 interface SlateContainerCollaborationProps extends SlateContainerYjsProps {
   awareness: Awareness
@@ -139,7 +139,7 @@ export function SlateContainer(props: SlateContainerProps) {
   // Debounced onChange callback
   const handleChange = useCallback((newValue: Descendant[]) => {
     if (props.onChange) {
-      if (isSlateContainerDefaultProps(props)) {
+      if (isSlateContainerDefaultProps(props) || isSlateContainerYjsProps(props)) {
         props.onChange(newValue)
       } else if (isSlateContainerStringProps(props)) {
         props.onChange(newValue

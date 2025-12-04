@@ -25,15 +25,31 @@ export type TextbitEditor = BaseEditor & ReactEditor & HistoryEditor & {
   isOfType: <T extends Element>(value: unknown, type: string) => value is T
 }
 
-export type TextbitElement = BaseElement & {
+type BaseTextbitElement = BaseElement & {
   id: string
   class: 'leaf' | 'inline' | 'text' | 'block' | 'void'
   type: string
   hotKey?: string
   lang?: string
-  properties?: Record<string, string | number | boolean>
   attributes?: Record<string, string | number>
 }
+
+export type TextbitElement =
+  | (BaseTextbitElement & {
+      class: 'text'
+      type: string
+      properties?: {
+        role?: string
+        [key: string]: string | number | boolean | undefined
+      }
+    })
+  | (BaseTextbitElement & {
+      class: 'leaf' | 'inline' | 'block' | 'void'
+      type: string
+      properties?: {
+        [key: string]: string | number | boolean | undefined
+      }
+    })
 
 export type TextbitText = BaseText & {
   text: string

@@ -92,7 +92,7 @@ The root component that provides context for the editor. All other Textbit compo
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | `value` | `string \| Descendant[] \| Y.XmlText` | - | **Required.** Editor content. Can be a string, Slate Descendant array, or Yjs XmlText for collaboration. |
-| `onChange` | `(value: string \| Descendant[]) => void` | - | Called when content changes. Not used with Yjs values. |
+| `onChange` | `(value: string \| Descendant[]) => void` | - | Called when content changes. Will serve Descendant[] when used with Y.XmlText. |
 | `awareness` | `Awareness \| null` | - | Yjs awareness instance for collaborative cursors. Only valid when `value` is `Y.XmlText`. |
 | `cursor` | `CursorConfig` | - | Cursor configuration for collaboration. See [Collaborative Editing](#collaborative-editing). |
 | `plugins` | `TBPluginDefinition[]` | - | Array of plugin definitions. |
