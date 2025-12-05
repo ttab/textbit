@@ -43,7 +43,7 @@ export function App() {
     }}
     >
 
-      <TextEditor style={editorStyle} headerStyle={headerStyle} />
+      <TextEditor style={editorStyle} headerStyle={headerStyle} autoFocus={true} />
 
       <YjsEditor style={editorStyle} headerStyle={headerStyle} />
 
@@ -117,9 +117,10 @@ function TextbitFormatEditor({ style, headerStyle, readOnly }: {
 /**
  * Text editor
  */
-function TextEditor({ style, headerStyle }: {
+function TextEditor({ style, headerStyle, autoFocus }: {
   style: React.CSSProperties
   headerStyle: React.CSSProperties
+  autoFocus?: boolean
 }) {
   const [value, setValue] = useState('')
 
@@ -147,7 +148,7 @@ function TextEditor({ style, headerStyle }: {
           <ContentMenu />
         </Textbit.Gutter>
 
-        <Textbit.Editable style={style}>
+        <Textbit.Editable autoFocus={autoFocus} style={style}>
           <Textbit.DropMarker />
           <ContextTools/>
           <EditorSpellingContextmenu />

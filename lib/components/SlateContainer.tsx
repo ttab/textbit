@@ -6,7 +6,7 @@ import { createEditor, Descendant, type Editor, Node } from 'slate'
 import * as Y from 'yjs'
 import { Slate, withReact } from 'slate-react'
 import { usePluginRegistry, useTextbit } from '../main'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { calculateStats } from '../utils/calculateStats'
 import { debounce as debounceCall } from '../utils/debounce'
 import { withCursors, withYHistory, withYjs, YjsEditor } from '@slate-yjs/core'
@@ -70,9 +70,6 @@ export function SlateContainer(props: SlateContainerProps) {
   // Preserve editor across HMR
   const editorRef = useRef<Editor | null>(null)
 
-  // Force re-render when decorations have been updated.
-  const [decorationsKey, setDecorationsKey] = useState(0)
-
   if (!editorRef.current) {
     let editor = withReact(createEditor())
 
@@ -106,10 +103,6 @@ export function SlateContainer(props: SlateContainerProps) {
     withUniqueIds(editor)
     withDeletionManagement(editor)
 
-    editor.onUpdatedDecorations = () => {
-      // Trigger an immediate rerender to show updated decorations
-      setDecorationsKey(v => v + 1)
-    }
     editorRef.current = editor
   }
 
@@ -169,19 +162,9 @@ export function SlateContainer(props: SlateContainerProps) {
 
   return (
     <Slate editor={editor} initialValue={initialValue} onChange={onChangeCallback}>
-      <InnerSlateContainer key={decorationsKey}>
-        {children}
-      </InnerSlateContainer>
+      {children}
     </Slate>
   )
-}
-
-/**
- * Exists solely for the purpose of being able to use the key prop on
- * the SlateContainer and force rerenders when decorations are updated.
- */
-function InnerSlateContainer({children}: { children: React.ReactNode}) {
-  return <>{children}</>
 }
 
 function stringToDescentant(value: string): Descendant[] {

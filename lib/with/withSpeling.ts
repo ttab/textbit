@@ -11,8 +11,12 @@ export type OnSpellcheckCallback = (texts: { text: string, lang: string }[]) => 
 
 export function withSpeling(editor: Editor, onSpellcheck: OnSpellcheckCallback, debounceTimeout: number = 6125): Editor {
   const { onChange } = editor
+  let onSpellcheckCompleteCB: (() => void) | null = null
 
   editor.spellingLookupTable = new Map()
+  editor.onSpellcheckComplete = (cb: () => void) => {
+    onSpellcheckCompleteCB = cb
+  }
 
   /**
    * Debounced spellcheck, during typing
@@ -25,7 +29,7 @@ export function withSpeling(editor: Editor, onSpellcheck: OnSpellcheckCallback, 
     const [newLookupTable, checkPerformed] = await updateSpellcheck(editor, onSpellcheck, editor.spellingLookupTable)
     if (checkPerformed) {
       editor.spellingLookupTable = newLookupTable
-      editor.onUpdatedDecorations?.()
+      onSpellcheckCompleteCB?.()
     }
   }, debounceTimeout)
 

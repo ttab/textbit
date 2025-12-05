@@ -19,7 +19,7 @@ export type TextbitEditor = BaseEditor & ReactEditor & HistoryEditor & {
     errors: SpellingError[]
   }>
   spellcheck?: () => void
-  onUpdatedDecorations: () => void
+  onSpellcheckComplete: (cb: () => void) => void
   lang: string
   isTextBlock: (value: unknown) => value is Element
   isOfType: <T extends Element>(value: unknown, type: string) => value is T
