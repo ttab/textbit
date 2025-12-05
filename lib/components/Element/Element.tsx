@@ -1,4 +1,4 @@
-import { Node, Path } from 'slate'
+import { Node, Path, type Element } from 'slate'
 import { type RenderElementProps, ReactEditor, useSlateStatic } from 'slate-react'
 import { ChildElement } from './ChildElement'
 import { ParentElement } from './ParentElement'
@@ -47,7 +47,7 @@ export function ElementComponent(props: RenderElementProps & {
   }
 
   // Render a child element and pass it the rootNode for reference
-  const rootNode = Node.get(editor, [path[0]])
+  const rootNode = Node.get(editor, [path[0]]) as Element
   return (
     <ChildElement
       {...props}

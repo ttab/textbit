@@ -26,7 +26,6 @@ export type TextbitEditor = BaseEditor & ReactEditor & HistoryEditor & {
 }
 
 type BaseTextbitElement = BaseElement & {
-  id: string
   class: 'leaf' | 'inline' | 'text' | 'block' | 'void'
   type: string
   hotKey?: string
@@ -36,6 +35,7 @@ type BaseTextbitElement = BaseElement & {
 
 export type TextbitElement =
   | (BaseTextbitElement & {
+      id?: string
       class: 'text'
       type: string
       properties?: {
@@ -44,6 +44,7 @@ export type TextbitElement =
       }
     })
   | (BaseTextbitElement & {
+      id: string
       class: 'leaf' | 'inline' | 'block' | 'void'
       type: string
       properties?: {

@@ -50,7 +50,8 @@ export function pasteToParagraphs(
   // new nodes should be of the same type then
   let nodeType = 'core/text'
   let properties: {
-    [key: string]: string | number | boolean
+    [key: string]: string | number | boolean | undefined
+    role?: string
   } | undefined
 
   if (parent[1].length > 1) {

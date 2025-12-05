@@ -12,6 +12,7 @@ export type {
   ComponentProps as TBComponentProps,
   ToolComponent as TBToolComponent,
   ToolComponentProps as TBToolComponentProps,
+  ActionHandler as TBActionHandler,
   Action as TBAction,
   ConsumeFunction as TBConsumeFunction,
   ConsumesFunction as TBConsumesFunction,
@@ -73,6 +74,7 @@ export { usePluginRegistry } from './hooks/usePluginRegistry'
 export { useTextbit } from './hooks/useTextbit'
 export { useContextMenuHints } from './components/ContextMenu/useContextMenuHints'
 export { useSelectionBounds } from './hooks/useSelectionBounds'
+export { useEditor } from './hooks/useEditor'
 
 export {
   pipeFromDrop as consumeFileDropEvent,

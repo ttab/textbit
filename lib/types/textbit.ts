@@ -7,7 +7,7 @@ import { type NodeEntry, Node, Editor, Element } from 'slate'
  * Textbit component props
  */
 export interface ComponentProps<T extends HTMLElement = HTMLElement> extends Omit<RenderElementProps, 'attributes'> {
-  rootNode?: Node
+  rootNode?: Element
   options?: Options
   editor: Editor
   children: React.ReactNode
@@ -41,8 +41,24 @@ export type ToolComponent<Props = ToolComponentProps> = React.ComponentType<Prop
 
 
 /**
+ * @type
+ * Defines a generic api function.
+ * @todo There must be a better way to expose functionality like this.
+ */
+export type ActionHandlerAPI = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: (...args: any[]) => any
+}
+
+/**
+ * @type
+ * Action handler function
+ */
+export type ActionHandler = (options: { editor: Editor, options?: Options, api?: ActionHandlerAPI, args?: Record<string, unknown> }) => boolean | void
+
+/**
  * @interface
- * Action handler props interface
+ * Action props interface
  */
 export interface Action {
   name: string
@@ -50,7 +66,7 @@ export interface Action {
   description?: string
   hotkey?: string
   tool?: ToolComponent | [ToolComponent, ToolComponent]
-  handler: (options: { editor: Editor, options?: Options, api?: unknown, args?: Record<string, unknown> }) => boolean | void
+  handler: ActionHandler
   visibility?: (element: Element, rootElement?: Element) => [boolean, boolean, boolean] // visible, enabled, active
 }
 
@@ -150,8 +166,10 @@ export type ConsumeFunction = ({ editor, input }: { editor: Editor, input: Resou
 /**
  * @type Options
  * Plugin options
+ *
+ * Generic options object for the plugin, can be extended by specific plugins.
  */
-export type Options = Record<string, unknown>
+export type Options<T extends Record<string, unknown> = Record<string, unknown>> = T
 
 interface BaseDefinition {
   /**
@@ -220,4 +238,4 @@ export type PluginDefinition = ElementDefinition | LeafDefinition
  * @type PluginInitFunction
  * Plugin initialization function
  */
-export type PluginInitFunction = (options?: Options) => PluginDefinition
+export type PluginInitFunction<O extends Options = Options> = (options?: O) => PluginDefinition

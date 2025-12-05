@@ -2,13 +2,13 @@ import {
   isValidElement,
   cloneElement
 } from 'react'
-import { Node } from 'slate'
+import { Element } from 'slate'
 import { useSlateStatic, type RenderElementProps } from 'slate-react'
 import type { ComponentEntry } from '../../types'
 
 interface ChildElementProps extends RenderElementProps {
   entry: ComponentEntry
-  rootNode: Node
+  rootNode: Element
   options?: Record<string, unknown>
 }
 
