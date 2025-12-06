@@ -33,6 +33,8 @@ export function TextbitEditable(props: TextbitEditableProps) {
   useContextMenu(containerRef)
 
   useEffect(() => {
+    if (typeof editor.onSpellcheckComplete !== 'function') return
+
     editor.onSpellcheckComplete(() => {
       if (isFocused) {
         setDecorationsKey(prev => prev + 1)
