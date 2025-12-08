@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useContext, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useFocused, useSlateSelection, useSlateStatic } from 'slate-react'
 import { Editor, Range } from 'slate'
 import { TextbitElement } from '../../utils/textbit-element'
-import { useSelectionBoundsNonReactive } from '../../hooks/useSelectionBounds'
+import { useSelectionBounds, useSelectionBoundsNonReactive } from '../../hooks/useSelectionBounds'
+import { ContextMenuHintsContext } from '../ContextMenu/ContextMenuHintsContext'
 
 export function Menu({ children, className }: {
   className?: string
@@ -23,12 +24,14 @@ function Popover({ children, className }: {
 }) {
   const editor = useSlateStatic()
   const selection = useSlateSelection()
-  const bounds = useSelectionBoundsNonReactive()
+  const bounds = useSelectionBounds()
   const focused = useFocused()
   const ref = useRef<HTMLDivElement>(null)
+  const contextMenuHintsContext = useContext(ContextMenuHintsContext)
+  const isContextMenuOpen = contextMenuHintsContext?.menu != null
 
   const shouldShow = useCallback(() => {
-    if (!focused || !bounds.current || !selection) {
+    if (!focused || !bounds || !selection) {
       return false
     }
 
@@ -48,7 +51,7 @@ function Popover({ children, className }: {
 
   const updatePosition = useCallback(() => {
     const el = ref.current
-    const selectionBounds = bounds.current
+    const selectionBounds = bounds
 
     if (!el || !selectionBounds) {
       return
@@ -85,12 +88,12 @@ function Popover({ children, className }: {
 
   // Update position or hide based on whether menu should show
   useEffect(() => {
-    if (shouldShow()) {
+    if (shouldShow() && !isContextMenuOpen) {
       requestAnimationFrame(updatePosition)
     } else {
       hide()
     }
-  }, [selection, focused, shouldShow, updatePosition, hide])
+  }, [selection, focused, shouldShow, updatePosition, hide, isContextMenuOpen])
 
   return (
     <div
