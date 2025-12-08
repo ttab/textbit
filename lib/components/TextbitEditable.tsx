@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Editor, Element, NodeEntry, Transforms } from 'slate'
 import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../utils/getDecorationRanges'
@@ -27,10 +27,9 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const { placeholders, placeholder, readOnly, dir, collaborative } = useTextbit()
   const { components, actions } = usePluginRegistry()
   const isFocused = useFocused()
-  const containerRef = useRef<HTMLDivElement>(null)
   const [decorationsKey, setDecorationsKey] = useState(0)
 
-  useContextMenu(containerRef)
+  const handleContextMenu = useContextMenu()
 
   const { onFocus, autoFocus = false } = props
 
@@ -93,7 +92,6 @@ export function TextbitEditable(props: TextbitEditableProps) {
       <PresenceOverlay isCollaborative={collaborative}>
         <Editable
           key={decorationsKey}
-          ref={containerRef}
           data-state={isFocused ? 'focused' : ''}
           readOnly={readOnly}
           renderElement={renderElement}
@@ -107,6 +105,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
           spellCheck={false}
           placeholder={placeholder}
           dir={dir}
+          onContextMenu={handleContextMenu}
         />
         {props.children}
       </PresenceOverlay>

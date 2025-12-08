@@ -1,24 +1,18 @@
 import { getDecorationRangeFromMouseEvent, getNodeEntryFromDomNode } from '../utils/utils'
-import { type RefObject, useContext, useEffect } from 'react'
-import { Range, Editor, Element as SlateElement } from 'slate'
-import { useSlateStatic } from 'slate-react'
+import { MouseEventHandler, useContext, useMemo } from 'react'
+import { Range, Editor, Element as SlateElement, Transforms } from 'slate'
+import { ReactEditor, useSlateStatic } from 'slate-react'
 import { TextbitEditor } from '../utils/textbit-editor'
 import { type SpellingError } from '../types/slate'
 import { ContextMenuHintsContext } from '../components/ContextMenu/ContextMenuHintsContext'
 
 export function useContextMenu(
-  ref: RefObject<HTMLDivElement | null>,
   preventDefault = true
 ) {
   const editor = useSlateStatic()
   const contextMenuHintsContext = useContext(ContextMenuHintsContext)
 
-  useEffect(() => {
-    const element = ref.current
-
-    if (!element) {
-      return
-    }
+  return useMemo(() => {
 
     const contextMenuHandler = (event: MouseEvent) => {
       const targetElement = (event.target as Node).nodeType === Node.TEXT_NODE
@@ -44,6 +38,13 @@ export function useContextMenu(
 
       const spelling = getSpellingHints(editor, topNode, targetElement, event)
 
+      // Update the selection and ensure the editor is focused
+      const range = getDecorationRangeFromMouseEvent(editor, event)
+      if (range) {
+        Transforms.select(editor, range)
+        ReactEditor.focus(editor)
+      }
+
       if (preventDefault) {
         event.preventDefault()
       }
@@ -62,12 +63,8 @@ export function useContextMenu(
       })
     }
 
-    element.addEventListener('contextmenu', contextMenuHandler)
-
-    return () => {
-      element.removeEventListener('contextmenu', contextMenuHandler)
-    }
-  }, [ref, contextMenuHintsContext, preventDefault, editor])
+    return contextMenuHandler as unknown as MouseEventHandler<HTMLDivElement>
+  }, [contextMenuHintsContext, preventDefault, editor])
 }
 
 function getSpellingHints(
