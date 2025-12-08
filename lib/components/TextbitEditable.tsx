@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Editor, Element, NodeEntry, Transforms } from 'slate'
-import { Editable, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
+import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../utils/getDecorationRanges'
 import { ElementComponent } from './Element/Element'
 import { LeafElement } from './Element/LeafElement'
@@ -32,26 +32,54 @@ export function TextbitEditable(props: TextbitEditableProps) {
 
   useContextMenu(containerRef)
 
+  const { onFocus, autoFocus = false } = props
+
+  // Focus the actual editable DOM node on mount
   useEffect(() => {
-    if (typeof editor.onSpellcheckComplete !== 'function') return
+    if (decorationsKey > 0) {
+      return
+    }
+
+    if (autoFocus) {
+      const dom = ReactEditor.toDOMNode(editor, editor)
+      dom.focus()
+    }
+
+    queueMicrotask(() => {
+      if (!editor.selection && !decorationsKey) {
+        if (autoFocus === 'end') {
+          Transforms.select(editor, Editor.end(editor, []))
+        } else {
+          Transforms.select(editor, Editor.start(editor, []))
+        }
+      }
+    })
+  }, [autoFocus, decorationsKey, editor])
+
+  // Increment decorationkey to ensure re-render when spellcheck completes
+  useEffect(() => {
+    if (typeof editor.onSpellcheckComplete !== 'function') {
+      return
+    }
 
     editor.onSpellcheckComplete(() => {
-      if (isFocused) {
-        setDecorationsKey(prev => prev + 1)
-      }
+      setDecorationsKey(prev => prev + 1)
     })
   }, [editor, isFocused, setDecorationsKey])
 
+  // Render element callback
   const renderElement = useCallback((props: RenderElementProps) => {
     return ElementComponent({
       ...props
     })
   }, [])
 
+  // Render leaf callback
   const renderLeaf = useCallback((props: RenderLeafProps) => {
     return LeafElement(props)
   }, [])
 
+  // Render decorate callback
   const decorate = useCallback((entry: NodeEntry) => {
     return getDecorationRanges(editor, entry, components, placeholders, placeholder)
   }, [editor, components, placeholders, placeholder])
@@ -59,17 +87,6 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const onKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
     handleOnKeyDown(editor, actions, event)
   }, [editor, actions])
-
-  const { autoFocus = false, onFocus } = props
-  const handleFocus = useCallback((event: React.FocusEvent<HTMLDivElement>) => {
-    if (!editor.selection) {
-      setInitialSelection(editor, autoFocus)
-    }
-
-    if (onFocus) {
-      onFocus(event)
-    }
-  }, [editor, autoFocus, onFocus])
 
   return (
     <DragStateProvider>
@@ -79,10 +96,9 @@ export function TextbitEditable(props: TextbitEditableProps) {
           ref={containerRef}
           data-state={isFocused ? 'focused' : ''}
           readOnly={readOnly}
-          autoFocus={!!autoFocus}
           renderElement={renderElement}
           renderLeaf={renderLeaf}
-          onFocus={handleFocus}
+          onFocus={onFocus}
           onBlur={props.onBlur}
           onKeyDown={onKeyDown}
           decorate={decorate}
@@ -128,20 +144,4 @@ function handleOnKeyDown(editor: Editor, actions: PluginRegistryAction[], event:
     }
     break
   }
-}
-
-/**
- * Set iniital selection on load or on focus.
- *
- * Set it to beginning if there are multiple lines, otherwise to the end of the first.
- * Needs setTimout() when in yjs env.
- */
-function setInitialSelection(editor: Editor, autoFocus: boolean | 'start' | 'end') {
-  setTimeout(() => {
-    if (autoFocus === 'end') {
-      Transforms.select(editor, Editor.end(editor, []))
-    } else if (autoFocus) {
-      Transforms.select(editor, Editor.start(editor, []))
-    }
-  }, 0)
 }
