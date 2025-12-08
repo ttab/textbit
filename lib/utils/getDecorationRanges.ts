@@ -32,9 +32,11 @@ export function getDecorationRanges(
       if (spelling?.errors.length) {
         const text = node.text
         spelling.errors.forEach((spellingError) => {
-          // Escape special regex characters and use proper RegExp constructor
+          // Escape special regex characters
           const escapedText = escapeRegExp(spellingError.text)
-          const regex = new RegExp(`\\b${escapedText}\\b`, 'gi')
+
+          // Unicode word boundary handling (\b only handles ASCII characters)
+          const regex = new RegExp(`(?<!\\p{L})${escapedText}(?![\\p{L}])`, 'gi')
           const indices = [...text.matchAll(regex)]
 
           indices.forEach((match) => {

@@ -28,7 +28,7 @@ export const document: Descendant[] = [
     id: '538345e5-bacc-48f9-8ef0-1219891b6024',
     class: 'text',
     children: [
-      { text: 'An example paragraph that contains text that is a wee bit ' },
+      { text: 'An example paragraph about ööland that contains text that is a wee bit ' },
       {
         text: 'stronger',
         'core/bold': true

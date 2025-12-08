@@ -23,6 +23,13 @@ export function spellChecker(text: string, lang: string): SpellingError[] {
   }
 
   const enSuggestions: Record<string, Suggestions> = {
+    ööland: {
+      level: 'error',
+      suggestions: [
+        { text: 'Öland' },
+        { text: 'ölandet' }
+      ]
+    },
     wee: {
       level: 'error',
       suggestions: [
