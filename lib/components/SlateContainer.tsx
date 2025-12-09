@@ -157,6 +157,11 @@ export function SlateContainer(props: SlateContainerProps) {
   useEffect(() => {
     editor.spellcheck?.force()
     dispatch({ stats: calculateStats(editor) })
+
+    return () => {
+      // Cancel any pending spellcheck debounce timeouts
+      editor.spellcheck?.cancel()
+    }
   }, [editor, dispatch])
 
   return (

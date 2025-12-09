@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Editor, Element, NodeEntry, Transforms } from 'slate'
 import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../utils/getDecorationRanges'
@@ -33,6 +33,15 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const [spellingLookupTable, setSpellingLookupTable] = useState<SpellcheckLookupTable>(new Map())
   const { onFocus, autoFocus = false } = props
 
+  // Track mounted state
+  const isMountedRef = useRef(true)
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
   // Focus the actual editable DOM node on mount
   const handleFocus = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
     queueMicrotask(() => {
@@ -57,19 +66,22 @@ export function TextbitEditable(props: TextbitEditableProps) {
       return
     }
 
-    // HACK: Deselect and select the editor after spellcheck completes
-    // HACK: to ensure the dom selection is correctly updated.
     editor.onSpellcheckComplete((newLookupTable) => {
-      const selection = editor.selection
-      setSpellingLookupTable(newLookupTable)
-      ReactEditor.deselect(editor)
+      if (!isMountedRef.current) {
+        console.log('Unmounted!')
+        return
+      }
 
+      setSpellingLookupTable(newLookupTable)
+
+      // HACK: Deselect and select the editor to ensure the dom selection is correctly updated.
+      const selection = editor.selection
+      ReactEditor.deselect(editor)
       setTimeout(() => {
         if (selection) {
           Transforms.select(editor, selection)
         }
       }, 10)
-      // setDecorationsKey(prev => prev + 1)
     })
   }, [editor, isFocused, setDecorationsKey])
 
