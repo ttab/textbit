@@ -12,6 +12,7 @@ import { useContextMenu } from '../hooks/useContextMenu'
 import { useSlateStatic } from 'slate-react'
 import { DragStateProvider } from '../contexts/DragStateProvider'
 import { PresenceOverlay } from './PresenceOverlay'
+import type { SpellcheckLookupTable } from '../types'
 
 interface TextbitEditableProps {
   autoFocus?: boolean | 'start' | 'end'
@@ -28,32 +29,27 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const { components, actions } = usePluginRegistry()
   const isFocused = useFocused()
   const [decorationsKey, setDecorationsKey] = useState(0)
-
   const handleContextMenu = useContextMenu()
-
+  const [spellingLookupTable, setSpellingLookupTable] = useState<SpellcheckLookupTable>(new Map())
   const { onFocus, autoFocus = false } = props
 
   // Focus the actual editable DOM node on mount
-  useEffect(() => {
-    if (decorationsKey > 0) {
-      return
-    }
-
-    if (autoFocus) {
-      const dom = ReactEditor.toDOMNode(editor, editor)
-      dom.focus()
-    }
-
+  const handleFocus = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
     queueMicrotask(() => {
-      if (!editor.selection && !decorationsKey) {
+      if (!editor.selection && decorationsKey === 0) {
         if (autoFocus === 'end') {
           Transforms.select(editor, Editor.end(editor, []))
         } else {
           Transforms.select(editor, Editor.start(editor, []))
         }
+        setDecorationsKey(prev => prev + 1)
       }
     })
-  }, [autoFocus, decorationsKey, editor])
+
+    if (onFocus) {
+      onFocus(e)
+    }
+  }, [autoFocus, decorationsKey, editor, onFocus])
 
   // Increment decorationkey to ensure re-render when spellcheck completes
   useEffect(() => {
@@ -61,8 +57,19 @@ export function TextbitEditable(props: TextbitEditableProps) {
       return
     }
 
-    editor.onSpellcheckComplete(() => {
-      setDecorationsKey(prev => prev + 1)
+    // HACK: Deselect and select the editor after spellcheck completes
+    // HACK: to ensure the dom selection is correctly updated.
+    editor.onSpellcheckComplete((newLookupTable) => {
+      const selection = editor.selection
+      setSpellingLookupTable(newLookupTable)
+      ReactEditor.deselect(editor)
+
+      setTimeout(() => {
+        if (selection) {
+          Transforms.select(editor, selection)
+        }
+      }, 10)
+      // setDecorationsKey(prev => prev + 1)
     })
   }, [editor, isFocused, setDecorationsKey])
 
@@ -80,8 +87,15 @@ export function TextbitEditable(props: TextbitEditableProps) {
 
   // Render decorate callback
   const decorate = useCallback((entry: NodeEntry) => {
-    return getDecorationRanges(editor, entry, components, placeholders, placeholder)
-  }, [editor, components, placeholders, placeholder])
+    return getDecorationRanges(
+      editor,
+      spellingLookupTable,
+      entry,
+      components,
+      placeholders,
+      placeholder
+    )
+  }, [editor, components, placeholders, placeholder, spellingLookupTable])
 
   const onKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
     handleOnKeyDown(editor, actions, event)
@@ -91,12 +105,13 @@ export function TextbitEditable(props: TextbitEditableProps) {
     <DragStateProvider>
       <PresenceOverlay isCollaborative={collaborative}>
         <Editable
-          key={decorationsKey}
+          autoFocus={!!autoFocus}
+          // key={decorationsKey}
           data-state={isFocused ? 'focused' : ''}
           readOnly={readOnly}
           renderElement={renderElement}
           renderLeaf={renderLeaf}
-          onFocus={onFocus}
+          onFocus={handleFocus}
           onBlur={props.onBlur}
           onKeyDown={onKeyDown}
           decorate={decorate}
@@ -108,8 +123,8 @@ export function TextbitEditable(props: TextbitEditableProps) {
           onContextMenu={handleContextMenu}
         />
         {props.children}
-      </PresenceOverlay>
-    </DragStateProvider>
+       </PresenceOverlay>
+     </DragStateProvider>
   )
 }
 

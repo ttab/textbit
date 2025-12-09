@@ -141,7 +141,6 @@ export function SlateContainer(props: SlateContainerProps) {
       }
     }
 
-    editor.spellcheck?.()
     dispatch({ stats: calculateStats(editor) })
 
     // Specifically only depend on onChange, value and dispatch

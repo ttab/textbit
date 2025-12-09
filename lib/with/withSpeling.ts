@@ -1,20 +1,15 @@
 import { debounce } from '../utils/debounce'
-import type { SpellingError } from '../types'
+import type { SpellingError, SpellcheckLookupTable } from '../types'
 import { Editor, Node, Element } from 'slate'
 
-type SpellcheckLookupTable = Map<string, {
-  lang: string
-  text: string
-  errors: SpellingError[]
-}>
 export type OnSpellcheckCallback = (texts: { text: string, lang: string }[]) => Promise<Omit<SpellingError, 'id'>[][]>
 
 export function withSpeling(editor: Editor, onSpellcheck: OnSpellcheckCallback, debounceTimeout: number = 6125): Editor {
   const { onChange } = editor
-  let onSpellcheckCompleteCB: (() => void) | null = null
+  let onSpellcheckCompleteCB: ((lookupTable: SpellcheckLookupTable, updatedNodes: string[]) => void) | null = null
 
   editor.spellingLookupTable = new Map()
-  editor.onSpellcheckComplete = (cb: () => void) => {
+  editor.onSpellcheckComplete = (cb: (lookupTable: SpellcheckLookupTable, updatedNodes: string[]) => void) => {
     onSpellcheckCompleteCB = cb
   }
 
@@ -26,10 +21,10 @@ export function withSpeling(editor: Editor, onSpellcheck: OnSpellcheckCallback, 
       return
     }
 
-    const [newLookupTable, checkPerformed] = await updateSpellcheck(editor, onSpellcheck, editor.spellingLookupTable)
-    if (checkPerformed) {
+    const [checkPerformed, updatedNodes, newLookupTable] = await updateSpellcheck(editor, onSpellcheck, editor.spellingLookupTable)
+    if (checkPerformed && updatedNodes.length > 0) {
       editor.spellingLookupTable = newLookupTable
-      onSpellcheckCompleteCB?.()
+      onSpellcheckCompleteCB?.(newLookupTable, updatedNodes)
     }
   }, debounceTimeout)
 
@@ -59,7 +54,7 @@ async function updateSpellcheck(
   editor: Editor,
   onSpellcheck: OnSpellcheckCallback,
   currentSpellcheckTable: SpellcheckLookupTable
-): Promise<[SpellcheckLookupTable, boolean]> {
+): Promise<[boolean, string[], SpellcheckLookupTable]> {
   // Find all nodes that need spellchecking
   const tracker: Map<string, {
     lang: string
@@ -67,7 +62,8 @@ async function updateSpellcheck(
     errors: SpellingError[]
     check: boolean
   }> = new Map()
-  const spellcheck: string[] = []
+  const changedNodes: string[] = []
+  const updatedNodes: string[] = []
 
   for (const node of editor.children) {
     if (!Element.isElement(node) || !node.id) {
@@ -88,7 +84,7 @@ async function updateSpellcheck(
       })
 
       if (!isEmpty) {
-        spellcheck.push(node.id)
+        changedNodes.push(node.id)
       }
     } else {
       // Existing unchanged node, no spellchecking needed
@@ -100,8 +96,8 @@ async function updateSpellcheck(
   }
 
   // Nothing to check
-  if (!spellcheck.length) {
-    return [tracker, false]
+  if (!changedNodes.length) {
+    return [false, [], tracker]
   }
 
   // Send all changed or added strings to spellcheck in one call
@@ -117,14 +113,17 @@ async function updateSpellcheck(
   )
 
   // Ignore mismatching results
-  if (result.length !== spellcheck.length) {
+  if (result.length !== changedNodes.length) {
     console.warn('Number of spellchecked texts differ from requested number of texts to spellcheck')
-    return [tracker, false]
+    return [false, [], tracker]
   }
 
   // Add all spelling errors and suggestions, give each error an id
-  for (let i = 0; i < spellcheck.length; i++) {
-    const entry = tracker.get(spellcheck[i])
+  // FIXME: Save before and check that the spellchecker actually updated the suggestions
+  for (let i = 0; i < changedNodes.length; i++) {
+    const id = changedNodes[i]
+    const entry = tracker.get(id)
+
     if (!entry) {
       continue
     }
@@ -141,7 +140,11 @@ async function updateSpellcheck(
           suggestions: item.suggestions || []
         }
       })
+
+    // Add node id to updatedNodes array so we know which nodes need rerendering
+    updatedNodes.push(id)
   }
 
-  return [tracker, true]
+  // FIXME: Updated nodes should be [] if nothing changed from before (optimization)
+  return [true, updatedNodes, tracker]
 }

@@ -1,6 +1,7 @@
 import { Editor, NodeEntry, Node, Text, Element, type Range } from 'slate'
 import { PluginRegistryComponent } from '../contexts/PluginRegistry/lib/types'
 import { PlaceholdersVisibility } from '../contexts/TextbitContext'
+import { SpellcheckLookupTable } from '../types'
 
 /**
  * Escape special regex characters
@@ -14,6 +15,7 @@ function escapeRegExp(string: string): string {
  */
 export function getDecorationRanges(
   editor: Editor,
+  spellingLookupTable: SpellcheckLookupTable,
   nodeEntry: NodeEntry,
   components: Map<string, PluginRegistryComponent>,
   placeholders?: PlaceholdersVisibility,
@@ -23,11 +25,11 @@ export function getDecorationRanges(
   const ranges: Range[] = []
 
   // Add ranges from spellchecking
-  if (editor.spellingLookupTable?.size && Text.isText(node)) {
+  if (spellingLookupTable?.size && Text.isText(node)) {
     const [topNode] = Editor.node(editor, [path[0]])
 
     if (Element.isElement(topNode) && topNode.id) {
-      const spelling = editor.spellingLookupTable.get(topNode.id)
+      const spelling = spellingLookupTable.get(topNode.id)
 
       if (spelling?.errors.length) {
         const text = node.text
@@ -36,7 +38,7 @@ export function getDecorationRanges(
           const escapedText = escapeRegExp(spellingError.text)
 
           // Unicode word boundary handling (\b only handles ASCII characters)
-          const regex = new RegExp(`(?<!\\p{L})${escapedText}(?![\\p{L}])`, 'gi')
+          const regex = new RegExp(`(?<!\\p{L})${escapedText}(?!\\p{L})`, 'giu')
           const indices = [...text.matchAll(regex)]
 
           indices.forEach((match) => {

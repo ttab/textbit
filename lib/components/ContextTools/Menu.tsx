@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useFocused, useSlateSelection, useSlateStatic } from 'slate-react'
 import { Editor, Range } from 'slate'
 import { TextbitElement } from '../../utils/textbit-element'
-import { useSelectionBounds, useSelectionBoundsNonReactive } from '../../hooks/useSelectionBounds'
+import { useSelectionBounds } from '../../hooks/useSelectionBounds'
 import { ContextMenuHintsContext } from '../ContextMenu/ContextMenuHintsContext'
 
 export function Menu({ children, className }: {

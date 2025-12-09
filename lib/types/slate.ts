@@ -12,6 +12,12 @@ export type SpellingError = {
   }>
 }
 
+export type SpellcheckLookupTable = Map<string, {
+  lang: string
+  text: string
+  errors: SpellingError[]
+}>
+
 export type TextbitEditor = BaseEditor & ReactEditor & HistoryEditor & {
   spellingLookupTable: Map<string, {
     lang: string
@@ -19,7 +25,7 @@ export type TextbitEditor = BaseEditor & ReactEditor & HistoryEditor & {
     errors: SpellingError[]
   }>
   spellcheck?: () => void
-  onSpellcheckComplete: (cb: () => void) => void
+  onSpellcheckComplete: (cb: (lookupTable: SpellcheckLookupTable, updatedNodes: string[]) => void) => void
   lang: string
   isTextBlock: (value: unknown) => value is Element
   isOfType: <T extends Element>(value: unknown, type: string) => value is T
