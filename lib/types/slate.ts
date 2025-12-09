@@ -1,6 +1,7 @@
 import type { BaseEditor, BaseElement, BaseRange, BaseText, Element } from 'slate'
 import type { ReactEditor } from 'slate-react'
 import type { HistoryEditor } from 'slate-history'
+import { DebounceFunction } from '../utils/debounce'
 
 export type SpellingError = {
   id: string
@@ -18,13 +19,19 @@ export type SpellcheckLookupTable = Map<string, {
   errors: SpellingError[]
 }>
 
+export type SpellcheckFunction = {
+  (): void
+  force: () => void
+  cancel: () => void
+}
+
 export type TextbitEditor = BaseEditor & ReactEditor & HistoryEditor & {
   spellingLookupTable: Map<string, {
     lang: string
     text: string
     errors: SpellingError[]
   }>
-  spellcheck?: () => void
+  spellcheck?: DebounceFunction<() => void>
   onSpellcheckComplete: (cb: (lookupTable: SpellcheckLookupTable, updatedNodes: string[]) => void) => void
   lang: string
   isTextBlock: (value: unknown) => value is Element

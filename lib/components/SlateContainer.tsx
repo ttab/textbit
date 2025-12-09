@@ -155,7 +155,7 @@ export function SlateContainer(props: SlateContainerProps) {
 
   // Initialize spellcheck and stats
   useEffect(() => {
-    editor.spellcheck?.()
+    editor.spellcheck?.force()
     dispatch({ stats: calculateStats(editor) })
   }, [editor, dispatch])
 
