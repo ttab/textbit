@@ -75,6 +75,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
       setSpellingLookupTable(newLookupTable)
 
       // HACK: Deselect and select the editor to ensure the dom selection is correctly updated.
+      // FIXME: When https://github.com/ianstormtaylor/slate/issues/5987
       const selection = editor.selection
       ReactEditor.deselect(editor)
       setTimeout(() => {
