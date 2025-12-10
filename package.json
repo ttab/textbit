@@ -28,9 +28,9 @@
     "lint:fix": "eslint . --fix",
     "tsc": "tsc --noEmit",
     "preview": "vite preview",
-    "preversion": "npm test && npm run build",
+    "preversion": "vitest run && npm run build",
     "postversion": "git push && git push --tags",
-    "test": "vitest",
+    "test": "vitest run",
     "test:ui": "vitest --ui"
   },
   "publishConfig": {
