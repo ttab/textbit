@@ -1,8 +1,10 @@
-import type { PropsWithChildren } from 'react'
-
-export const Content = ({ children }: PropsWithChildren) => {
+export function Content({children, style, className}: {
+  children: React.ReactNode
+  style?: React.CSSProperties
+  className?: string
+}) {
   return (
-    <div style={{ flexGrow: 1, position: 'relative' }}>
+    <div style={style} className={className}>
       {children}
     </div>
   )

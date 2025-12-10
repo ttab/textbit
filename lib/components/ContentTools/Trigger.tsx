@@ -1,25 +1,24 @@
-import { type PropsWithChildren, useContext, useLayoutEffect } from 'react'
-import { useClickGlobal } from '../../hooks'
-import { MenuContext } from './Menu'
-import { GutterContext } from '../GutterProvider'
+import { type PropsWithChildren, useContext, useEffect } from 'react'
+import { useClickGlobal } from '../../hooks/useClickGlobal'
+import { MenuContext } from './MenuContext'
+import { GutterContext } from '../GutterProvider/GutterContext'
 
-export const Trigger = ({ children, className }: PropsWithChildren & {
+export function Trigger({ children, className }: PropsWithChildren & {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   const [isOpen, setIsOpen] = useContext(MenuContext)
-  const { gutterBox, setTriggerSize } = useContext(GutterContext)
+  const { triggerRef, updateTriggerRef } = useContext(GutterContext)
   const mouseTriggerRef = useClickGlobal<HTMLAnchorElement>(() => {
     setIsOpen(false)
   })
 
-  useLayoutEffect(() => {
-    if (!gutterBox || !mouseTriggerRef?.current) {
-      return
+  // Sync the local ref to the context ref
+  useEffect(() => {
+    if (triggerRef && mouseTriggerRef.current) {
+      updateTriggerRef(mouseTriggerRef.current)
     }
-
-    const { width: triggerWidth } = mouseTriggerRef?.current?.getBoundingClientRect() || {}
-    setTriggerSize(triggerWidth || 0)
-  }, [mouseTriggerRef, gutterBox, setTriggerSize])
+  }, [triggerRef, updateTriggerRef,mouseTriggerRef])
 
   return (
     <a

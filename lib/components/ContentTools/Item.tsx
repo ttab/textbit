@@ -1,18 +1,16 @@
-import React, { type PropsWithChildren, createContext } from 'react'
+import React, { type PropsWithChildren } from 'react'
 import { useSlateSelection, useSlateStatic } from 'slate-react'
 import { type BaseSelection, Editor, Element } from 'slate'
-import type { Plugin } from '../../types'
-import { pipeFromFileInput } from '../../lib/pipes'
-import { type PluginRegistryAction, usePluginRegistry } from '../../components/PluginRegistry'
-import { TextbitElement } from '../../lib'
+import { pipeFromFileInput } from '../../utils/pipes'
+import { TextbitElement } from '../../utils/textbit-element'
+import type { PluginRegistryAction } from '../../contexts/PluginRegistry/lib/types'
+import { usePluginRegistry } from '../../hooks/usePluginRegistry'
+import { ItemContext } from './ItemContext'
 
-
-export const ItemContext = createContext<{ isActive: boolean, action?: Plugin.Action }>({ isActive: false })
-
-export const Item = ({ children, className, action: actionName }: PropsWithChildren & {
+export function Item({ children, className, action: actionName }: PropsWithChildren & {
   className?: string
   action: string
-}) => {
+}) {
   const { plugins, actions } = usePluginRegistry()
   const editor = useSlateStatic()
   const selection = useSlateSelection()
@@ -22,7 +20,7 @@ export const Item = ({ children, className, action: actionName }: PropsWithChild
     return <></>
   }
 
-  const [isVisible, _, isActive] = visibilityBySelection(editor, selection, action) || [false, false, false]
+  const [isVisible, , isActive] = visibilityBySelection(editor, selection, action) || [false, false, false]
 
   if (!isVisible) {
     return <></>
@@ -57,7 +55,7 @@ export const Item = ({ children, className, action: actionName }: PropsWithChild
 }
 
 
-const visibilityBySelection = (editor: Editor, selection: BaseSelection, action: PluginRegistryAction): [boolean, boolean, boolean] => {
+function visibilityBySelection(editor: Editor, selection: BaseSelection, action: PluginRegistryAction): [boolean, boolean, boolean] {
   if (!selection) {
     return [false, false, false]
   }

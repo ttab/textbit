@@ -1,8 +1,9 @@
-import { type PropsWithChildren, Children } from 'react'
+import { Children } from 'react'
 
-export const Group = ({ children, className }: PropsWithChildren & {
+export function Group({ children, className }: {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   return (
     <>
       {Children.count(children) > 0 && (

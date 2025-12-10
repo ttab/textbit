@@ -1,110 +1,114 @@
-import { type PropsWithChildren, useLayoutEffect, useRef } from 'react'
+import { useCallback, useContext, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useFocused, useSlateSelection, useSlateStatic } from 'slate-react'
-import { useTextbitSelectionBounds } from '../TextbitRoot'
 import { Editor, Range } from 'slate'
-import { TextbitElement } from '../../lib'
+import { TextbitElement } from '../../utils/textbit-element'
+import { useSelectionBounds } from '../../hooks/useSelectionBounds'
+import { ContextMenuHintsContext } from '../ContextMenu/ContextMenuHintsContext'
 
-
-export const Menu = ({ children, className }: PropsWithChildren & {
+export function Menu({ children, className }: {
   className?: string
-}) => {
-  return (
-    <>
-      {createPortal(
-        <Popover className={className}>
-          {children}
-        </Popover>,
-        document.body)}
-    </>
+  children?: React.ReactNode
+}) {
+  return createPortal(
+    <Popover className={className}>
+      {children}
+    </Popover>,
+    document.body
   )
 }
 
-
-function Popover({ children, className }: PropsWithChildren & {
+function Popover({ children, className }: {
   className?: string
+  children?: React.ReactNode
 }) {
   const editor = useSlateStatic()
   const selection = useSlateSelection()
-  const bounds = useTextbitSelectionBounds()
+  const bounds = useSelectionBounds()
   const focused = useFocused()
   const ref = useRef<HTMLDivElement>(null)
+  const contextMenuHintsContext = useContext(ContextMenuHintsContext)
+  const isContextMenuOpen = contextMenuHintsContext?.menu != null
 
-  useLayoutEffect(() => {
-    const el = ref?.current
-    if (!el) {
-      return
+  const shouldShow = useCallback(() => {
+    if (!focused || !bounds || !selection) {
+      return false
     }
 
-    if (!focused || !bounds.current || !selection) {
-      el.style.opacity = '0'
-      el.style.zIndex = '-1'
-      return
-    }
-
+    // If selection is collapsed, only show if on an inline element
     if (Range.isCollapsed(selection)) {
       const node = Editor.nodes(editor, {
         at: selection,
         match: (n) => TextbitElement.isElement(n) && n.class === 'inline'
       }).next().value
 
-      if (!node) {
-        el.style.opacity = '0'
-        el.style.zIndex = '-1'
-        return
-      }
+      return !!node
     }
 
-    const { top, left } = calculatePosition(
-      ref.current?.getBoundingClientRect(),
-      bounds.current
-    )
+    // Selection is expanded (text selected), show it
+    return true
+  }, [focused, bounds, selection, editor])
 
+  const updatePosition = useCallback(() => {
+    const el = ref.current
+    const selectionBounds = bounds
+
+    if (!el || !selectionBounds) {
+      return
+    }
+
+    const rect = el.getBoundingClientRect()
+    const gap = 8
+
+    // Center horizontally on selection, position above by default
+    let left = selectionBounds.left + (selectionBounds.width / 2) - (rect.width / 2)
+    let top = selectionBounds.top - rect.height - gap
+
+    // Horizontal bounds
+    const maxLeft = window.innerWidth - rect.width - gap
+    left = Math.max(gap, Math.min(left, maxLeft))
+
+    // Vertical bounds - flip to below if not enough space above
+    if (top < gap) {
+      top = selectionBounds.top + selectionBounds.height + gap
+    }
+
+    el.style.transform = `translate(${left}px, ${top}px)`
     el.style.opacity = '1'
-    el.style.zIndex = 'auto'
-    el.style.top = `${top}px`
-    el.style.left = `${left}px`
-  }, [ref, bounds, editor.selection])
+    el.style.pointerEvents = 'auto'
+  }, [bounds])
+
+  const hide = useCallback(() => {
+    const el = ref.current
+    if (el) {
+      el.style.opacity = '0'
+      el.style.pointerEvents = 'none'
+    }
+  }, [])
+
+  // Update position or hide based on whether menu should show
+  useEffect(() => {
+    if (shouldShow() && !isContextMenuOpen) {
+      requestAnimationFrame(updatePosition)
+    } else {
+      hide()
+    }
+  }, [selection, focused, shouldShow, updatePosition, hide, isContextMenuOpen])
 
   return (
     <div
       ref={ref}
       className={className}
       style={{
-        opacity: '0',
-        zIndex: '-1',
-        position: 'absolute'
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        opacity: 0,
+        pointerEvents: 'none',
+        willChange: 'transform'
       }}
     >
       {children}
     </div>
   )
-}
-
-interface BoundingBox {
-  top: number
-  left: number
-  width: number
-  height: number
-}
-
-function calculatePosition(popoverBounds: BoundingBox, selectionBounds: BoundingBox) {
-  const gap = 2
-
-  // Calculate initial centered position
-  let left = selectionBounds.left + (selectionBounds.width / 2) - (popoverBounds.width / 2)
-  let top = selectionBounds.top - popoverBounds.height - gap
-
-  // Constrain to viewport bounds
-  const viewportWidth = window.innerWidth
-
-  // Prevent going off left or right edges
-  left = Math.max(gap, Math.min(left, viewportWidth - popoverBounds.width - gap))
-
-  // When going above viewport, position below selection instead
-  if (top < gap) {
-    top = selectionBounds.top + selectionBounds.height + gap
-  }
-
-  return { top, left }
 }

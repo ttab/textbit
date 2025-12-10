@@ -1,0 +1,86 @@
+div.textbit-contexttools-menu {
+  display: flex;
+  flex-direction: row;
+  user-select: none;
+  left: 0.5rem;
+  box-sizing: border-box;
+
+  margin-top: -8px;
+  padding: 0 3px;
+  transition: opacity,z-index 0.15s cubic-bezier(.25, .8, .25, 1);
+  border-radius: 0.5rem;
+  background-color: hsl(0 0% 100%);
+  box-shadow: 0px 3px 10px -6px hsl(240 10% 3.9%);
+  color: hsl(240 10% 3.9%);
+}
+
+.dark div.textbit-contexttools-menu {
+  box-shadow: none;
+}
+
+/* Arrow indicator */
+div.textbit-contexttools-menu:after {
+  content: "";
+  width: 0px;
+  height: 0px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid hsl(0 0% 100%);
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  margin-left: -8px;
+}
+
+/* Tool group */
+div.textbit-contexttools-group {
+  display: flex;
+  flex-direction: row;
+  padding: 3px 0px;
+}
+
+div.textbit-contexttools-group::after {
+  content: "";
+  background-color: hsl(240 5.9% 90%);
+  align-self: stretch;
+  margin: 6px 2px;
+  width: 1px;
+}
+
+div.textbit-contexttools-group:last-child::after {
+  display: none;
+}
+
+
+
+/* Items in tool groups */
+div.textbit-contexttools-item {
+  display: block;
+  text-align: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  position: relative;
+  border-radius: 0.3rem;
+  width: 1.1rem;
+}
+
+div.textbit-contexttools-item[data-state="active"]:after {
+  content: "";
+  position: absolute;
+  height: 3px;
+  left: 10%;
+  right: 10%;
+  bottom: 3px;
+  border-radius: 0.5rem;
+  opacity: 0.5;
+}
+
+div.textbit-contexttools-item:hover {
+    background: hsl(240 4.8% 95.9%);
+}
+
+div.textbit-contexttools-item>svg {
+  vertical-align: middle;
+  color: hsl(240 10% 3.9%);
+}

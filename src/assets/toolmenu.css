@@ -1,0 +1,109 @@
+div.textbit-contenttools-menu {
+  margin-left: 0.5rem;
+  margin-top: -0.2rem;
+  box-sizing: border-box;
+}
+
+a.textbit-contenttools-trigger {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 2rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.05s cubic-bezier(.25, .8, .25, 1);
+  font-weight: bold;
+  background-color: hsl(0 0% 100%);
+  color: hsl(240 10% 3.9%);
+
+  width: 30px;
+  border-radius: 100%;
+  box-shadow: 1px 1px 5px -3px;
+  background-color: #fff;
+
+  /* Centering child */
+  display: flex;
+  flex-direction: row;
+  flex-basis: fit-content;
+  align-items: center;
+  justify-content: center;
+}
+
+div.textbit-contenttools-popover {
+  min-width: 16rem;
+  border-radius: 0.5rem;
+  background-color: hsl(0 0% 100%);
+  box-shadow: 0px 3px 10px -6px hsl(240 10% 3.9%);
+  font-size: 0.9rem;
+  line-height: 2.3rem;
+  letter-spacing: 0.03rem;
+  background-color: #fff;
+}
+
+a.textbit-contenttools-item {
+  display: grid;
+  user-select: none;
+  border-radius: 0.5rem;
+  grid-template-columns: 2rem minmax(max-content, 220px) 90px;
+  grid-column-gap: 0;
+  grid-row-gap: 0;
+  font-family: 'system-ui';
+  color: hsl(240 10% 3.9%);
+  cursor: pointer;
+  border-width: 0 3px;
+}
+a.textbit-contenttools-item:first-child {
+  border-top-width: 3px;
+}
+a.textbit-contenttools-item:last-child {
+  border-bottom-width: 3px;
+}
+a.textbit-contenttools-item:hover {
+  background: hsl(240 4.8% 95.9%);
+}
+
+
+div.textbit-contenttools-icon {
+  flex-shrink: 0;
+  width: 2rem;
+  opacity: 0.8;
+  font-weight: bold;
+
+  /* All for centering svg child */
+  display: flex;
+  flex-direction: row;
+  flex-basis: fit-content;
+  align-items: center;
+  justify-content: center;
+}
+
+a.textbit-contenttools-item[data-state="active"] div.textbit-contenttools-label {
+  opacity: 0.8;
+  font-weight: bold;
+}
+
+div.textbit-contenttools-hotkey {
+  text-align: right;
+  padding-right: 0.5rem;
+  opacity: 0.8;
+}
+
+
+/* Tool groups */
+div.textbit-contenttools-group {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Separator between tool groups */
+div.textbit-contenttools-group::after {
+  content: "";
+  background-color: hsl(240 5.9% 90%);
+  align-self: stretch;
+  margin: 0 3px;
+  height: 1px;
+}
+
+div.textbit-contenttools-group:last-child::after {
+  display: none;
+}

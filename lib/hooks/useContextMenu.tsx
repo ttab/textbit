@@ -1,61 +1,50 @@
-import { getDecorationRangeFromMouseEvent, getNodeEntryFromDomNode } from '../lib/utils'
-import { type RefObject, useContext, useEffect, useState } from 'react'
-import { Range, Editor, Element as SlateElement } from 'slate'
-import { ReactEditor, useFocused, useSlateStatic } from 'slate-react'
-import { TextbitEditor } from '../lib/textbit-editor'
-import { type SpellingError } from '../types/extends'
+import { getDecorationRangeFromMouseEvent, getNodeEntryFromDomNode } from '../utils/utils'
+import { MouseEventHandler, useContext, useMemo } from 'react'
+import { Range, Editor, Element as SlateElement, Transforms } from 'slate'
+import { ReactEditor, useSlateStatic } from 'slate-react'
+import { TextbitEditor } from '../utils/textbit-editor'
+import { type SpellingError } from '../types/slate'
 import { ContextMenuHintsContext } from '../components/ContextMenu/ContextMenuHintsContext'
 
 export function useContextMenu(
-  ref: RefObject<HTMLElement>,
   preventDefault = true
 ) {
   const editor = useSlateStatic()
-  const isFocused = useFocused()
-  const [range, setRange] = useState<Range | undefined>()
   const contextMenuHintsContext = useContext(ContextMenuHintsContext)
 
-  useEffect(() => {
-    if (editor && range) {
-      if (!isFocused) {
-        ReactEditor.focus(editor)
-      }
-      editor.setSelection(range)
-    }
-  }, [editor, range])
-
-  useEffect(() => {
-    const element = ref.current
-    if (!element) {
-      return
-    }
+  return useMemo(() => {
 
     const contextMenuHandler = (event: MouseEvent) => {
       const targetElement = (event.target as Node).nodeType === Node.TEXT_NODE
         ? (event.target as Text).parentElement
         : (event.target as HTMLElement)
 
-      if (!targetElement || !element.contains(targetElement)) {
-        setRange(undefined)
+      if (!targetElement) {
         return
       }
 
-      const [targetNode, targetPath] = getNodeEntryFromDomNode(editor, targetElement) || []
+      const nodeEntry = getNodeEntryFromDomNode(editor, targetElement)
+      const [targetNode, targetPath] = nodeEntry || []
+
       if (!targetNode || !Array.isArray(targetPath)) {
         return
       }
 
       const topNode = editor.children[targetPath[0]]
+
       if (!SlateElement.isElement(topNode)) {
         return
       }
 
-      const slateRange = ReactEditor.findEventRange(editor, event)
-      if (Range.isCollapsed(slateRange)) {
-        setRange(slateRange)
+      const spelling = getSpellingHints(editor, topNode, targetElement, event)
+
+      // Update the selection and ensure the editor is focused
+      const range = getDecorationRangeFromMouseEvent(editor, event)
+      if (range) {
+        Transforms.select(editor, range)
+        ReactEditor.focus(editor)
       }
 
-      const spelling = getSpellingHints(editor, topNode, targetElement, event)
       if (preventDefault) {
         event.preventDefault()
       }
@@ -74,10 +63,8 @@ export function useContextMenu(
       })
     }
 
-    window.addEventListener('contextmenu', contextMenuHandler)
-
-    return () => window.removeEventListener('contextmenu', contextMenuHandler)
-  }, [ref, contextMenuHintsContext, preventDefault, setRange])
+    return contextMenuHandler as unknown as MouseEventHandler<HTMLDivElement>
+  }, [contextMenuHintsContext, preventDefault, editor])
 }
 
 function getSpellingHints(
@@ -91,6 +78,7 @@ function getSpellingHints(
 } | undefined {
   const ancestor = element.closest('[data-spelling-error]') as HTMLElement
   const errorId = ancestor?.dataset['spellingError']
+
   if (!topNode.id || !errorId) {
     return
   }
@@ -112,7 +100,7 @@ function getSpellingHints(
         }
       }
       : undefined
-  } catch (_) {
-    // Ignored
+  } catch (error) {
+    console.warn(error)
   }
 }

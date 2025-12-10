@@ -1,10 +1,11 @@
-import { Children, type PropsWithChildren, useContext } from 'react'
+import { Children, useContext } from 'react'
 import { useSlateStatic } from 'slate-react'
-import { ItemContext } from './Item'
+import { ItemContext } from './ItemContext'
 
-export const Icon = ({ children, className }: PropsWithChildren & {
+export function Icon({ children, className }: {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   const editor = useSlateStatic()
   const { isActive, action } = useContext(ItemContext)
   const Tool = Array.isArray(action?.tool) ? action.tool[0] || null : action?.tool || null

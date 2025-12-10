@@ -1,18 +1,17 @@
-import { Children, type PropsWithChildren, useContext } from 'react'
+import { Children, useContext } from 'react'
 import { ContextMenuHintsContext } from './ContextMenuHintsContext'
 import { useSlateStatic } from 'slate-react'
 import { Editor } from 'slate'
 
-type ItemProps = PropsWithChildren & {
-  className?: string
-  func?: (editor: Editor) => void
-}
-
-export const Item = ({
+export function Item({
   children,
   className,
   func = undefined
-}: ItemProps) => {
+}: {
+  children: React.ReactNode
+  className?: string
+  func?: (editor: Editor) => void
+}) {
   const editor = useSlateStatic()
   const menuCtx = useContext(ContextMenuHintsContext)
 

@@ -1,18 +1,12 @@
-import {
-  type PropsWithChildren,
-  useContext,
-  useLayoutEffect,
-  useRef
-} from 'react'
-import { MenuContext } from './Menu'
-import { useKeydownGlobal } from '../../hooks'
-import { createPortal } from 'react-dom'
-import { GutterContext } from '../GutterProvider'
-import { useTextbitSelectionBoundsState } from '../TextbitRoot'
+import { useContext, useLayoutEffect, useRef } from 'react'
+import { MenuContext } from './MenuContext'
+import { useKeydownGlobal } from '../../hooks/useKeydownGlobal'
+import { GutterContext } from '../GutterProvider/GutterContext'
 
-export const Content = ({ children, className }: PropsWithChildren & {
+export function Content({ children, className }: {
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   const [isOpen, setIsOpen] = useContext(MenuContext)
   const keyTriggerRef = useKeydownGlobal<HTMLDivElement>((e) => {
     if (isOpen && (e.key === 'Escape' || e.key === 'Tab')) {
@@ -23,69 +17,63 @@ export const Content = ({ children, className }: PropsWithChildren & {
 
   return (
     <div ref={keyTriggerRef}>
-      {isOpen && createPortal(
+      {isOpen && (
         <Popover className={className}>
           {children}
-        </Popover>,
-        document.body)}
+        </Popover>
+      )}
     </div>
   )
 }
 
-
-const Popover = ({ children, className }: PropsWithChildren & {
+function Popover({ children, className }: {
   className?: string
-}) => {
-  const { triggerSize, gutterBox } = useContext(GutterContext)
+  children?: React.ReactNode
+}) {
+  const { triggerRef } = useContext(GutterContext)
   const ref = useRef<HTMLDivElement>(null)
-  const bounds = useTextbitSelectionBoundsState()
 
   useLayoutEffect(() => {
-    const el = ref?.current
-    if (!gutterBox || !bounds || !el) {
+    const el = ref.current
+    const trigger = triggerRef?.current
+
+    if (!trigger || !el) {
       return
     }
 
-    const { top, left } = calculatePosition(
-      ref.current?.getBoundingClientRect(),
-      bounds,
-      gutterBox
-    )
+    // Get the bounding box of the trigger element
+    const triggerBox = trigger.getBoundingClientRect()
+    const popoverRect = el.getBoundingClientRect()
+    const gap = 8
 
-    el.style.top = `${top}px`
-    el.style.left = `${left}px`
-  }, [bounds, gutterBox, triggerSize])
+    // Position to the right of the trigger button
+    let left = triggerBox.right + gap
+    let top = triggerBox.top
+
+    // Constrain to viewport
+    const maxLeft = window.innerWidth - popoverRect.width - gap
+    left = Math.min(left, maxLeft)
+
+    // Flip down if not enough space
+    if (top + popoverRect.height > window.innerHeight - gap) {
+      top = Math.max(gap, window.innerHeight - popoverRect.height - gap)
+    }
+
+    el.style.transform = `translate(${left}px, ${top}px)`
+  }, [triggerRef])
 
   return (
-    <div ref={ref} className={className} style={{ position: 'absolute' }}>
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        willChange: 'transform'
+      }}
+    >
       {children}
     </div>
   )
-}
-
-
-type Rect = Omit<DOMRect, 'toJSON'>
-
-function calculatePosition(
-  popoverBounds: Rect,
-  selectionBounds: Rect,
-  gutterBounds: Rect) {
-  const gap = 2
-
-  // Calculate initial position
-  let left = gutterBounds.right - window.scrollX
-  let top = selectionBounds.top - gap
-
-  // Constrain to viewport bounds
-  const viewportWidth = window.innerWidth
-
-  // Prevent going off left or right edges
-  left = Math.max(gap, Math.min(left, viewportWidth - popoverBounds.width - gap))
-
-  // When going above viewport, position below selection instead
-  if (top + popoverBounds.height > window.innerHeight) {
-    top = selectionBounds.top - popoverBounds.height
-  }
-
-  return { top, left }
 }

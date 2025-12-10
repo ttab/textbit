@@ -1,15 +1,16 @@
-import { type PropsWithChildren, Children } from 'react'
+import { Children } from 'react'
 import { useSlateSelection, useSlateStatic } from 'slate-react'
-import type { PluginRegistryAction } from '../PluginRegistry/lib/types'
+import type { PluginRegistryAction } from '../../contexts/PluginRegistry/lib/types'
 import { Editor } from 'slate'
-import { TextbitElement } from '../../lib'
-import { hasMark } from '../../lib/hasMark'
-import { toggleLeaf } from '../../lib/toggleLeaf'
+import { TextbitElement } from '../../utils/textbit-element'
+import { hasMark } from '../../utils/hasMark'
+import { toggleLeaf } from '../../utils/toggleLeaf'
 
-export const Item = ({ action, className, children }: PropsWithChildren & {
+export function Item({ action, className, children }: {
   action: PluginRegistryAction
   className?: string
-}) => {
+  children?: React.ReactNode
+}) {
   const editor = useSlateStatic()
   useSlateSelection()
 

@@ -1,16 +1,16 @@
 import React, {
-  type PropsWithChildren,
   Children,
   useCallback,
   type ReactNode
 } from 'react'
 import { useSlateSelection, useSlateStatic } from 'slate-react'
 import { Editor, Range } from 'slate'
-import type { PluginRegistryAction } from '../PluginRegistry'
+import type { PluginRegistryAction } from '../../contexts/PluginRegistry/lib/types'
 
-export const Group = ({ children, className }: PropsWithChildren & {
+export function Group({ children, className }: {
+  children: React.ReactNode
   className?: string
-}) => {
+}) {
   const editor = useSlateStatic()
   const selection = useSlateSelection()
   const leafEntry = Editor.nodes(editor, {
@@ -33,7 +33,7 @@ export const Group = ({ children, className }: PropsWithChildren & {
 
       return (child.props as Record<string, PluginRegistryAction>)?.action?.plugin?.class === 'inline'
     })
-  }, [leafEntry, editor])
+  }, [leafEntry, selection])
 
   const filteredChildren = filter(children)
   const hasChildren = Children.count(filteredChildren) > 0
