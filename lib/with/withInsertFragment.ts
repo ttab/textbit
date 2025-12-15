@@ -21,8 +21,8 @@ export function withInsertFragment(editor: Editor) {
   editor.insertFragment = (fragment, options) => {
     const { selection } = editor
 
-    // Not applicable if not having an expanded selection
-    if (!selection || Range.isCollapsed(selection)) {
+    // Not applicable if not having a selection
+    if (!selection) {
       insertFragment(fragment, options)
       return
     }
@@ -34,12 +34,21 @@ export function withInsertFragment(editor: Editor) {
     }
 
     const [start, endCandidate] = Range.edges(selection)
-    const end = getUnhangedEndPoint(editor, endCandidate)
+    const end = Path.equals(start.path, endCandidate.path)
+      ? endCandidate
+      : getUnhangedEndPoint(editor, endCandidate)
     const [ancestor] = findClosestTextNodeAncestor(editor, start.path, end.path) ?? []
 
     // If the current selection has no common text node ancestor
     // we accept the default behavior of slate.
     if (!TextbitElement.isText(ancestor)) {
+      insertFragment(fragment, options)
+      return
+    }
+
+    // If the current selection is collapsed and the ancestor is not empty
+    // we accept the default behavior of slate.
+    if (Node.string(ancestor)?.length && Range.isCollapsed(selection)) {
       insertFragment(fragment, options)
       return
     }
@@ -104,7 +113,9 @@ function findClosestTextNodeAncestor(
   path1: Path,
   path2: Path
 ): [Node, Path] | null {
-  const commonPath = Path.common(path1, path2)
+  const commonPath = (Path.equals(path1, path2))
+    ? path1 // Both paths are the same, use one
+    : Path.common(path1, path2) // Get the common path
 
   // Walk up from the common path to find a node with class 'text'
   let currentPath = commonPath
