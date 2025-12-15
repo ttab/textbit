@@ -44,7 +44,7 @@ export function withInsertFragment(editor: Editor) {
       return
     }
 
-    const newFragment = fragment.map((f) => {
+    const modifiedFragment = fragment.map((f) => {
       if (f.type === ancestor.type && f.properties?.role === ancestor.properties?.role) {
         return f
       }
@@ -61,7 +61,7 @@ export function withInsertFragment(editor: Editor) {
       return newFragment
     })
 
-    insertFragment(newFragment, options)
+    insertFragment(modifiedFragment, options)
   }
 
   return editor
