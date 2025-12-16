@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Editor, Element, NodeEntry, Transforms } from 'slate'
+import { Editor, Element, NodeEntry, Range, Transforms } from 'slate'
 import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../utils/getDecorationRanges'
 import { ElementComponent } from './Element/Element'
@@ -114,6 +114,25 @@ export function TextbitEditable(props: TextbitEditableProps) {
     handleOnKeyDown(editor, actions, event)
   }, [editor, actions])
 
+  /**
+   * Fixefox does not set the caret position correctly when clicking
+   * in an unfocused Editable area. If the gecko rendering engine is
+   * detected we help the user by setting the caret position.
+   */
+  const onMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    // We only need to handle this for Firefox (Gecko rendering engine)
+    if (!navigator.userAgent.includes('Gecko/')) {
+      return
+    }
+
+    if (!isFocused && !editor.selection) {
+      const range = ReactEditor.findEventRange(editor, event)
+      if (Range.isRange(range)) {
+        Transforms.select(editor, range)
+      }
+    }
+  }, [editor, isFocused])
+
   return (
     <DragStateProvider>
       <PresenceOverlay isCollaborative={collaborative}>
@@ -134,6 +153,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
           placeholder={placeholder}
           dir={dir}
           onContextMenu={handleContextMenu}
+          onMouseDown={onMouseDown}
         />
         {props.children}
        </PresenceOverlay>
