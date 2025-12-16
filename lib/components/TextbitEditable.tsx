@@ -125,7 +125,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
       return
     }
 
-    if (!isFocused && !editor.selection) {
+    if (!isFocused) {
       const range = ReactEditor.findEventRange(editor, event)
       if (Range.isRange(range)) {
         Transforms.select(editor, range)
