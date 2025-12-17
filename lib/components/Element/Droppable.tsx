@@ -1,4 +1,4 @@
-import { useRef, useContext } from 'react'
+import { useRef, useContext, useCallback } from 'react'
 import { type Descendant, Editor, Element as SlateElement } from 'slate'
 import { useSlateStatic } from 'slate-react'
 
@@ -7,6 +7,8 @@ import { DragstateContext } from '../../contexts/DragStateContext'
 import { pipeFromDrop } from '../../utils/pipes'
 import { usePluginRegistry } from '../../hooks/usePluginRegistry'
 import { useTextbit } from '../../hooks/useTextbit'
+import { hasDraggableDOMTarget } from '../../utils/hasDraggableTarget'
+import { hasDraggableElementTarget } from '../../utils/hasDraggableElement'
 
 type Position = ['above' | 'below', boolean] | undefined
 
@@ -29,82 +31,114 @@ export function Droppable({ children, element }: {
   const plugin = plugins.find((p) => p.name === element?.type)
   const isDroppable = TextbitPlugin.isElementPlugin(plugin) && !!plugin?.componentEntry?.droppable
 
+  /**
+   * Drag start handler. When the event target node path includes an element
+   * with the class "text" dragging should be prevented to allow the user
+   * selecting text without accidentally dragging the ancestor block element.
+   * If a DOM element ancestor has draggable="true" set it will still allow
+   * dragging of the element even when it is class "text".
+   */
+  const onDragStartCapture = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    if (readOnly || !element?.id) {
+      return
+    }
+
+    // Check if we need to prevent dragging
+    if (!hasDraggableDOMTarget(event) && !hasDraggableElementTarget(editor, event)) {
+      event.stopPropagation()
+      event.preventDefault()
+      return
+    }
+
+    event.stopPropagation()
+    if (ref?.current) {
+      createDragImage(ref.current, event, element.id)
+    }
+  }, [readOnly, element?.id, editor])
+
+  /**
+   * Default handling of some events when in read only mode.
+   */
+  const handleDragEvent = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    if (readOnly) {
+      return false
+    }
+
+    event.preventDefault()
+    event.stopPropagation()
+    return true
+  }, [readOnly])
+
+  const onDragEnterCapture = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    if (handleDragEvent(event)) {
+      ctx?.onDragEnter()
+    }
+  }, [ctx, handleDragEvent])
+
+  const onDragLeaveCapture = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    if (handleDragEvent(event)) {
+      ctx?.onDragLeave()
+    }
+  }, [ctx, handleDragEvent])
+
+  const onDragOverCapture = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    if (handleDragEvent(event)) {
+      ctx.setOffset(dropHints(event, ref?.current, isDroppable))
+    }
+  }, [ctx, handleDragEvent, isDroppable])
+
+  const onDropCapture = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    if (readOnly) {
+      event.preventDefault()
+      return
+    }
+
+    if (ctx?.onDrop) {
+      ctx.onDrop(event)
+    }
+
+    if (!ref.current || !element?.id) {
+      return
+    }
+
+    // TODO: Name and node can in the future be used to let plugins say that the
+    // node/plugin itself want to handle/hijack the drop for a component to handle.
+    // const name = droppableRef.current?.dataset?.name || null
+    // const [position /*, node */] = getDropPosition(editor, e, container, id, isDroppable)
+    const [position] = dropPosition(editor, event, ref?.current, element.id, isDroppable) || {}
+    pipeFromDrop(editor, plugins, event, position)
+  }, [ctx, element?.id, editor, isDroppable, plugins, ref, readOnly])
+
+  const onDragEnd = useCallback(() => {
+    if (readOnly) {
+      return
+    }
+
+    ctx?.onDragLeave()
+
+    if (ref?.current) {
+      ref.current.style.opacity = '1'
+      cleanup()
+    }
+  }, [readOnly, ctx])
+
   return (
     <div
       data-id={element?.id || ''}
       ref={ref}
       draggable={['block', 'void'].includes(element?.class || '') ? 'true' : 'false'}
-      onDragStartCapture={(e) => {
-        if (readOnly || !element?.id) {
-          return
-        }
-
-        e.stopPropagation()
-        if (ref?.current) {
-          createDragImage(ref.current, e, element.id)
-        }
-      }}
-      onDragEnterCapture={(e) => {
-        if (readOnly) {
-          return
-        }
-
-        e.preventDefault()
-        e.stopPropagation()
-        ctx?.onDragEnter()
-      }}
-      onDragLeaveCapture={(e) => {
-        if (readOnly) {
-          return
-        }
-        e.preventDefault()
-        e.stopPropagation()
-        ctx?.onDragLeave()
-      }}
-      onDragOverCapture={(e) => {
-        if (readOnly) {
-          return
-        }
-        e.stopPropagation()
-        e.preventDefault()
-        ctx.setOffset(dropHints(e, ref?.current, isDroppable))
-      }}
-      onDropCapture={(e) => {
-        if (readOnly) {
-          e.preventDefault()
-          return
-        }
-        if (ctx?.onDrop) {
-          ctx.onDrop(e)
-        }
-
-        if (!ref.current || !element?.id) {
-          return
-        }
-
-        // TODO: Name and node can in the future be used to let plugins say that the
-        // node/plugin itself want to handle/hijack the drop for a component to handle.
-        // const name = droppableRef.current?.dataset?.name || null
-        // const [position /*, node */] = getDropPosition(editor, e, container, id, isDroppable)
-        const [position] = dropPosition(editor, e, ref?.current, element.id, isDroppable) || {}
-        pipeFromDrop(editor, plugins, e, position)
-      }}
-      onDragEnd={() => {
-        if (readOnly) {
-          return
-        }
-
-        ctx?.onDragLeave()
-        if (ref?.current) {
-          ref.current.style.opacity = '1'
-          cleanup()
-        }
-      }}
+      onDragStartCapture={onDragStartCapture}
+      onDragEnterCapture={onDragEnterCapture}
+      onDragLeaveCapture={onDragLeaveCapture}
+      onDragOverCapture={onDragOverCapture}
+      onDropCapture={onDropCapture}
+      onDragEnd={onDragEnd}
     >
       {children}
     </div>
   )
 }
+
 
 
 /*
