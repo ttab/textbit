@@ -1084,7 +1084,7 @@ Plugins extend Textbit with custom content types and behaviors.
 ### Drag'n drop
 Block and void class elements are automatically draggable in all parts not occupied by a child text element.
 
-Any DOM element with the attribute `draggable` set to `true` will enable dragging of the entire top level ancestor block. This is useful if one need to make a text element draggable. Usually these DOM elements also need to have `contentEditable` set to `false` as well.
+Any DOM element with the attribute `draggable` set to `true` will act as a "drag handle" for the entire top level ancestor block. This is useful if one need to make a text element draggable. Usually these DOM elements also need to have `contentEditable` set to `false` as well.
 
 ### Plugin Structure
 
