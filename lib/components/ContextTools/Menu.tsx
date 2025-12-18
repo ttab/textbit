@@ -60,6 +60,13 @@ function Popover({ children, className }: {
     const rect = el.getBoundingClientRect()
     const gap = 8
 
+    if (selectionBounds.left <= 0 || selectionBounds.top <= 0) {
+      // Don't move it if we don't have a selection, this is necessary
+      // to allow "secondary" context tools to show up as a result of
+      // clicking the primary context tool, e.g link tool input field.
+      return
+    }
+
     // Center horizontally on selection, position above by default
     let left = selectionBounds.left + (selectionBounds.width / 2) - (rect.width / 2)
     let top = selectionBounds.top - rect.height - gap
@@ -105,7 +112,8 @@ function Popover({ children, className }: {
         left: 0,
         opacity: 0,
         pointerEvents: 'none',
-        willChange: 'transform'
+        willChange: 'transform',
+        zIndex: 9701
       }}
     >
       {children}
