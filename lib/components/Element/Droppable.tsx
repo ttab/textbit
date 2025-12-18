@@ -140,7 +140,6 @@ export function Droppable({ children, element }: {
 }
 
 
-
 /*
  * Remove temporarily created drag images
  */
