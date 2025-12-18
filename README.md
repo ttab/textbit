@@ -1078,10 +1078,13 @@ Plugins extend Textbit with custom content types and behaviors.
 | `inline` | Inline blocks | Links, mentions |
 | `text` | Text blocks | Paragraphs, headings, blockquotes |
 | `block` | Block elements | Images, videos, embeds |
-| `void` | Non-editable elements | Loaders |
+| `void` | Non-editable elements | Loaders, a child image element in a block element |
 | `generic` | Non-visual plugins | Input transformers, validators |
 
-Block elements are automatically draggable.
+### Drag'n drop
+Block and void class elements are automatically draggable in all parts not occupied by a child text element.
+
+Any DOM element with the attribute `draggable` set to `true` will enable dragging of the entire top level ancestor block. This is useful if one need to make a text element draggable. Usually these DOM elements also need to have `contentEditable` set to `false` as well.
 
 ### Plugin Structure
 
@@ -1107,7 +1110,7 @@ const MyPlugin: TBPluginInitFunction = (options) => {
     }],
     
     componentEntry: {
-      class: 'block',
+      class: 'void',
       component: Figure,
       constraints: {
         normalizeNode: normalizeImage
@@ -1266,36 +1269,56 @@ const Image: TBPluginInitFunction = () => {
     
     componentEntry: {
       class: 'block',
-      component: ImageComponent,
-      droppable: true, // Allow files to be dropped on this element
+      component: FigureComponent,
+      constraints: {
+        normalizeNode: normalizeImage
+      },
       children: [
         {
-          type: 'caption',
+          type: 'image',
+          class: 'void',
+          component: ImageComponent
+        },
+        {
+          type: 'text',
           class: 'text',
-          component: CaptionComponent
+          component: CaptionComponent,
+          constraints: {
+            allowBreak: false
+          }
         }
       ]
     }
   }
 }
 
-function ImageComponent({ element, children }: TBComponentProps) {
+function FigureComponent({ element, children }: TBComponentProps) {
   return (
-    <figure className="my-4" contentEditable={false}>
-      <img 
-        src={element.properties.src} 
-        alt=""
-        className="w-full rounded"
-      />
-      <figcaption contentEditable={true}>
-        {children}
-      </figcaption>
+    <figure className="my-4">
+      {children}
     </figure>
   )
 }
 
+function ImageComponent({ element, children }: TBComponentProps) {
+  return (
+    <img 
+      src={element.properties.src} 
+      alt=""
+      className="w-full rounded"
+    />
+  )
+}
+
 function CaptionComponent({ children }: TBComponentProps) {
-  return <div className="text-sm text-gray-600 mt-2">{children}</div>
+  return (
+    <div className="p-2 flex rounded rounded-xs text-sm bg-slate-200 dark:bg-slate-800">
+      <label className="grow-0 w-16 opacity-70" contentEditable={false}>Text:</label >
+      <figcaption className="grow">
+        {children}
+      </figcaption>
+    </div >
+  )
 }
 
 export { Image }
