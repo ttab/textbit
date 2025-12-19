@@ -95,7 +95,8 @@ function Popover({ children, className }: {
         top: 0,
         left: 0,
         willChange: 'transform',
-        pointerEvents: 'auto'
+        pointerEvents: 'auto',
+        zIndex: 9702
       }}
     >
       {children}

@@ -49,6 +49,12 @@ export function useContextMenu(
         event.preventDefault()
       }
 
+      // Currently we only support spelling suggestions, as context menu, so if
+      // no spelling suggestions are available, we are done.
+      if (!spelling) {
+        return
+      }
+
       contextMenuHintsContext?.dispatch({
         menu: {
           position: {
