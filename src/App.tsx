@@ -10,8 +10,17 @@ import * as Y from 'yjs'
 import { Awareness } from 'y-protocols/awareness'
 import { slateNodesToInsertDelta } from '@slate-yjs/core'
 import { spellChecker } from './spellChecker'
+import { Link } from './plugins/Link'
+import type { TBPluginDefinition } from '../dist/main'
 
 export function App() {
+
+  const plugins = useMemo(() => {
+    return [
+      ...Textbit.Plugins.map(p => p()),
+      Link()
+    ]
+  }, [])
 
   const headerStyle = {
     fontSize: '12px',
@@ -43,13 +52,31 @@ export function App() {
     }}
     >
 
-      <TextEditor style={editorStyle} headerStyle={headerStyle} autoFocus={true} />
+      <TextEditor
+        style={editorStyle}
+        headerStyle={headerStyle}
+        autoFocus={true}
+        plugins={plugins}
+      />
 
-      <YjsEditor style={editorStyle} headerStyle={headerStyle} />
+      <YjsEditor
+        style={editorStyle}
+        headerStyle={headerStyle}
+        plugins={plugins}
+      />
 
-      <TextbitFormatEditor style={editorStyle} headerStyle={headerStyle} />
+      <TextbitFormatEditor
+        style={editorStyle}
+        headerStyle={headerStyle}
+        plugins={plugins}
+      />
 
-      <TextbitFormatEditor style={editorStyle} headerStyle={headerStyle} readOnly />
+      <TextbitFormatEditor
+        style={editorStyle}
+        headerStyle={headerStyle}
+        plugins={plugins}
+        readOnly
+      />
 
     </div >
   )
@@ -58,10 +85,11 @@ export function App() {
 /**
  * Textbit (slate extended) format editor
  */
-function TextbitFormatEditor({ style, headerStyle, readOnly }: {
+function TextbitFormatEditor({ style, headerStyle, readOnly, plugins }: {
   style: React.CSSProperties
   headerStyle: React.CSSProperties
   readOnly?: boolean
+  plugins: TBPluginDefinition[]
 }) {
   const [value, setValue] = useState(document)
 
@@ -70,6 +98,7 @@ function TextbitFormatEditor({ style, headerStyle, readOnly }: {
       verbose={true}
       debounce={200}
       readOnly={readOnly}
+      plugins={plugins}
       value={value}
       placeholders='multiple'
       onChange={() => {
@@ -117,15 +146,17 @@ function TextbitFormatEditor({ style, headerStyle, readOnly }: {
 /**
  * Text editor
  */
-function TextEditor({ style, headerStyle, autoFocus }: {
+function TextEditor({ style, headerStyle, autoFocus, plugins }: {
   style: React.CSSProperties
   headerStyle: React.CSSProperties
   autoFocus?: boolean
+  plugins: TBPluginDefinition[]
 }) {
   const [value, setValue] = useState('')
 
   return (
     <Textbit.Root
+      plugins={plugins}
       verbose={true}
       debounce={200}
       placeholder='Type text here...'
@@ -164,9 +195,10 @@ function TextEditor({ style, headerStyle, autoFocus }: {
 /**
  * YJS Editor
  */
-function YjsEditor({ style, headerStyle }: {
+function YjsEditor({ style, headerStyle, plugins }: {
   style: React.CSSProperties
   headerStyle: React.CSSProperties
+  plugins: TBPluginDefinition[]
 }) {
   const doc = useMemo(() => new Y.Doc(), [])
   const value = useMemo(() => doc.get('content', Y.XmlText), [doc])
@@ -182,6 +214,7 @@ function YjsEditor({ style, headerStyle }: {
 
   return (
     <Textbit.Root
+      plugins={plugins}
       verbose={true}
       debounce={200}
       value={value}
