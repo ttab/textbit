@@ -1,22 +1,18 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { Editor, Element, Transforms } from 'slate'
 import {
   type TBToolComponentProps,
   TextbitElement
 } from '@ttab/textbit'
 import { isValidLink } from '../lib/isValidLink'
+import { ReactEditor, useSlateStatic } from 'slate-react'
 
-export const EditLink = ({ editor, entry }: TBToolComponentProps) => {
+export const EditLink = ({ entry }: TBToolComponentProps) => {
   const [node, path] = entry || []
 
   const [url, seturl] = useState<string>(TextbitElement.isElement(node) && typeof node?.properties?.url === 'string' ? node.properties.url : '')
   const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (!isValidLink(url, true)) {
-      inputRef.current?.focus()
-    }
-  }, [url])
+  const editor = useSlateStatic()
 
   if (!TextbitElement.isElement(node)) {
     return <></>
@@ -47,7 +43,6 @@ export const EditLink = ({ editor, entry }: TBToolComponentProps) => {
         e.preventDefault()
         e.currentTarget.focus()
       }}
-      // onClick={(e) => { e.currentTarget.focus() }}
       onChange={(e) => {
         seturl(e.target.value)
       }}
@@ -58,6 +53,8 @@ export const EditLink = ({ editor, entry }: TBToolComponentProps) => {
           if (url === '') {
             deleteLink(editor)
           }
+
+          ReactEditor.focus(editor)
         }
       }}
       onBlur={() => {
@@ -75,12 +72,14 @@ export const EditLink = ({ editor, entry }: TBToolComponentProps) => {
 
     <div
       onMouseDown={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
+        if (!isValidLink(url, true)) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
       }}
     >
       {isValidLink(url, true)
-        ? <span style={{color: 'green'}}>L</span>
+        ? <a href={url} style={{color: 'green', textDecoration: 'none'}} target="_blank" rel="noopener noreferrer">L</a>
         : <span style={{color: 'red', textDecoration: 'line-through'}}>L</span>
       }
     </div>
