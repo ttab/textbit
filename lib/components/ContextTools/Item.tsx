@@ -51,10 +51,22 @@ export function Item({ action, className, children }: {
     <div
       data-state={isActive ? 'active' : 'inactive'}
       className={className || ''}
-      onMouseDown={(e) => {
-        e.preventDefault()
-        if (true === action.handler({ editor })) {
+      onMouseDown={(event) => {
+        const defaultAccepted = action.handler({
+          editor,
+          event,
+          type: action.plugin.name,
+          options: {
+            ...action.plugin.options
+          }
+        })
+
+        if (defaultAccepted) {
           toggleLeaf(editor, action.plugin.name)
+        }
+
+        if (!event.defaultPrevented) {
+          event.preventDefault()
         }
       }}
     >

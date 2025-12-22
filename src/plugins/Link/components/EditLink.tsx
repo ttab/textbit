@@ -13,6 +13,7 @@ export const EditLink = ({ entry }: TBToolComponentProps) => {
   const [url, seturl] = useState<string>(TextbitElement.isElement(node) && typeof node?.properties?.url === 'string' ? node.properties.url : '')
   const inputRef = useRef<HTMLInputElement>(null)
   const editor = useSlateStatic()
+  const [hasFocused, setHasFocused] = useState(false)
 
   if (!TextbitElement.isElement(node)) {
     return <></>
@@ -38,6 +39,9 @@ export const EditLink = ({ entry }: TBToolComponentProps) => {
       ref={inputRef}
       type="text"
       value={url}
+      onFocus={() => {
+        setHasFocused(true)
+      }}
       onMouseDownCapture={(e) => {
         e.stopPropagation()
         e.preventDefault()
@@ -49,6 +53,7 @@ export const EditLink = ({ entry }: TBToolComponentProps) => {
       onKeyDown={(e) => {
         if (e.key === 'Escape' || e.key === 'Enter') {
           e.preventDefault()
+          e.stopPropagation()
 
           if (url === '') {
             deleteLink(editor)
@@ -58,6 +63,10 @@ export const EditLink = ({ entry }: TBToolComponentProps) => {
         }
       }}
       onBlur={() => {
+        if (!hasFocused) {
+          return
+        }
+
         if (url === '') {
           deleteLink(editor)
         } else {

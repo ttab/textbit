@@ -35,6 +35,7 @@ export function Item({ children, className, action: actionName }: PropsWithChild
           e.preventDefault()
           action.handler({
             editor,
+            type: action.plugin.name,
             options: action.plugin.options,
             api: {
               // FIXME: This is just to expose some functionality, but it is not a good way to give access to an api...

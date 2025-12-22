@@ -177,15 +177,26 @@ function handleOnKeyDown(editor: Editor, actions: PluginRegistryAction[], event:
       continue
     }
 
-    event.preventDefault()
+    if (action.handler) {
+      const allowDefault = action.handler({
+        editor,
+        event,
+        type: action.plugin.name,
+        options: {
+          ...action.plugin.options
+        }
+      })
 
-    if (action.handler && true !== action.handler({ editor, options: action.plugin.options })) {
-      break
+      if (!allowDefault) {
+        break
+      }
     }
 
     if (action.plugin.class === 'leaf') {
+      event.preventDefault()
       toggleLeaf(editor, action.plugin.name)
     } else if (action.plugin.class === 'text') {
+      event.preventDefault()
       // FIXME: Should not allow transforming blocks (only text class element)
       Transforms.setNodes(
         editor,
@@ -193,6 +204,7 @@ function handleOnKeyDown(editor: Editor, actions: PluginRegistryAction[], event:
         { match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) }
       )
     }
+
     break
   }
 }
