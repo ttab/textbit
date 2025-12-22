@@ -6,28 +6,32 @@ import { TextbitElement } from '../../utils/textbit-element'
 import { hasMark } from '../../utils/hasMark'
 import { toggleLeaf } from '../../utils/toggleLeaf'
 
+//
+// FIXME: This does not update selection on click (i.e links)
+// FIXME: Implement disabled
+//
 export function Item({ action, className, children }: {
   action: PluginRegistryAction
   className?: string
   children?: React.ReactNode
 }) {
   const editor = useSlateStatic()
-  useSlateSelection()
+  const selection = useSlateSelection()
 
   const isActive = hasMark(editor, action.plugin.name)
   const leafEntry = Editor.nodes(editor, {
     mode: 'lowest'
   }).next().value || undefined
 
-  const inlineNode = Editor.nodes(editor, {
-    match: (n) => TextbitElement.isElement(n) && n.class === 'inline'
-  }).next().value
+  const inlineNodes = Array.from(Editor.nodes(editor, {
+    match: (n) => TextbitElement.isElement(n) && n.class === 'inline' && n.type === action.plugin.name,
+    at: selection ?? undefined
+  }))
 
-  const isActiveInlineNode = TextbitElement.isElement(inlineNode?.[0]) && inlineNode[0].type === action.plugin.name
-
-  const Tool = !Array.isArray(action.tool)
+  // Multiple inline nodes can't be handled simultaneously, marked as disabled
+  const Tool = (!Array.isArray(action.tool))
     ? action.tool
-    : (action.tool.length === 2 && isActiveInlineNode)
+    : (action.tool.length === 2 && inlineNodes.length === 1)
       ? action.tool[1]
       : action.tool[0]
 
@@ -35,7 +39,8 @@ export function Item({ action, className, children }: {
     return
   }
 
-  if (isActiveInlineNode) {
+  if (inlineNodes.length === 1) {
+    const inlineNode = inlineNodes[0]
     return (
       <div data-state='active'>
         {!Children.count(children)
@@ -52,6 +57,10 @@ export function Item({ action, className, children }: {
       data-state={isActive ? 'active' : 'inactive'}
       className={className || ''}
       onMouseDown={(event) => {
+        if (inlineNodes.length > 1) {
+          return
+        }
+
         const defaultAccepted = action.handler({
           editor,
           event,
@@ -70,7 +79,9 @@ export function Item({ action, className, children }: {
         }
       }}
     >
-      <Tool editor={editor} active={isActive} entry={leafEntry}>{children}</Tool>
+      <Tool editor={editor} active={isActive} entry={leafEntry}>
+        {children}
+      </Tool>
     </div>
   )
 }
