@@ -22,7 +22,7 @@ export function isValidLink(link: string, enforceScheme: boolean = false): boole
   try {
     const url = new URL(sanitizedLink)
     return allowedSchemes.includes(url.protocol)
-  } catch (ex) {
+  } catch (ex) { // eslint-disable-line
     if (enforceScheme) {
       return false
     }
@@ -31,7 +31,7 @@ export function isValidLink(link: string, enforceScheme: boolean = false): boole
   try {
     const url = new URL(sanitizedLink, document.location.origin)
     return url.origin === document.location.origin && allowedSchemes.includes(url.protocol)
-  } catch (ex) {
+  } catch (ex) { // eslint-disable-line
     return false
   }
 }
