@@ -15,6 +15,7 @@ export function useAction(pluginName: string, actionName: string): ((args?: Reco
   return (args) => {
     action.handler({
       editor,
+      type: pluginName,
       options: action.plugin.options,
       args
     })

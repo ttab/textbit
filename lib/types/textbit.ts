@@ -50,11 +50,23 @@ export type ActionHandlerAPI = {
   [key: string]: (...args: any[]) => any
 }
 
+
+export interface ActionHandlerArgs {
+  editor: Editor
+  type: string
+  options?: Options
+  api?: ActionHandlerAPI
+  args?: Record<string, unknown>
+  event?: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>
+}
+
 /**
- * @type
- * Action handler function
+ * Action handler function that can handle keyboard events, mouse events, or generic actions.
+ *
+ * @param options - The action handler options
+ * @returns `true` to indicate the textbit default action is accepted
  */
-export type ActionHandler = (options: { editor: Editor, options?: Options, api?: ActionHandlerAPI, args?: Record<string, unknown> }) => boolean | void
+export type ActionHandler = (args: ActionHandlerArgs) => boolean | void
 
 /**
  * @interface
@@ -232,7 +244,9 @@ export interface LeafDefinition extends BaseDefinition {
  * @interface
  * Textbit plugin definition interface
  */
-export type PluginDefinition = ElementDefinition | LeafDefinition
+export type PluginDefinition =
+  | ElementDefinition
+  | LeafDefinition
 
 /**
  * @type PluginInitFunction

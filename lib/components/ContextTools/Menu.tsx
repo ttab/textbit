@@ -1,10 +1,11 @@
-import { useCallback, useContext, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useContext, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { useFocused, useSlateSelection, useSlateStatic } from 'slate-react'
-import { Editor, Range } from 'slate'
+import { useFocused, useSlateStatic } from 'slate-react'
+import { Editor } from 'slate'
 import { TextbitElement } from '../../utils/textbit-element'
 import { useSelectionBounds } from '../../hooks/useSelectionBounds'
 import { ContextMenuHintsContext } from '../ContextMenu/ContextMenuHintsContext'
+import type { SelectionBounds } from '../../contexts/SelectionBoundsContext'
 
 export function Menu({ children, className }: {
   className?: string
@@ -23,49 +24,57 @@ function Popover({ children, className }: {
   children?: React.ReactNode
 }) {
   const editor = useSlateStatic()
-  const selection = useSlateSelection()
   const bounds = useSelectionBounds()
   const focused = useFocused()
   const ref = useRef<HTMLDivElement>(null)
   const contextMenuHintsContext = useContext(ContextMenuHintsContext)
   const isContextMenuOpen = contextMenuHintsContext?.menu != null
 
-  const shouldShow = useCallback(() => {
-    if (!focused || !bounds || !selection) {
-      return false
-    }
-
-    // If selection is collapsed, only show if on an inline element
-    if (Range.isCollapsed(selection)) {
-      const node = Editor.nodes(editor, {
-        at: selection,
-        match: (n) => TextbitElement.isElement(n) && n.class === 'inline'
-      }).next().value
-
-      return !!node
-    }
-
-    // Selection is expanded (text selected), show it
-    return true
-  }, [focused, bounds, selection, editor])
-
-  const updatePosition = useCallback(() => {
+  const setVisibility = useCallback((visible: boolean) => {
     const el = ref.current
-    const selectionBounds = bounds
+    if (el) {
+      el.style.opacity = visible ? '1' : '0'
+      el.style.pointerEvents = visible ? 'auto' : 'none'
+    }
+  }, [])
 
-    if (!el || !selectionBounds) {
+  useEffect(() => {
+    if (!focused) {
       return
     }
 
-    const rect = el.getBoundingClientRect()
-    const gap = 8
+    let showMenu = false
+    if (!bounds?.isCollapsed) {
+      // Non collapsed selections should always show the menu
+      showMenu = true
+    } else if (editor.selection) {
+      // Collapsed selection should still show menu on inline nodes
+      const node = Editor.nodes(editor, {
+        at: editor.selection,
+        match: (n) => TextbitElement.isElement(n) && n.class === 'inline'
+      }).next().value
+      showMenu = !!node
+    }
 
-    if (selectionBounds.left <= 0 || selectionBounds.top <= 0) {
+    if (showMenu && !isContextMenuOpen) {
+      setVisibility(true)
+    } else {
+      setVisibility(false)
+    }
+  }, [editor, bounds, focused, setVisibility, isContextMenuOpen])
+
+  const move = useCallback((selectionBounds: SelectionBounds) => {
+    const el = ref.current
+
+    if (!el || !selectionBounds || selectionBounds.left <= 0 || selectionBounds.top <= 0) {
       // Don't move it if we don't have a selection, this is necessary
       // to allow "secondary" context tools to show up as a result of
       // clicking the primary context tool, e.g link tool input field.
       return
     }
+
+    const rect = el.getBoundingClientRect()
+    const gap = 8
 
     // Center horizontally on selection, position above by default
     let left = selectionBounds.left + (selectionBounds.width / 2) - (rect.width / 2)
@@ -81,26 +90,15 @@ function Popover({ children, className }: {
     }
 
     el.style.transform = `translate(${left}px, ${top}px)`
-    el.style.opacity = '1'
-    el.style.pointerEvents = 'auto'
-  }, [bounds])
-
-  const hide = useCallback(() => {
-    const el = ref.current
-    if (el) {
-      el.style.opacity = '0'
-      el.style.pointerEvents = 'none'
-    }
   }, [])
 
-  // Update position or hide based on whether menu should show
   useEffect(() => {
-    if (shouldShow() && !isContextMenuOpen) {
-      requestAnimationFrame(updatePosition)
+    if (bounds) {
+      requestAnimationFrame(() => move(bounds))
     } else {
-      hide()
+      setVisibility(false)
     }
-  }, [selection, focused, shouldShow, updatePosition, hide, isContextMenuOpen])
+  }, [move, bounds, setVisibility])
 
   return (
     <div
