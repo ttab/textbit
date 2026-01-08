@@ -10,44 +10,27 @@ type NodeWithId = Partial<Node> & {
 }
 
 export function withUniqueIds(editor: Editor) {
-  const { insertNode, insertNodes, apply } = editor
-
-  editor.insertNode = (node, options) => {
-    if (Element.isElement(node) && (idExists(editor, node) || !node.id)) {
-      node.id = crypto.randomUUID()
-    }
-
-    insertNode(node, options)
-  }
-
-  editor.insertNodes = (nodes, options) => {
-    for (const node of toArray(nodes)) {
-      if (Element.isElement(node) && (idExists(editor, node) || !node.id)) {
-        node.id = crypto.randomUUID()
-      }
-    }
-
-    insertNodes(nodes, options)
-  }
+  const { apply } = editor
 
   editor.apply = (operation) => {
     if (operation.type === 'insert_node') {
-      const node = structuredClone(operation.node)
+      const node = operation.node
 
-      if (Element.isElement(node) && (idExists(editor, node) || !node.id)) {
-        node.id = crypto.randomUUID()
+      if (Element.isElement(node) && (!node.id || idExists(editor, node))) {
+        const nodeWithNewId = structuredClone(node)
+        nodeWithNewId.id = crypto.randomUUID()
+
+        return apply({
+          ...operation,
+          node: nodeWithNewId
+        })
       }
-
-      return apply({
-        ...operation,
-        node
-      })
     }
 
     if (operation.type === 'split_node') {
       const node = operation.properties
 
-      if ('id' in node && idExists(editor, node)) {
+      if ('id' in node && typeof node.id === 'string' && idExists(editor, node)) {
         return apply({
           ...operation,
           properties: {
@@ -64,18 +47,16 @@ export function withUniqueIds(editor: Editor) {
   return editor
 }
 
+function idExists(editor: Editor, node: NodeWithId): boolean {
+  if (!node.id) {
+    return false
+  }
 
-function toArray(n: Node | Node[]): Node[] {
-  return (Array.isArray(n)) ? n : [n]
-}
-
-
-function idExists(editor: Editor, node: NodeWithId) {
   const existingNodes = Array.from(Editor.nodes(editor, {
     at: [],
-    mode: 'highest',
-    match: (n) => !Editor.isEditor(n) && n.id !== node.id
+    mode: 'all',
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.id === node.id
   }))
 
-  return !!existingNodes.length
+  return existingNodes.length > 0
 }

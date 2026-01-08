@@ -12,6 +12,7 @@ export type {
   ComponentProps as TBComponentProps,
   ToolComponent as TBToolComponent,
   ToolComponentProps as TBToolComponentProps,
+  ActionHandlerArgs as TBActionHandlerArgs,
   ActionHandler as TBActionHandler,
   Action as TBAction,
   ConsumeFunction as TBConsumeFunction,

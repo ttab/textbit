@@ -13,6 +13,7 @@ import { useSlateStatic } from 'slate-react'
 import { DragStateProvider } from '../contexts/DragStateProvider'
 import { PresenceOverlay } from './PresenceOverlay'
 import type { SpellcheckLookupTable } from '../types'
+import { SelectionBoundsDetails } from './SelectionBoundsDetails'
 
 interface TextbitEditableProps {
   autoFocus?: boolean | 'start' | 'end'
@@ -25,7 +26,7 @@ interface TextbitEditableProps {
 
 export function TextbitEditable(props: TextbitEditableProps) {
   const editor = useSlateStatic()
-  const { placeholders, placeholder, readOnly, dir, collaborative } = useTextbit()
+  const { placeholders, placeholder, readOnly, dir, collaborative, verbose } = useTextbit()
   const { components, actions } = usePluginRegistry()
   const isFocused = useFocused()
   const [decorationsKey, setDecorationsKey] = useState(0)
@@ -134,30 +135,33 @@ export function TextbitEditable(props: TextbitEditableProps) {
   }, [editor, isFocused])
 
   return (
-    <DragStateProvider>
-      <PresenceOverlay isCollaborative={collaborative}>
-        <Editable
-          autoFocus={!!autoFocus}
-          // key={decorationsKey}
-          data-state={isFocused ? 'focused' : ''}
-          readOnly={readOnly}
-          renderElement={renderElement}
-          renderLeaf={renderLeaf}
-          onFocus={handleFocus}
-          onBlur={props.onBlur}
-          onKeyDown={onKeyDown}
-          decorate={decorate}
-          className={props.className}
-          style={props.style}
-          spellCheck={false}
-          placeholder={placeholder}
-          dir={dir}
-          onContextMenu={handleContextMenu}
-          onMouseDown={onMouseDown}
-        />
-        {props.children}
-       </PresenceOverlay>
-     </DragStateProvider>
+    <>
+      <DragStateProvider>
+        <PresenceOverlay isCollaborative={collaborative}>
+          <Editable
+            autoFocus={!!autoFocus}
+            data-state={isFocused ? 'focused' : ''}
+            readOnly={readOnly}
+            renderElement={renderElement}
+            renderLeaf={renderLeaf}
+            onFocus={handleFocus}
+            onBlur={props.onBlur}
+            onKeyDown={onKeyDown}
+            decorate={decorate}
+            className={props.className}
+            style={props.style}
+            spellCheck={false}
+            placeholder={placeholder}
+            dir={dir}
+            onContextMenu={handleContextMenu}
+            onMouseDown={onMouseDown}
+          />
+          {props.children}
+        </PresenceOverlay>
+      </DragStateProvider>
+
+      {verbose && <SelectionBoundsDetails />}
+    </>
   )
 }
 
@@ -173,15 +177,26 @@ function handleOnKeyDown(editor: Editor, actions: PluginRegistryAction[], event:
       continue
     }
 
-    event.preventDefault()
+    if (action.handler) {
+      const allowDefault = action.handler({
+        editor,
+        event,
+        type: action.plugin.name,
+        options: {
+          ...action.plugin.options
+        }
+      })
 
-    if (action.handler && true !== action.handler({ editor, options: action.plugin.options })) {
-      break
+      if (!allowDefault) {
+        break
+      }
     }
 
     if (action.plugin.class === 'leaf') {
+      event.preventDefault()
       toggleLeaf(editor, action.plugin.name)
     } else if (action.plugin.class === 'text') {
+      event.preventDefault()
       // FIXME: Should not allow transforming blocks (only text class element)
       Transforms.setNodes(
         editor,
@@ -189,6 +204,7 @@ function handleOnKeyDown(editor: Editor, actions: PluginRegistryAction[], event:
         { match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) }
       )
     }
+
     break
   }
 }
