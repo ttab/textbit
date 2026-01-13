@@ -64,6 +64,10 @@ function Popover({ children, className }: {
   }, [editor, bounds, focused, setVisibility, isContextMenuOpen])
 
   const move = useCallback((selectionBounds: SelectionBounds) => {
+    if (!focused) {
+      return
+    }
+
     const el = ref.current
 
     if (!el || !selectionBounds || selectionBounds.left <= 0 || selectionBounds.top <= 0) {
@@ -90,7 +94,7 @@ function Popover({ children, className }: {
     }
 
     el.style.transform = `translate(${left}px, ${top}px)`
-  }, [])
+  }, [focused])
 
   useEffect(() => {
     if (bounds) {
