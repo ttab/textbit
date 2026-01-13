@@ -69,7 +69,6 @@ function Popover({ children, className }: {
     }
 
     const el = ref.current
-
     if (!el || !selectionBounds || selectionBounds.left <= 0 || selectionBounds.top <= 0) {
       // Don't move it if we don't have a selection, this is necessary
       // to allow "secondary" context tools to show up as a result of
@@ -93,6 +92,15 @@ function Popover({ children, className }: {
       top = selectionBounds.top + selectionBounds.height + gap
     }
 
+    // Check if menu would overflow bottom
+    const maxTop = window.innerHeight - rect.height - gap
+    if (top > maxTop) {
+      // Try positioning above again
+      top = selectionBounds.top - rect.height - gap
+      // If still doesn't fit, clamp to max
+      top = Math.min(top, maxTop)
+    }
+
     el.style.transform = `translate(${left}px, ${top}px)`
   }, [focused])
 
@@ -103,6 +111,25 @@ function Popover({ children, className }: {
       setVisibility(false)
     }
   }, [move, bounds, setVisibility])
+
+  // Add ResizeObserver to watch for size changes in menu content
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const resizeObserver = new ResizeObserver(() => {
+      // When content size changes, reposition using last known bounds
+      if (bounds) {
+        requestAnimationFrame(() => move(bounds))
+      }
+    })
+
+    resizeObserver.observe(el)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [move, bounds])
 
   return (
     <div
