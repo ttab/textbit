@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useSelectionBounds } from '../../hooks/useSelectionBounds'
 import { useFocused } from 'slate-react'
 import { MenuContext } from './MenuContext'
@@ -34,6 +34,12 @@ export function Menu({ children, className, style: inStyle = {} }: {
 
     el.style.top = `${top}px`
   }, [bounds, readOnly, isFocused])
+
+  useEffect(() => {
+    setIsOpen(curr => {
+      return !isFocused ? false : curr
+    })
+  }, [isFocused])
 
   // Don't render if editor not focused or no selection
   if (readOnly || !isFocused || !bounds) {
