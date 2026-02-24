@@ -6,7 +6,7 @@ export const document: Descendant[] = [
     id: '538345e5-bacc-48f9-8ef1-a219891b6011',
     class: 'text',
     properties: {
-      type: 'h1'
+      role: 'heading-1'
     },
     children: [
       { text: 'Kalmar Sweden' }
@@ -17,7 +17,7 @@ export const document: Descendant[] = [
     id: '538345e5-bacc-48f9-8ef0-1219891b6034',
     class: 'text',
     properties: {
-      type: 'h1'
+      role: 'heading-1'
     },
     children: [
       { text: '' }

@@ -92,7 +92,7 @@ export function SlateContainer(props: SlateContainerProps) {
     }
 
     withLang(editor, lang)
-    if (props.onSpellcheck) {
+    if (props.onSpellcheck && !readOnly) {
       withSpeling(editor, props.onSpellcheck, spellcheckDebounce)
     }
     withTextbitElements(editor)
