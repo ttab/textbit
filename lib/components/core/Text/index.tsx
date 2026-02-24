@@ -31,22 +31,10 @@ export const Text: PluginInitFunction = () => {
 
 
 function TextComponent(props: ComponentProps) {
+  const role = typeof props.element.properties?.role === 'string' ? props.element.properties.role : 'text'
   return (
-    <>
-      {props.element?.properties?.type === undefined
-        ? props.children
-        : (
-          <div style={{
-            fontStyle: 'italic',
-            textDecoration: 'line-through',
-            padding: '0.25rem',
-            opacity: '0.6'
-          }}
-          >
-            {props.children}
-          </div>
-        )
-      }
-    </>
+    <div data-role={role}>
+      {props.children}
+    </div>
   )
 }
