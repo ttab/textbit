@@ -71,14 +71,19 @@ export function SlateContainer(props: SlateContainerProps) {
   // Preserve editor across HMR
   const editorRef = useRef<Editor | null>(null)
 
+  // Create stable localOrigin symbol per component instance
+  const localOrigin = useRef<symbol>(Symbol('textbit-editor'))
+
   if (!editorRef.current) {
     let editor = withReact(createEditor())
 
     if (!isSlateContainerYjsProps(props)) {
       editor = withHistory(editor)
     } else {
-      // Create Yjs editor
-      editor = withYHistory(withYjs(editor, props.value))
+      // Create Yjs editor with unique localOrigin to prevent cross-view sync issues
+      editor = withYHistory(withYjs(editor, props.value, {
+        localOrigin: localOrigin.current
+      }))
 
       // Add cursors if awareness is provided
       if (YjsEditor.isYjsEditor(editor) && isSlateContainerCollaborationProps(props)) {

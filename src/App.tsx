@@ -59,7 +59,7 @@ export function App() {
         plugins={plugins}
       />
 
-      <YjsEditor
+      <YjsDemo
         style={editorStyle}
         headerStyle={headerStyle}
         plugins={plugins}
@@ -193,31 +193,85 @@ function TextEditor({ style, headerStyle, autoFocus, plugins }: {
 
 
 /**
- * YJS Editor
+ * YJS Demo with two editors sharing the same document
  */
-function YjsEditor({ style, headerStyle, plugins }: {
+function YjsDemo({ style, headerStyle, plugins }: {
   style: React.CSSProperties
   headerStyle: React.CSSProperties
   plugins: TBPluginDefinition[]
 }) {
-  const doc = useMemo(() => new Y.Doc(), [])
-  const value = useMemo(() => doc.get('content', Y.XmlText), [doc])
-  const awareness = useMemo(() => new Awareness(doc), [doc])
+  // Create shared YJS document and awareness
+  const sharedState = useMemo(() => {
+    const doc = new Y.Doc()
+    const value = doc.get('content', Y.XmlText)
+    const awareness = new Awareness(doc)
+
+    return { doc, value, awareness }
+  }, [])
+
   const ref = useRef(false)
 
   useEffect(() => {
     if (!ref.current) {
       ref.current = true
-      value.applyDelta(slateNodesToInsertDelta(document))
+      sharedState.value.applyDelta(slateNodesToInsertDelta(document))
     }
-  }, [value])
+  }, [sharedState.value])
 
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <strong style={{...headerStyle, fontSize: '14px', marginBottom: '10px'}}>
+        YJS Editors Demo - Two editors sharing the same document
+      </strong>
+
+      <div style={{ display: 'flex', gap: '20px' }}>
+        <div style={{ flex: 1 }}>
+          <YjsEditor
+            sharedState={sharedState}
+            style={style}
+            headerStyle={headerStyle}
+            plugins={plugins}
+            userName="Alice"
+            userColor="#FF6B6B"
+          />
+        </div>
+
+        <div style={{ flex: 1 }}>
+          <YjsEditor
+            sharedState={sharedState}
+            style={style}
+            headerStyle={headerStyle}
+            plugins={plugins}
+            userName="Bob"
+            userColor="#4ECDC4"
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Individual YJS Editor
+ */
+function YjsEditor({ sharedState, style, headerStyle, plugins, userName, userColor }: {
+  sharedState: {
+    doc: Y.Doc
+    value: Y.XmlText
+    awareness: Awareness
+  }
+  style: React.CSSProperties
+  headerStyle: React.CSSProperties
+  plugins: TBPluginDefinition[]
+  userName: string
+  userColor: string
+}) {
   return (
     <Textbit.Root
       plugins={plugins}
       verbose={true}
       debounce={200}
-      value={value}
+      value={sharedState.value}
       onSpellcheck={(texts) => {
         return new Promise((resolve) => {
           // Fake async response from an external spellchecker service
@@ -226,16 +280,16 @@ function YjsEditor({ style, headerStyle, plugins }: {
           }, 100)
         })
       }}
-      awareness={awareness}
+      awareness={sharedState.awareness}
       cursor={{
         data: {
-          name: 'Ragnhild',
-          color: '#FF6B6B'
+          name: userName,
+          color: userColor
         }
       }}
     >
 
-      <strong style={headerStyle}>Yjs editor</strong>
+      <strong style={headerStyle}>{userName}'s Editor</strong>
 
       <div style={{display: 'grid', gridTemplateColumns: '50px 1fr'}}>
         <Textbit.Gutter>
