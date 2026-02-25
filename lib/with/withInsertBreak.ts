@@ -18,7 +18,7 @@ export function withInsertBreak(editor: Editor, components: Map<string, PluginRe
       return
     }
 
-    // If the cursor sits inside an intermediate block element (e.g. a factbox body),
+    // If the cursor sits inside an intermediate block element with child elements,
     // split at the lowest element level so the new node stays inside that container.
     // Without this, isAtEndOfTopLevelNode would use the outermost block as context
     // and insert the new node after it, placing the cursor outside the container.
