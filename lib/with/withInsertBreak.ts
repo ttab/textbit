@@ -18,6 +18,26 @@ export function withInsertBreak(editor: Editor, components: Map<string, PluginRe
       return
     }
 
+    // If the cursor sits inside an intermediate block element with child elements,
+    // split at the lowest element level so the new node stays inside that container.
+    // Without this, isAtEndOfTopLevelNode would use the outermost block as context
+    // and insert the new node after it, placing the cursor outside the container.
+    const { selection } = editor
+    if (selection && Range.isCollapsed(selection)) {
+      const [, path] = Editor.node(editor, selection)
+      for (const [ancestor, ancestorPath] of Editor.levels(editor, { at: path })) {
+        if (ancestorPath.length <= 1) continue // skip editor root (0) and top-level node (1)
+        if (TextbitElement.isBlock(ancestor)) {
+          Transforms.splitNodes(editor, {
+            match: n => SlateElement.isElement(n),
+            mode: 'lowest',
+            always: true
+          })
+          return
+        }
+      }
+    }
+
     const { isAtEnd, next } = isAtEndOfTopLevelNode(editor) || {}
     if (isAtEnd) {
       Transforms.insertNodes(editor, {
