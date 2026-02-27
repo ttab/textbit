@@ -22,6 +22,7 @@ interface TextbitEditableProps {
   className?: string
   style?: React.CSSProperties
   children?: React.ReactNode
+  'aria-label'?: string
 }
 
 export function TextbitEditable(props: TextbitEditableProps) {
@@ -155,6 +156,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
             dir={dir}
             onContextMenu={handleContextMenu}
             onMouseDown={onMouseDown}
+            aria-label={props['aria-label']}
           />
           {props.children}
         </PresenceOverlay>
