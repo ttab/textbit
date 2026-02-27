@@ -1,6 +1,6 @@
 {
   "name": "@ttab/textbit",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "license": "MIT",
   "description": "Textbit is an editable component created as part of the Elephant project, based on Slate.",
   "author": {
