@@ -12,7 +12,6 @@ import { slateNodesToInsertDelta } from '@slate-yjs/core'
 import { spellChecker } from './spellChecker'
 import { Link } from './plugins/Link'
 import type { TBPluginDefinition } from '../dist/main'
-import { OrderedList, Text, UnorderedList } from '@ttab/textbit-plugins'
 
 export function App() {
 
@@ -20,9 +19,6 @@ export function App() {
     return [
       ...Textbit.Plugins.map(p => p()),
       Link(),
-      Text(),
-      UnorderedList(),
-      OrderedList()
     ]
   }, [])
 
