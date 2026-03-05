@@ -18,7 +18,7 @@ export function App() {
   const plugins = useMemo(() => {
     return [
       ...Textbit.Plugins.map(p => p()),
-      Link(),
+      Link()
     ]
   }, [])
 
