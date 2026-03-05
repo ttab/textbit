@@ -61,7 +61,7 @@ function visibilityBySelection(editor: Editor, selection: BaseSelection, action:
     return [false, false, false]
   }
 
-  const [match] = Array.from(
+  const matches = Array.from(
     Editor.nodes(editor, {
       at: Editor.unhangRange(editor, selection),
       match: (el) => {
@@ -70,7 +70,7 @@ function visibilityBySelection(editor: Editor, selection: BaseSelection, action:
     })
   )
 
-  if (!match.length) {
+  if (!matches.length) {
     return [false, false, false]
   }
 
@@ -78,10 +78,16 @@ function visibilityBySelection(editor: Editor, selection: BaseSelection, action:
     return [false, false, false]
   }
 
-  if (!TextbitElement.isElement(match[0])) {
+  const outerElement = matches[0][0]
+  const innerElement = matches[matches.length - 1][0]
+
+  if (!TextbitElement.isElement(outerElement)) {
     return [false, false, false]
   }
 
-  const status = action?.visibility(match[0]) // [visible, enabled, active]
+  // Pass the innermost element (cursor position) as second arg so visibility
+  // functions can make context-aware decisions when inside nested blocks.
+  const cursorElement = TextbitElement.isElement(innerElement) ? innerElement : undefined
+  const status = action?.visibility(outerElement, cursorElement)
   return status || [[false, false, false]]
 }
