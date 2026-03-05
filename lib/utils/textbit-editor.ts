@@ -258,8 +258,7 @@ export const TextbitEditor: TextbitEditorInterface = {
           Transforms.removeNodes(editor, { at: childPath })
 
           const textContent = Node.string(child)
-          if (textContent) {
-            Transforms.insertNodes(
+          Transforms.insertNodes(
               editor,
               {
                 id,
@@ -270,10 +269,8 @@ export const TextbitEditor: TextbitEditorInterface = {
               },
               { at: childPath }
             )
-          }
-        }
-
-        if (TextbitElement.isOfType(child, 'core/text')) {
+            editor.select({ anchor: { path: childPath.concat(0), offset: 0 }, focus: { path: childPath.concat(0), offset: 0 } })
+        } else if (TextbitElement.isOfType(child, 'core/text')) {
           Transforms.setNodes(
             editor,
             { type: 'core/text', properties: role ? { role } : {} },
