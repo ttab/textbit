@@ -1,19 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Editor, Element, NodeEntry, Range, Transforms } from 'slate'
+import { Editor, type NodeEntry, Range, Transforms } from 'slate'
 import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
-import { getDecorationRanges } from '../utils/getDecorationRanges'
-import { ElementComponent } from './Element/Element'
-import { LeafElement } from './Element/LeafElement'
-import { usePluginRegistry } from '../hooks/usePluginRegistry'
-import { useTextbit } from '../hooks/useTextbit'
-import type { PluginRegistryAction } from '../contexts/PluginRegistry/lib/types'
-import { toggleLeaf } from '../utils/toggleLeaf'
-import { useContextMenu } from '../hooks/useContextMenu'
+import { getDecorationRanges } from '../../utils/getDecorationRanges'
+import { ElementComponent } from '../Element/Element'
+import { LeafElement } from '../Element/LeafElement'
+import { usePluginRegistry } from '../../hooks/usePluginRegistry'
+import { useTextbit } from '../../hooks/useTextbit'
+import { useContextMenu } from '../../hooks/useContextMenu'
 import { useSlateStatic } from 'slate-react'
-import { DragStateProvider } from '../contexts/DragStateProvider'
-import { PresenceOverlay } from './PresenceOverlay'
-import type { SpellcheckLookupTable } from '../types'
-import { SelectionBoundsDetails } from './SelectionBoundsDetails'
+import { DragStateProvider } from '../../contexts/DragStateProvider'
+import { PresenceOverlay } from '../PresenceOverlay'
+import type { SpellcheckLookupTable } from '../../types'
+import { SelectionBoundsDetails } from '../SelectionBoundsDetails'
+import { type AdjacentBlockState } from '../../contexts/AdjacentBlockContext'
+import { AdjacentBlockProvider } from '../../contexts/AdjacentBlockProvider'
+import { handleOnKeyDown } from './handleOnKeyDown'
 
 interface TextbitEditableProps {
   autoFocus?: boolean | 'start' | 'end'
@@ -33,6 +34,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const [decorationsKey, setDecorationsKey] = useState(0)
   const handleContextMenu = useContextMenu()
   const [spellingLookupTable, setSpellingLookupTable] = useState<SpellcheckLookupTable>(new Map())
+  const [adjacentBlock, setAdjacentBlock] = useState<AdjacentBlockState | null>(null)
   const { onFocus, autoFocus = false } = props
 
   // Track mounted state
@@ -113,8 +115,8 @@ export function TextbitEditable(props: TextbitEditableProps) {
   }, [editor, components, placeholders, placeholder, spellingLookupTable])
 
   const onKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
-    handleOnKeyDown(editor, actions, event)
-  }, [editor, actions])
+    handleOnKeyDown(editor, actions, event, adjacentBlock, setAdjacentBlock)
+  }, [editor, actions, adjacentBlock, setAdjacentBlock])
 
   /**
    * Fixefox does not set the caret position correctly when clicking
@@ -122,6 +124,11 @@ export function TextbitEditable(props: TextbitEditableProps) {
    * detected we help the user by setting the caret position.
    */
   const onMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    // Any mouse interaction clears adjacent block state
+    if (adjacentBlock) {
+      setAdjacentBlock(null)
+    }
+
     // We only need to handle this for Firefox (Gecko rendering engine)
     if (!navigator.userAgent.includes('Gecko/')) {
       return
@@ -133,80 +140,41 @@ export function TextbitEditable(props: TextbitEditableProps) {
         Transforms.select(editor, range)
       }
     }
-  }, [editor, isFocused])
+  }, [editor, isFocused, adjacentBlock, setAdjacentBlock])
 
   return (
     <>
-      <DragStateProvider>
-        <PresenceOverlay isCollaborative={collaborative}>
-          <Editable
-            autoFocus={!!autoFocus}
-            data-state={isFocused ? 'focused' : ''}
-            readOnly={readOnly}
-            renderElement={renderElement}
-            renderLeaf={renderLeaf}
-            onFocus={handleFocus}
-            onBlur={props.onBlur}
-            onKeyDown={onKeyDown}
-            decorate={decorate}
-            className={props.className}
-            style={props.style}
-            spellCheck={false}
-            placeholder={placeholder}
-            dir={dir}
-            onContextMenu={handleContextMenu}
-            onMouseDown={onMouseDown}
-            aria-label={props['aria-label']}
-          />
-          {props.children}
-        </PresenceOverlay>
-      </DragStateProvider>
+      <AdjacentBlockProvider value={adjacentBlock}>
+        <DragStateProvider>
+          <PresenceOverlay isCollaborative={collaborative}>
+            <Editable
+              autoFocus={!!autoFocus}
+              data-state={isFocused ? 'focused' : ''}
+              readOnly={readOnly}
+              renderElement={renderElement}
+              renderLeaf={renderLeaf}
+              onFocus={handleFocus}
+              onBlur={props.onBlur}
+              onKeyDown={onKeyDown}
+              decorate={decorate}
+              className={props.className}
+              style={adjacentBlock
+                ? { ...props.style, caretColor: 'transparent' }
+                : props.style
+              }
+              spellCheck={false}
+              placeholder={placeholder}
+              dir={dir}
+              onContextMenu={handleContextMenu}
+              onMouseDown={onMouseDown}
+              aria-label={props['aria-label']}
+            />
+            {props.children}
+          </PresenceOverlay>
+        </DragStateProvider>
+      </AdjacentBlockProvider>
 
       {verbose && <SelectionBoundsDetails />}
     </>
   )
-}
-
-/*
- * Match key events to registered actions keyboard shortcuts. Then either
- * 1. call their action handler
- * 2. toggle leafs on or off
- * 3. transform text nodes to another type
- */
-function handleOnKeyDown(editor: Editor, actions: PluginRegistryAction[], event: React.KeyboardEvent<HTMLDivElement>) {
-  for (const action of actions) {
-    if (!action.isHotkey(event)) {
-      continue
-    }
-
-    if (action.handler) {
-      const allowDefault = action.handler({
-        editor,
-        event,
-        type: action.plugin.name,
-        options: {
-          ...action.plugin.options
-        }
-      })
-
-      if (!allowDefault) {
-        break
-      }
-    }
-
-    if (action.plugin.class === 'leaf') {
-      event.preventDefault()
-      toggleLeaf(editor, action.plugin.name)
-    } else if (action.plugin.class === 'text') {
-      event.preventDefault()
-      // FIXME: Should not allow transforming blocks (only text class element)
-      Transforms.setNodes(
-        editor,
-        { type: action.plugin.name },
-        { match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) }
-      )
-    }
-
-    break
-  }
 }

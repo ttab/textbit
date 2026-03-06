@@ -26,7 +26,7 @@ export type { PluginRegistryAction as TBPluginRegistryAction } from './contexts/
 import './types'
 
 import { TextbitRoot } from './components/TextbitRoot'
-import { TextbitEditable } from './components/TextbitEditable'
+import { TextbitEditable } from './components/TextbitEditable/TextbitEditable'
 import { Gutter as Gutter$1 } from './components/GutterProvider'
 import { DropMarker } from './components/DropMarker'
 import { StandardPlugins } from './components/core'

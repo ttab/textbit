@@ -101,7 +101,7 @@ export const nonWordCharsContent: Descendant[] = [
  */
 export const nonTextClassContent: Descendant[] = [
   {
-    type: 'tt/visual/image',
+    type: 'core/image',
     class: 'block',
     id: 'image-1',
     children: [{ text: 'test' }]
@@ -113,7 +113,7 @@ export const nonTextClassContent: Descendant[] = [
  */
 export const imageWithTextClassContent: Descendant[] = [
   {
-    type: 'tt/visual/image',
+    type: 'core/image',
     class: 'text',
     id: 'image-text-1',
     children: [{ text: 'test' }]
@@ -164,6 +164,40 @@ export const emptyEditorContent: Descendant[] = [
     id: 'empty-node',
     properties: {},
     children: [{ text: '' }]
+  }
+]
+
+/**
+ * Text — non-text block — text sandwich for adjacent block navigation tests
+ */
+export const adjacentBlockContent: Descendant[] = [
+  {
+    type: 'core/text',
+    id: 'text-before-block',
+    class: 'text',
+    properties: {},
+    children: [{ text: 'Before' }]
+  },
+  {
+    type: 'core/image',
+    id: 'non-text-block',
+    class: 'block',
+    children: [
+      {
+        id: 'non-text-block-body',
+        type: 'core/text',
+        class: 'text',
+        properties: {},
+        children: [{ text: 'Block content' }]
+      }
+    ]
+  },
+  {
+    type: 'core/text',
+    id: 'text-after-block',
+    class: 'text',
+    properties: {},
+    children: [{ text: 'After' }]
   }
 ]
 
