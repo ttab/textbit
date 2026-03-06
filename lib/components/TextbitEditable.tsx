@@ -348,6 +348,27 @@ function handleOnKeyDown(
         }
       }
 
+      // Enter: insert a new default text element next to the target block
+      if (event.key === 'Enter') {
+        const targetIndex = editor.children.findIndex(
+          (child) => Element.isElement(child) && child.id === adjacentBlock.blockId
+        )
+        if (targetIndex !== -1) {
+          event.preventDefault()
+          const insertIndex = adjacentBlock.direction === 'before' ? targetIndex : targetIndex + 1
+          const newNode = {
+            id: crypto.randomUUID(),
+            class: 'text' as const,
+            type: 'core/text',
+            children: [{ text: '' }]
+          }
+          Transforms.insertNodes(editor, newNode, { at: [insertIndex] })
+          Transforms.select(editor, Editor.start(editor, [insertIndex]))
+          setAdjacentBlock(null)
+          return
+        }
+      }
+
       // Delete with 'before' indicator: always delete the target block
       if (event.key === 'Delete' && adjacentBlock.direction === 'before') {
         const targetIndex = editor.children.findIndex(
