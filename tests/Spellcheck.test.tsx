@@ -1,7 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { render, waitFor } from '@testing-library/react'
 import { TextbitRoot } from '../lib/components/TextbitRoot'
-import { TextbitEditable } from '../lib/components/TextbitEditable'
+import { TextbitEditable } from '../lib/components/TextbitEditable/TextbitEditable'
 import type { SpellingError } from '../lib/types'
 import type { Descendant } from 'slate'
 
