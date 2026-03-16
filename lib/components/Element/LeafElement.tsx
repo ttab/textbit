@@ -1,4 +1,4 @@
-import { type CSSProperties } from 'react'
+import { type CSSProperties, forwardRef, useLayoutEffect, useRef, useState } from 'react'
 import { type RenderLeafProps } from 'slate-react'
 import { usePluginRegistry } from '../../hooks/usePluginRegistry'
 import { TextbitPlugin } from '../../utils/textbit-plugin'
@@ -73,19 +73,28 @@ function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSPr
 
 function EmptyLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }) {
   const { leaf, attributes, style, className } = props
+  const placeholderRef = useRef<HTMLDivElement>(null)
+  const [minWidth, setMinWidth] = useState<number | undefined>(undefined)
+
+  useLayoutEffect(() => {
+    if (placeholderRef.current) {
+      setMinWidth(placeholderRef.current.offsetWidth)
+    }
+  }, [leaf.placeholder])
 
   return (
     <div
       style={{
         ...style,
         width: '100%',
-        position: 'relative'
+        position: 'relative',
+        minWidth,
       }}
       className={className}
       {...attributes}
     >
       {props.children}
-      {leaf.placeholder && <Placeholder value={leaf.placeholder} style={style} />}
+      {leaf.placeholder && <Placeholder ref={placeholderRef} value={leaf.placeholder} style={style} />}
     </div>
   )
 }
@@ -107,19 +116,23 @@ function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSS
   )
 }
 
-function Placeholder({ value, style }: { value: string, style: CSSProperties }) {
-  return (
-    <div
-      style={{
-        ...style,
-        opacity: 0.333,
-        position: 'absolute',
-        top: 0,
-        pointerEvents: 'none'
-      }}
-      contentEditable={false}
-    >
-      {value}
-    </div>
-  )
-}
+const Placeholder = forwardRef<HTMLDivElement, { value: string, style: CSSProperties }>(
+  function Placeholder({ value, style }, ref) {
+    return (
+      <div
+        ref={ref}
+        style={{
+          ...style,
+          opacity: 0.333,
+          position: 'absolute',
+          top: 0,
+          pointerEvents: 'none',
+          whiteSpace: 'nowrap',
+        }}
+        contentEditable={false}
+      >
+        {value}
+      </div>
+    )
+  }
+)
