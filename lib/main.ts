@@ -25,6 +25,9 @@ export type { PluginRegistryAction as TBPluginRegistryAction } from './contexts/
 // Import the types file to ensure declaration merging happens
 import './types'
 
+// Inject hard coded styles
+import './utils/injectStyles'
+
 import { TextbitRoot } from './components/TextbitRoot'
 import { TextbitEditable } from './components/TextbitEditable/TextbitEditable'
 import { Gutter as Gutter$1 } from './components/GutterProvider'
