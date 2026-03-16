@@ -95,6 +95,17 @@ export function handleOnKeyDown(
         return
       }
 
+      if (goingBackward && direction === 'before' && topLevelIndex === targetIndex) {
+        // Cursor is at start of non-text block with 'before' indicator; move explicitly to end of previous block
+        event.preventDefault()
+        const prevIndex = targetIndex - 1
+        if (prevIndex >= 0) {
+          Transforms.select(editor, Editor.end(editor, [prevIndex]))
+        }
+        setAdjacentBlock(null)
+        return
+      }
+
       // Going in the opposite direction — clear state, let Slate handle default
       setAdjacentBlock(null)
       return
@@ -214,6 +225,27 @@ export function handleOnKeyDown(
     // Modifier-only keys should not disturb adjacent state
     if (['Meta', 'Control', 'Alt', 'Shift', 'CapsLock'].includes(event.key)) {
       return
+    }
+
+    // Printable character: insert a new text element and let the character be typed into it
+    if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      const targetIndex = editor.children.findIndex(
+        (child) => Element.isElement(child) && child.id === adjacentBlock.blockId
+      )
+      if (targetIndex !== -1) {
+        const insertIndex = adjacentBlock.direction === 'before' ? targetIndex : targetIndex + 1
+        const newNode = {
+          id: crypto.randomUUID(),
+          class: 'text' as const,
+          type: 'core/text',
+          children: [{ text: '' }]
+        }
+        Transforms.insertNodes(editor, newNode, { at: [insertIndex] })
+        Transforms.select(editor, Editor.start(editor, [insertIndex]))
+        setAdjacentBlock(null)
+        // Don't preventDefault — let Slate insert the character into the new node
+        return
+      }
     }
 
     // Any other non-arrow key — clear adjacent state, fall through to action loop
