@@ -37,23 +37,17 @@ export function ParentElement(renderProps: ParentElementProps) {
   }
 
   /*
-   * Class "relative" is needed for slate default placeholder to be positioned correctly.
-   * Class "group" add support for tailwind so that plugin components can use tw class
-   * selectors like "group-data-[state='active']:ring-1"
-   */
-
-  /*
    * inactive : cursor is elsewhere
    * active   : cursor is inside
    * before   : cursor is parked adjacent, before this block (arrived from preceding block)
    * after    : cursor is parked adjacent, after this block (arrived from following block)
    */
-  const dataState = active
-    ? 'active'
-    : adjacentState === 'before'
-      ? 'before'
-      : adjacentState === 'after'
-        ? 'after'
+  const dataState = adjacentState === 'before'
+    ? 'before'
+    : adjacentState === 'after'
+      ? 'after'
+      : active
+        ? 'active'
         : 'inactive'
 
   return (
@@ -67,6 +61,18 @@ export function ParentElement(renderProps: ParentElementProps) {
         {...attributes}
       >
         <entry.component {...renderProps} editor={editor} />
+        {element.class !== 'text' && element.class !== 'inline' && (
+          <div
+            contentEditable={false}
+            className='tb-focus-ring'
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 'inherit',
+              pointerEvents: 'none',
+            }}
+          />
+        )}
         {adjacentState === 'before' && (
           <div
             aria-hidden

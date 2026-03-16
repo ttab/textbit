@@ -6,9 +6,23 @@ if (typeof document !== 'undefined') {
     style.id = id
 
     /**
-     * Block caret blinking keyframes
+     * Block caret blinking animation
      */
-    style.textContent = `@keyframes block-caret-blink{0%,100%{opacity:1}50%{opacity:0}}`
+
+    /**
+     * Focus ring shown on block/void elements when the cursor is inside them.
+     * Hides automatically when the block caret (adjacent navigation) is active.
+     *
+     * Customisable via CSS custom properties:
+     *   --tb-focus-ring-radius  Border radius of the ring (default: 2px)
+     *
+     * Example:
+     *   .my-editor { --tb-focus-ring-radius: 6px; }
+     */
+    style.textContent = [
+      `@keyframes block-caret-blink{0%,100%{opacity:1}50%{opacity:0}}`,
+      `[data-state="active"] .tb-focus-ring{outline:1px solid currentColor;outline-offset:4px;border-radius:var(--tb-focus-ring-radius,2px)}`
+    ].join('')
 
     document.head.appendChild(style)
   }
