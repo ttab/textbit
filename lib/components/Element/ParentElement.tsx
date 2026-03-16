@@ -29,7 +29,7 @@ export function ParentElement(renderProps: ParentElementProps) {
     position: 'absolute',
     top: 0,
     bottom: 0,
-    insetInlineEnd: 0,
+    insetInlineEnd: -5,
     width: 1,
     backgroundColor: 'currentColor',
     pointerEvents: 'none',
@@ -72,7 +72,8 @@ export function ParentElement(renderProps: ParentElementProps) {
             aria-hidden
             style={{
               ...blockCaretStyle,
-              insetInlineStart: 0
+              insetInlineEnd: 'unset',
+              insetInlineStart: -5
             }}
           />
         )}

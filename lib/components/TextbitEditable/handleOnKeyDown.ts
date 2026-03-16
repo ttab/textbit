@@ -1,8 +1,40 @@
-import { Editor, Element, Range, Transforms } from 'slate'
+import { Editor, Element, type Point, Range, Transforms } from 'slate'
 import type { PluginRegistryAction } from '../../contexts/PluginRegistry/lib/types'
 import { toggleLeaf } from '../../utils/toggleLeaf'
-import { TextbitElement } from '../../utils/textbit-element'
 import type { AdjacentBlockState } from '../../contexts/AdjacentBlockContext'
+
+/** First non-void child index, or -1 if all children are void */
+function firstEditableChildIdx(editor: Editor, block: Element): number {
+  return block.children.findIndex(
+    (child) => !Element.isElement(child) || !editor.isVoid(child)
+  )
+}
+
+/** Last non-void child index, or -1 if all children are void */
+function lastEditableChildIdx(editor: Editor, block: Element): number {
+  return block.children.reduce<number>(
+    (found, child, i) => (!Element.isElement(child) || !editor.isVoid(child)) ? i : found,
+    -1
+  )
+}
+
+/** True when the cursor is at the start of the first non-void child of the block */
+function isAtAccessibleStart(editor: Editor, anchor: Point, blockIndex: number): boolean {
+  const block = editor.children[blockIndex]
+  if (!Element.isElement(block)) return false
+  const idx = firstEditableChildIdx(editor, block)
+  if (idx < 0) return Editor.isStart(editor, anchor, [blockIndex])
+  return Editor.isStart(editor, anchor, [blockIndex, idx])
+}
+
+/** True when the cursor is at the end of the last non-void child of the block */
+function isAtAccessibleEnd(editor: Editor, anchor: Point, blockIndex: number): boolean {
+  const block = editor.children[blockIndex]
+  if (!Element.isElement(block)) return false
+  const idx = lastEditableChildIdx(editor, block)
+  if (idx < 0) return Editor.isEnd(editor, anchor, [blockIndex])
+  return Editor.isEnd(editor, anchor, [blockIndex, idx])
+}
 
 /*
  * Match key events to registered actions keyboard shortcuts. Then either
@@ -46,7 +78,7 @@ export function handleOnKeyDown(
 
       const targetPath = [targetIndex]
       const targetBlock = editor.children[targetIndex]
-      const isVoid = TextbitElement.isVoid(targetBlock)
+      const isVoid = Element.isElement(targetBlock) && editor.isVoid(targetBlock)
       const { direction } = adjacentBlock
 
       if (goingForward && direction === 'before') {
@@ -55,7 +87,17 @@ export function handleOnKeyDown(
           // Step 2 of void traversal L→R: show 'after' indicator before moving past
           setAdjacentBlock({ blockId: adjacentBlock.blockId, direction: 'after' })
         } else {
-          Transforms.select(editor, Editor.start(editor, targetPath))
+          // Skip leading void children (e.g. an image child) to land on first editable position
+          let enterPath: number[] = targetPath
+          if (Element.isElement(targetBlock)) {
+            const firstNonVoidIdx = targetBlock.children.findIndex(
+              (child) => !Element.isElement(child) || !editor.isVoid(child)
+            )
+            if (firstNonVoidIdx >= 0) {
+              enterPath = [...targetPath, firstNonVoidIdx]
+            }
+          }
+          Transforms.select(editor, Editor.start(editor, enterPath))
           setAdjacentBlock(null)
         }
         return
@@ -78,7 +120,18 @@ export function handleOnKeyDown(
           // Step 2 of void traversal R→L: show 'before' indicator before moving past
           setAdjacentBlock({ blockId: adjacentBlock.blockId, direction: 'before' })
         } else {
-          Transforms.select(editor, Editor.end(editor, targetPath))
+          // Skip trailing void children to land on last editable position
+          let enterPath: number[] = targetPath
+          if (Element.isElement(targetBlock)) {
+            const lastNonVoidIdx = targetBlock.children.reduce<number>(
+              (found, child, i) => (!Element.isElement(child) || !editor.isVoid(child)) ? i : found,
+              -1
+            )
+            if (lastNonVoidIdx >= 0) {
+              enterPath = [...targetPath, lastNonVoidIdx]
+            }
+          }
+          Transforms.select(editor, Editor.end(editor, enterPath))
           setAdjacentBlock(null)
         }
         return
@@ -112,46 +165,50 @@ export function handleOnKeyDown(
     }
 
     // No adjacent state — check if an intermediate step is needed
-    if (goingForward && Editor.isEnd(editor, anchor, topLevelPath)) {
-      const currentBlock = editor.children[topLevelIndex]
+    const currentBlock = editor.children[topLevelIndex]
 
-      // Exiting a non-text block from its right edge
-      if (Element.isElement(currentBlock) && currentBlock.class !== 'text') {
+    if (goingForward) {
+      // Exiting a non-text block from its right (accessible) edge
+      if (Element.isElement(currentBlock) && currentBlock.class !== 'text'
+        && isAtAccessibleEnd(editor, anchor, topLevelIndex)) {
         event.preventDefault()
         setAdjacentBlock({ blockId: currentBlock.id, direction: 'after' })
         return
       }
 
       // Entering a non-text block from a preceding text block
-      const nextIndex = topLevelIndex + 1
-      if (nextIndex < editor.children.length) {
-        const nextBlock = editor.children[nextIndex]
-        if (Element.isElement(nextBlock) && nextBlock.class !== 'text') {
-          event.preventDefault()
-          setAdjacentBlock({ blockId: nextBlock.id, direction: 'before' })
-          return
+      if (Editor.isEnd(editor, anchor, topLevelPath)) {
+        const nextIndex = topLevelIndex + 1
+        if (nextIndex < editor.children.length) {
+          const nextBlock = editor.children[nextIndex]
+          if (Element.isElement(nextBlock) && nextBlock.class !== 'text') {
+            event.preventDefault()
+            setAdjacentBlock({ blockId: nextBlock.id, direction: 'before' })
+            return
+          }
         }
       }
     }
 
-    if (goingBackward && Editor.isStart(editor, anchor, topLevelPath)) {
-      const currentBlock = editor.children[topLevelIndex]
-
-      // Exiting a non-text block from its left edge
-      if (Element.isElement(currentBlock) && currentBlock.class !== 'text') {
+    if (goingBackward) {
+      // Exiting a non-text block from its left (accessible) edge
+      if (Element.isElement(currentBlock) && currentBlock.class !== 'text'
+        && isAtAccessibleStart(editor, anchor, topLevelIndex)) {
         event.preventDefault()
         setAdjacentBlock({ blockId: currentBlock.id, direction: 'before' })
         return
       }
 
       // Entering a non-text block from a following text block
-      const prevIndex = topLevelIndex - 1
-      if (prevIndex >= 0) {
-        const prevBlock = editor.children[prevIndex]
-        if (Element.isElement(prevBlock) && prevBlock.class !== 'text') {
-          event.preventDefault()
-          setAdjacentBlock({ blockId: prevBlock.id, direction: 'after' })
-          return
+      if (Editor.isStart(editor, anchor, topLevelPath)) {
+        const prevIndex = topLevelIndex - 1
+        if (prevIndex >= 0) {
+          const prevBlock = editor.children[prevIndex]
+          if (Element.isElement(prevBlock) && prevBlock.class !== 'text') {
+            event.preventDefault()
+            setAdjacentBlock({ blockId: prevBlock.id, direction: 'after' })
+            return
+          }
         }
       }
     }
