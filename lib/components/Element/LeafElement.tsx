@@ -1,4 +1,4 @@
-import { type CSSProperties, forwardRef, useLayoutEffect, useRef, useState } from 'react'
+import { type CSSProperties, Ref, useLayoutEffect, useRef, useState } from 'react'
 import { type RenderLeafProps } from 'slate-react'
 import { usePluginRegistry } from '../../hooks/usePluginRegistry'
 import { TextbitPlugin } from '../../utils/textbit-plugin'
@@ -116,23 +116,21 @@ function MisspelledLeaf(props: RenderLeafProps & { className: string, style: CSS
   )
 }
 
-const Placeholder = forwardRef<HTMLDivElement, { value: string, style: CSSProperties }>(
-  function Placeholder({ value, style }, ref) {
-    return (
-      <div
-        ref={ref}
-        style={{
-          ...style,
-          opacity: 0.333,
-          position: 'absolute',
-          top: 0,
-          pointerEvents: 'none',
-          whiteSpace: 'nowrap',
-        }}
-        contentEditable={false}
-      >
-        {value}
-      </div>
-    )
-  }
-)
+function Placeholder({ value, style, ref }: { value: string, style: CSSProperties, ref: Ref<HTMLDivElement> }) {
+  return (
+    <div
+      ref={ref}
+      style={{
+        ...style,
+        opacity: 0.333,
+        position: 'absolute',
+        top: 0,
+        pointerEvents: 'none',
+        whiteSpace: 'nowrap',
+      }}
+      contentEditable={false}
+    >
+      {value}
+    </div>
+  )
+}
