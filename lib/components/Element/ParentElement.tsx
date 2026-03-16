@@ -68,7 +68,6 @@ export function ParentElement(renderProps: ParentElementProps) {
             style={{
               position: 'absolute',
               inset: 0,
-              borderRadius: 'inherit',
               pointerEvents: 'none',
             }}
           />
