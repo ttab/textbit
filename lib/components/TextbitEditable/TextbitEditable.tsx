@@ -163,7 +163,6 @@ export function TextbitEditable(props: TextbitEditableProps) {
                 : props.style
               }
               spellCheck={false}
-              placeholder={placeholder}
               dir={dir}
               onContextMenu={handleContextMenu}
               onMouseDown={onMouseDown}
