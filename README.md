@@ -875,6 +875,30 @@ function SelectionHighlight() {
 
 Textbit provides minimal default styling, allowing you to fully customize the appearance.
 
+### CSS Custom Properties
+
+Textbit exposes CSS custom properties for theming injected styles.
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `--tb-focus-ring-radius` | `2px` | Border radius of the focus ring shown around block and void elements when the cursor is inside them. |
+
+Set the property on the editor root or any ancestor:
+
+```css
+/* Globally */
+:root {
+  --tb-focus-ring-radius: 6px;
+}
+
+/* Scoped to a specific editor */
+.my-editor {
+  --tb-focus-ring-radius: 0px;
+}
+```
+
+---
+
 ### Data Attributes for Styling
 
 #### Editor State

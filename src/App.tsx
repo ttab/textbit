@@ -11,6 +11,7 @@ import { Awareness } from 'y-protocols/awareness'
 import { slateNodesToInsertDelta } from '@slate-yjs/core'
 import { spellChecker } from './spellChecker'
 import { Link } from './plugins/Link'
+import { TestBlock } from './TestBlock'
 import type { TBPluginDefinition } from '../dist/main'
 
 export function App() {
@@ -18,7 +19,8 @@ export function App() {
   const plugins = useMemo(() => {
     return [
       ...Textbit.Plugins.map(p => p()),
-      Link()
+      Link(),
+      TestBlock()
     ]
   }, [])
 

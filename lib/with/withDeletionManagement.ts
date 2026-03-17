@@ -51,15 +51,24 @@ export function withDeletionManagement(editor: Editor) {
         return
       }
 
-      // If the previous node is a block node we want to remove the whole block
-      // node instead of moving inside.
+      // If the previous node is a block node, behaviour depends on whether the
+      // current line is empty:
+      //  - Empty line: delete the empty line and place the caret at the end of
+      //    the block above (preserves the block).
+      //  - Non-empty line at its start: delete the block above,
+      //    avoids merging text into a block).
       if (path[0] > 0) {
         const prevPath = Path.previous(path)
         const prevEntry = Editor.node(editor, prevPath)
         if (prevEntry) {
           const [prevNode] = prevEntry
           if (Element.isElement(prevNode) && prevNode.class === 'block') {
-            Transforms.removeNodes(editor, { at: prevPath })
+            if (!string.length) {
+              Transforms.removeNodes(editor, { at: path })
+              Transforms.select(editor, Editor.end(editor, prevPath))
+            } else {
+              Transforms.removeNodes(editor, { at: prevPath })
+            }
             return
           }
         }
@@ -94,10 +103,21 @@ export function withDeletionManagement(editor: Editor) {
         return
       }
 
+      // If the next node is a block node, behaviour depends on whether the
+      // current line is empty:
+      //  - Empty line: delete the empty line and place the caret at the end of
+      //    the node preceding the block (i.e., just before it).
+      //  - Non-empty line at its end: delete the block below,
+      //    avoids merging text into a block).
       if (path[0] < editor.children.length - 1) {
         const [nextNode, nextPath] = Editor.node(editor, [path[0] + 1])
         if (Element.isElement(nextNode) && nextNode.class === 'block') {
-          Transforms.removeNodes(editor, { at: nextPath })
+          if (!string.length) {
+            Transforms.removeNodes(editor, { at: path })
+            Transforms.select(editor, Editor.end(editor, [path[0] - 1]))
+          } else {
+            Transforms.removeNodes(editor, { at: nextPath })
+          }
           return
         }
       }

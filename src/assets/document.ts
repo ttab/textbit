@@ -44,6 +44,19 @@ export const document: Descendant[] = [
     ]
   },
   {
+    type: 'test/block',
+    id: 'testblock-0001-0000-0000-000000000001',
+    class: 'block',
+    children: [
+      {
+        id: 'testblock-0001-0000-0000-000000000002',
+        type: 'core/text',
+        class: 'text',
+        children: [{ text: 'This is a test block. Navigate here with arrow keys from the text above or below.' }]
+      }
+    ]
+  },
+  {
     type: 'core/codeblock',
     id: '538345e5-aad1-58f9-8ef0-b2198a1a60a2',
     class: 'block',
@@ -98,6 +111,19 @@ export const document: Descendant[] = [
         'core/italic': true
       },
       { text: ' compared to the normal styled text found else where in the document.' }
+    ]
+  },
+  {
+    type: 'test/block',
+    id: 'testblock-0002-0000-0000-000000000001',
+    class: 'block',
+    children: [
+      {
+        id: 'testblock-0002-0000-0000-000000000002',
+        type: 'core/text',
+        class: 'text',
+        children: [{ text: 'Second test block at the end. Try ArrowLeft from the paragraph above.' }]
+      }
     ]
   },
   {

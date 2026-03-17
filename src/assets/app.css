@@ -23,3 +23,9 @@ div[data-state="focused"] {
 [data-spelling-level='suggestion'] {
     border-bottom: 1px dotted cornflowerblue;
 }
+
+/* Blinking block caret */
+@keyframes block-caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

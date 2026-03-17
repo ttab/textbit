@@ -3,7 +3,7 @@ import { describe, test, expect, vi } from 'vitest'
 import { useSlateStatic } from 'slate-react'
 import { PropsWithChildren } from 'react'
 import { TextbitRoot } from '../lib/components/TextbitRoot'
-import { TextbitEditable } from '../lib/components/TextbitEditable'
+import { TextbitEditable } from '../lib/components/TextbitEditable/TextbitEditable'
 import { TextbitEditor } from '../lib/main'
 import { basicEditorContent } from './_fixtures'
 
