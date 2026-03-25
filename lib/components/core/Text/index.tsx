@@ -14,7 +14,6 @@ export const Text: PluginInitFunction = () => {
     actions: [{
       name: 'set-text',
       title: 'Text',
-      hotkey: 'mod+0',
       handler: ({ editor }) => {
         TextbitEditor.convertToTextNode(editor, 'core/text')
       },
