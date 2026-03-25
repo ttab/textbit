@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Editor, type NodeEntry, Range, Transforms } from 'slate'
+import { Editor, Element, type NodeEntry, Range, Transforms } from 'slate'
 import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../../utils/getDecorationRanges'
 import { ElementComponent } from '../Element/Element'
@@ -122,9 +122,53 @@ export function TextbitEditable(props: TextbitEditableProps) {
    * Fixefox does not set the caret position correctly when clicking
    * in an unfocused Editable area. If the gecko rendering engine is
    * detected we help the user by setting the caret position.
+   *
+   * Also handles clicks in the horizontal gutter beside non-text blocks
+   * by setting the adjacent block state instead of letting Slate try to
+   * resolve a click position outside any editable text.
    */
   const onMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    // Any mouse interaction clears adjacent block state
+    const clickX = event.clientX
+    const clickY = event.clientY
+
+    // Check if the click is horizontally beside a top-level non-text block
+    for (let i = 0; i < editor.children.length; i++) {
+      const block = editor.children[i]
+      if (!Element.isElement(block) || block.class === 'text') continue
+
+      let domNode: HTMLElement
+      try {
+        domNode = ReactEditor.toDOMNode(editor, block) as HTMLElement
+      } catch {
+        continue
+      }
+
+      const rect = domNode.getBoundingClientRect()
+      if (clickY < rect.top || clickY > rect.bottom) continue
+      if (clickX >= rect.left && clickX <= rect.right) continue // click is on the block itself
+
+      event.preventDefault()
+      ReactEditor.focus(editor)
+
+      const direction: 'before' | 'after' = clickX < (rect.left + rect.right) / 2 ? 'before' : 'after'
+      setAdjacentBlock({ blockId: block.id, direction })
+
+      // Place Slate selection at the nearest text block neighbor (skip consecutive non-text blocks)
+      // This mirrors keyboard navigation which never parks the selection inside a non-text block.
+      if (direction === 'before') {
+        let j = i - 1
+        while (j >= 0 && Element.isElement(editor.children[j]) && editor.children[j].class !== 'text') j--
+        if (j >= 0) Transforms.select(editor, Editor.end(editor, [j]))
+      } else {
+        let j = i + 1
+        while (j < editor.children.length && Element.isElement(editor.children[j]) && editor.children[j].class !== 'text') j++
+        if (j < editor.children.length) Transforms.select(editor, Editor.start(editor, [j]))
+      }
+
+      return
+    }
+
+    // Default: clear adjacent block state on any other click
     if (adjacentBlock) {
       setAdjacentBlock(null)
     }
