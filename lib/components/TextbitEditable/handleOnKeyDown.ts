@@ -1,4 +1,4 @@
-import { Editor, Element, type Point, Range, Transforms } from 'slate'
+import { Editor, Element, Node, type Point, Range, Transforms } from 'slate'
 import type { PluginRegistryAction } from '../../contexts/PluginRegistry/lib/types'
 import { toggleLeaf } from '../../utils/toggleLeaf'
 import type { AdjacentBlockState } from '../../contexts/AdjacentBlockContext'
@@ -323,7 +323,7 @@ export function handleOnKeyDown(
     }
 
     if (selection && Range.isCollapsed(selection)) {
-      // Backspace with 'after' indicator: always delete the target block
+      // Backspace with 'after' indicator: delete the target block (it is behind the caret)
       if (event.key === 'Backspace' && adjacentBlock.direction === 'after') {
         const targetIndex = editor.children.findIndex(
           (child) => Element.isElement(child) && child.id === adjacentBlock.blockId
@@ -342,7 +342,46 @@ export function handleOnKeyDown(
         }
       }
 
-      // Delete with 'before' indicator: always delete the target block
+      // Backspace with 'before' indicator: act on the block behind the caret (targetIndex - 1)
+      if (event.key === 'Backspace' && adjacentBlock.direction === 'before') {
+        const targetIndex = editor.children.findIndex(
+          (child) => Element.isElement(child) && child.id === adjacentBlock.blockId
+        )
+        if (targetIndex !== -1) {
+          const prevIndex = targetIndex - 1
+          const prevBlock = prevIndex >= 0 ? editor.children[prevIndex] : null
+          if (prevBlock && Element.isElement(prevBlock)) {
+            event.preventDefault()
+            if (prevBlock.class !== 'text') {
+              // Non-text block behind: delete it, land at start of the target block
+              Transforms.removeNodes(editor, { at: [prevIndex] })
+              const newTargetIndex = prevIndex
+              if (newTargetIndex < editor.children.length) {
+                Transforms.select(editor, Editor.start(editor, [newTargetIndex]))
+              } else if (editor.children.length > 0) {
+                Transforms.select(editor, Editor.end(editor, [editor.children.length - 1]))
+              }
+            } else if (Node.string(prevBlock) === '') {
+              // Empty text block behind: remove it, land at start of the target block
+              Transforms.removeNodes(editor, { at: [prevIndex] })
+              const newTargetIndex = prevIndex
+              if (newTargetIndex < editor.children.length) {
+                Transforms.select(editor, Editor.start(editor, [newTargetIndex]))
+              } else if (editor.children.length > 0) {
+                Transforms.select(editor, Editor.end(editor, [editor.children.length - 1]))
+              }
+            } else {
+              // Non-empty text block behind: move into it and delete the last character
+              Transforms.select(editor, Editor.end(editor, [prevIndex]))
+              Transforms.delete(editor, { unit: 'character', reverse: true })
+            }
+            setAdjacentBlock(null)
+            return
+          }
+        }
+      }
+
+      // Delete with 'before' indicator: delete the target block (it is ahead of the caret)
       if (event.key === 'Delete' && adjacentBlock.direction === 'before') {
         const targetIndex = editor.children.findIndex(
           (child) => Element.isElement(child) && child.id === adjacentBlock.blockId
