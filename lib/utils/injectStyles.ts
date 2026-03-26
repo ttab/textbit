@@ -21,7 +21,7 @@ if (typeof document !== 'undefined') {
      */
     style.textContent = [
       `@keyframes block-caret-blink{0%,100%{opacity:1}50%{opacity:0}}`,
-      `[data-state="active"] .tb-focus-ring{outline:1px solid currentColor;outline-offset:4px;border-radius:var(--tb-focus-ring-radius,5px)}`
+      `[data-state="active"] .tb-focus-ring{outline:1px solid currentColor;outline-offset:4px;border-radius:var(--tb-focus-ring-radius,5px);opacity:0.3}`
     ].join('')
 
     document.head.appendChild(style)
