@@ -103,14 +103,42 @@ export function handleOnKeyDown(
         return
       }
 
-      if (goingForward && direction === 'after' && topLevelIndex < targetIndex) {
-        // Step 3 of void traversal L→R: cursor is still before the void, move past it
+      if (goingForward && direction === 'after' && topLevelIndex <= targetIndex) {
+        // Step 3 of void traversal L→R: move past the block
         event.preventDefault()
         const nextIndex = targetIndex + 1
         if (nextIndex < editor.children.length) {
-          Transforms.select(editor, Editor.start(editor, [nextIndex]))
+          const nextBlock = editor.children[nextIndex]
+          if (Element.isElement(nextBlock) && nextBlock.class !== 'text') {
+            // Next block is also non-text: show 'before' indicator for it
+            if (topLevelIndex === targetIndex) {
+              // Cursor is still inside the exited block; park it at a text block so the
+              // exited block doesn't render as 'active'. Prefer a preceding text block;
+              // fall back to one after the next block.
+              let parkIdx = targetIndex - 1
+              while (parkIdx >= 0 && Element.isElement(editor.children[parkIdx]) && editor.children[parkIdx].class !== 'text') {
+                parkIdx--
+              }
+              if (parkIdx >= 0) {
+                Transforms.select(editor, Editor.end(editor, [parkIdx]))
+              } else {
+                parkIdx = nextIndex + 1
+                while (parkIdx < editor.children.length && Element.isElement(editor.children[parkIdx]) && editor.children[parkIdx].class !== 'text') {
+                  parkIdx++
+                }
+                if (parkIdx < editor.children.length) {
+                  Transforms.select(editor, Editor.start(editor, [parkIdx]))
+                }
+              }
+            }
+            setAdjacentBlock({ blockId: nextBlock.id, direction: 'before' })
+          } else {
+            Transforms.select(editor, Editor.start(editor, [nextIndex]))
+            setAdjacentBlock(null)
+          }
+        } else {
+          setAdjacentBlock(null)
         }
-        setAdjacentBlock(null)
         return
       }
 
@@ -137,25 +165,79 @@ export function handleOnKeyDown(
         return
       }
 
-      if (goingBackward && direction === 'before' && topLevelIndex > targetIndex) {
-        // Step 3 of void traversal R→L: cursor is still after the void, move past it
+      if (goingBackward && direction === 'before' && topLevelIndex >= targetIndex) {
+        // Step 3 of void traversal R→L: move past the block
         event.preventDefault()
         const prevIndex = targetIndex - 1
         if (prevIndex >= 0) {
-          Transforms.select(editor, Editor.end(editor, [prevIndex]))
+          const prevBlock = editor.children[prevIndex]
+          if (Element.isElement(prevBlock) && prevBlock.class !== 'text') {
+            // Previous block is also non-text: show 'after' indicator for it
+            if (topLevelIndex === targetIndex) {
+              // Cursor is still inside the exited block; park it at a text block so the
+              // exited block doesn't render as 'active'. Prefer a following text block;
+              // fall back to one before the previous block.
+              let parkIdx = targetIndex + 1
+              while (parkIdx < editor.children.length && Element.isElement(editor.children[parkIdx]) && editor.children[parkIdx].class !== 'text') {
+                parkIdx++
+              }
+              if (parkIdx < editor.children.length) {
+                Transforms.select(editor, Editor.start(editor, [parkIdx]))
+              } else {
+                parkIdx = prevIndex - 1
+                while (parkIdx >= 0 && Element.isElement(editor.children[parkIdx]) && editor.children[parkIdx].class !== 'text') {
+                  parkIdx--
+                }
+                if (parkIdx >= 0) {
+                  Transforms.select(editor, Editor.end(editor, [parkIdx]))
+                }
+              }
+            }
+            setAdjacentBlock({ blockId: prevBlock.id, direction: 'after' })
+          } else {
+            Transforms.select(editor, Editor.end(editor, [prevIndex]))
+            setAdjacentBlock(null)
+          }
+        } else {
+          setAdjacentBlock(null)
         }
-        setAdjacentBlock(null)
         return
       }
 
-      if (goingBackward && direction === 'before' && topLevelIndex === targetIndex) {
-        // Cursor is at start of non-text block with 'before' indicator; move explicitly to end of previous block
+      // Cursor was parked on the far side of the target block by a previous transition.
+      // Advance the adjacent indicator one step in the travel direction rather than
+      // jumping straight to the parked cursor position.
+      if (goingForward && direction === 'after' && topLevelIndex > targetIndex) {
+        event.preventDefault()
+        const nextIndex = targetIndex + 1
+        if (nextIndex < editor.children.length) {
+          const nextBlock = editor.children[nextIndex]
+          if (Element.isElement(nextBlock) && nextBlock.class !== 'text') {
+            setAdjacentBlock({ blockId: nextBlock.id, direction: 'before' })
+          } else {
+            Transforms.select(editor, Editor.start(editor, [nextIndex]))
+            setAdjacentBlock(null)
+          }
+        } else {
+          setAdjacentBlock(null)
+        }
+        return
+      }
+
+      if (goingBackward && direction === 'before' && topLevelIndex < targetIndex) {
         event.preventDefault()
         const prevIndex = targetIndex - 1
         if (prevIndex >= 0) {
-          Transforms.select(editor, Editor.end(editor, [prevIndex]))
+          const prevBlock = editor.children[prevIndex]
+          if (Element.isElement(prevBlock) && prevBlock.class !== 'text') {
+            setAdjacentBlock({ blockId: prevBlock.id, direction: 'after' })
+          } else {
+            Transforms.select(editor, Editor.end(editor, [prevIndex]))
+            setAdjacentBlock(null)
+          }
+        } else {
+          setAdjacentBlock(null)
         }
-        setAdjacentBlock(null)
         return
       }
 
