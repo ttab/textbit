@@ -24,7 +24,7 @@ export function lastEditableChildIdx(editor: Editor, block: Element): number {
 // Boundary-check helpers
 // ---------------------------------------------------------------------------
 
-/** True when the cursor is at the start of the first non-void child of the block */
+/** True when the caret is at the start of the first non-void child of the block */
 export function isAtAccessibleStart(editor: Editor, anchor: Point, blockIndex: number): boolean {
   const block = editor.children[blockIndex]
   if (!Element.isElement(block)) return false
@@ -33,7 +33,7 @@ export function isAtAccessibleStart(editor: Editor, anchor: Point, blockIndex: n
   return Editor.isStart(editor, anchor, [blockIndex, idx])
 }
 
-/** True when the cursor is at the end of the last non-void child of the block */
+/** True when the caret is at the end of the last non-void child of the block */
 export function isAtAccessibleEnd(editor: Editor, anchor: Point, blockIndex: number): boolean {
   const block = editor.children[blockIndex]
   if (!Element.isElement(block)) return false
@@ -71,7 +71,7 @@ export function selectStartAt(editor: Editor, index: number): void {
 
 /**
  * Enter a non-text block from its leading edge (going right).
- * Skips any leading void children so the cursor lands on the first editable position.
+ * Skips any leading void children so the caret lands on the first editable position.
  */
 export function enterBlockFromStart(editor: Editor, targetPath: number[], targetBlock: Element): void {
   let enterPath: number[] = targetPath
@@ -84,7 +84,7 @@ export function enterBlockFromStart(editor: Editor, targetPath: number[], target
 
 /**
  * Enter a non-text block from its trailing edge (going left).
- * Skips any trailing void children so the cursor lands on the last editable position.
+ * Skips any trailing void children so the caret lands on the last editable position.
  */
 export function enterBlockFromEnd(editor: Editor, targetPath: number[], targetBlock: Element): void {
   let enterPath: number[] = targetPath

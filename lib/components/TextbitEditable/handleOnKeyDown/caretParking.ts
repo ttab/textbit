@@ -1,15 +1,15 @@
 import { Editor, Element, Transforms } from 'slate'
 
 /**
- * Park the cursor at a neutral text block after stepping past `targetIndex` going right.
+ * Park the caret at a neutral text block after stepping past `targetIndex` going right.
  *
- * When the cursor is still inside the block whose adjacent indicator has just moved on,
+ * When the caret is still inside the block whose adjacent indicator has just moved on,
  * `useSelected()` keeps that block rendering as 'active' even though the virtual caret
  * is already elsewhere. Moving the real Slate selection to a text block fixes this.
  *
  * Search order: backward from `targetIndex - 1`, then forward from `nextIndex + 1`.
  */
-export function parkCursorMovingForward(editor: Editor, targetIndex: number, nextIndex: number): void {
+export function parkCaretMovingForward(editor: Editor, targetIndex: number, nextIndex: number): void {
   // Prefer a text block before the one we are leaving
   let parkIdx = targetIndex - 1
   while (parkIdx >= 0 && Element.isElement(editor.children[parkIdx]) && editor.children[parkIdx].class !== 'text') {
@@ -30,11 +30,11 @@ export function parkCursorMovingForward(editor: Editor, targetIndex: number, nex
 }
 
 /**
- * Park the cursor at a neutral text block after stepping past `targetIndex` going left.
+ * Park the caret at a neutral text block after stepping past `targetIndex` going left.
  *
  * Search order: forward from `targetIndex + 1`, then backward from `prevIndex - 1`.
  */
-export function parkCursorMovingBackward(editor: Editor, targetIndex: number, prevIndex: number): void {
+export function parkCaretMovingBackward(editor: Editor, targetIndex: number, prevIndex: number): void {
   // Prefer a text block after the one we are leaving
   let parkIdx = targetIndex + 1
   while (parkIdx < editor.children.length && Element.isElement(editor.children[parkIdx]) && editor.children[parkIdx].class !== 'text') {

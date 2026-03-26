@@ -7,7 +7,7 @@ import {
   enterBlockFromStart,
   enterBlockFromEnd,
 } from './blockUtils'
-import { parkCursorMovingForward, parkCursorMovingBackward } from './cursorParking'
+import { parkCaretMovingForward, parkCaretMovingBackward } from './caretParking'
 
 /**
  * Handle an arrow key while an adjacent-block indicator is active.
@@ -20,14 +20,14 @@ import { parkCursorMovingForward, parkCursorMovingBackward } from './cursorParki
  * For a **non-void** non-text block the adjacent indicator passes through two
  * states as the user presses → repeatedly:
  *   1. `'before'` — virtual caret is just left of the block
- *   2. (cursor inside the block — indicator cleared)
+ *   2. (caret inside the block — indicator cleared)
  *   3. `'after'`  — virtual caret is just right of the block
  *
  * For a **void** non-text block the block is not enterable, so there are three
- * indicator states before the cursor fully passes it:
+ * indicator states before the caret fully passes it:
  *   1. `'before'`
  *   2. `'after'`
- *   3. (cursor moves past — indicator cleared)
+ *   3. (caret moves past — indicator cleared)
  *
  * The same steps apply in reverse when pressing ←.
  */
@@ -67,10 +67,10 @@ export function handleArrowWithAdjacentBlock(
     return
   }
 
-  // ── Going right, indicator is 'after', cursor at or inside target ─────────
+  // ── Going right, indicator is 'after', caret at or inside target ─────────
   // The virtual caret is just right of the block; → should step past it.
-  // `topLevelIndex <= targetIndex` covers both "cursor still inside the exited block"
-  // (=== targetIndex, requires parking) and "cursor already parked before target" (< targetIndex).
+  // `topLevelIndex <= targetIndex` covers both "caret still inside the exited block"
+  // (=== targetIndex, requires parking) and "caret already parked before target" (< targetIndex).
   if (goingForward && direction === 'after' && topLevelIndex <= targetIndex) {
     event.preventDefault()
     const nextIndex = targetIndex + 1
@@ -78,9 +78,9 @@ export function handleArrowWithAdjacentBlock(
       const nextBlock = editor.children[nextIndex]
       if (Element.isElement(nextBlock) && nextBlock.class !== 'text') {
         // Next sibling is also a non-text block: advance the indicator to 'before' it.
-        // If the cursor is still inside the exited block, park it so it stops rendering as 'active'.
+        // If the caret is still inside the exited block, park it so it stops rendering as 'active'.
         if (topLevelIndex === targetIndex) {
-          parkCursorMovingForward(editor, targetIndex, nextIndex)
+          parkCaretMovingForward(editor, targetIndex, nextIndex)
         }
         setAdjacentBlock({ blockId: nextBlock.id, direction: 'before' })
       } else {
@@ -110,10 +110,10 @@ export function handleArrowWithAdjacentBlock(
     return
   }
 
-  // ── Going left, indicator is 'before', cursor at or inside target ─────────
+  // ── Going left, indicator is 'before', caret at or inside target ─────────
   // The virtual caret is just left of the block; ← should step past it.
-  // `topLevelIndex >= targetIndex` covers "cursor inside exited block" (===) and
-  // "cursor parked after target" (>), both of which need to step past.
+  // `topLevelIndex >= targetIndex` covers "caret inside exited block" (===) and
+  // "caret parked after target" (>), both of which need to step past.
   if (goingBackward && direction === 'before' && topLevelIndex >= targetIndex) {
     event.preventDefault()
     const prevIndex = targetIndex - 1
@@ -121,9 +121,9 @@ export function handleArrowWithAdjacentBlock(
       const prevBlock = editor.children[prevIndex]
       if (Element.isElement(prevBlock) && prevBlock.class !== 'text') {
         // Previous sibling is also a non-text block: retreat the indicator to 'after' it.
-        // If the cursor is still inside the exited block, park it to avoid a stale focus ring.
+        // If the caret is still inside the exited block, park it to avoid a stale focus ring.
         if (topLevelIndex === targetIndex) {
-          parkCursorMovingBackward(editor, targetIndex, prevIndex)
+          parkCaretMovingBackward(editor, targetIndex, prevIndex)
         }
         setAdjacentBlock({ blockId: prevBlock.id, direction: 'after' })
       } else {
@@ -138,7 +138,7 @@ export function handleArrowWithAdjacentBlock(
   }
 
   // ── Cursor parked past target (going right) ───────────────────────────────
-  // After a block-to-block transition the cursor may be parked beyond targetIndex.
+  // After a block-to-block transition the caret may be parked beyond targetIndex.
   // Advance the indicator one step rather than jumping straight to the parked position.
   if (goingForward && direction === 'after' && topLevelIndex > targetIndex) {
     event.preventDefault()
@@ -184,7 +184,7 @@ export function handleArrowWithAdjacentBlock(
  *
  * Intercepts at the boundary of a non-text block (either leaving one or
  * approaching one from a text block) and sets the indicator instead of
- * letting Slate perform its default cursor movement.
+ * letting Slate perform its default caret movement.
  *
  * Returns `true` if the event was handled (caller should return immediately).
  */
