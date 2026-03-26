@@ -14,7 +14,7 @@ import type { SpellcheckLookupTable } from '../../types'
 import { SelectionBoundsDetails } from '../SelectionBoundsDetails'
 import { type AdjacentBlockState } from '../../contexts/AdjacentBlockContext'
 import { AdjacentBlockProvider } from '../../contexts/AdjacentBlockProvider'
-import { handleOnKeyDown } from './handleOnKeyDown'
+import { handleOnKeyDown } from './handleOnKeyDown/handleOnKeyDown'
 
 interface TextbitEditableProps {
   autoFocus?: boolean | 'start' | 'end'
