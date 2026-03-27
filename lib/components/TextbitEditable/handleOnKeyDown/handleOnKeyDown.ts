@@ -4,6 +4,7 @@ import { toggleLeaf } from '../../../utils/toggleLeaf'
 import type { AdjacentBlockState } from '../../../contexts/AdjacentBlockContext'
 import { handleArrowWithAdjacentBlock, handleArrowNoAdjacentBlock } from './arrowHandlers'
 import { handleNonArrowWithAdjacentBlock } from './nonArrowHandler'
+import { isAtAccessibleEnd, isAtAccessibleStart } from './blockUtils'
 
 /*
  * Match key events to registered actions keyboard shortcuts. Then either
@@ -19,8 +20,8 @@ export function handleOnKeyDown(
   setAdjacentBlock: (state: AdjacentBlockState | null) => void
 ) {
   const key = event.key
-  const goingForward = key === 'ArrowRight' || key === 'ArrowDown'
-  const goingBackward = key === 'ArrowLeft' || key === 'ArrowUp'
+  const goingForward = key === 'ArrowRight' // || key === 'ArrowDown'
+  const goingBackward = key === 'ArrowLeft' // || key === 'ArrowUp'
   const isArrowKey = goingForward || goingBackward
 
   if (isArrowKey) {
@@ -69,6 +70,32 @@ export function handleOnKeyDown(
       setAdjacentBlock
     )
     if (handled) return
+  } else if (key === 'ArrowDown' || key === 'ArrowUp') {
+    // ArrowDown/ArrowUp are not part of the adjacent block system, but Slate loses
+    // the selection when trying to navigate vertically past a non-text block that
+    // sits at the edge of the document (no block below/above to land on).
+    // Guard those specific dead-end cases and make them a no-op.
+    const { selection } = editor
+    if (selection && Range.isCollapsed(selection)) {
+      const { anchor } = selection
+      const topLevelIndex = anchor.path[0]
+      const currentBlock = editor.children[topLevelIndex]
+
+      if (Element.isElement(currentBlock) && currentBlock.class !== 'text') {
+        if (key === 'ArrowDown'
+          && topLevelIndex === editor.children.length - 1
+          && isAtAccessibleEnd(editor, anchor, topLevelIndex)) {
+          event.preventDefault()
+          return
+        }
+        if (key === 'ArrowUp'
+          && topLevelIndex === 0
+          && isAtAccessibleStart(editor, anchor, topLevelIndex)) {
+          event.preventDefault()
+          return
+        }
+      }
+    }
   }
 
   for (const action of actions) {
