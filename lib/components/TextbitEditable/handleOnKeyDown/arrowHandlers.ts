@@ -7,13 +7,14 @@ import {
   enterBlockFromStart,
   enterBlockFromEnd,
 } from './blockUtils'
-import { parkCaretMovingForward, parkCaretMovingBackward } from './caretParking'
 
 /**
  * Handle an arrow key while an adjacent-block indicator is active.
  *
- * All code paths end with a `return`, so the caller should always return
- * immediately after invoking this function.
+ * ### Invariant
+ * The real Slate selection is always kept INSIDE the block the adjacent
+ * indicator currently points to. This means `useSelected()` is true only
+ * for that block.
  *
  * ### Traversal model
  *
@@ -37,8 +38,7 @@ export function handleArrowWithAdjacentBlock(
   adjacentBlock: AdjacentBlockState,
   setAdjacentBlock: (state: AdjacentBlockState | null) => void,
   goingForward: boolean,
-  goingBackward: boolean,
-  topLevelIndex: number
+  goingBackward: boolean
 ): void {
   const targetIndex = resolveTargetIndex(editor, adjacentBlock)
   if (targetIndex === -1) {
@@ -52,40 +52,34 @@ export function handleArrowWithAdjacentBlock(
   const { direction } = adjacentBlock
 
   // ── Going right, indicator is 'before' ────────────────────────────────────
-  // The virtual caret is just left of the block; → should move inside it (or,
-  // for void blocks, advance the indicator to 'after' since they are not enterable).
+  // Virtual caret is just left of block; → enters it (or advances to 'after' for void).
   if (goingForward && direction === 'before') {
     event.preventDefault()
     if (isVoid) {
-      // Void: advance to 'after' (step 2 of 3)
+      // Void: advance indicator to 'after' (step 2 of 3).
+      // Selection stays inside the void block (invariant already satisfied).
       setAdjacentBlock({ blockId: adjacentBlock.blockId, direction: 'after' })
     } else {
-      // Non-void: enter the block at its accessible start
+      // Non-void: enter block at its accessible start
       enterBlockFromStart(editor, targetPath, targetBlock as Element)
       setAdjacentBlock(null)
     }
     return
   }
 
-  // ── Going right, indicator is 'after', caret at or inside target ─────────
-  // The virtual caret is just right of the block; → should step past it.
-  // `topLevelIndex <= targetIndex` covers both "caret still inside the exited block"
-  // (=== targetIndex, requires parking) and "caret already parked before target" (< targetIndex).
-  if (goingForward && direction === 'after' && topLevelIndex <= targetIndex) {
+  // ── Going right, indicator is 'after' → step past the block ───────────────
+  // Virtual caret is just right of block; → moves past it.
+  if (goingForward && direction === 'after') {
     event.preventDefault()
     const nextIndex = targetIndex + 1
     if (nextIndex < editor.children.length) {
       const nextBlock = editor.children[nextIndex]
+      // Move selection into the next block first to maintain the invariant,
+      // then set the indicator (so useSelected() stays true only for that block).
+      Transforms.select(editor, Editor.start(editor, [nextIndex]))
       if (Element.isElement(nextBlock) && nextBlock.class !== 'text') {
-        // Next sibling is also a non-text block: advance the indicator to 'before' it.
-        // If the caret is still inside the exited block, park it so it stops rendering as 'active'.
-        if (topLevelIndex === targetIndex) {
-          parkCaretMovingForward(editor, targetIndex, nextIndex)
-        }
         setAdjacentBlock({ blockId: nextBlock.id, direction: 'before' })
       } else {
-        // Next sibling is a text block: land at its start and clear the indicator
-        Transforms.select(editor, Editor.start(editor, [nextIndex]))
         setAdjacentBlock(null)
       }
     } else {
@@ -95,78 +89,33 @@ export function handleArrowWithAdjacentBlock(
   }
 
   // ── Going left, indicator is 'after' ──────────────────────────────────────
-  // The virtual caret is just right of the block; ← should move inside it (or
-  // advance to 'before' for void blocks).
+  // Virtual caret is just right of block; ← enters it (or retreats to 'before' for void).
   if (goingBackward && direction === 'after') {
     event.preventDefault()
     if (isVoid) {
-      // Void: retreat to 'before' (step 2 of 3)
+      // Void: retreat indicator to 'before' (step 2 of 3).
+      // Selection stays inside the void block (invariant already satisfied).
       setAdjacentBlock({ blockId: adjacentBlock.blockId, direction: 'before' })
     } else {
-      // Non-void: enter the block at its accessible end
+      // Non-void: enter block at its accessible end
       enterBlockFromEnd(editor, targetPath, targetBlock as Element)
       setAdjacentBlock(null)
     }
     return
   }
 
-  // ── Going left, indicator is 'before', caret at or inside target ─────────
-  // The virtual caret is just left of the block; ← should step past it.
-  // `topLevelIndex >= targetIndex` covers "caret inside exited block" (===) and
-  // "caret parked after target" (>), both of which need to step past.
-  if (goingBackward && direction === 'before' && topLevelIndex >= targetIndex) {
+  // ── Going left, indicator is 'before' → step past the block ───────────────
+  // Virtual caret is just left of block; ← moves past it.
+  if (goingBackward && direction === 'before') {
     event.preventDefault()
     const prevIndex = targetIndex - 1
     if (prevIndex >= 0) {
       const prevBlock = editor.children[prevIndex]
-      if (Element.isElement(prevBlock) && prevBlock.class !== 'text') {
-        // Previous sibling is also a non-text block: retreat the indicator to 'after' it.
-        // If the caret is still inside the exited block, park it to avoid a stale focus ring.
-        if (topLevelIndex === targetIndex) {
-          parkCaretMovingBackward(editor, targetIndex, prevIndex)
-        }
-        setAdjacentBlock({ blockId: prevBlock.id, direction: 'after' })
-      } else {
-        // Previous sibling is a text block: land at its end and clear the indicator
-        Transforms.select(editor, Editor.end(editor, [prevIndex]))
-        setAdjacentBlock(null)
-      }
-    } else {
-      setAdjacentBlock(null)
-    }
-    return
-  }
-
-  // ── Cursor parked past target (going right) ───────────────────────────────
-  // After a block-to-block transition the caret may be parked beyond targetIndex.
-  // Advance the indicator one step rather than jumping straight to the parked position.
-  if (goingForward && direction === 'after' && topLevelIndex > targetIndex) {
-    event.preventDefault()
-    const nextIndex = targetIndex + 1
-    if (nextIndex < editor.children.length) {
-      const nextBlock = editor.children[nextIndex]
-      if (Element.isElement(nextBlock) && nextBlock.class !== 'text') {
-        setAdjacentBlock({ blockId: nextBlock.id, direction: 'before' })
-      } else {
-        Transforms.select(editor, Editor.start(editor, [nextIndex]))
-        setAdjacentBlock(null)
-      }
-    } else {
-      setAdjacentBlock(null)
-    }
-    return
-  }
-
-  // ── Cursor parked before target (going left) ──────────────────────────────
-  if (goingBackward && direction === 'before' && topLevelIndex < targetIndex) {
-    event.preventDefault()
-    const prevIndex = targetIndex - 1
-    if (prevIndex >= 0) {
-      const prevBlock = editor.children[prevIndex]
+      // Move selection into the previous block first to maintain the invariant.
+      Transforms.select(editor, Editor.end(editor, [prevIndex]))
       if (Element.isElement(prevBlock) && prevBlock.class !== 'text') {
         setAdjacentBlock({ blockId: prevBlock.id, direction: 'after' })
       } else {
-        Transforms.select(editor, Editor.end(editor, [prevIndex]))
         setAdjacentBlock(null)
       }
     } else {
@@ -186,6 +135,10 @@ export function handleArrowWithAdjacentBlock(
  * approaching one from a text block) and sets the indicator instead of
  * letting Slate perform its default caret movement.
  *
+ * When approaching a non-text block from a text block, the selection is moved
+ * into the non-text block to satisfy the invariant: useSelected() should be
+ * true only for the block the indicator points to.
+ *
  * Returns `true` if the event was handled (caller should return immediately).
  */
 export function handleArrowNoAdjacentBlock(
@@ -201,7 +154,8 @@ export function handleArrowNoAdjacentBlock(
   const currentBlock = editor.children[topLevelIndex]
 
   if (goingForward) {
-    // Exiting a non-text block from its right (accessible) edge
+    // Exiting a non-text block from its right (accessible) edge.
+    // Selection is already inside this block — no move needed.
     if (Element.isElement(currentBlock) && currentBlock.class !== 'text'
       && isAtAccessibleEnd(editor, anchor, topLevelIndex)) {
       event.preventDefault()
@@ -209,13 +163,15 @@ export function handleArrowNoAdjacentBlock(
       return true
     }
 
-    // Entering a non-text block from a preceding text block
+    // Entering a non-text block from a preceding text block.
+    // Move the selection into the non-text block to satisfy the invariant.
     if (Editor.isEnd(editor, anchor, topLevelPath)) {
       const nextIndex = topLevelIndex + 1
       if (nextIndex < editor.children.length) {
         const nextBlock = editor.children[nextIndex]
         if (Element.isElement(nextBlock) && nextBlock.class !== 'text') {
           event.preventDefault()
+          Transforms.select(editor, Editor.start(editor, [nextIndex]))
           setAdjacentBlock({ blockId: nextBlock.id, direction: 'before' })
           return true
         }
@@ -224,7 +180,8 @@ export function handleArrowNoAdjacentBlock(
   }
 
   if (goingBackward) {
-    // Exiting a non-text block from its left (accessible) edge
+    // Exiting a non-text block from its left (accessible) edge.
+    // Selection is already inside this block — no move needed.
     if (Element.isElement(currentBlock) && currentBlock.class !== 'text'
       && isAtAccessibleStart(editor, anchor, topLevelIndex)) {
       event.preventDefault()
@@ -232,13 +189,15 @@ export function handleArrowNoAdjacentBlock(
       return true
     }
 
-    // Entering a non-text block from a following text block
+    // Entering a non-text block from a following text block.
+    // Move the selection into the non-text block to satisfy the invariant.
     if (Editor.isStart(editor, anchor, topLevelPath)) {
       const prevIndex = topLevelIndex - 1
       if (prevIndex >= 0) {
         const prevBlock = editor.children[prevIndex]
         if (Element.isElement(prevBlock) && prevBlock.class !== 'text') {
           event.preventDefault()
+          Transforms.select(editor, Editor.end(editor, [prevIndex]))
           setAdjacentBlock({ blockId: prevBlock.id, direction: 'after' })
           return true
         }

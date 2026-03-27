@@ -151,19 +151,15 @@ export function TextbitEditable(props: TextbitEditableProps) {
       ReactEditor.focus(editor)
 
       const direction: 'before' | 'after' = clickX < (rect.left + rect.right) / 2 ? 'before' : 'after'
-      setAdjacentBlock({ blockId: block.id, direction })
 
-      // Place Slate selection at the nearest text block neighbor (skip consecutive non-text blocks)
-      // This mirrors keyboard navigation which never parks the selection inside a non-text block.
+      // Keep the selection inside the clicked block so useSelected() stays true
+      // only for this block (prevents focus rings on neighbouring blocks).
       if (direction === 'before') {
-        let j = i - 1
-        while (j >= 0 && Element.isElement(editor.children[j]) && editor.children[j].class !== 'text') j--
-        if (j >= 0) Transforms.select(editor, Editor.end(editor, [j]))
+        Transforms.select(editor, Editor.start(editor, [i]))
       } else {
-        let j = i + 1
-        while (j < editor.children.length && Element.isElement(editor.children[j]) && editor.children[j].class !== 'text') j++
-        if (j < editor.children.length) Transforms.select(editor, Editor.start(editor, [j]))
+        Transforms.select(editor, Editor.end(editor, [i]))
       }
+      setAdjacentBlock({ blockId: block.id, direction })
 
       return
     }

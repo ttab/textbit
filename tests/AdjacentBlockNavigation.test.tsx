@@ -5,7 +5,7 @@ import { type PropsWithChildren } from 'react'
 import { Editor, Transforms } from 'slate'
 import { TextbitRoot } from '../lib/components/TextbitRoot'
 import { TextbitEditable } from '../lib/components/TextbitEditable/TextbitEditable'
-import { handleOnKeyDown } from '../lib/components/TextbitEditable/handleOnKeyDown'
+import { handleOnKeyDown } from '../lib/components/TextbitEditable/handleOnKeyDown/handleOnKeyDown'
 import type { AdjacentBlockState } from '../lib/contexts/AdjacentBlockContext'
 import { adjacentBlockContent } from './_fixtures'
 

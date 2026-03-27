@@ -43,8 +43,7 @@ export function handleOnKeyDown(
         adjacentBlock,
         setAdjacentBlock,
         goingForward,
-        goingBackward,
-        topLevelIndex
+        goingBackward
       )
       return
     }
