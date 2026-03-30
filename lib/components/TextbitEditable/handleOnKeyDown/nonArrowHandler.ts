@@ -96,15 +96,6 @@ export function handleNonArrowWithAdjacentBlock(
     }
   }
 
-  // Vertical arrow keys: no-op while adjacent indicator is active.
-  // ArrowDown/ArrowUp are not part of the adjacent block navigation system;
-  // letting Slate handle them here would move the real selection into an
-  // unexpected position inside the non-text block.
-  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-    event.preventDefault()
-    return true
-  }
-
   // Modifier-only keys should not disturb adjacent state
   if (['Meta', 'Control', 'Alt', 'Shift', 'CapsLock'].includes(event.key)) {
     return true

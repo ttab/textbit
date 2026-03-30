@@ -2,7 +2,7 @@ import { Editor, Element, Range, Transforms } from 'slate'
 import type { PluginRegistryAction } from '../../../contexts/PluginRegistry/lib/types'
 import { toggleLeaf } from '../../../utils/toggleLeaf'
 import type { AdjacentBlockState } from '../../../contexts/AdjacentBlockContext'
-import { handleArrowWithAdjacentBlock, handleArrowNoAdjacentBlock } from './arrowHandlers'
+import { handleArrowWithAdjacentBlock, handleArrowNoAdjacentBlock, handleVerticalArrowWithAdjacentBlock } from './arrowHandlers'
 import { handleNonArrowWithAdjacentBlock } from './nonArrowHandler'
 import { isAtAccessibleEnd, isAtAccessibleStart } from './blockUtils'
 
@@ -61,19 +61,14 @@ export function handleOnKeyDown(
     if (handled) return
 
     // Not at a block boundary — fall through to action loop
-  } else if (adjacentBlock) {
-    const handled = handleNonArrowWithAdjacentBlock(
-      editor,
-      event,
-      adjacentBlock,
-      setAdjacentBlock
-    )
-    if (handled) return
-  } else if (key === 'ArrowDown' || key === 'ArrowUp') {
-    // ArrowDown/ArrowUp are not part of the adjacent block system, but Slate loses
-    // the selection when trying to navigate vertically past a non-text block that
-    // sits at the edge of the document (no block below/above to land on).
-    // Guard those specific dead-end cases and make them a no-op.
+  } else if (key === 'ArrowUp' || key === 'ArrowDown') {
+    if (adjacentBlock) {
+      handleVerticalArrowWithAdjacentBlock(editor, event, adjacentBlock, setAdjacentBlock)
+      return
+    }
+
+    // No indicator active: guard against Slate losing the selection when the
+    // caret is at the edge of a non-text block at the top or bottom of the document.
     const { selection } = editor
     if (selection && Range.isCollapsed(selection)) {
       const { anchor } = selection
@@ -95,6 +90,14 @@ export function handleOnKeyDown(
         }
       }
     }
+  } else if (adjacentBlock) {
+    const handled = handleNonArrowWithAdjacentBlock(
+      editor,
+      event,
+      adjacentBlock,
+      setAdjacentBlock
+    )
+    if (handled) return
   }
 
   for (const action of actions) {

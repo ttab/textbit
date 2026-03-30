@@ -129,6 +129,79 @@ export function handleArrowWithAdjacentBlock(
 }
 
 /**
+ * Handle an Up or Down arrow key while an adjacent-block indicator is active.
+ *
+ * Navigates to the neighbouring top-level block, preserving the indicator
+ * direction when that neighbour is also a non-text block, or moving the
+ * Slate selection into a text block as appropriate.
+ */
+export function handleVerticalArrowWithAdjacentBlock(
+  editor: Editor,
+  event: React.KeyboardEvent<HTMLDivElement>,
+  adjacentBlock: AdjacentBlockState,
+  setAdjacentBlock: (state: AdjacentBlockState | null) => void
+): void {
+  const targetIndex = resolveTargetIndex(editor, adjacentBlock)
+  if (targetIndex === -1) {
+    event.preventDefault()
+    return
+  }
+
+  const goingUp = event.key === 'ArrowUp'
+  const neighborIndex = goingUp ? targetIndex - 1 : targetIndex + 1
+
+  if (neighborIndex < 0 || neighborIndex >= editor.children.length) {
+    // Already at the document edge in this direction — no-op
+    event.preventDefault()
+    return
+  }
+
+  const neighborBlock = editor.children[neighborIndex]
+
+  if (Element.isElement(neighborBlock) && neighborBlock.class !== 'text') {
+    // Navigate to another non-text block: preserve the current indicator direction
+    // ('before' stays left, 'after' stays right regardless of movement direction).
+    event.preventDefault()
+    Transforms.select(editor, adjacentBlock.direction === 'after'
+      ? Editor.end(editor, [neighborIndex])
+      : Editor.start(editor, [neighborIndex])
+    )
+    setAdjacentBlock({ blockId: neighborBlock.id, direction: adjacentBlock.direction })
+    return
+  }
+
+  // Neighbor is a text block.
+  //
+  // Cases that need manual navigation (preventDefault + explicit placement):
+  //   • 'after'  + Up   — Slate selection is at block bottom; Up stays inside.
+  //   • 'before' + Down — Slate selection is at block top; Down stays inside.
+  //   • void target     — Slate selection is at a void point; Up/Down loses the
+  //                       caret entirely (e.g. image blocks).
+  //
+  // When handling manually: going up → land at end, going down → land at start.
+  // For all remaining cases ('before'+Up, 'after'+Down, non-void) let Slate navigate.
+  const targetBlock = editor.children[targetIndex]
+  const isVoidTarget = Element.isElement(targetBlock) && editor.isVoid(targetBlock)
+  const handleManually =
+    (adjacentBlock.direction === 'after' && goingUp) ||
+    (adjacentBlock.direction === 'before' && !goingUp) ||
+    isVoidTarget
+
+  if (handleManually) {
+    event.preventDefault()
+    Transforms.select(editor, goingUp
+      ? Editor.end(editor, [neighborIndex])
+      : Editor.start(editor, [neighborIndex])
+    )
+    setAdjacentBlock(null)
+    return
+  }
+
+  // 'before'+Up and 'after'+Down with non-void target: let Slate navigate.
+  setAdjacentBlock(null)
+}
+
+/**
  * Handle an arrow key when there is no active adjacent-block indicator.
  *
  * Intercepts at the boundary of a non-text block (either leaving one or
@@ -171,7 +244,9 @@ export function handleArrowNoAdjacentBlock(
         const nextBlock = editor.children[nextIndex]
         if (Element.isElement(nextBlock) && nextBlock.class !== 'text') {
           event.preventDefault()
-          Transforms.select(editor, Editor.start(editor, [nextIndex]))
+          // Use enterBlockFromStart (skips void children) so the selection lands
+          // in the first editable child, not inside a void element such as an image.
+          enterBlockFromStart(editor, [nextIndex], nextBlock)
           setAdjacentBlock({ blockId: nextBlock.id, direction: 'before' })
           return true
         }
