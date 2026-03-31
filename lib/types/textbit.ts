@@ -124,6 +124,9 @@ export interface ComponentEntry<T extends HTMLElement = HTMLElement> {
     /** If true, prevents soft breaks (i.e breaks within one text element, default is true */
     allowSoftBreak?: boolean
 
+    /** If false, prevents <enter> from exiting the top-level block when at the last position, default is true */
+    allowExitBreak?: boolean
+
     /** Normalizer function, optional */
     normalizeNode?: (editor: Editor, nodeEntry: NodeEntry) => boolean | void
   }

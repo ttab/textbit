@@ -40,6 +40,11 @@ export function withInsertBreak(editor: Editor, components: Map<string, PluginRe
 
     const { isAtEnd, next } = isAtEndOfTopLevelNode(editor) || {}
     if (isAtEnd) {
+      if (!allowExitBreak(editor, components)) {
+        insertBreak()
+        return
+      }
+
       Transforms.insertNodes(editor, {
         id: crypto.randomUUID(),
         class: 'text',
@@ -78,6 +83,34 @@ function allowBreak(
       if (SlateElement.isElement(node)) {
         const component = components.get(node.type)
         if (component?.componentEntry?.constraints?.allowBreak === false) {
+          return false
+        }
+      }
+    }
+  }
+
+  return true
+}
+
+/**
+ * Check whether the cursor's current element allows exiting the top-level block on Enter at the last position
+ */
+function allowExitBreak(
+  editor: Editor,
+  components: Map<string, PluginRegistryComponent>
+): boolean {
+  const { selection } = editor
+  if (!selection) return true
+
+  const points = Range.isCollapsed(selection)
+    ? [selection.anchor]
+    : [selection.anchor, selection.focus]
+
+  for (const point of points) {
+    for (const [node] of Editor.levels(editor, { at: point })) {
+      if (SlateElement.isElement(node)) {
+        const component = components.get(node.type)
+        if (component?.componentEntry?.constraints?.allowExitBreak === false) {
           return false
         }
       }

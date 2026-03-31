@@ -1160,6 +1160,19 @@ interface TBComponentProps {
 }
 ```
 
+### Constraints
+
+Constraints control editing behavior within a component. They are set in the `constraints` property of a `componentEntry` and can be applied to both the top-level component entry and child component entries.
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `allowBreak` | `boolean` | `true` | When `false`, prevents Enter from creating new nodes inside the component |
+| `allowSoftBreak` | `boolean` | `true` | When `false`, prevents soft breaks (Shift+Enter) within a text element |
+| `allowExitBreak` | `boolean` | `true` | When `false`, prevents Enter at the last position from exiting the top-level block to create a new text block after it |
+| `normalizeNode` | `(editor, nodeEntry) => boolean \| void` | — | Custom normalization function; return `true` to signal the normalization was handled |
+
+See the [Image Block Plugin example](#example-image-block-plugin) below for a practical demonstration of `allowBreak` and `normalizeNode`.
+
 ### Example: Bold Plugin
 
 ```tsx
@@ -1561,6 +1574,29 @@ function isMyPlugin(element: TBElement): element is TBElement & {
   return element.type === 'namespace/my-plugin'
 }
 ```
+
+---
+
+## Block Navigation
+
+Textbit handles keyboard navigation in and around non-text blocks (`class: 'block'` / `class: 'void'`) using a virtual block-level caret. The real Slate selection stays inside the block while a visual indicator appears beside it, showing whether the caret is logically before or after the block.
+
+### Horizontal (Left/Right)
+
+Arrowing into a non-text block from a neighbouring text block activates the indicator on the near side (`before` when arriving from the left, `after` from the right). Continuing in the same direction either enters the block's editable content (non-void) or advances the indicator to the far side (void), then exits into the next block. The same steps apply in reverse.
+
+### Vertical (Up/Down)
+
+Up/Down moves the indicator to the neighbouring top-level block, preserving the current indicator direction (`before` stays left, `after` stays right). If the neighbour is a text block the indicator is cleared and normal text editing resumes.
+
+### Editing Keys
+
+| Key | Behavior |
+|-----|----------|
+| Enter | Inserts a new empty text block adjacent to the indicator |
+| Backspace | Removes the block or character behind the caret position |
+| Delete | Removes the block ahead of the caret position |
+| Printable character | Inserts a new text block and types the character into it |
 
 ---
 

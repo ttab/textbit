@@ -161,11 +161,14 @@ export function handleVerticalArrowWithAdjacentBlock(
   if (Element.isElement(neighborBlock) && neighborBlock.class !== 'text') {
     // Navigate to another non-text block: preserve the current indicator direction
     // ('before' stays left, 'after' stays right regardless of movement direction).
+    // Use enterBlockFromStart/End to skip void children so the real Slate selection
+    // lands on an editable position (not inside a void like an image element).
     event.preventDefault()
-    Transforms.select(editor, adjacentBlock.direction === 'after'
-      ? Editor.end(editor, [neighborIndex])
-      : Editor.start(editor, [neighborIndex])
-    )
+    if (adjacentBlock.direction === 'after') {
+      enterBlockFromEnd(editor, [neighborIndex], neighborBlock as Element)
+    } else {
+      enterBlockFromStart(editor, [neighborIndex], neighborBlock as Element)
+    }
     setAdjacentBlock({ blockId: neighborBlock.id, direction: adjacentBlock.direction })
     return
   }

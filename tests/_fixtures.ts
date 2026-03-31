@@ -202,6 +202,69 @@ export const adjacentBlockContent: Descendant[] = [
 ]
 
 /**
+ * Two consecutive non-text blocks with a void child and a text child each,
+ * sandwiched by text blocks. Mirrors a real image plugin structure where
+ * the first child is void (the image) and the second is editable text (the caption).
+ *
+ * Using core/text as the text child type so editor.isVoid returns false for it
+ * in the test environment (where only standard plugins are registered).
+ */
+export const consecutiveBlocksContent: Descendant[] = [
+  {
+    type: 'core/text',
+    id: 'para-before',
+    class: 'text',
+    properties: {},
+    children: [{ text: 'Before' }]
+  },
+  {
+    type: 'core/image',
+    id: 'block-1',
+    class: 'block',
+    children: [
+      {
+        type: 'core/image/image',
+        class: 'void',
+        children: [{ text: '' }]
+      },
+      {
+        id: 'block-1-text',
+        type: 'core/text',
+        class: 'text',
+        properties: {},
+        children: [{ text: 'Caption 1' }]
+      }
+    ]
+  },
+  {
+    type: 'core/image',
+    id: 'block-2',
+    class: 'block',
+    children: [
+      {
+        type: 'core/image/image',
+        class: 'void',
+        children: [{ text: '' }]
+      },
+      {
+        id: 'block-2-text',
+        type: 'core/text',
+        class: 'text',
+        properties: {},
+        children: [{ text: 'Caption 2' }]
+      }
+    ]
+  },
+  {
+    type: 'core/text',
+    id: 'para-after',
+    class: 'text',
+    properties: {},
+    children: [{ text: 'After' }]
+  }
+]
+
+/**
  * Content with formatting (bold, italic, etc.)
  */
 export const formattedTextContent: Descendant[] = [

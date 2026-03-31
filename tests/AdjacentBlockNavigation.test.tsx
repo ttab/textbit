@@ -7,7 +7,7 @@ import { TextbitRoot } from '../lib/components/TextbitRoot'
 import { TextbitEditable } from '../lib/components/TextbitEditable/TextbitEditable'
 import { handleOnKeyDown } from '../lib/components/TextbitEditable/handleOnKeyDown/handleOnKeyDown'
 import type { AdjacentBlockState } from '../lib/contexts/AdjacentBlockContext'
-import { adjacentBlockContent } from './_fixtures'
+import { adjacentBlockContent, consecutiveBlocksContent } from './_fixtures'
 
 // Helpers
 
@@ -187,6 +187,117 @@ describe('Backspace/Delete with adjacent block state', () => {
     expect(editor.children).toHaveLength(2)
     expect(editor.children.every(c => c.id !== 'non-text-block')).toBe(true)
     expect(setAdjacentBlock).toHaveBeenCalledWith(null)
+  })
+})
+
+// Deletion with consecutive non-text blocks (void + text children)
+
+function makeConsecutiveBlocksWrapper() {
+  return function Wrapper({ children }: PropsWithChildren) {
+    return (
+      <TextbitRoot value={consecutiveBlocksContent} onChange={() => { }}>
+        <TextbitEditable>{children}</TextbitEditable>
+      </TextbitRoot>
+    )
+  }
+}
+
+function makeConsecutiveBlocksEditor() {
+  const wrapper = makeConsecutiveBlocksWrapper()
+  const { result: { current: editor } } = renderHook(() => useSlateStatic(), { wrapper })
+  vi.spyOn(editor, 'onChange').mockImplementation(() => { })
+  return editor
+}
+
+describe('Delete with direction=before on consecutive blocks', () => {
+  test('removes the target block and preserves adjacent state on next non-text block', () => {
+    // [para-before, block-1, block-2, para-after]
+    // Caret 'before' block-1, delete → removes block-1, block-2 shifts to index 1
+    const editor = makeConsecutiveBlocksEditor()
+    Transforms.select(editor, Editor.start(editor, [1]))
+
+    const adjacentBlock: AdjacentBlockState = { blockId: 'block-1', direction: 'before' }
+    const setAdjacentBlock = vi.fn()
+    const event = makeEvent('Delete')
+
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock)
+
+    expect(event.preventDefault).toHaveBeenCalled()
+    expect(editor.children).toHaveLength(3)
+    expect(editor.children.every(c => c.id !== 'block-1')).toBe(true)
+    // block-2 shifted to index 1 → adjacent state preserved
+    expect(setAdjacentBlock).toHaveBeenCalledWith({
+      blockId: 'block-2',
+      direction: 'before'
+    })
+  })
+
+  test('removes the target block and clears adjacent state when next block is text', () => {
+    // [para-before, block-1, block-2, para-after]
+    // Caret 'before' block-2, delete → removes block-2, para-after shifts to index 2
+    const editor = makeConsecutiveBlocksEditor()
+    Transforms.select(editor, Editor.start(editor, [2]))
+
+    const adjacentBlock: AdjacentBlockState = { blockId: 'block-2', direction: 'before' }
+    const setAdjacentBlock = vi.fn()
+    const event = makeEvent('Delete')
+
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock)
+
+    expect(event.preventDefault).toHaveBeenCalled()
+    expect(editor.children).toHaveLength(3)
+    expect(editor.children.every(c => c.id !== 'block-2')).toBe(true)
+    // para-after is now at index 2, which is a text block → clear adjacent state
+    expect(setAdjacentBlock).toHaveBeenCalledWith(null)
+  })
+
+  test('removes last block and lands on preceding non-text block with after direction', () => {
+    // [para-before, block-1, block-2, para-after]
+    // Remove para-after first to set up [para-before, block-1, block-2]
+    const editor = makeConsecutiveBlocksEditor()
+    Transforms.removeNodes(editor, { at: [3] })
+    expect(editor.children).toHaveLength(3)
+
+    // Caret 'before' block-2 (last element), delete → removes it
+    Transforms.select(editor, Editor.start(editor, [2]))
+    const adjacentBlock: AdjacentBlockState = { blockId: 'block-2', direction: 'before' }
+    const setAdjacentBlock = vi.fn()
+    const event = makeEvent('Delete')
+
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock)
+
+    expect(event.preventDefault).toHaveBeenCalled()
+    expect(editor.children).toHaveLength(2)
+    expect(editor.children.every(c => c.id !== 'block-2')).toBe(true)
+    // block-1 is now the last element → adjacent state with 'after' direction
+    expect(setAdjacentBlock).toHaveBeenCalledWith({
+      blockId: 'block-1',
+      direction: 'after'
+    })
+  })
+})
+
+describe('Backspace with direction=before on consecutive blocks', () => {
+  test('removes the non-text block behind and preserves adjacent state on the target', () => {
+    // [para-before, block-1, block-2, para-after]
+    // Caret 'before' block-2, backspace → removes block-1
+    const editor = makeConsecutiveBlocksEditor()
+    Transforms.select(editor, Editor.start(editor, [2]))
+
+    const adjacentBlock: AdjacentBlockState = { blockId: 'block-2', direction: 'before' }
+    const setAdjacentBlock = vi.fn()
+    const event = makeEvent('Backspace')
+
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock)
+
+    expect(event.preventDefault).toHaveBeenCalled()
+    expect(editor.children).toHaveLength(3)
+    expect(editor.children.every(c => c.id !== 'block-1')).toBe(true)
+    // block-2 shifted to index 1, still non-text → adjacent state preserved
+    expect(setAdjacentBlock).toHaveBeenCalledWith({
+      blockId: 'block-2',
+      direction: 'before'
+    })
   })
 })
 

@@ -1,6 +1,6 @@
 import { Editor, Element, Node, Range, Transforms } from 'slate'
 import type { AdjacentBlockState } from '../../../contexts/AdjacentBlockContext'
-import { resolveTargetIndex, selectStartAt } from './blockUtils'
+import { resolveTargetIndex, selectStartAt, enterBlockFromStart, enterBlockFromEnd } from './blockUtils'
 
 /**
  * Handle non-arrow keys while an adjacent-block indicator is active.
@@ -61,9 +61,19 @@ export function handleNonArrowWithAdjacentBlock(
         if (prevBlock && Element.isElement(prevBlock)) {
           event.preventDefault()
           if (prevBlock.class !== 'text') {
-            // Non-text block behind: delete it, land at start of the target block
+            // Non-text block behind: delete it, stay at the target block
             Transforms.removeNodes(editor, { at: [prevIndex] })
-            selectStartAt(editor, prevIndex)
+            // Target block shifted to prevIndex; it's still non-text so use
+            // enterBlockFromStart to skip void children and keep the indicator.
+            const shiftedBlock = editor.children[prevIndex]
+            if (Element.isElement(shiftedBlock) && shiftedBlock.class !== 'text') {
+              enterBlockFromStart(editor, [prevIndex], shiftedBlock)
+              setAdjacentBlock({ blockId: shiftedBlock.id, direction: 'before' })
+            } else {
+              selectStartAt(editor, prevIndex)
+              setAdjacentBlock(null)
+            }
+            return true
           } else if (Node.string(prevBlock) === '') {
             // Empty text block behind: remove it, land at start of the target block
             Transforms.removeNodes(editor, { at: [prevIndex] })
@@ -85,12 +95,32 @@ export function handleNonArrowWithAdjacentBlock(
       if (targetIndex !== -1) {
         event.preventDefault()
         Transforms.removeNodes(editor, { at: [targetIndex] })
+
+        // After removal, the block that was after the target (if any) shifts
+        // into targetIndex. If it's a non-text block, use void-skipping
+        // selection and preserve the adjacent indicator.
         if (targetIndex < editor.children.length) {
-          Transforms.select(editor, Editor.start(editor, [targetIndex]))
+          const nextBlock = editor.children[targetIndex]
+          if (Element.isElement(nextBlock) && nextBlock.class !== 'text') {
+            enterBlockFromStart(editor, [targetIndex], nextBlock)
+            setAdjacentBlock({ blockId: nextBlock.id, direction: 'before' })
+          } else {
+            Transforms.select(editor, Editor.start(editor, [targetIndex]))
+            setAdjacentBlock(null)
+          }
         } else if (editor.children.length > 0) {
-          Transforms.select(editor, Editor.end(editor, [editor.children.length - 1]))
+          const lastIndex = editor.children.length - 1
+          const lastBlock = editor.children[lastIndex]
+          if (Element.isElement(lastBlock) && lastBlock.class !== 'text') {
+            enterBlockFromEnd(editor, [lastIndex], lastBlock)
+            setAdjacentBlock({ blockId: lastBlock.id, direction: 'after' })
+          } else {
+            Transforms.select(editor, Editor.end(editor, [lastIndex]))
+            setAdjacentBlock(null)
+          }
+        } else {
+          setAdjacentBlock(null)
         }
-        setAdjacentBlock(null)
         return true
       }
     }
