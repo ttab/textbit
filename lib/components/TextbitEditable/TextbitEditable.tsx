@@ -117,6 +117,8 @@ export function TextbitEditable(props: TextbitEditableProps) {
     const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
       const nodesToTrim = [...Node.texts(editor)].filter(([node]) => node.text !== node.text.trim())
 
+      // Wrap in withoutNormalizing so Slate doesn't run normalization (and
+      // potentially invalidate collected paths) between each apply() call.
       Editor.withoutNormalizing(editor, () => {
         for (const [node, path] of nodesToTrim) {
           const trailingSpaces = node.text.length - node.text.trimEnd().length
