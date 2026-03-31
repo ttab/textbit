@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Editor, Element, type NodeEntry, Range, Transforms } from 'slate'
+import { Editor, Element, Node, type NodeEntry, Range, Transforms } from 'slate'
 import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../../utils/getDecorationRanges'
 import { ElementComponent } from '../Element/Element'
@@ -35,7 +35,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const handleContextMenu = useContextMenu()
   const [spellingLookupTable, setSpellingLookupTable] = useState<SpellcheckLookupTable>(new Map())
   const [adjacentBlock, setAdjacentBlock] = useState<AdjacentBlockState | null>(null)
-  const { onFocus, autoFocus = false } = props
+  const { onFocus, autoFocus = false, onBlur } = props
 
   // Track mounted state
   const isMountedRef = useRef(true)
@@ -113,6 +113,29 @@ export function TextbitEditable(props: TextbitEditableProps) {
       placeholder
     )
   }, [editor, components, placeholders, placeholder, spellingLookupTable])
+
+    const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+      const nodesToTrim = [...Node.texts(editor)].filter(([node]) => node.text !== node.text.trim())
+
+      Editor.withoutNormalizing(editor, () => {
+        for (const [node, path] of nodesToTrim) {
+          const trailingSpaces = node.text.length - node.text.trimEnd().length
+          const leadingSpaces = node.text.length - node.text.trimStart().length
+
+          // Remove trailing first (higher offset, doesn't affect leading positions)
+          if (trailingSpaces > 0) {
+            editor.apply({ type: 'remove_text', path, offset: node.text.length - trailingSpaces, text: node.text.slice(node.text.length - trailingSpaces) })
+          }
+          if (leadingSpaces > 0) {
+            editor.apply({ type: 'remove_text', path, offset: 0, text: node.text.slice(0, leadingSpaces) })
+          }
+        }
+      })
+
+      if (onBlur) {
+        onBlur(e)
+      }
+    }, [editor, onBlur])
 
   const onKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
     handleOnKeyDown(editor, actions, event, adjacentBlock, setAdjacentBlock)
@@ -194,7 +217,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
               renderElement={renderElement}
               renderLeaf={renderLeaf}
               onFocus={handleFocus}
-              onBlur={props.onBlur}
+              onBlur={handleBlur}
               onKeyDown={onKeyDown}
               decorate={decorate}
               className={props.className}
