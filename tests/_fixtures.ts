@@ -101,7 +101,7 @@ export const nonWordCharsContent: Descendant[] = [
  */
 export const nonTextClassContent: Descendant[] = [
   {
-    type: 'tt/visual/image',
+    type: 'core/image',
     class: 'block',
     id: 'image-1',
     children: [{ text: 'test' }]
@@ -113,7 +113,7 @@ export const nonTextClassContent: Descendant[] = [
  */
 export const imageWithTextClassContent: Descendant[] = [
   {
-    type: 'tt/visual/image',
+    type: 'core/image',
     class: 'text',
     id: 'image-text-1',
     children: [{ text: 'test' }]
@@ -164,6 +164,103 @@ export const emptyEditorContent: Descendant[] = [
     id: 'empty-node',
     properties: {},
     children: [{ text: '' }]
+  }
+]
+
+/**
+ * Text — non-text block — text sandwich for adjacent block navigation tests
+ */
+export const adjacentBlockContent: Descendant[] = [
+  {
+    type: 'core/text',
+    id: 'text-before-block',
+    class: 'text',
+    properties: {},
+    children: [{ text: 'Before' }]
+  },
+  {
+    type: 'core/image',
+    id: 'non-text-block',
+    class: 'block',
+    children: [
+      {
+        id: 'non-text-block-body',
+        type: 'core/text',
+        class: 'text',
+        properties: {},
+        children: [{ text: 'Block content' }]
+      }
+    ]
+  },
+  {
+    type: 'core/text',
+    id: 'text-after-block',
+    class: 'text',
+    properties: {},
+    children: [{ text: 'After' }]
+  }
+]
+
+/**
+ * Two consecutive non-text blocks with a void child and a text child each,
+ * sandwiched by text blocks. Mirrors a real image plugin structure where
+ * the first child is void (the image) and the second is editable text (the caption).
+ *
+ * Using core/text as the text child type so editor.isVoid returns false for it
+ * in the test environment (where only standard plugins are registered).
+ */
+export const consecutiveBlocksContent: Descendant[] = [
+  {
+    type: 'core/text',
+    id: 'para-before',
+    class: 'text',
+    properties: {},
+    children: [{ text: 'Before' }]
+  },
+  {
+    type: 'core/image',
+    id: 'block-1',
+    class: 'block',
+    children: [
+      {
+        type: 'core/image/image',
+        class: 'void',
+        children: [{ text: '' }]
+      },
+      {
+        id: 'block-1-text',
+        type: 'core/text',
+        class: 'text',
+        properties: {},
+        children: [{ text: 'Caption 1' }]
+      }
+    ]
+  },
+  {
+    type: 'core/image',
+    id: 'block-2',
+    class: 'block',
+    children: [
+      {
+        type: 'core/image/image',
+        class: 'void',
+        children: [{ text: '' }]
+      },
+      {
+        id: 'block-2-text',
+        type: 'core/text',
+        class: 'text',
+        properties: {},
+        children: [{ text: 'Caption 2' }]
+      }
+    ]
+  },
+  {
+    type: 'core/text',
+    id: 'para-after',
+    class: 'text',
+    properties: {},
+    children: [{ text: 'After' }]
   }
 ]
 
