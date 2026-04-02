@@ -194,34 +194,34 @@ export function TextbitEditable(props: TextbitEditableProps) {
   return (
     <>
       <BlockSelectionProvider value={blockSelection}>
-      <AdjacentBlockProvider value={adjacentBlock}>
-        <DragStateProvider>
-          <PresenceOverlay isCollaborative={collaborative}>
-            <Editable
-              autoFocus={!!autoFocus}
-              data-state={isFocused ? 'focused' : ''}
-              readOnly={readOnly}
-              renderElement={renderElement}
-              renderLeaf={renderLeaf}
-              onFocus={handleFocus}
-              onBlur={props.onBlur}
-              onKeyDown={onKeyDown}
-              decorate={decorate}
-              className={props.className}
-              style={adjacentBlock || blockSelection
-                ? { ...props.style, caretColor: 'transparent' }
-                : props.style
-              }
-              spellCheck={false}
-              dir={dir}
-              onContextMenu={handleContextMenu}
-              onMouseDown={onMouseDown}
-              aria-label={props['aria-label']}
-            />
-            {props.children}
-          </PresenceOverlay>
-        </DragStateProvider>
-      </AdjacentBlockProvider>
+        <AdjacentBlockProvider value={adjacentBlock}>
+          <DragStateProvider>
+            <PresenceOverlay isCollaborative={collaborative}>
+              <Editable
+                autoFocus={!!autoFocus}
+                data-state={isFocused ? 'focused' : ''}
+                readOnly={readOnly}
+                renderElement={renderElement}
+                renderLeaf={renderLeaf}
+                onFocus={handleFocus}
+                onBlur={props.onBlur}
+                onKeyDown={onKeyDown}
+                decorate={decorate}
+                className={props.className}
+                style={adjacentBlock || blockSelection
+                  ? { ...props.style, caretColor: 'transparent' }
+                  : props.style
+                }
+                spellCheck={false}
+                dir={dir}
+                onContextMenu={handleContextMenu}
+                onMouseDown={onMouseDown}
+                aria-label={props['aria-label']}
+              />
+              {props.children}
+            </PresenceOverlay>
+          </DragStateProvider>
+        </AdjacentBlockProvider>
       </BlockSelectionProvider>
 
       {verbose && <SelectionBoundsDetails />}
