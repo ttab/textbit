@@ -1,7 +1,6 @@
 import { type ComponentEntry } from '../types/textbit'
 
 export function componentConstraints(entry: ComponentEntry) {
-  console.log('🚀 ~ :4 ~ componentConstraints ~ entry:', entry)
   const {
     // maxLength = undefined,   // Max length of text content
     // maxElements = undefined, // Max no of elements in parent
