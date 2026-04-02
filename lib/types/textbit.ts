@@ -127,6 +127,9 @@ export interface ComponentEntry<T extends HTMLElement = HTMLElement> {
     /** If false, prevents <enter> from exiting the top-level block when at the last position, default is true */
     allowExitBreak?: boolean
 
+    /** If true, prevents whitespace from being added to the first and last position of a paragraph, default is false */
+    trimWhitespace?: boolean
+
     /** Normalizer function, optional */
     normalizeNode?: (editor: Editor, nodeEntry: NodeEntry) => boolean | void
   }

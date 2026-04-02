@@ -1,13 +1,15 @@
 import { type ComponentEntry } from '../types/textbit'
 
 export function componentConstraints(entry: ComponentEntry) {
+  console.log('🚀 ~ :4 ~ componentConstraints ~ entry:', entry)
   const {
     // maxLength = undefined,   // Max length of text content
     // maxElements = undefined, // Max no of elements in parent
     // minElements = undefined, // Min no of elements in parent
     allowBreak, // Allow normal break to create new node of same type
     allowSoftBreak, // Allow soft break (newline in text node)
-    normalizeNode
+    normalizeNode,
+    trimWhitespace
   } = entry?.constraints || {}
 
   return {
@@ -16,6 +18,7 @@ export function componentConstraints(entry: ComponentEntry) {
     // minElements: minElements ?? 0,
     allowBreak: allowBreak ?? true,
     allowSoftBreak: allowSoftBreak ?? false,
+    trimWhitespace: trimWhitespace ?? false,
     normalizeNode: normalizeNode instanceof Function ? normalizeNode : undefined
   }
 }
