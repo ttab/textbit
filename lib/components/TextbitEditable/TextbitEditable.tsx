@@ -14,6 +14,8 @@ import type { SpellcheckLookupTable } from '../../types'
 import { SelectionBoundsDetails } from '../SelectionBoundsDetails'
 import { type AdjacentBlockState } from '../../contexts/AdjacentBlockContext'
 import { AdjacentBlockProvider } from '../../contexts/AdjacentBlockProvider'
+import { type BlockSelectionState } from '../../contexts/BlockSelectionContext'
+import { BlockSelectionProvider } from '../../contexts/BlockSelectionProvider'
 import { handleOnKeyDown } from './handleOnKeyDown/handleOnKeyDown'
 
 interface TextbitEditableProps {
@@ -35,6 +37,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const handleContextMenu = useContextMenu()
   const [spellingLookupTable, setSpellingLookupTable] = useState<SpellcheckLookupTable>(new Map())
   const [adjacentBlock, setAdjacentBlock] = useState<AdjacentBlockState | null>(null)
+  const [blockSelection, setBlockSelection] = useState<BlockSelectionState | null>(null)
   const { onFocus, autoFocus = false } = props
 
   // Track mounted state
@@ -115,8 +118,8 @@ export function TextbitEditable(props: TextbitEditableProps) {
   }, [editor, components, placeholders, placeholder, spellingLookupTable])
 
   const onKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
-    handleOnKeyDown(editor, actions, event, adjacentBlock, setAdjacentBlock)
-  }, [editor, actions, adjacentBlock, setAdjacentBlock])
+    handleOnKeyDown(editor, actions, event, adjacentBlock, setAdjacentBlock, blockSelection, setBlockSelection)
+  }, [editor, actions, adjacentBlock, setAdjacentBlock, blockSelection, setBlockSelection])
 
   /**
    * Fixefox does not set the caret position correctly when clicking
@@ -160,13 +163,19 @@ export function TextbitEditable(props: TextbitEditableProps) {
         Transforms.select(editor, Editor.end(editor, [i]))
       }
       setAdjacentBlock({ blockId: block.id, direction })
+      if (blockSelection) {
+        setBlockSelection(null)
+      }
 
       return
     }
 
-    // Default: clear adjacent block state on any other click
+    // Default: clear adjacent block and block selection state on any other click
     if (adjacentBlock) {
       setAdjacentBlock(null)
+    }
+    if (blockSelection) {
+      setBlockSelection(null)
     }
 
     // We only need to handle this for Firefox (Gecko rendering engine)
@@ -180,10 +189,11 @@ export function TextbitEditable(props: TextbitEditableProps) {
         Transforms.select(editor, range)
       }
     }
-  }, [editor, isFocused, adjacentBlock, setAdjacentBlock])
+  }, [editor, isFocused, adjacentBlock, setAdjacentBlock, blockSelection, setBlockSelection])
 
   return (
     <>
+      <BlockSelectionProvider value={blockSelection}>
       <AdjacentBlockProvider value={adjacentBlock}>
         <DragStateProvider>
           <PresenceOverlay isCollaborative={collaborative}>
@@ -198,7 +208,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
               onKeyDown={onKeyDown}
               decorate={decorate}
               className={props.className}
-              style={adjacentBlock
+              style={adjacentBlock || blockSelection
                 ? { ...props.style, caretColor: 'transparent' }
                 : props.style
               }
@@ -212,6 +222,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
           </PresenceOverlay>
         </DragStateProvider>
       </AdjacentBlockProvider>
+      </BlockSelectionProvider>
 
       {verbose && <SelectionBoundsDetails />}
     </>

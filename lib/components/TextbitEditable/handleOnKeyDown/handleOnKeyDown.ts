@@ -2,9 +2,11 @@ import { Editor, Element, Range, Transforms } from 'slate'
 import type { PluginRegistryAction } from '../../../contexts/PluginRegistry/lib/types'
 import { toggleLeaf } from '../../../utils/toggleLeaf'
 import type { AdjacentBlockState } from '../../../contexts/AdjacentBlockContext'
+import type { BlockSelectionState } from '../../../contexts/BlockSelectionContext'
 import { handleArrowWithAdjacentBlock, handleArrowNoAdjacentBlock, handleVerticalArrowWithAdjacentBlock } from './arrowHandlers'
 import { handleNonArrowWithAdjacentBlock } from './nonArrowHandler'
 import { isAtAccessibleEnd, isAtAccessibleStart } from './blockUtils'
+import { enterBlockSelectionFromAdjacentCaret, handleBlockSelectionKeyDown } from './blockSelectionHandler'
 
 /*
  * Match key events to registered actions keyboard shortcuts. Then either
@@ -17,8 +19,28 @@ export function handleOnKeyDown(
   actions: PluginRegistryAction[],
   event: React.KeyboardEvent<HTMLDivElement>,
   adjacentBlock: AdjacentBlockState | null,
-  setAdjacentBlock: (state: AdjacentBlockState | null) => void
+  setAdjacentBlock: (state: AdjacentBlockState | null) => void,
+  blockSelection: BlockSelectionState | null,
+  setBlockSelection: (state: BlockSelectionState | null) => void
 ) {
+  // 1. Block selection active — delegate all keys to block selection handler
+  if (blockSelection) {
+    handleBlockSelectionKeyDown(editor, event, blockSelection, setBlockSelection, setAdjacentBlock)
+    return
+  }
+
+  // 2. Adjacent caret + Shift+Arrow — enter block selection mode
+  if (adjacentBlock && event.shiftKey
+    && (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+    const newSelection = enterBlockSelectionFromAdjacentCaret(editor, event, adjacentBlock)
+    if (newSelection) {
+      event.preventDefault()
+      setAdjacentBlock(null)
+      setBlockSelection(newSelection)
+    }
+    return
+  }
+
   const key = event.key
   const goingForward = key === 'ArrowRight' // || key === 'ArrowDown'
   const goingBackward = key === 'ArrowLeft' // || key === 'ArrowUp'

@@ -2,6 +2,7 @@ import { useSelected, useSlateStatic, type RenderElementProps } from 'slate-reac
 import { Droppable } from './Droppable'
 import type { ComponentEntry } from '../../types'
 import { useAdjacentBlock } from '../../hooks/useAdjacentBlock'
+import { useBlockSelection } from '../../hooks/useBlockSelection'
 import { CSSProperties } from 'react'
 
 interface ParentElementProps extends RenderElementProps {
@@ -19,7 +20,18 @@ export function ParentElement(renderProps: ParentElementProps) {
   const active = useSelected() // Whether cursor is inside block
   const editor = useSlateStatic()
   const adjacentBlock = useAdjacentBlock()
+  const blockSelection = useBlockSelection()
   const { element, attributes, entry } = renderProps
+
+  // Block-level selection: check if this element is within the selected range
+  const isBlockSelected = (() => {
+    if (!blockSelection) return false
+    const myIndex = editor.children.findIndex(c => c === element)
+    if (myIndex === -1) return false
+    const lo = Math.min(blockSelection.anchorIndex, blockSelection.focusIndex)
+    const hi = Math.max(blockSelection.anchorIndex, blockSelection.focusIndex)
+    return myIndex >= lo && myIndex <= hi
+  })()
 
   const adjacentState: 'before' | 'after' | null = adjacentBlock && adjacentBlock.blockId === element.id
     ? adjacentBlock.direction
@@ -56,6 +68,7 @@ export function ParentElement(renderProps: ParentElementProps) {
         lang={renderProps.element.lang || editor.lang}
         data-id={element.id}
         data-state={dataState}
+        {...(isBlockSelected ? { 'data-block-selected': '' } : {})}
         className={`${element.class} ${element.type} ${entry.class} relative group`}
         style={{ position: 'relative' }}
         {...attributes}
@@ -69,6 +82,20 @@ export function ParentElement(renderProps: ParentElementProps) {
               position: 'absolute',
               inset: 0,
               pointerEvents: 'none',
+            }}
+          />
+        )}
+        {isBlockSelected && (
+          <div
+            contentEditable={false}
+            className='tb-block-selected'
+            style={{
+              position: 'absolute',
+              inset: -2,
+              pointerEvents: 'none',
+              outline: '2px solid Highlight',
+              outlineOffset: '2px',
+              borderRadius: 'var(--tb-focus-ring-radius, 5px)',
             }}
           />
         )}
