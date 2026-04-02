@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Editor, Element, type NodeEntry, Range, Transforms } from 'slate'
+import { Editor, Element, Node, type NodeEntry, Range, Transforms } from 'slate'
 import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../../utils/getDecorationRanges'
 import { ElementComponent } from '../Element/Element'
@@ -20,6 +20,9 @@ interface TextbitEditableProps {
   autoFocus?: boolean | 'start' | 'end'
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   onBlur?: React.FocusEventHandler<HTMLDivElement>
+  constraints?: {
+    trimWhitespace?: boolean
+  }
   className?: string
   style?: React.CSSProperties
   children?: React.ReactNode
@@ -35,7 +38,11 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const handleContextMenu = useContextMenu()
   const [spellingLookupTable, setSpellingLookupTable] = useState<SpellcheckLookupTable>(new Map())
   const [adjacentBlock, setAdjacentBlock] = useState<AdjacentBlockState | null>(null)
-  const { onFocus, autoFocus = false } = props
+  const { onFocus, onBlur, constraints, autoFocus = false } = props
+
+  useEffect(() => {
+    editor.trimWhitespace = constraints?.trimWhitespace === true
+  }, [editor, constraints?.trimWhitespace])
 
   // Track mounted state
   const isMountedRef = useRef(true)
@@ -113,6 +120,52 @@ export function TextbitEditable(props: TextbitEditableProps) {
       placeholder
     )
   }, [editor, components, placeholders, placeholder, spellingLookupTable])
+
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    if (constraints?.trimWhitespace === true) {
+      // queueMicrotask schedules a function to run after the current JavaScript task finishes,
+      // so it's added here to give Slate a chance to handle timing issues
+      queueMicrotask(() => {
+        type TrimRange = { anchor: { path: number[], offset: number }, focus: { path: number[], offset: number } }
+        const ranges: TrimRange[] = []
+
+        for (const [node, path] of Editor.nodes(editor, { at: [], match: n => Element.isElement(n) })) {
+          const texts = Array.from(Node.texts(node))
+          if (texts.length === 0) continue
+
+          const [firstText, firstRelPath] = texts[0]
+          const leadingMatch = firstText.text.match(/^[\t\n\r\f\v ]+/)
+
+          if (leadingMatch) {
+            const absPath = [...path, ...firstRelPath]
+            ranges.push({
+              anchor: { path: absPath, offset: 0 },
+              focus: { path: absPath, offset: leadingMatch[0].length }
+            })
+          }
+
+          const [lastText, lastRelPath] = texts[texts.length - 1]
+          const trailingMatch = lastText.text.match(/[\t\n\r\f\v ]+$/)
+
+          if (trailingMatch) {
+            const absPath = [...path, ...lastRelPath]
+            const textLength = lastText.text.length
+            ranges.push({
+              anchor: { path: absPath, offset: textLength - trailingMatch[0].length },
+              focus: { path: absPath, offset: textLength }
+            })
+          }
+        }
+
+        // Delete in reverse order so earlier paths are not invalidated
+        for (const range of ranges.reverse()) {
+          Transforms.delete(editor, { at: range })
+        }
+      })
+    }
+
+    onBlur?.(e)
+  }, [editor, constraints, onBlur])
 
   const onKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
     handleOnKeyDown(editor, actions, event, adjacentBlock, setAdjacentBlock)
@@ -194,7 +247,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
               renderElement={renderElement}
               renderLeaf={renderLeaf}
               onFocus={handleFocus}
-              onBlur={props.onBlur}
+              onBlur={handleBlur}
               onKeyDown={onKeyDown}
               decorate={decorate}
               className={props.className}
