@@ -21,7 +21,7 @@ interface TextbitEditableProps {
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   onBlur?: React.FocusEventHandler<HTMLDivElement>
   constraints?: {
-    trimWhitespace?: boolean
+    allowEdgeWhitespace?: boolean
   }
   className?: string
   style?: React.CSSProperties
@@ -41,8 +41,8 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const { onFocus, onBlur, constraints, autoFocus = false } = props
 
   useEffect(() => {
-    editor.trimWhitespace = constraints?.trimWhitespace === true
-  }, [editor, constraints?.trimWhitespace])
+    editor.allowEdgeWhitespace = constraints?.allowEdgeWhitespace !== false
+  }, [editor, constraints?.allowEdgeWhitespace])
 
   // Track mounted state
   const isMountedRef = useRef(true)
@@ -122,7 +122,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
   }, [editor, components, placeholders, placeholder, spellingLookupTable])
 
   const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
-    if (constraints?.trimWhitespace === true) {
+    if (constraints?.allowEdgeWhitespace === false) {
       // queueMicrotask schedules a function to run after the current JavaScript task finishes,
       // so it's added here to give Slate a chance to handle timing issues
       queueMicrotask(() => {

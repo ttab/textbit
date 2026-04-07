@@ -36,7 +36,7 @@ export type TextbitEditor = BaseEditor & ReactEditor & HistoryEditor & {
   lang: string
   isTextBlock: (value: unknown) => value is Element
   isOfType: <T extends Element>(value: unknown, type: string) => value is T
-  trimWhitespace?: boolean
+  allowEdgeWhitespace?: boolean
 }
 
 type BaseTextbitElement = BaseElement & {
