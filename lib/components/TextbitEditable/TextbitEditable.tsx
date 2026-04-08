@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Editor, Element, Node, type NodeEntry, Range, Transforms } from 'slate'
+import { Editor, Element, Node, Text, type NodeEntry, Range, Transforms } from 'slate'
 import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../../utils/getDecorationRanges'
 import { ElementComponent } from '../Element/Element'
@@ -134,30 +134,41 @@ export function TextbitEditable(props: TextbitEditableProps) {
         const ranges: TrimRange[] = []
 
         for (const [node, path] of Editor.nodes(editor, { at: [], match: n => Element.isElement(n) })) {
-          const texts = Array.from(Node.texts(node))
-          if (texts.length === 0) continue
-
-          const [firstText, firstRelPath] = texts[0]
-          const leadingMatch = firstText.text.match(/^[\t\n\r\f\v ]+/)
-
-          if (leadingMatch) {
-            const absPath = [...path, ...firstRelPath]
-            ranges.push({
-              anchor: { path: absPath, offset: 0 },
-              focus: { path: absPath, offset: leadingMatch[0].length }
-            })
+          // Only process top-level blocks, not nested inline elements
+          if (path.length !== 1) {
+            continue
           }
 
-          const [lastText, lastRelPath] = texts[texts.length - 1]
-          const trailingMatch = lastText.text.match(/[\t\n\r\f\v ]+$/)
+          // Check the first leaf text node for leading whitespace
+          const [firstNode, firstRelPath] = Node.first(node, [])
 
-          if (trailingMatch) {
-            const absPath = [...path, ...lastRelPath]
-            const textLength = lastText.text.length
-            ranges.push({
-              anchor: { path: absPath, offset: textLength - trailingMatch[0].length },
-              focus: { path: absPath, offset: textLength }
-            })
+          if (Text.isText(firstNode)) {
+            const leadingMatch = firstNode.text.match(/^[\t\n\r\f\v ]+/)
+            if (leadingMatch) {
+              const absPath = [...path, ...firstRelPath]
+
+              ranges.push({
+                anchor: { path: absPath, offset: 0 },
+                focus: { path: absPath, offset: leadingMatch[0].length }
+              })
+            }
+          }
+
+          // Check the last leaf text node for trailing whitespace
+          const [lastNode, lastRelPath] = Node.last(node, [])
+
+          if (Text.isText(lastNode)) {
+            const trailingMatch = lastNode.text.match(/[\t\n\r\f\v ]+$/)
+
+            if (trailingMatch) {
+              const absPath = [...path, ...lastRelPath]
+              const textLength = lastNode.text.length
+
+              ranges.push({
+                anchor: { path: absPath, offset: textLength - trailingMatch[0].length },
+                focus: { path: absPath, offset: textLength }
+              })
+            }
           }
         }
 
