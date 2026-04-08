@@ -122,7 +122,11 @@ export function TextbitEditable(props: TextbitEditableProps) {
   }, [editor, components, placeholders, placeholder, spellingLookupTable])
 
   const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
-    if (constraints?.allowEdgeWhitespace === false) {
+    if (!constraints?.allowEdgeWhitespace) {
+      onBlur?.(e)
+      return
+    }
+
       // queueMicrotask schedules a function to run after the current JavaScript task finishes,
       // so it's added here to give Slate a chance to handle timing issues
       queueMicrotask(() => {
@@ -162,7 +166,6 @@ export function TextbitEditable(props: TextbitEditableProps) {
           Transforms.delete(editor, { at: range })
         }
       })
-    }
 
     onBlur?.(e)
   }, [editor, constraints, onBlur])
