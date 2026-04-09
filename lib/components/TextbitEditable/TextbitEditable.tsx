@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Editor, Element, Node, Text, type NodeEntry, Range, Transforms } from 'slate'
+import { Editor, Element, type NodeEntry, Range, Transforms } from 'slate'
 import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../../utils/getDecorationRanges'
 import { ElementComponent } from '../Element/Element'
@@ -15,6 +15,7 @@ import { SelectionBoundsDetails } from '../SelectionBoundsDetails'
 import { type AdjacentBlockState } from '../../contexts/AdjacentBlockContext'
 import { AdjacentBlockProvider } from '../../contexts/AdjacentBlockProvider'
 import { handleOnKeyDown } from './handleOnKeyDown/handleOnKeyDown'
+import { trimWhitespace } from '../../utils/trimWhitespace'
 
 interface TextbitEditableProps {
   autoFocus?: boolean | 'start' | 'end'
@@ -130,52 +131,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
       // queueMicrotask schedules a function to run after the current JavaScript task finishes,
       // so it's added here to give Slate a chance to handle timing issues
       queueMicrotask(() => {
-        type TrimRange = { anchor: { path: number[], offset: number }, focus: { path: number[], offset: number } }
-        const ranges: TrimRange[] = []
-
-        for (const [node, path] of Editor.nodes(editor, { at: [], match: n => Element.isElement(n) })) {
-          // Only process top-level blocks, not nested inline elements
-          if (path.length !== 1) {
-            continue
-          }
-
-          // Check the first leaf text node for leading whitespace
-          const [firstNode, firstRelPath] = Node.first(node, [])
-
-          if (Text.isText(firstNode)) {
-            const leadingMatch = firstNode.text.match(/^[\t\n\r\f\v ]+/)
-            if (leadingMatch) {
-              const absPath = [...path, ...firstRelPath]
-
-              ranges.push({
-                anchor: { path: absPath, offset: 0 },
-                focus: { path: absPath, offset: leadingMatch[0].length }
-              })
-            }
-          }
-
-          // Check the last leaf text node for trailing whitespace
-          const [lastNode, lastRelPath] = Node.last(node, [])
-
-          if (Text.isText(lastNode)) {
-            const trailingMatch = lastNode.text.match(/[\t\n\r\f\v ]+$/)
-
-            if (trailingMatch) {
-              const absPath = [...path, ...lastRelPath]
-              const textLength = lastNode.text.length
-
-              ranges.push({
-                anchor: { path: absPath, offset: textLength - trailingMatch[0].length },
-                focus: { path: absPath, offset: textLength }
-              })
-            }
-          }
-        }
-
-        // Delete in reverse order so earlier paths are not invalidated
-        for (const range of ranges.reverse()) {
-          Transforms.delete(editor, { at: range })
-        }
+        trimWhitespace({ editor })
       })
 
     onBlur?.(e)
