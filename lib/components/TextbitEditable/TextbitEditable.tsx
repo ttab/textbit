@@ -15,11 +15,15 @@ import { SelectionBoundsDetails } from '../SelectionBoundsDetails'
 import { type AdjacentBlockState } from '../../contexts/AdjacentBlockContext'
 import { AdjacentBlockProvider } from '../../contexts/AdjacentBlockProvider'
 import { handleOnKeyDown } from './handleOnKeyDown/handleOnKeyDown'
+import { trimWhitespace } from '../../utils/trimWhitespace'
 
 interface TextbitEditableProps {
   autoFocus?: boolean | 'start' | 'end'
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   onBlur?: React.FocusEventHandler<HTMLDivElement>
+  constraints?: {
+    allowEdgeWhitespace?: boolean
+  }
   className?: string
   style?: React.CSSProperties
   children?: React.ReactNode
@@ -35,7 +39,11 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const handleContextMenu = useContextMenu()
   const [spellingLookupTable, setSpellingLookupTable] = useState<SpellcheckLookupTable>(new Map())
   const [adjacentBlock, setAdjacentBlock] = useState<AdjacentBlockState | null>(null)
-  const { onFocus, autoFocus = false } = props
+  const { onFocus, onBlur, constraints, autoFocus = false } = props
+
+  useEffect(() => {
+    editor.allowEdgeWhitespace = constraints?.allowEdgeWhitespace !== false
+  }, [editor, constraints?.allowEdgeWhitespace])
 
   // Track mounted state
   const isMountedRef = useRef(true)
@@ -113,6 +121,21 @@ export function TextbitEditable(props: TextbitEditableProps) {
       placeholder
     )
   }, [editor, components, placeholders, placeholder, spellingLookupTable])
+
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    if (constraints?.allowEdgeWhitespace !== false) {
+      onBlur?.(e)
+      return
+    }
+
+      // queueMicrotask schedules a function to run after the current JavaScript task finishes,
+      // so it's added here to give Slate a chance to handle timing issues
+      queueMicrotask(() => {
+        trimWhitespace({ editor })
+      })
+
+    onBlur?.(e)
+  }, [editor, constraints, onBlur])
 
   const onKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
     handleOnKeyDown(editor, actions, event, adjacentBlock, setAdjacentBlock)
@@ -194,7 +217,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
               renderElement={renderElement}
               renderLeaf={renderLeaf}
               onFocus={handleFocus}
-              onBlur={props.onBlur}
+              onBlur={handleBlur}
               onKeyDown={onKeyDown}
               decorate={decorate}
               className={props.className}
