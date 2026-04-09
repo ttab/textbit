@@ -7,7 +7,8 @@ export function componentConstraints(entry: ComponentEntry) {
     // minElements = undefined, // Min no of elements in parent
     allowBreak, // Allow normal break to create new node of same type
     allowSoftBreak, // Allow soft break (newline in text node)
-    normalizeNode
+    normalizeNode,
+    allowEdgeWhitespace
   } = entry?.constraints || {}
 
   return {
@@ -16,6 +17,7 @@ export function componentConstraints(entry: ComponentEntry) {
     // minElements: minElements ?? 0,
     allowBreak: allowBreak ?? true,
     allowSoftBreak: allowSoftBreak ?? false,
+    allowEdgeWhitespace: allowEdgeWhitespace ?? true,
     normalizeNode: normalizeNode instanceof Function ? normalizeNode : undefined
   }
 }

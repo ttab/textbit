@@ -1182,6 +1182,7 @@ Constraints control editing behavior within a component. They are set in the `co
 | `allowBreak` | `boolean` | `true` | When `false`, prevents Enter from creating new nodes inside the component |
 | `allowSoftBreak` | `boolean` | `true` | When `false`, prevents soft breaks (Shift+Enter) within a text element |
 | `allowExitBreak` | `boolean` | `true` | When `false`, prevents Enter at the last position from exiting the top-level block to create a new text block after it |
+| `allowEdgeWhitespace` | `boolean` | `true` | When `false`, prevents Space from adding a whitespace character at the first position. If one or more whitespace characters are left trailing at the last position or after, these will be removed on the following blur event |
 | `normalizeNode` | `(editor, nodeEntry) => boolean \| void` | — | Custom normalization function; return `true` to signal the normalization was handled |
 
 See the [Image Block Plugin example](#example-image-block-plugin) below for a practical demonstration of `allowBreak` and `normalizeNode`.

@@ -22,6 +22,7 @@ import { withInsertHtml } from '../with/withInsertHtml'
 import { withUniqueIds } from '../with/withUniqueIds'
 import { withDeletionManagement } from '../with/withDeletionManagement'
 import { withInsertFragment } from '../with/withInsertFragment'
+import { withTrimWhitespace } from '../with/withTrimWhitespace'
 
 interface SlateContainerBaseProps {
   children: React.ReactNode
@@ -105,6 +106,7 @@ export function SlateContainer(props: SlateContainerProps) {
     withInsertFragment(editor)
     withNormalizeNode(editor, plugins, components)
     withEditableVoids(editor, components)
+    withTrimWhitespace(editor)
     withInsertBreak(editor, components)
     withInsertHtml(editor, components, plugins)
     withUniqueIds(editor)
