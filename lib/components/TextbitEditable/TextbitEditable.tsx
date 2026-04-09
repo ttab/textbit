@@ -122,7 +122,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
   }, [editor, components, placeholders, placeholder, spellingLookupTable])
 
   const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
-    if (!constraints?.allowEdgeWhitespace) {
+    if (constraints?.allowEdgeWhitespace !== false) {
       onBlur?.(e)
       return
     }
