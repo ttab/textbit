@@ -126,6 +126,7 @@ export function Droppable({ children, element }: {
     <div
       data-id={element?.id || ''}
       ref={ref}
+      style={element?.class === 'block' ? { marginTop: 'var(--tb-block-spacing, 8px)' } : undefined}
       draggable={['block', 'void'].includes(element?.class || '') ? 'true' : 'false'}
       onDragStartCapture={onDragStartCapture}
       onDragEnterCapture={onDragEnterCapture}
