@@ -196,6 +196,14 @@ export function handleBlockSelectionKeyDown(
     return
   }
 
+  // ── Cmd/Ctrl+V — let the native paste event fire ──────────────────────
+  // The onPaste handler on TextbitEditable consumes the block selection
+  // state, removes the selected blocks and inserts the clipboard content
+  // in their place. Do NOT preventDefault here.
+  if (hasMod && key === 'v') {
+    return
+  }
+
   // ── All other keys: consume, no-op ────────────────────────────────────
   event.preventDefault()
 }

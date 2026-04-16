@@ -18,6 +18,7 @@ import { type BlockSelectionState } from '../../contexts/BlockSelectionContext'
 import { BlockSelectionProvider } from '../../contexts/BlockSelectionProvider'
 import { handleOnKeyDown } from './handleOnKeyDown/handleOnKeyDown'
 import { trimWhitespace } from '../../utils/trimWhitespace'
+import { prepareBlockAwarePaste } from '../../utils/blockAwarePaste'
 
 interface TextbitEditableProps {
   autoFocus?: boolean | 'start' | 'end'
@@ -145,6 +146,42 @@ export function TextbitEditable(props: TextbitEditableProps) {
   }, [editor, actions, adjacentBlock, setAdjacentBlock, blockSelection, setBlockSelection])
 
   /**
+   * Redirect paste when block caret or block selection is active so the
+   * clipboard content lands adjacent to (or replaces) the affected
+   * block(s), rather than inside the block the hidden Slate selection
+   * happens to point at. See utils/blockAwarePaste.ts for details.
+   */
+  const onPaste = useCallback((event: React.ClipboardEvent<HTMLDivElement>) => {
+    if (!adjacentBlock && !blockSelection) {
+      return
+    }
+
+    const data = event.clipboardData
+    if (!data) {
+      return
+    }
+
+    const result = prepareBlockAwarePaste(editor, data, adjacentBlock, blockSelection)
+
+    if (result === 'unhandled') {
+      return
+    }
+
+    // Clear block-level states; from here on the editor is in a normal
+    // collapsed-selection state.
+    if (adjacentBlock) setAdjacentBlock(null)
+    if (blockSelection) setBlockSelection(null)
+
+    if (result === 'handled') {
+      // Slate fragment was inserted directly — stop slate-react from also
+      // running its default paste handler.
+      event.preventDefault()
+    }
+    // For 'prepared' we leave the event alone so slate-react's default
+    // paste handler populates the placeholder via editor.insertData.
+  }, [editor, adjacentBlock, blockSelection, setAdjacentBlock, setBlockSelection])
+
+  /**
    * Fixefox does not set the caret position correctly when clicking
    * in an unfocused Editable area. If the gecko rendering engine is
    * detected we help the user by setting the caret position.
@@ -232,6 +269,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onKeyDown={onKeyDown}
+                onPaste={onPaste}
                 decorate={decorate}
                 className={props.className}
                 style={adjacentBlock || blockSelection

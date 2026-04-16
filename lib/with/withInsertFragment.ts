@@ -1,4 +1,4 @@
-import { Editor, Node, Range, Path, Element, Point } from 'slate'
+import { Editor, Node, Range, Path, Element, Point, Transforms } from 'slate'
 import { TextbitElement } from '../main'
 
 /**
@@ -27,8 +27,48 @@ export function withInsertFragment(editor: Editor) {
       return
     }
 
-    // Not applicable unless all fragments are text nodes
+    // When the fragment contains non-text blocks and the cursor is inside a
+    // top-level text paragraph, split the paragraph at the cursor and insert
+    // the block nodes as top-level siblings. This prevents Slate's default
+    // insertFragment from unwrapping block structures into inline context
+    // (which destroys void elements and their properties).
     if (!fragment.every(TextbitElement.isText)) {
+      const anchor = selection.anchor
+      const focus = selection.focus
+
+      if (anchor.path[0] === focus.path[0]) {
+        const topIndex = anchor.path[0]
+        const topNode = editor.children[topIndex]
+
+        if (Element.isElement(topNode) && topNode.class === 'text') {
+          if (!Range.isCollapsed(selection)) {
+            Transforms.delete(editor)
+          }
+
+          const point = editor.selection!.anchor
+          const isAtStart = Point.equals(point, Editor.start(editor, [topIndex]))
+          const isAtEnd = Point.equals(point, Editor.end(editor, [topIndex]))
+          const needsSplit = !isAtStart && !isAtEnd
+          const insertAt = isAtStart ? topIndex : topIndex + 1
+
+          Editor.withoutNormalizing(editor, () => {
+            if (needsSplit) {
+              Transforms.splitNodes(editor, {
+                at: point,
+                match: (_, p) => p.length === 1
+              })
+            }
+
+            for (let i = 0; i < fragment.length; i++) {
+              Transforms.insertNodes(editor, fragment[i], { at: [insertAt + i] })
+            }
+          })
+
+          Transforms.select(editor, Editor.end(editor, [insertAt + fragment.length - 1]))
+          return
+        }
+      }
+
       insertFragment(fragment, options)
       return
     }
