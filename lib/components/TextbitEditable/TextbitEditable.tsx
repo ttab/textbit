@@ -253,10 +253,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
 
   return (
     <>
-      {blockSelection && (
-        <style>{`[data-block-selected] *::selection { background: transparent; color: inherit; }`}</style>
-      )}
-      <BlockSelectionProvider value={blockSelection}>
+<BlockSelectionProvider value={blockSelection}>
         <AdjacentBlockProvider value={adjacentBlock}>
           <DragStateProvider>
             <PresenceOverlay isCollaborative={collaborative}>

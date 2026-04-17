@@ -70,7 +70,7 @@ export function ParentElement(renderProps: ParentElementProps) {
         data-state={dataState}
         {...(isBlockSelected ? { 'data-block-selected': '' } : {})}
         className={`${element.class} ${element.type} ${entry.class} relative group`}
-        style={{ position: 'relative' }}
+        style={{ position: 'relative', ...(isBlockSelected ? { userSelect: 'none' } : {}) }}
         {...attributes}
       >
         <entry.component {...renderProps} editor={editor} />
