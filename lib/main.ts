@@ -79,6 +79,7 @@ export { useTextbit } from './hooks/useTextbit'
 export { useContextMenuHints } from './components/ContextMenu/useContextMenuHints'
 export { useSelectionBounds } from './hooks/useSelectionBounds'
 export { useEditor } from './hooks/useEditor'
+export { useBlockSelection } from './hooks/useBlockSelection'
 
 export {
   pipeFromDrop as consumeFileDropEvent,

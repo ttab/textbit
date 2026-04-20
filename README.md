@@ -836,6 +836,19 @@ function ContextMenu() {
 
 ---
 
+### useBlockSelection()
+
+Access the current block-level selection state. Returns `null` when no block selection is active.
+
+```typescript
+const blockSelection = useBlockSelection()
+// Returns: { anchorIndex: number, focusIndex: number } | null
+```
+
+The selected range spans from `Math.min(anchorIndex, focusIndex)` to `Math.max(anchorIndex, focusIndex)` inclusive, referencing top-level block indices in the editor. See [Block Selection](#block-selection-shiftarrow) for details on how block selection is initiated and controlled.
+
+---
+
 ### useSelectionBounds()
 
 Get the current selection's bounding rectangle.
@@ -1598,6 +1611,32 @@ Up/Down moves the indicator to the neighbouring top-level block, preserving the 
 | Backspace | Removes the block or character behind the caret position |
 | Delete | Removes the block ahead of the caret position |
 | Printable character | Inserts a new text block and types the character into it |
+
+### Block Selection (Shift+Arrow)
+
+While the block caret is active, holding Shift and pressing any arrow key initiates block-level selection. Entire top-level blocks are selected rather than individual text ranges.
+
+#### Entry from Block Caret
+
+| Caret position | Key | Selects |
+|----------------|-----|---------|
+| Before block X | Shift+Up/Left | Block above (X−1) |
+| Before block X | Shift+Down/Right | Current block (X) |
+| After block X | Shift+Up/Left | Current block (X) |
+| After block X | Shift+Down/Right | Block below (X+1) |
+
+#### While Block Selection Is Active
+
+| Key | Behavior |
+|-----|----------|
+| Shift+Arrow | Extends or contracts the selection by one block |
+| Arrow (no shift) | Collapses selection and places cursor at the edge of the first/last selected block |
+| Backspace / Delete | Removes all selected blocks |
+| Cmd/Ctrl+C | Copies selected blocks |
+| Cmd/Ctrl+X | Cuts selected blocks |
+| Mouse click | Clears block selection |
+
+Selected blocks receive a `data-block-selected` attribute and a `.tb-block-selected` overlay element for styling. Text content within the selection also shows the native browser highlight. The `useBlockSelection()` hook exposes the current selection state (`anchorIndex` / `focusIndex`) to consumer components.
 
 ---
 

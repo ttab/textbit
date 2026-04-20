@@ -4,6 +4,7 @@ import { useFocused, useSlateStatic } from 'slate-react'
 import { Editor } from 'slate'
 import { TextbitElement } from '../../utils/textbit-element'
 import { useSelectionBounds } from '../../hooks/useSelectionBounds'
+import { useBlockSelection } from '../../hooks/useBlockSelection'
 import { ContextMenuHintsContext } from '../ContextMenu/ContextMenuHintsContext'
 import type { SelectionBounds } from '../../contexts/SelectionBoundsContext'
 
@@ -26,6 +27,7 @@ function Popover({ children, className }: {
   const editor = useSlateStatic()
   const bounds = useSelectionBounds()
   const focused = useFocused()
+  const blockSelection = useBlockSelection()
   const ref = useRef<HTMLDivElement>(null)
   const contextMenuHintsContext = useContext(ContextMenuHintsContext)
   const isContextMenuOpen = contextMenuHintsContext?.menu != null
@@ -56,12 +58,12 @@ function Popover({ children, className }: {
       showMenu = !!node
     }
 
-    if (showMenu && !isContextMenuOpen) {
+    if (showMenu && !isContextMenuOpen && !blockSelection) {
       setVisibility(true)
     } else {
       setVisibility(false)
     }
-  }, [editor, bounds, focused, setVisibility, isContextMenuOpen])
+  }, [editor, bounds, focused, setVisibility, isContextMenuOpen, blockSelection])
 
   const move = useCallback((selectionBounds: SelectionBounds) => {
     if (!focused) {

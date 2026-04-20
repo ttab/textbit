@@ -131,6 +131,13 @@ export function handleNonArrowWithAdjacentBlock(
     return true
   }
 
+  // Cmd/Ctrl+V — let the paste event propagate to the onPaste handler,
+  // which is responsible for redirecting insertion to the correct path
+  // and clearing the adjacent state. Do not preventDefault here.
+  if ((event.metaKey || event.ctrlKey) && event.key === 'v') {
+    return true
+  }
+
   // Printable character: insert a new text element and let the character be typed into it
   if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
     const targetIndex = resolveTargetIndex(editor, adjacentBlock)
