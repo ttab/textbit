@@ -84,10 +84,63 @@ export interface Action {
 
 
 /**
- * @interface
- * Textbit component interface.
+ * Constraints shared by any component entry, regardless of whether it is a
+ * top-level entry or a child entry in a parent's `children` array.
  */
-export interface ComponentEntry<T extends HTMLElement = HTMLElement> {
+interface BaseConstraints {
+  /** If true, prevents <enter> from having any effect, default is true */
+  allowBreak?: boolean
+
+  /** If true, prevents soft breaks (i.e breaks within one text element, default is true */
+  allowSoftBreak?: boolean
+
+  /** If false, prevents <enter> from exiting the top-level block when at the last position, default is true */
+  allowExitBreak?: boolean
+
+  /** If false, prevents whitespace at the start and end of a paragraph, default is true */
+  allowEdgeWhitespace?: boolean
+
+  /** Normalizer function, optional */
+  normalizeNode?: (editor: Editor, nodeEntry: NodeEntry) => boolean | void
+}
+
+/**
+ * Constraints valid on TOP-LEVEL component entries (e.g. the entry directly
+ * on a PluginDefinition). Cardinality constraints (`min`/`max`) are typed
+ * `never` so TypeScript rejects them at the plugin definition site — they
+ * are only meaningful when the entry appears in a parent's `children` array.
+ */
+export interface TopLevelConstraints extends BaseConstraints {
+  min?: never
+  max?: never
+}
+
+/**
+ * Constraints valid on CHILD component entries (items in a parent's
+ * `children` array). Adds the cardinality constraints `min` and `max`.
+ */
+export interface ChildConstraints extends BaseConstraints {
+  /**
+   * Minimum number of instances of this child type allowed within the parent.
+   * If the count ever falls below `min`, the normalizer inserts a minimal
+   * placeholder to restore the invariant. Use `min: 1, max: 1` to model a
+   * permanent form-field-like child that always exists and cannot be removed.
+   */
+  min?: number
+
+  /**
+   * Maximum number of instances of this child type allowed within the parent.
+   * Excess siblings are removed by the normalizer; Enter is blocked when the
+   * count is already at `max`.
+   */
+  max?: number
+}
+
+/**
+ * Fields common to every component entry, independent of whether it is used
+ * as a top-level or child entry.
+ */
+interface BaseComponentEntry<T extends HTMLElement = HTMLElement> {
   /** Class of the component, inherited from plugin if not specified. ('leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic') */
   class: string
 
@@ -110,29 +163,28 @@ export interface ComponentEntry<T extends HTMLElement = HTMLElement> {
   // Children must be able to use any element, not only HTMLElement.
   // Type safety is enforced at the component level through Component<T>.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  children?: ComponentEntry<any>[]
+  children?: ChildComponentEntry<any>[]
+}
 
+/**
+ * @interface
+ * A top-level component entry (e.g. the one attached to a PluginDefinition).
+ * Accepts every behavior-level constraint but rejects cardinality constraints.
+ */
+export interface ComponentEntry<T extends HTMLElement = HTMLElement> extends BaseComponentEntry<T> {
   /** Hard constraints for the component */
-  constraints?: {
-    // minElements?: number
-    // maxElements?: number
-    // maxLength?: number
+  constraints?: TopLevelConstraints
+}
 
-    /** If true, prevents <enter> from having any effect, default is true */
-    allowBreak?: boolean
-
-    /** If true, prevents soft breaks (i.e breaks within one text element, default is true */
-    allowSoftBreak?: boolean
-
-    /** If false, prevents <enter> from exiting the top-level block when at the last position, default is true */
-    allowExitBreak?: boolean
-
-    /** If false, prevents whitespace at the start and end of a paragraph, default is true */
-    allowEdgeWhitespace?: boolean
-
-    /** Normalizer function, optional */
-    normalizeNode?: (editor: Editor, nodeEntry: NodeEntry) => boolean | void
-  }
+/**
+ * @interface
+ * A child component entry — an item in a parent's `children` array. Accepts
+ * the behavior-level constraints plus `min`/`max` for cardinality within
+ * the parent.
+ */
+export interface ChildComponentEntry<T extends HTMLElement = HTMLElement> extends BaseComponentEntry<T> {
+  /** Hard constraints for the component, including cardinality in the parent */
+  constraints?: ChildConstraints
 }
 
 

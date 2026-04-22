@@ -1,8 +1,12 @@
-import type { Options, ComponentEntry } from '../../../types/textbit'
+import type { Options, ChildComponentEntry } from '../../../types/textbit'
 import type { PluginRegistryComponent } from './types'
 
 /**
- * Register a plugin component and it's component child components recursively
+ * Register a plugin component and it's component child components recursively.
+ *
+ * `ChildComponentEntry` is used as the parameter type because it is the wider
+ * of the two entry types — every top-level `ComponentEntry` is structurally
+ * assignable to it, and nested child entries are always `ChildComponentEntry`.
  *
  * @param components
  * @param componentType
@@ -12,7 +16,7 @@ import type { PluginRegistryComponent } from './types'
 export const registerComponents = (
   currentComponents: Map<string, PluginRegistryComponent>,
   componentType: string,
-  entry: ComponentEntry,
+  entry: ChildComponentEntry,
   options?: { verbose: boolean },
   pluginOptions?: Options
 ) => {
@@ -29,10 +33,10 @@ export const registerComponents = (
 const registerComponent = (
   components: Map<string, PluginRegistryComponent>,
   componentType: string,
-  entry: ComponentEntry,
+  entry: ChildComponentEntry,
   options: {
     verbose?: boolean
-    parent?: ComponentEntry
+    parent?: ChildComponentEntry
   },
   pluginOptions: Record<string, unknown>
 ) => {

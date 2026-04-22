@@ -1,5 +1,6 @@
 import { Editor, Node, Range, Path, Element, Point, Transforms } from 'slate'
 import { TextbitElement } from '../main'
+import type { PluginRegistryComponent } from '../contexts/PluginRegistry/lib/types'
 
 /**
  * Custom insertFragment function that ensures that pasted text into one text node
@@ -15,7 +16,10 @@ import { TextbitElement } from '../main'
  * @param editor
  * @returns
  */
-export function withInsertFragment(editor: Editor) {
+export function withInsertFragment(
+  editor: Editor,
+  components: Map<string, PluginRegistryComponent>
+) {
   const { insertFragment } = editor
 
   editor.insertFragment = (fragment, options) => {
@@ -25,6 +29,18 @@ export function withInsertFragment(editor: Editor) {
     if (!selection) {
       insertFragment(fragment, options)
       return
+    }
+
+    // When the fragment contains non-text blocks and the cursor is inside a
+    // registered child text element (e.g., an image caption), inserting the
+    // blocks as siblings would corrupt the parent block's structure. Flatten
+    // the fragment to plain text and let insertText handle it.
+    if (!fragment.every(TextbitElement.isText)) {
+      if (isInsideChildTextElement(editor, selection, components)) {
+        const text = fragment.map((n) => Node.string(n)).join('\n')
+        editor.insertText(text)
+        return
+      }
     }
 
     // When the fragment contains non-text blocks and the cursor is inside a
@@ -175,4 +191,35 @@ function findClosestTextNodeAncestor(
   }
 
   return null
+}
+
+/**
+ * True when the selection is inside a registered child text element — that
+ * is, a 'text'-class element whose path is nested (length > 1) and whose
+ * plugin registry entry has a non-null parent. Top-level paragraphs return
+ * false so they continue to use the split-and-insert path.
+ */
+function isInsideChildTextElement(
+  editor: Editor,
+  selection: Range,
+  components: Map<string, PluginRegistryComponent>
+): boolean {
+  const path = selection.anchor.path
+  if (path.length <= 1) return false
+
+  // Walk up from the leaf text node looking for the nearest Element ancestor
+  for (let len = path.length - 1; len >= 1; len--) {
+    const ancestorPath = path.slice(0, len)
+    try {
+      const [node] = Editor.node(editor, ancestorPath)
+      if (!Element.isElement(node)) continue
+      if (node.class !== 'text') return false
+      const component = components.get(node.type)
+      if (!component) return false
+      return component.parent !== null
+    } catch {
+      return false
+    }
+  }
+  return false
 }

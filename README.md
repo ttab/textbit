@@ -1147,11 +1147,14 @@ const MyPlugin: TBPluginInitFunction = (options) => {
     }],
     
     componentEntry: {
-      class: 'void',
+      class: 'block',
       component: Figure,
-      constraints: {
-        normalizeNode: normalizeImage
-      }
+      children: [
+        { type: 'image', class: 'void', component: ImageContent,
+          constraints: { min: 1, max: 1 } },
+        { type: 'caption', class: 'text', component: Caption,
+          constraints: { allowBreak: false, min: 1, max: 1 } }
+      ]
     },
     
     // Optional: Plugin options
@@ -1185,7 +1188,29 @@ Constraints control editing behavior within a component. They are set in the `co
 | `allowEdgeWhitespace` | `boolean` | `true` | When `false`, prevents Space from adding a whitespace character at the first position. If one or more whitespace characters are left trailing at the last position or after, these will be removed on the following blur event |
 | `normalizeNode` | `(editor, nodeEntry) => boolean \| void` | — | Custom normalization function; return `true` to signal the normalization was handled |
 
-See the [Image Block Plugin example](#example-image-block-plugin) below for a practical demonstration of `allowBreak` and `normalizeNode`.
+### Child count constraints (`min` / `max`)
+
+A child component entry (an item in a parent's `children` array) can declare how many instances of its type are allowed inside the parent. These fields sit **inside `constraints`** alongside the behavior-level fields above:
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `min` | `number` | — | Minimum number of instances required in the parent. If the count ever drops below `min`, Textbit inserts a minimal placeholder to restore the invariant. |
+| `max` | `number` | — | Maximum number of instances allowed in the parent. Enter is blocked when the count is already at `max`; excess siblings are removed by the normalizer. |
+
+`min` and `max` are only valid on **child entries**. TypeScript will reject them on a top-level `componentEntry` — the `ComponentEntry` type forbids them, while entries inside a `children` array are typed as `ChildComponentEntry` and accept them.
+
+**Form-field semantics:** set both to `1` to model a permanent sub-element that always exists exactly once (e.g., an image caption). The user cannot delete it — if they try, it is re-inserted — and Enter cannot split it into a second one. Parent blocks are never removed because of child constraints.
+
+Textbit enforces these automatically:
+
+- **Normalization:** on every change, `min <= count <= max` is restored by inserting placeholders or removing excess siblings, in the order defined by the parent's `children` array.
+- **Enter:** blocked inside a child whose type is already at `max` in the parent.
+- **Paste:** pasting a block-level fragment inside any child text element (e.g., a caption — whether or not it has `min`/`max` set) is flattened to plain text so it cannot corrupt the parent block's structure.
+- **Delete / Backspace:** handled reactively by the normalizer — a `min: 1` child is re-inserted synchronously if removed.
+
+This replaces the boilerplate normalizer that plugins used to need for "exactly one of X, at most one of Y" rules. Plugins can still define a custom `normalizeNode` alongside these for anything more exotic; it runs after the declarative enforcement.
+
+See the [Image Block Plugin example](#example-image-block-plugin) below for a practical demonstration of `allowBreak`, `min`, and `max`.
 
 ### Example: Bold Plugin
 
@@ -1321,21 +1346,21 @@ const Image: TBPluginInitFunction = () => {
     componentEntry: {
       class: 'block',
       component: FigureComponent,
-      constraints: {
-        normalizeNode: normalizeImage
-      },
       children: [
         {
           type: 'image',
           class: 'void',
-          component: ImageComponent
+          component: ImageComponent,
+          constraints: { min: 1, max: 1 }
         },
         {
           type: 'text',
           class: 'text',
           component: CaptionComponent,
           constraints: {
-            allowBreak: false
+            allowBreak: false,
+            min: 1,
+            max: 1
           }
         }
       ]

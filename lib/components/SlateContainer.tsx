@@ -103,7 +103,7 @@ export function SlateContainer(props: SlateContainerProps) {
     }
     withTextbitElements(editor)
     withInsertText(editor, plugins)
-    withInsertFragment(editor)
+    withInsertFragment(editor, components)
     withNormalizeNode(editor, plugins, components)
     withEditableVoids(editor, components)
     withTrimWhitespace(editor)
