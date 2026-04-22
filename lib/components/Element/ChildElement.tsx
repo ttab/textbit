@@ -4,10 +4,10 @@ import {
 } from 'react'
 import { Element } from 'slate'
 import { useSlateStatic, type RenderElementProps } from 'slate-react'
-import type { ComponentEntry } from '../../types'
+import type { ChildComponentEntry } from '../../types'
 
 interface ChildElementProps extends RenderElementProps {
-  entry: ComponentEntry
+  entry: ChildComponentEntry
   rootNode: Element
   options?: Record<string, unknown>
 }
