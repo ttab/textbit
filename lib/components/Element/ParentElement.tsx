@@ -67,6 +67,7 @@ export function ParentElement(renderProps: ParentElementProps) {
       <div
         lang={renderProps.element.lang || editor.lang}
         data-id={element.id}
+        data-type={element.type}
         data-state={dataState}
         {...(isBlockSelected ? { 'data-block-selected': '' } : {})}
         className={`${element.class} ${element.type} ${entry.class} relative group`}
