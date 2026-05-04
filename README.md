@@ -990,21 +990,6 @@ Every rendered element wrapper carries the element's type as a data attribute, e
 }
 ```
 
-#### Placeholder
-
-The empty-leaf placeholder (shown when `placeholder` is set and the editor or text node is empty) is rendered with `data-slate-placeholder="true"`, matching slate-react's convention.
-
-| Attribute | Values | Description |
-|-----------|--------|-------------|
-| `data-slate-placeholder` | `"true"` | Present on the placeholder element when an empty editor/text node displays placeholder text. |
-
-```css
-[data-slate-placeholder] {
-  font-style: italic;
-  color: #94a3b8;
-}
-```
-
 ### Spelling Errors
 
 Spelling errors are rendered with data attributes for custom styling:
