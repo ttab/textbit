@@ -1,18 +1,23 @@
-import type { PropsWithChildren, ReactNode, RefObject } from 'react'
+import type { PropsWithChildren, ReactNode } from 'react'
 import type { RenderElementProps } from 'slate-react'
 import { type NodeEntry, Node, Editor, Element } from 'slate'
 
 /**
  * @interface
- * Textbit component props
+ * Textbit component props.
+ *
+ * Components that opt into `asOwnElement` should spread `attributes` onto
+ * their root DOM node — this carries slate-react's ref and `data-slate-node`
+ * along with the framework's `data-id`, `data-type`, and `lang`. Parameterize
+ * `T` with the root element's HTML type (e.g. `HTMLTableRowElement`) so the
+ * ref carried in `attributes` is correctly typed for that element.
  */
 export interface ComponentProps<T extends HTMLElement = HTMLElement> extends Omit<RenderElementProps, 'attributes'> {
   rootNode?: Element
   options?: Options
   editor: Editor
   children: React.ReactNode
-  ref?: RefObject<T>
-  attributes?: Record<string, unknown>
+  attributes?: Record<string, unknown> & { ref?: React.Ref<T> }
 }
 
 /**

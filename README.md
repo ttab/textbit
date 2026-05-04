@@ -1434,13 +1434,13 @@ function ImageComponent({ element }: TBComponentProps) {
 
 ### Custom Root Elements (`asOwnElement`)
 
-By default, Textbit wraps each plugin component in a `<div>` so framework attributes (`data-id`, `data-type`, slate-react's `data-slate-node`, etc.) reliably reach the DOM. When the structural HTML tag matters — e.g. a `<tr>` inside a `<table>`, or an `<li>` inside a `<ul>` — set `asOwnElement: true` on the `componentEntry` and have the component spread `attributes` and attach `ref` onto its own root node.
+By default, Textbit wraps each plugin component in a `<div>` so framework attributes (`data-id`, `data-type`, slate-react's `data-slate-node`, etc.) reliably reach the DOM. When the structural HTML tag matters — e.g. a `<tr>` inside a `<table>`, or an `<li>` inside a `<ul>` — set `asOwnElement: true` on the `componentEntry` and spread `attributes` onto the component's root node.
 
 ```tsx
 import type { TBComponentProps } from '@ttab/textbit'
 
-export const TableRow = ({ children, attributes, ref }: TBComponentProps<HTMLTableRowElement>) => (
-  <tr {...attributes} ref={ref}>{children}</tr>
+export const TableRow = ({ children, attributes }: TBComponentProps<HTMLTableRowElement>) => (
+  <tr {...attributes}>{children}</tr>
 )
 
 TableRow.displayName = 'TableRow'
@@ -1454,7 +1454,7 @@ TableRow.displayName = 'TableRow'
 }
 ```
 
-When `asOwnElement` is true, the component is responsible for forwarding `attributes` (which includes the framework's `data-id`, `data-type`, `lang`, plus slate-react's `data-slate-node`) and `ref` onto its root DOM element. Failing to do so will break selection mapping for that element.
+When `asOwnElement` is true, the component is responsible for spreading `attributes` onto its root DOM element. `attributes` carries the framework's `data-id`, `data-type`, and `lang`, plus slate-react's `data-slate-node` and `ref`. Failing to spread them will break selection mapping for that element.
 
 ---
 

@@ -39,12 +39,10 @@ export function ChildElement({
   }
 
   // Opt-in: the plugin component renders as the element itself, owning its
-  // root DOM node. It must spread `attributes` and attach `ref` onto that
-  // root. Used when the structural HTML tag matters (e.g. <tr> inside
-  // <table>, <li> inside <ul>).
-  const { ref, ...slateAttributes } = attributes
+  // root DOM node. It must spread `attributes` onto that root. Used when the
+  // structural HTML tag matters (e.g. <tr> inside <table>, <li> inside <ul>).
   const decoratedAttributes = {
-    ...slateAttributes,
+    ...attributes,
     lang,
     'data-id': element.id,
     'data-type': element.type
@@ -57,7 +55,6 @@ export function ChildElement({
       rootNode={rootNode}
       options={options}
       editor={editor}
-      ref={ref}
     >
       {children}
     </Component>
