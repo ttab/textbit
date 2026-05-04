@@ -120,6 +120,7 @@ function Placeholder({ value, style, ref }: { value: string, style: CSSPropertie
   return (
     <div
       ref={ref}
+      data-slate-placeholder={true}
       style={{
         ...style,
         opacity: 0.333,
