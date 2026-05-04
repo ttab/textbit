@@ -107,6 +107,14 @@ export interface ComponentEntry<T extends HTMLElement = HTMLElement> {
   /** Render function for the element, mandatory */
   component: Component<T>
 
+  /**
+   * When true, the plugin component renders as the element itself, owning
+   * its own root DOM node. The component MUST spread `attributes` onto that
+   * root and attach `ref`. Default: false — the framework wraps the
+   * component in a <div>.
+   */
+  asOwnElement?: boolean
+
   // Children must be able to use any element, not only HTMLElement.
   // Type safety is enforced at the component level through Component<T>.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

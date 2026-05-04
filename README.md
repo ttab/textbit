@@ -955,6 +955,41 @@ Set the property on the editor root or any ancestor:
 }
 ```
 
+#### Element Type
+
+Every rendered element wrapper carries the element's type as a data attribute, enabling consumers to target a specific block or any of its named child slots from CSS without parsing classnames.
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `data-type` | `string` | The element's `type` (e.g. `core/image`, `core/image/caption`). Present on both top-level block wrappers and child element wrappers. |
+
+```css
+/* Style the byline field of a TTVisual block */
+[data-type="tt/visual/byline"] {
+  font-style: italic;
+}
+
+/* Combine with slate-react's marker to target only the editable region */
+[data-type="tt/visual/byline"] [data-slate-leaf] {
+  background: #fafafa;
+}
+```
+
+#### Placeholder
+
+The empty-leaf placeholder (shown when `placeholder` is set and the editor or text node is empty) is rendered with `data-slate-placeholder="true"`, matching slate-react's convention.
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `data-slate-placeholder` | `"true"` | Present on the placeholder element when an empty editor/text node displays placeholder text. |
+
+```css
+[data-slate-placeholder] {
+  font-style: italic;
+  color: #94a3b8;
+}
+```
+
 ### Spelling Errors
 
 Spelling errors are rendered with data attributes for custom styling:
@@ -1397,20 +1432,29 @@ function ImageComponent({ element }: TBComponentProps) {
 }
 ```
 
-### Forwarding Refs for HTML Elements
+### Custom Root Elements (`asOwnElement`)
 
-If your component wants to use a specific wrapper HTML element (like `<tr>`, `<td>`, etc.), use `ref`:
+By default, Textbit wraps each plugin component in a `<div>` so framework attributes (`data-id`, `data-type`, slate-react's `data-slate-node`, etc.) reliably reach the DOM. When the structural HTML tag matters — e.g. a `<tr>` inside a `<table>`, or an `<li>` inside a `<ul>` — set `asOwnElement: true` on the `componentEntry` and have the component spread `attributes` and attach `ref` onto its own root node.
 
 ```tsx
 import type { TBComponentProps } from '@ttab/textbit'
 
-export const TableRow = ({ children, ref }: TBComponentProps<HTMLTableRowElement>) => (
-  <tr ref={ref}>{children}</tr>
+export const TableRow = ({ children, attributes, ref }: TBComponentProps<HTMLTableRowElement>) => (
+  <tr {...attributes} ref={ref}>{children}</tr>
 )
 
 TableRow.displayName = 'TableRow'
 
+// In the plugin definition:
+{
+  type: 'row',
+  class: 'block',
+  component: TableRow,
+  asOwnElement: true
+}
 ```
+
+When `asOwnElement` is true, the component is responsible for forwarding `attributes` (which includes the framework's `data-id`, `data-type`, `lang`, `className`, plus slate-react's `data-slate-node`) and `ref` onto its root DOM element. Failing to do so will break selection mapping for that element.
 
 ---
 
