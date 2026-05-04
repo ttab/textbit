@@ -29,7 +29,6 @@ export function ChildElement({
         lang={lang}
         data-id={element.id}
         data-type={element.type}
-        className='child'
         {...attributes}
       >
         <Component element={element} rootNode={rootNode} options={options} editor={editor}>
@@ -48,8 +47,7 @@ export function ChildElement({
     ...slateAttributes,
     lang,
     'data-id': element.id,
-    'data-type': element.type,
-    className: 'child'
+    'data-type': element.type
   }
 
   return (
