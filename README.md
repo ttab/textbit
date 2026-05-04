@@ -1494,7 +1494,7 @@ TableRow.displayName = 'TableRow'
 }
 ```
 
-When `asOwnElement` is true, the component is responsible for forwarding `attributes` (which includes the framework's `data-id`, `data-type`, `lang`, `className`, plus slate-react's `data-slate-node`) and `ref` onto its root DOM element. Failing to do so will break selection mapping for that element.
+When `asOwnElement` is true, the component is responsible for forwarding `attributes` (which includes the framework's `data-id`, `data-type`, `lang`, plus slate-react's `data-slate-node`) and `ref` onto its root DOM element. Failing to do so will break selection mapping for that element.
 
 ---
 
