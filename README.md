@@ -938,6 +938,21 @@ Set the property on the editor root or any ancestor:
 }
 ```
 
+#### Placeholder
+
+The empty-leaf placeholder (shown when `placeholder` is set and the editor/text node is empty) renders with `data-slate-placeholder="true"`, matching slate-react's convention.
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `data-slate-placeholder` | `"true"` | Present on the placeholder element when an empty editor/text node displays placeholder text. |
+
+```css
+[data-slate-placeholder] {
+  font-style: italic;
+  color: #94a3b8;
+}
+```
+
 #### Drag and Drop
 
 ```css
