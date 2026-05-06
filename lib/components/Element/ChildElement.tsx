@@ -17,13 +17,13 @@ export function ChildElement({
   options
 }: ChildElementProps) {
   const editor = useSlateStatic()
-  const { component: Component } = entry
   const lang = element.lang || editor.lang
 
   // Default: wrap the plugin component in a <div> so framework attributes
   // (data-id, data-type, slate-react's data-slate-node, ref) reliably reach
   // the DOM regardless of what the plugin component renders.
   if (!entry.asOwnElement) {
+    const { component: Component } = entry
     return (
       <div
         lang={lang}
@@ -41,6 +41,7 @@ export function ChildElement({
   // Opt-in: the plugin component renders as the element itself, owning its
   // root DOM node. It must spread `attributes` onto that root. Used when the
   // structural HTML tag matters (e.g. <tr> inside <table>, <li> inside <ul>).
+  const { component: Component } = entry
   const decoratedAttributes = {
     ...attributes,
     lang,
