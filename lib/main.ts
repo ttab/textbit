@@ -11,6 +11,7 @@ export type {
   ChildComponentEntry as TBChildComponentEntry,
   Component as TBComponent,
   ComponentProps as TBComponentProps,
+  ElementAttributes as TBElementAttributes,
   ToolComponent as TBToolComponent,
   ToolComponentProps as TBToolComponentProps,
   ActionHandlerArgs as TBActionHandlerArgs,

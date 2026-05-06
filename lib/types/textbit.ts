@@ -3,21 +3,38 @@ import type { RenderElementProps } from 'slate-react'
 import { type NodeEntry, Node, Editor, Element } from 'slate'
 
 /**
+ * @type
+ * Shape of `attributes` provided to plugin components that opt into
+ * `asOwnElement`. Spreading these onto a DOM element of type `T` carries
+ * slate-react's ref and `data-slate-node` along with the framework's
+ * `data-id`, `data-type`, and `lang`.
+ */
+export type ElementAttributes<T extends HTMLElement = HTMLElement> = {
+  'data-slate-node': 'element'
+  'data-slate-inline'?: true
+  'data-slate-void'?: true
+  'data-id'?: string
+  'data-type': string
+  lang?: string
+  dir?: 'rtl'
+  ref: React.Ref<T>
+}
+
+/**
  * @interface
  * Textbit component props.
  *
- * Components that opt into `asOwnElement` should spread `attributes` onto
- * their root DOM node — this carries slate-react's ref and `data-slate-node`
- * along with the framework's `data-id`, `data-type`, and `lang`. Parameterize
- * `T` with the root element's HTML type (e.g. `HTMLTableRowElement`) so the
- * ref carried in `attributes` is correctly typed for that element.
+ * Components that opt into `asOwnElement` receive `attributes` and must
+ * spread them onto their root DOM node. Parameterize `T` with the root
+ * element's HTML type (e.g. `HTMLTableRowElement`) so the ref carried in
+ * `attributes` is correctly typed for that element.
  */
 export interface ComponentProps<T extends HTMLElement = HTMLElement> extends Omit<RenderElementProps, 'attributes'> {
   rootNode?: Element
   options?: Options
   editor: Editor
   children: React.ReactNode
-  attributes?: Record<string, unknown> & { ref?: React.Ref<T> }
+  attributes?: ElementAttributes<T>
 }
 
 /**

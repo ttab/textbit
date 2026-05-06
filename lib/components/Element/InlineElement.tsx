@@ -16,7 +16,7 @@ export function InlineElement({ attributes, children, element, entry, options }:
   const editor = useSlateStatic()
 
   return (
-    <span className={`inline ${entry.type}`} data-id={element.id} {...attributes}>
+    <span className={`inline ${entry.type}`} data-id={element.id} data-type={element.type} {...attributes}>
       <entry.component element={element} options={options} editor={editor}>
         {children}
       </entry.component>
