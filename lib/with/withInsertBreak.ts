@@ -79,11 +79,29 @@ function allowBreak(
     : [selection.anchor, selection.focus]
 
   for (const point of points) {
-    for (const [node] of Editor.levels(editor, { at: point })) {
-      if (SlateElement.isElement(node)) {
-        const component = components.get(node.type)
-        if (component?.componentEntry?.constraints?.allowBreak === false) {
-          return false
+    for (const [node, nodePath] of Editor.levels(editor, { at: point })) {
+      if (!SlateElement.isElement(node)) continue
+
+      const component = components.get(node.type)
+      if (!component) continue
+
+      if (component.componentEntry?.constraints?.allowBreak === false) {
+        return false
+      }
+
+      // Block the break when this child type is already at its max count in the parent.
+      // Walking levels includes top-level nodes whose path is length 1 — those have no
+      // constraining parent in Textbit's sense, so skip them.
+      const max = component.componentEntry?.constraints?.max
+      if (max !== undefined && nodePath.length > 1) {
+        const parentPath = nodePath.slice(0, -1)
+        const [parentNode] = Editor.node(editor, parentPath)
+        if (SlateElement.isElement(parentNode)) {
+          let count = 0
+          for (const child of parentNode.children) {
+            if (SlateElement.isElement(child) && child.type === node.type) count++
+          }
+          if (count >= max) return false
         }
       }
     }

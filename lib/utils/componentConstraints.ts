@@ -1,20 +1,22 @@
-import { type ComponentEntry } from '../types/textbit'
+import { type ComponentEntry, type ChildComponentEntry, type ChildConstraints } from '../types/textbit'
 
-export function componentConstraints(entry: ComponentEntry) {
+export function componentConstraints(entry: ComponentEntry | ChildComponentEntry) {
+  // Read through the widest constraints type — top-level entries simply have
+  // `min` / `max` as `never` (i.e. undefined at runtime).
+  const constraints = (entry?.constraints ?? {}) as ChildConstraints
+
   const {
-    // maxLength = undefined,   // Max length of text content
-    // maxElements = undefined, // Max no of elements in parent
-    // minElements = undefined, // Min no of elements in parent
-    allowBreak, // Allow normal break to create new node of same type
-    allowSoftBreak, // Allow soft break (newline in text node)
+    allowBreak,
+    allowSoftBreak,
     normalizeNode,
-    allowEdgeWhitespace
-  } = entry?.constraints || {}
+    allowEdgeWhitespace,
+    min,
+    max
+  } = constraints
 
   return {
-    // maxLength: maxLength ?? 0, // I.e no limit
-    // maxElements: maxElements ?? 0, // I.e no limit
-    // minElements: minElements ?? 0,
+    min, // Min instances of this child type in parent (undefined = no limit)
+    max, // Max instances of this child type in parent (undefined = no limit)
     allowBreak: allowBreak ?? true,
     allowSoftBreak: allowSoftBreak ?? false,
     allowEdgeWhitespace: allowEdgeWhitespace ?? true,

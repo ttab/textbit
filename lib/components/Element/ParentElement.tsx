@@ -1,12 +1,12 @@
 import { useSelected, useSlateStatic, type RenderElementProps } from 'slate-react'
 import { Droppable } from './Droppable'
-import type { ComponentEntry } from '../../types'
+import type { ChildComponentEntry } from '../../types'
 import { useAdjacentBlock } from '../../hooks/useAdjacentBlock'
 import { useBlockSelection } from '../../hooks/useBlockSelection'
 import { CSSProperties } from 'react'
 
 interface ParentElementProps extends RenderElementProps {
-  entry: ComponentEntry
+  entry: ChildComponentEntry
   options?: Record<string, unknown>
 }
 

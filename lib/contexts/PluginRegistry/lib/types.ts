@@ -1,15 +1,22 @@
 import type { KeyboardEventLike } from 'is-hotkey'
-import type { PluginDefinition, Action, ComponentEntry } from '../../../types'
+import type { PluginDefinition, Action, ChildComponentEntry } from '../../../types'
 
 /**
  * @type
- * A renderable component
+ * A renderable component.
+ *
+ * `componentEntry` / `parent` are typed as `ChildComponentEntry` — the widest
+ * of the two entry types — so this field can store both top-level and child
+ * entries. A top-level `ComponentEntry` is structurally assignable to
+ * `ChildComponentEntry` because its `min`/`max` are typed `never` (a subtype
+ * of `number`). Internal code can read `constraints?.min` / `constraints?.max`
+ * through this field.
  */
 export type PluginRegistryComponent = {
   type: string
   class: string
-  componentEntry: ComponentEntry
-  parent: ComponentEntry | null
+  componentEntry: ChildComponentEntry
+  parent: ChildComponentEntry | null
   pluginOptions: Record<string, unknown>
 }
 
