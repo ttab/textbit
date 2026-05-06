@@ -46,6 +46,25 @@ export type Component<T extends HTMLElement = HTMLElement, Props = ComponentProp
 }
 
 /**
+ * @type
+ * Props handed to a plugin component that opts into `asOwnElement: true`.
+ * Identical to `ComponentProps<T>` except `attributes` is non-nullable —
+ * the framework guarantees it when the component owns its root element.
+ */
+export type OwnElementComponentProps<T extends HTMLElement = HTMLElement> =
+  Omit<ComponentProps<T>, 'attributes'> & {
+    attributes: ElementAttributes<T>
+  }
+
+/**
+ * @type
+ * Component for a plugin entry that owns its root DOM element.
+ */
+export type OwnElementComponent<T extends HTMLElement = HTMLElement> = {
+  (props: OwnElementComponentProps<T>): ReactNode
+}
+
+/**
  * @interface
  * Textbit tool component props
  */
@@ -160,8 +179,10 @@ export interface ChildConstraints extends BaseConstraints {
 
 /**
  * Fields common to every component entry, independent of whether it is used
- * as a top-level or child entry.
+ * as a top-level or child entry. `T` is consumed by the union variants of
+ * `ComponentEntry` / `ChildComponentEntry` below to type `component`.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface BaseComponentEntry<T extends HTMLElement = HTMLElement> {
   /** Class of the component, inherited from plugin if not specified. ('leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic') */
   class: string
@@ -179,17 +200,6 @@ interface BaseComponentEntry<T extends HTMLElement = HTMLElement> {
   /** Placeholder text for an empty text node, optional */
   placeholder?: string | ((type: Element) => React.ReactNode)
 
-  /** Render function for the element, mandatory */
-  component: Component<T>
-
-  /**
-   * When true, the plugin component renders as the element itself, owning
-   * its own root DOM node. The component MUST spread `attributes` onto that
-   * root and attach `ref`. Default: false — the framework wraps the
-   * component in a <div>.
-   */
-  asOwnElement?: boolean
-
   // Children must be able to use any element, not only HTMLElement.
   // Type safety is enforced at the component level through Component<T>.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -197,25 +207,64 @@ interface BaseComponentEntry<T extends HTMLElement = HTMLElement> {
 }
 
 /**
- * @interface
+ * @type
  * A top-level component entry (e.g. the one attached to a PluginDefinition).
- * Accepts every behavior-level constraint but rejects cardinality constraints.
+ * Discriminated on `asOwnElement`:
+ *
+ * - When `asOwnElement` is omitted or `false`, the framework wraps the
+ *   component in a `<div>` and the component receives `ComponentProps<T>`
+ *   (where `attributes` is undefined).
+ * - When `asOwnElement` is `true`, the component renders as the element
+ *   itself and is required to spread `attributes` (now non-nullable) onto
+ *   its root DOM node.
+ *
+ * Accepts every behavior-level constraint but rejects cardinality
+ * constraints (`min`/`max` are only meaningful on child entries).
  */
-export interface ComponentEntry<T extends HTMLElement = HTMLElement> extends BaseComponentEntry<T> {
-  /** Hard constraints for the component */
-  constraints?: TopLevelConstraints
-}
+export type ComponentEntry<T extends HTMLElement = HTMLElement> =
+  | (BaseComponentEntry<T> & {
+      /**
+       * When `false` or omitted, the framework wraps the component in a
+       * `<div>`. Default behavior.
+       */
+      asOwnElement?: false
+      /** Render function for the element, mandatory */
+      component: Component<T>
+      /** Hard constraints for the component */
+      constraints?: TopLevelConstraints
+    })
+  | (BaseComponentEntry<T> & {
+      /**
+       * When `true`, the plugin component renders as the element itself,
+       * owning its root DOM node. The component MUST spread `attributes`
+       * onto that root.
+       */
+      asOwnElement: true
+      /** Render function for the element, mandatory */
+      component: OwnElementComponent<T>
+      /** Hard constraints for the component */
+      constraints?: TopLevelConstraints
+    })
 
 /**
- * @interface
- * A child component entry — an item in a parent's `children` array. Accepts
- * the behavior-level constraints plus `min`/`max` for cardinality within
- * the parent.
+ * @type
+ * A child component entry — an item in a parent's `children` array.
+ * Same `asOwnElement` discrimination as `ComponentEntry`, but with
+ * cardinality constraints (`min`/`max`) available.
  */
-export interface ChildComponentEntry<T extends HTMLElement = HTMLElement> extends BaseComponentEntry<T> {
-  /** Hard constraints for the component, including cardinality in the parent */
-  constraints?: ChildConstraints
-}
+export type ChildComponentEntry<T extends HTMLElement = HTMLElement> =
+  | (BaseComponentEntry<T> & {
+      asOwnElement?: false
+      component: Component<T>
+      /** Hard constraints for the component, including cardinality in the parent */
+      constraints?: ChildConstraints
+    })
+  | (BaseComponentEntry<T> & {
+      asOwnElement: true
+      component: OwnElementComponent<T>
+      /** Hard constraints for the component, including cardinality in the parent */
+      constraints?: ChildConstraints
+    })
 
 
 /**
