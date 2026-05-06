@@ -179,11 +179,11 @@ export interface ChildConstraints extends BaseConstraints {
 
 /**
  * Fields common to every component entry, independent of whether it is used
- * as a top-level or child entry. `T` is consumed by the union variants of
- * `ComponentEntry` / `ChildComponentEntry` below to type `component`.
+ * as a top-level or child entry. The element-type parameter lives on
+ * `ComponentEntry` / `ChildComponentEntry` instead, where it is consumed by
+ * the variants' `component` field.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface BaseComponentEntry<T extends HTMLElement = HTMLElement> {
+interface BaseComponentEntry {
   /** Class of the component, inherited from plugin if not specified. ('leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic') */
   class: string
 
@@ -222,7 +222,7 @@ interface BaseComponentEntry<T extends HTMLElement = HTMLElement> {
  * constraints (`min`/`max` are only meaningful on child entries).
  */
 export type ComponentEntry<T extends HTMLElement = HTMLElement> =
-  | (BaseComponentEntry<T> & {
+  | (BaseComponentEntry & {
       /**
        * When `false` or omitted, the framework wraps the component in a
        * `<div>`. Default behavior.
@@ -233,7 +233,7 @@ export type ComponentEntry<T extends HTMLElement = HTMLElement> =
       /** Hard constraints for the component */
       constraints?: TopLevelConstraints
     })
-  | (BaseComponentEntry<T> & {
+  | (BaseComponentEntry & {
       /**
        * When `true`, the plugin component renders as the element itself,
        * owning its root DOM node. The component MUST spread `attributes`
@@ -253,13 +253,13 @@ export type ComponentEntry<T extends HTMLElement = HTMLElement> =
  * cardinality constraints (`min`/`max`) available.
  */
 export type ChildComponentEntry<T extends HTMLElement = HTMLElement> =
-  | (BaseComponentEntry<T> & {
+  | (BaseComponentEntry & {
       asOwnElement?: false
       component: Component<T>
       /** Hard constraints for the component, including cardinality in the parent */
       constraints?: ChildConstraints
     })
-  | (BaseComponentEntry<T> & {
+  | (BaseComponentEntry & {
       asOwnElement: true
       component: OwnElementComponent<T>
       /** Hard constraints for the component, including cardinality in the parent */
