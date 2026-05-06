@@ -1,7 +1,3 @@
-import {
-  isValidElement,
-  cloneElement
-} from 'react'
 import { Element } from 'slate'
 import { useSlateStatic, type RenderElementProps } from 'slate-react'
 import type { ChildComponentEntry } from '../../types'
@@ -21,48 +17,47 @@ export function ChildElement({
   options
 }: ChildElementProps) {
   const editor = useSlateStatic()
-  const { component: Component } = entry
   const lang = element.lang || editor.lang
 
-  // If there's a ref, the component expects to handle attributes itself (no wrapper)
-  if (attributes.ref) {
-    const childElement = (
-      <Component
-        element={element}
-        attributes={attributes}
-        children={children}
-        rootNode={rootNode}
-        options={options}
-        editor={editor}
-        ref={attributes.ref}
-      />
+  // Default: wrap the plugin component in a <div> so framework attributes
+  // (data-id, data-type, slate-react's data-slate-node, ref) reliably reach
+  // the DOM regardless of what the plugin component renders.
+  if (!entry.asOwnElement) {
+    const { component: Component } = entry
+    return (
+      <div
+        lang={lang}
+        data-id={element.id}
+        data-type={element.type}
+        {...attributes}
+      >
+        <Component element={element} rootNode={rootNode} options={options} editor={editor}>
+          {children}
+        </Component>
+      </div>
     )
-
-    if (!childElement || !isValidElement(childElement)) {
-      console.error('Child component must return a valid React element')
-      return <></>
-    }
-
-    // Clone and merge attributes directly into the element
-    return cloneElement(childElement, {
-      lang,
-      'data-id': element.id,
-      className: ['child', (childElement.props as React.HTMLAttributes<HTMLDivElement>)?.className].filter(Boolean).join(' '),
-      ...attributes
-    } as React.HTMLAttributes<HTMLDivElement>)
   }
 
-  // No ref means regular component - use wrapper div
+  // Opt-in: the plugin component renders as the element itself, owning its
+  // root DOM node. It must spread `attributes` onto that root. Used when the
+  // structural HTML tag matters (e.g. <tr> inside <table>, <li> inside <ul>).
+  const { component: Component } = entry
+  const decoratedAttributes = {
+    ...attributes,
+    lang,
+    'data-id': element.id,
+    'data-type': element.type
+  }
+
   return (
-    <div
-      lang={lang}
-      data-id={element.id}
-      className='child'
-      {...attributes}
+    <Component
+      element={element}
+      attributes={decoratedAttributes}
+      rootNode={rootNode}
+      options={options}
+      editor={editor}
     >
-      <Component element={element} rootNode={rootNode} options={options} editor={editor}>
-        {children}
-      </Component>
-    </div>
+      {children}
+    </Component>
   )
 }

@@ -22,6 +22,7 @@ export function ParentElement(renderProps: ParentElementProps) {
   const adjacentBlock = useAdjacentBlock()
   const blockSelection = useBlockSelection()
   const { element, attributes, entry } = renderProps
+  if (entry.asOwnElement) return null
 
   // Block-level selection: check if this element is within the selected range
   const isBlockSelected = (() => {
@@ -67,13 +68,16 @@ export function ParentElement(renderProps: ParentElementProps) {
       <div
         lang={renderProps.element.lang || editor.lang}
         data-id={element.id}
+        data-type={element.type}
         data-state={dataState}
         {...(isBlockSelected ? { 'data-block-selected': '' } : {})}
         className={`${element.class} ${element.type} ${entry.class} relative group`}
         style={{ position: 'relative', ...(isBlockSelected ? { userSelect: 'none' } : {}) }}
         {...attributes}
       >
-        <entry.component {...renderProps} editor={editor} />
+        <entry.component element={element} options={renderProps.options} editor={editor}>
+          {renderProps.children}
+        </entry.component>
         {element.class !== 'text' && element.class !== 'inline' && (
           <div
             contentEditable={false}
