@@ -13,6 +13,7 @@ export function UnknownElement({ element, attributes, children }: RenderElementP
         contentEditable={false}
         className='textbit-parent textbit-unknown'
         data-id={element.id}
+        data-type={element.type}
         {...attributes}
       >
         <pre style={{ fontSize: '80%' }}>

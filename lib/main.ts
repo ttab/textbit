@@ -10,6 +10,7 @@ export type {
   ComponentEntry as TBComponentEntry,
   Component as TBComponent,
   ComponentProps as TBComponentProps,
+  ElementAttributes as TBElementAttributes,
   ToolComponent as TBToolComponent,
   ToolComponentProps as TBToolComponentProps,
   ActionHandlerArgs as TBActionHandlerArgs,
