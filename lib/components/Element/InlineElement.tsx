@@ -14,6 +14,7 @@ interface InlineElementProps extends RenderElementProps {
  */
 export function InlineElement({ attributes, children, element, entry, options }: InlineElementProps) {
   const editor = useSlateStatic()
+  if (entry.asOwnElement) return null
 
   return (
     <span className={`inline ${entry.type}`} data-id={element.id} data-type={element.type} {...attributes}>
