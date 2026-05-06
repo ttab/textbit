@@ -106,10 +106,29 @@ export interface Action {
 
 
 /**
- * @interface
- * Textbit component interface.
+ * @type
+ * Props handed to a plugin component that opts into `asOwnElement: true`.
+ * Identical to `ComponentProps<T>` except `attributes` is non-nullable —
+ * the framework guarantees it when the component owns its root element.
  */
-export interface ComponentEntry<T extends HTMLElement = HTMLElement> {
+export type OwnElementComponentProps<T extends HTMLElement = HTMLElement> =
+  Omit<ComponentProps<T>, 'attributes'> & {
+    attributes: ElementAttributes<T>
+  }
+
+/**
+ * @type
+ * Component for a plugin entry that owns its root DOM element.
+ */
+export type OwnElementComponent<T extends HTMLElement = HTMLElement> = {
+  (props: OwnElementComponentProps<T>): ReactNode
+}
+
+/**
+ * @interface
+ * Fields shared by both `asOwnElement` variants of `ComponentEntry`.
+ */
+interface ComponentEntryBase {
   /** Class of the component, inherited from plugin if not specified. ('leaf' | 'inline' | 'text' | 'textblock' | 'block' | 'void' | 'generic') */
   class: string
 
@@ -125,17 +144,6 @@ export interface ComponentEntry<T extends HTMLElement = HTMLElement> {
 
   /** Placeholder text for an empty text node, optional */
   placeholder?: string | ((type: Element) => React.ReactNode)
-
-  /** Render function for the element, mandatory */
-  component: Component<T>
-
-  /**
-   * When true, the plugin component renders as the element itself, owning
-   * its own root DOM node. The component MUST spread `attributes` onto that
-   * root and attach `ref`. Default: false — the framework wraps the
-   * component in a <div>.
-   */
-  asOwnElement?: boolean
 
   // Children must be able to use any element, not only HTMLElement.
   // Type safety is enforced at the component level through Component<T>.
@@ -164,6 +172,38 @@ export interface ComponentEntry<T extends HTMLElement = HTMLElement> {
     normalizeNode?: (editor: Editor, nodeEntry: NodeEntry) => boolean | void
   }
 }
+
+/**
+ * @type
+ * Textbit component interface — discriminated on `asOwnElement`.
+ *
+ * - When `asOwnElement` is omitted or `false`, the framework wraps the
+ *   component in a `<div>` and the component receives the standard
+ *   `ComponentProps<T>` (where `attributes` is undefined).
+ * - When `asOwnElement` is `true`, the component renders as the element
+ *   itself and is required to spread `attributes` (now non-nullable) onto
+ *   its root DOM node.
+ */
+export type ComponentEntry<T extends HTMLElement = HTMLElement> =
+  | (ComponentEntryBase & {
+      /**
+       * When `false` or omitted, the framework wraps the component in a
+       * `<div>`. Default behavior.
+       */
+      asOwnElement?: false
+      /** Render function for the element, mandatory */
+      component: Component<T>
+    })
+  | (ComponentEntryBase & {
+      /**
+       * When `true`, the plugin component renders as the element itself,
+       * owning its root DOM node. The component MUST spread `attributes`
+       * onto that root.
+       */
+      asOwnElement: true
+      /** Render function for the element, mandatory */
+      component: OwnElementComponent<T>
+    })
 
 
 /**
