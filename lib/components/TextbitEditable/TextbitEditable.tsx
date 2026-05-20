@@ -84,21 +84,10 @@ export function TextbitEditable(props: TextbitEditableProps) {
 
     editor.onSpellcheckComplete((newLookupTable) => {
       if (!isMountedRef.current) {
-        console.log('Unmounted!')
         return
       }
 
       setSpellingLookupTable(newLookupTable)
-
-      // HACK: Deselect and select the editor to ensure the dom selection is correctly updated.
-      // FIXME: When https://github.com/ianstormtaylor/slate/issues/5987
-      const selection = editor.selection
-      ReactEditor.deselect(editor)
-      setTimeout(() => {
-        if (selection) {
-          Transforms.select(editor, selection)
-        }
-      }, 10)
     })
   }, [editor, isFocused, setDecorationsKey])
 
