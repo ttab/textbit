@@ -1,4 +1,4 @@
-import { Editor, Node, Range, Path, Element, Point, Transforms } from 'slate'
+import { Editor, Node, Range, Path, Element, Point, Text, Transforms, type Descendant } from 'slate'
 import { TextbitElement } from '../main'
 import type { PluginRegistryComponent } from '../contexts/PluginRegistry/lib/types'
 
@@ -28,6 +28,22 @@ export function withInsertFragment(
     // Not applicable if not having a selection
     if (!selection) {
       insertFragment(fragment, options)
+      return
+    }
+
+    // A "wrapped text" fragment is what Editor.fragment produces when the
+    // user selects partial text inside a nested block (image caption, table
+    // cell, ...): the surrounding block(s) are preserved as a single-branch
+    // chain wrapping a text-class element with only text leaves. Forcing
+    // such a fragment through the split-and-insert path below would drop a
+    // malformed block (figure-with-only-a-caption, table-with-only-one-cell)
+    // at the top level. Strip the wrappers and insert just the text leaves
+    // at the cursor (preserving marks).
+    if (fragment.length === 1 && isWrappedNonTextBlockFragment(fragment[0])) {
+      const leaves = collectTextLeaves(fragment[0])
+      if (leaves.length) {
+        insertFragment(leaves, options)
+      }
       return
     }
 
@@ -130,6 +146,45 @@ export function withInsertFragment(
   }
 
   return editor
+}
+
+/**
+ * True when the fragment node is a non-text block whose contents form a
+ * single-branch chain of non-void block descendants ending in a text-class
+ * element with only text leaves (formatted runs are fine). This is the shape
+ * Editor.fragment produces from a partial text selection inside a nested
+ * block. A void descendant, or any branching where a non-text-class sibling
+ * appears, disqualifies the fragment so genuine block copies (full figure,
+ * factbox with title + body, full table, ...) keep using the split-and-insert
+ * path.
+ */
+function isWrappedNonTextBlockFragment(node: unknown): boolean {
+  if (!Element.isElement(node)) return false
+  if (node.class === 'text') return false
+  return isWrappedTextChain(node)
+}
+
+function isWrappedTextChain(node: unknown): boolean {
+  if (Text.isText(node)) return true
+  if (!Element.isElement(node)) return false
+  if (node.class === 'void') return false
+
+  if (node.class === 'text') {
+    return node.children.every((c) => Text.isText(c))
+  }
+
+  if (node.children.length !== 1) return false
+  return isWrappedTextChain(node.children[0])
+}
+
+/**
+ * Collect text leaves from a wrapped-text fragment node, discarding any
+ * intermediate element wrappers. Marks on the leaves are preserved.
+ */
+function collectTextLeaves(node: unknown): Descendant[] {
+  if (Text.isText(node)) return [node]
+  if (!Element.isElement(node)) return []
+  return node.children.flatMap(collectTextLeaves)
 }
 
 /**
