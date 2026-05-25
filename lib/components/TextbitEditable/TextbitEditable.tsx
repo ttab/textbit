@@ -38,7 +38,6 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const { placeholders, placeholder, readOnly, dir, collaborative, verbose } = useTextbit()
   const { components, actions } = usePluginRegistry()
   const isFocused = useFocused()
-  const [decorationsKey, setDecorationsKey] = useState(0)
   const handleContextMenu = useContextMenu()
   const [spellingLookupTable, setSpellingLookupTable] = useState<SpellcheckLookupTable>(new Map())
   const [adjacentBlock, setAdjacentBlock] = useState<AdjacentBlockState | null>(null)
@@ -58,25 +57,27 @@ export function TextbitEditable(props: TextbitEditableProps) {
     }
   }, [])
 
-  // Focus the actual editable DOM node on mount
-  const handleFocus = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
-    queueMicrotask(() => {
-      if (!editor.selection && decorationsKey === 0) {
-        if (autoFocus === 'end') {
-          Transforms.select(editor, Editor.end(editor, []))
-        } else {
-          Transforms.select(editor, Editor.start(editor, []))
-        }
-        setDecorationsKey(prev => prev + 1)
-      }
-    })
-
-    if (onFocus) {
-      onFocus(e)
+  // Place the initial caret when autoFocus is set. slate-react's <Editable
+  // autoFocus> focuses the DOM node but does not set editor.selection, so we
+  // do that here. Runs on mount only — user clicks must not be intercepted.
+  useEffect(() => {
+    if (!autoFocus) {
+      return
     }
-  }, [autoFocus, decorationsKey, editor, onFocus])
 
-  // Increment decorationkey to ensure re-render when spellcheck completes
+    queueMicrotask(() => {
+      if (editor.selection) {
+        return
+      }
+
+      Transforms.select(
+        editor,
+        autoFocus === 'end' ? Editor.end(editor, []) : Editor.start(editor, [])
+      )
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   useEffect(() => {
     if (typeof editor.onSpellcheckComplete !== 'function') {
       return
@@ -100,7 +101,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
         }
       }, 10)
     })
-  }, [editor, isFocused, setDecorationsKey])
+  }, [editor, isFocused])
 
   // Render element callback
   const renderElement = useCallback((props: RenderElementProps) => {
@@ -263,7 +264,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
                 readOnly={readOnly}
                 renderElement={renderElement}
                 renderLeaf={renderLeaf}
-                onFocus={handleFocus}
+                onFocus={onFocus}
                 onBlur={handleBlur}
                 onKeyDown={onKeyDown}
                 onPaste={onPaste}
