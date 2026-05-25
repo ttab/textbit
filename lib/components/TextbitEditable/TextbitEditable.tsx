@@ -57,16 +57,21 @@ export function TextbitEditable(props: TextbitEditableProps) {
     }
   }, [])
 
-  // Place the initial caret when autoFocus is set. slate-react's <Editable
-  // autoFocus> focuses the DOM node but does not set editor.selection, so we
-  // do that here. Runs on mount only — user clicks must not be intercepted.
-  useEffect(() => {
-    if (!autoFocus) {
-      return
-    }
+  // Tracks whether a mousedown happened immediately before the focus event.
+  // A click flow is mousedown -> focus; Tab and programmatic focus are not
+  // preceded by a mousedown. This lets us tell them apart inside handleFocus.
+  const focusFromMouseRef = useRef(false)
+
+  // Place an initial caret when the editor gains focus via Tab, autoFocus, or
+  // programmatic focus without a prior selection. Clicks are left alone: the
+  // browser places the DOM caret on mousedown, and slate-react's
+  // selectionchange handler syncs that to editor.selection shortly after.
+  const handleFocus = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    const fromMouse = focusFromMouseRef.current
+    focusFromMouseRef.current = false
 
     queueMicrotask(() => {
-      if (editor.selection) {
+      if (fromMouse || editor.selection) {
         return
       }
 
@@ -75,8 +80,9 @@ export function TextbitEditable(props: TextbitEditableProps) {
         autoFocus === 'end' ? Editor.end(editor, []) : Editor.start(editor, [])
       )
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+
+    onFocus?.(e)
+  }, [editor, autoFocus, onFocus])
 
   useEffect(() => {
     if (typeof editor.onSpellcheckComplete !== 'function') {
@@ -192,6 +198,9 @@ export function TextbitEditable(props: TextbitEditableProps) {
    * resolve a click position outside any editable text.
    */
   const onMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    // Signal to handleFocus that the upcoming focus event came from a click.
+    focusFromMouseRef.current = true
+
     const clickX = event.clientX
     const clickY = event.clientY
 
@@ -264,7 +273,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
                 readOnly={readOnly}
                 renderElement={renderElement}
                 renderLeaf={renderLeaf}
-                onFocus={onFocus}
+                onFocus={handleFocus}
                 onBlur={handleBlur}
                 onKeyDown={onKeyDown}
                 onPaste={onPaste}
