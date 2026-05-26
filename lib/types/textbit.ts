@@ -7,7 +7,11 @@ import { type NodeEntry, Node, Editor, Element } from 'slate'
  * Shape of `attributes` provided to plugin components that opt into
  * `asOwnElement`. Spreading these onto a DOM element of type `T` carries
  * slate-react's ref and `data-slate-node` along with the framework's
- * `data-id`, `data-type`, and `lang`.
+ * `data-id`, `data-type`, optional `data-role`, and `lang`.
+ *
+ * `data-role` is optional. It is emitted only when `properties.role` is a
+ * non-empty string (e.g. `heading-1`, `preamble`). An absent `data-role`
+ * means the element is regular text — it is never required.
  */
 export type ElementAttributes<T extends HTMLElement = HTMLElement> = {
   'data-slate-node': 'element'
@@ -15,6 +19,7 @@ export type ElementAttributes<T extends HTMLElement = HTMLElement> = {
   'data-slate-void'?: true
   'data-id'?: string
   'data-type': string
+  'data-role'?: string
   lang?: string
   dir?: 'rtl'
   ref: React.Ref<T>

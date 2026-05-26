@@ -38,6 +38,10 @@ export function ParentElement(renderProps: ParentElementProps) {
     ? adjacentBlock.direction
     : null
 
+  const role = typeof element.properties?.role === 'string' && element.properties.role.length > 0
+    ? element.properties.role
+    : null
+
   const blockCaretStyle: CSSProperties = {
     position: 'absolute',
     top: 0,
@@ -69,6 +73,7 @@ export function ParentElement(renderProps: ParentElementProps) {
         lang={renderProps.element.lang || editor.lang}
         data-id={element.id}
         data-type={element.type}
+        {...(role ? { 'data-role': role } : {})}
         data-state={dataState}
         {...(isBlockSelected ? { 'data-block-selected': '' } : {})}
         className={`${element.class} ${element.type} ${entry.class} relative group`}
