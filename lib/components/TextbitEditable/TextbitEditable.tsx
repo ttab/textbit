@@ -38,7 +38,6 @@ export function TextbitEditable(props: TextbitEditableProps) {
   const { placeholders, placeholder, readOnly, dir, collaborative, verbose } = useTextbit()
   const { components, actions } = usePluginRegistry()
   const isFocused = useFocused()
-  const [decorationsKey, setDecorationsKey] = useState(0)
   const handleContextMenu = useContextMenu()
   const [spellingLookupTable, setSpellingLookupTable] = useState<SpellcheckLookupTable>(new Map())
   const [adjacentBlock, setAdjacentBlock] = useState<AdjacentBlockState | null>(null)
@@ -58,25 +57,33 @@ export function TextbitEditable(props: TextbitEditableProps) {
     }
   }, [])
 
-  // Focus the actual editable DOM node on mount
+  // Tracks whether a mousedown happened immediately before the focus event.
+  // A click flow is mousedown -> focus; Tab and programmatic focus are not
+  // preceded by a mousedown. This lets us tell them apart inside handleFocus.
+  const focusFromMouseRef = useRef(false)
+
+  // Place an initial caret when the editor gains focus via Tab, autoFocus, or
+  // programmatic focus without a prior selection. Clicks are left alone: the
+  // browser places the DOM caret on mousedown, and slate-react's
+  // selectionchange handler syncs that to editor.selection shortly after.
   const handleFocus = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    const fromMouse = focusFromMouseRef.current
+    focusFromMouseRef.current = false
+
     queueMicrotask(() => {
-      if (!editor.selection && decorationsKey === 0) {
-        if (autoFocus === 'end') {
-          Transforms.select(editor, Editor.end(editor, []))
-        } else {
-          Transforms.select(editor, Editor.start(editor, []))
-        }
-        setDecorationsKey(prev => prev + 1)
+      if (fromMouse || editor.selection) {
+        return
       }
+
+      Transforms.select(
+        editor,
+        autoFocus === 'end' ? Editor.end(editor, []) : Editor.start(editor, [])
+      )
     })
 
-    if (onFocus) {
-      onFocus(e)
-    }
-  }, [autoFocus, decorationsKey, editor, onFocus])
+    onFocus?.(e)
+  }, [editor, autoFocus, onFocus])
 
-  // Increment decorationkey to ensure re-render when spellcheck completes
   useEffect(() => {
     if (typeof editor.onSpellcheckComplete !== 'function') {
       return
@@ -90,6 +97,14 @@ export function TextbitEditable(props: TextbitEditableProps) {
 
       setSpellingLookupTable(newLookupTable)
 
+      // The DOM Selection is a single document-wide object, so deselecting
+      // here would clear whatever caret another editor on the page currently
+      // owns. Skip the repaint hack unless this editor is the focused one;
+      // decorations will repaint naturally when focus returns here.
+      if (!ReactEditor.isFocused(editor)) {
+        return
+      }
+
       // HACK: Deselect and select the editor to ensure the dom selection is correctly updated.
       // FIXME: When https://github.com/ianstormtaylor/slate/issues/5987
       const selection = editor.selection
@@ -100,7 +115,7 @@ export function TextbitEditable(props: TextbitEditableProps) {
         }
       }, 10)
     })
-  }, [editor, isFocused, setDecorationsKey])
+  }, [editor, isFocused])
 
   // Render element callback
   const renderElement = useCallback((props: RenderElementProps) => {
@@ -191,6 +206,9 @@ export function TextbitEditable(props: TextbitEditableProps) {
    * resolve a click position outside any editable text.
    */
   const onMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    // Signal to handleFocus that the upcoming focus event came from a click.
+    focusFromMouseRef.current = true
+
     const clickX = event.clientX
     const clickY = event.clientY
 
