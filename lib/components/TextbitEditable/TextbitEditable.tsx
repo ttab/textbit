@@ -97,6 +97,14 @@ export function TextbitEditable(props: TextbitEditableProps) {
 
       setSpellingLookupTable(newLookupTable)
 
+      // The DOM Selection is a single document-wide object, so deselecting
+      // here would clear whatever caret another editor on the page currently
+      // owns. Skip the repaint hack unless this editor is the focused one;
+      // decorations will repaint naturally when focus returns here.
+      if (!ReactEditor.isFocused(editor)) {
+        return
+      }
+
       // HACK: Deselect and select the editor to ensure the dom selection is correctly updated.
       // FIXME: When https://github.com/ianstormtaylor/slate/issues/5987
       const selection = editor.selection
