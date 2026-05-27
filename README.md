@@ -970,13 +970,14 @@ The empty-leaf placeholder (shown when `placeholder` is set and the editor/text 
 }
 ```
 
-#### Element Type
+#### Element Type and Role
 
-Every rendered element wrapper carries the element's type as a data attribute, enabling consumers to target a specific block or any of its named child slots from CSS without parsing classnames.
+Every rendered element wrapper carries the element's type as a data attribute, enabling consumers to target a specific block or any of its named child slots from CSS without parsing classnames. Top-level text blocks additionally carry their `role` (when set) so variants like `heading-1`, `preamble`, etc. can be styled directly.
 
 | Attribute | Values | Description |
 |-----------|--------|-------------|
 | `data-type` | `string` | The element's `type` (e.g. `core/image`, `core/image/caption`). Present on both top-level block wrappers and child element wrappers. |
+| `data-role` | `string` | Optional. The element's `properties.role` (e.g. `heading-1`, `preamble`). Emitted on text-class element wrappers (both top-level blocks and named child slots) when `properties.role` is a non-empty string. An absent `data-role` means the element is regular text. `asOwnElement` plugin components receive it via spreadable `attributes` under the same condition. |
 
 ```css
 /* Style the byline field of a TTVisual block */
@@ -987,6 +988,12 @@ Every rendered element wrapper carries the element's type as a data attribute, e
 /* Combine with slate-react's marker to target only the editable region */
 [data-type="tt/visual/byline"] [data-slate-leaf] {
   background: #fafafa;
+}
+
+/* Style a text block by its role */
+[data-type="core/text"][data-role="heading-1"] {
+  font-size: 2rem;
+  font-weight: 700;
 }
 ```
 
@@ -1479,7 +1486,7 @@ TableRow.displayName = 'TableRow'
 }
 ```
 
-When `asOwnElement` is true, the component is responsible for spreading `attributes` onto its root DOM element. `attributes` carries the framework's `data-id`, `data-type`, and `lang`, plus slate-react's `data-slate-node` and `ref`. Failing to spread them will break selection mapping for that element.
+When `asOwnElement` is true, the component is responsible for spreading `attributes` onto its root DOM element. `attributes` carries the framework's `data-id`, `data-type`, `lang`, an optional `data-role` (text-class elements with `properties.role` set; absent means regular text), plus slate-react's `data-slate-node` and `ref`. Failing to spread them will break selection mapping for that element.
 
 ---
 

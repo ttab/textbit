@@ -30,10 +30,5 @@ export const Text: PluginInitFunction = () => {
 
 
 function TextComponent(props: ComponentProps) {
-  const role = typeof props.element.properties?.role === 'string' ? props.element.properties.role : 'text'
-  return (
-    <div data-role={role}>
-      {props.children}
-    </div>
-  )
+  return <>{props.children}</>
 }

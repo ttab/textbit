@@ -18,6 +18,9 @@ export function ChildElement({
 }: ChildElementProps) {
   const editor = useSlateStatic()
   const lang = element.lang || editor.lang
+  const role = typeof element.properties?.role === 'string' && element.properties.role.length > 0
+    ? element.properties.role
+    : null
 
   // Default: wrap the plugin component in a <div> so framework attributes
   // (data-id, data-type, slate-react's data-slate-node, ref) reliably reach
@@ -29,6 +32,7 @@ export function ChildElement({
         lang={lang}
         data-id={element.id}
         data-type={element.type}
+        {...(role ? { 'data-role': role } : {})}
         {...attributes}
       >
         <Component element={element} rootNode={rootNode} options={options} editor={editor}>
@@ -46,7 +50,8 @@ export function ChildElement({
     ...attributes,
     lang,
     'data-id': element.id,
-    'data-type': element.type
+    'data-type': element.type,
+    ...(role ? { 'data-role': role } : {})
   }
 
   return (
