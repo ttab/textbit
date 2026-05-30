@@ -60,7 +60,13 @@ export function getDecorationRanges(
     const parentNode = Node.parent(editor, path)
 
     if (Element.isElement(parentNode) && Node.string(parentNode) === '') {
-      if (placeholders === 'multiple' || (placeholders === 'single' && parentNode.id === editor.children[0].id)) {
+      // In 'single' mode the placeholder represents emptiness of the whole
+      // editor, not just the first block. Without this guard, leading empty
+      // blocks (e.g. the user pressed Enter at the start) keep the
+      // placeholder visible even though there is content further down.
+      const editorIsEmpty = placeholders !== 'single' || Node.string(editor) === ''
+
+      if (editorIsEmpty && (placeholders === 'multiple' || (placeholders === 'single' && parentNode.id === editor.children[0].id))) {
         const entryPlaceholder = components.get(parentNode.type)?.componentEntry?.placeholder
         const value = (placeholders === 'single')
           ? placeholder
