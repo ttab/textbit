@@ -94,6 +94,7 @@ export { calculateStats } from './utils/calculateStats'
 export { TextbitEditor } from './utils/textbit-editor'
 export { TextbitElement } from './utils/textbit-element'
 export { TextbitPlugin } from './utils/textbit-plugin'
+export { isMac } from './utils/modifier'
 
 // Re-export slate types to ensure correct overloaded types are exported
 export type {
