@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Editor, Element, type NodeEntry, Range, Transforms } from 'slate'
-import { Editable, ReactEditor, useFocused, type RenderElementProps, type RenderLeafProps } from 'slate-react'
+import { Editor, Element, Node, type NodeEntry, Range, Transforms } from 'slate'
+import { Editable, ReactEditor, useFocused, useSlateSelector, type RenderElementProps, type RenderLeafProps } from 'slate-react'
 import { getDecorationRanges } from '../../utils/getDecorationRanges'
 import { ElementComponent } from '../Element/Element'
 import { LeafElement } from '../Element/LeafElement'
@@ -129,6 +129,16 @@ export function TextbitEditable(props: TextbitEditableProps) {
     return LeafElement(props)
   }, [])
 
+  // Track editor emptiness so the global 'single' placeholder turns off as
+  // soon as content appears anywhere — even on a non-first block. Threading
+  // this through the decorate dep list also flips the callback's identity
+  // on emptiness change, which is what makes slate-react's per-element
+  // decoration cache (useDecorations) re-invoke our decorator for unchanged
+  // blocks like a leading empty one.
+  const editorIsEmpty = useSlateSelector(
+    (e) => e.children.every((c) => Node.string(c) === '')
+  )
+
   // Render decorate callback
   const decorate = useCallback((entry: NodeEntry) => {
     return getDecorationRanges(
@@ -137,9 +147,10 @@ export function TextbitEditable(props: TextbitEditableProps) {
       entry,
       components,
       placeholders,
-      placeholder
+      placeholder,
+      editorIsEmpty
     )
-  }, [editor, components, placeholders, placeholder, spellingLookupTable])
+  }, [editor, components, placeholders, placeholder, spellingLookupTable, editorIsEmpty])
 
   const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
     if (constraints?.allowEdgeWhitespace !== false) {
