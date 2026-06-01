@@ -11,7 +11,13 @@ function escapeRegExp(string: string): string {
 }
 
 /**
- * Create ranges for all decorations needed, includes spellchecking and placeholders
+ * Create ranges for all decorations needed, includes spellchecking and placeholders.
+ *
+ * `editorIsEmpty` is the precomputed answer to "does the whole document
+ * contain no text?" — passed in from the caller (typically derived via
+ * `useSlateSelector` once per emptiness change). It is only consulted in
+ * 'single' placeholder mode, where the global placeholder must hide as
+ * soon as *any* block has content, not just when the first block is empty.
  */
 export function getDecorationRanges(
   editor: Editor,
@@ -19,7 +25,8 @@ export function getDecorationRanges(
   nodeEntry: NodeEntry,
   components: Map<string, PluginRegistryComponent>,
   placeholders?: PlaceholdersVisibility,
-  placeholder?: string
+  placeholder?: string,
+  editorIsEmpty?: boolean
 ): Range[] {
   const [node, path] = nodeEntry
   const ranges: Range[] = []
@@ -61,12 +68,15 @@ export function getDecorationRanges(
 
     if (Element.isElement(parentNode) && Node.string(parentNode) === '') {
       // In 'single' mode the placeholder represents emptiness of the whole
-      // editor, not just the first block. Without this guard, leading empty
-      // blocks (e.g. the user pressed Enter at the start) keep the
-      // placeholder visible even though there is content further down.
-      const editorIsEmpty = placeholders !== 'single' || Node.string(editor) === ''
+      // editor, not just the first block — so a leading empty block (e.g.
+      // the user pressed Enter at the start) must not keep the placeholder
+      // visible when content exists further down. `editorIsEmpty` is the
+      // precomputed answer to that, threaded down from the caller.
+      const isFirstBlock = parentNode.id === editor.children[0].id
+      const showPlaceholder = placeholders === 'multiple'
+        || (placeholders === 'single' && isFirstBlock && editorIsEmpty !== false)
 
-      if (editorIsEmpty && (placeholders === 'multiple' || (placeholders === 'single' && parentNode.id === editor.children[0].id))) {
+      if (showPlaceholder) {
         const entryPlaceholder = components.get(parentNode.type)?.componentEntry?.placeholder
         const value = (placeholders === 'single')
           ? placeholder

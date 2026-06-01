@@ -130,19 +130,16 @@ export function TextbitEditable(props: TextbitEditableProps) {
   }, [])
 
   // Track editor emptiness so the global 'single' placeholder turns off as
-  // soon as content appears anywhere — even on a non-first block. Without
-  // this dependency the `decorate` callback's reference stays stable, and
-  // slate-react's per-element decoration cache (useDecorations) never
-  // re-invokes our decorator for unchanged blocks like a leading empty one.
+  // soon as content appears anywhere — even on a non-first block. Threading
+  // this through the decorate dep list also flips the callback's identity
+  // on emptiness change, which is what makes slate-react's per-element
+  // decoration cache (useDecorations) re-invoke our decorator for unchanged
+  // blocks like a leading empty one.
   const editorIsEmpty = useSlateSelector(
     (e) => e.children.every((c) => Node.string(c) === '')
   )
 
-  // Render decorate callback. `editorIsEmpty` is intentionally a dep even
-  // though it isn't read inside — flipping it changes this callback's
-  // identity, which slate-react relies on to invalidate cached decorations
-  // for unchanged nodes (e.g. a leading empty block whose placeholder must
-  // disappear when content shows up further down).
+  // Render decorate callback
   const decorate = useCallback((entry: NodeEntry) => {
     return getDecorationRanges(
       editor,
@@ -150,9 +147,9 @@ export function TextbitEditable(props: TextbitEditableProps) {
       entry,
       components,
       placeholders,
-      placeholder
+      placeholder,
+      editorIsEmpty
     )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, components, placeholders, placeholder, spellingLookupTable, editorIsEmpty])
 
   const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {

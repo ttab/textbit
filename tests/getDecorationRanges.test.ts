@@ -15,15 +15,18 @@ const emptyComponents: Map<string, PluginRegistryComponent> = new Map()
 
 function placeholderRangesForFirstChild(editor: Editor, placeholder: string) {
   // Path [0, 0]: the first text leaf of the first block — the only path that
-  // can carry a 'single'-mode placeholder.
+  // can carry a 'single'-mode placeholder. The editor-empty boolean mirrors
+  // what TextbitEditable derives via useSlateSelector.
   const node = Node.get(editor, [0, 0])
+  const editorIsEmpty = editor.children.every((c) => Node.string(c) === '')
   return getDecorationRanges(
     editor,
     emptySpellcheck,
     [node, [0, 0]],
     emptyComponents,
     'single',
-    placeholder
+    placeholder,
+    editorIsEmpty
   ).filter(r => 'placeholder' in r)
 }
 
