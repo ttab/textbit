@@ -105,8 +105,14 @@ export function Droppable({ children, element }: {
     // node/plugin itself want to handle/hijack the drop for a component to handle.
     // const name = droppableRef.current?.dataset?.name || null
     // const [position /*, node */] = getDropPosition(editor, e, container, id, isDroppable)
-    const [position] = dropPosition(editor, event, ref?.current, element.id, isDroppable) || {}
-    pipeFromDrop(editor, plugins, event, position)
+    const result = dropPosition(editor, event, ref.current, element.id, isDroppable)
+    if (!result) {
+      // The drop target block is no longer present in editor.children
+      // (e.g. a peer removed it via yjs sync between dragover and drop).
+      // Bail rather than placing the drop at a stale fallback position.
+      return
+    }
+    pipeFromDrop(editor, plugins, event, result[0])
   }, [ctx, element?.id, editor, isDroppable, plugins, ref, readOnly])
 
   const onDragEnd = useCallback(() => {
@@ -184,19 +190,31 @@ function createDragImage(el: HTMLDivElement, e: React.DragEvent<HTMLDivElement>,
 
 
 /**
- * This function currently only give you a drop position above or below the target node.
+ * Calculate the drop position above or below the target top-level node.
+ *
+ * Returns `null` when the target id is no longer present in
+ * `editor.children`. The previous implementation set `position` via a
+ * side-effect inside `Array.find`, so on a miss it returned
+ * `[children.length, undefined]` — a silent "drop at end" fallback that
+ * could relocate a drop to the wrong place when a peer's yjs sync removed
+ * the target between dragover and drop. Callers should bail on `null`.
  *
  * TODO: Allow for nodes to receive and handle drops.
  */
-function dropPosition(editor: Editor, e: React.DragEvent, container: HTMLDivElement, id: string, isDroppable: boolean): [number, Descendant | undefined] {
-  let position = -1
-  const node = editor.children.find((el, idx: number) => {
-    position = idx
-    return el.id === id
-  })
+function dropPosition(
+  editor: Editor,
+  e: React.DragEvent,
+  container: HTMLDivElement,
+  id: string,
+  isDroppable: boolean
+): [number, Descendant] | null {
+  const idx = editor.children.findIndex(
+    (el) => SlateElement.isElement(el) && el.id === id
+  )
+  if (idx < 0) return null
 
   const hints = dropHints(e, container, isDroppable)
-  return [position + (hints?.position?.[0] === 'above' ? 0 : 1), node]
+  return [idx + (hints?.position?.[0] === 'above' ? 0 : 1), editor.children[idx]]
 }
 
 
