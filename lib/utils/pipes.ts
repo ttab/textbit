@@ -269,44 +269,65 @@ async function executePipeItem(consume: ConsumeFunction, input: Resource | Resou
   // remove the wrong node when cleaning up.
   const loaderId = insertLoader(editor, position)
 
+  let result: Resource | undefined
   try {
-    const result = await consume({ input, editor })
-    if (typeof result === 'object' && produces === result?.type) {
-      const loaderPath = findTopLevelPathById(editor, loaderId)
-      if (loaderPath) {
-        // Replace loader with the real node atomically — one normalize
-        // cycle, one yjs sync. The loader's removal stays out of history;
-        // the real insert remains undoable.
-        Editor.withoutNormalizing(editor, () => {
-          HistoryEditor.withoutSaving(editor, () => {
-            Transforms.removeNodes(editor, { at: loaderPath })
-          })
-          Transforms.insertNodes(
-            editor, result.data as Element, { at: loaderPath, select: false }
-          )
-        })
-      } else {
-        // The loader was removed by something external (a peer, a manual
-        // edit, an aggressive normalizer). Rather than placing the result
-        // at a stale numeric position that may now point at unrelated
-        // content, log a warning and drop the result — the user can retry
-        // the drop deterministically.
-        console.warn(
-          `Drop loader for "${produces}" was removed before consume() resolved; dropping the consumed result.`
-        )
-      }
-      return
-    }
+    result = await consume({ input, editor })
   } catch (ex) {
     console.warn((ex as Error).message)
+    removeLoaderById(editor, loaderId)
+    return
   }
 
-  // No usable result (consume rejected or produced an unmatched type):
-  // remove the loader if it's still here, by id.
-  const remainingLoaderPath = findTopLevelPathById(editor, loaderId)
-  if (remainingLoaderPath) {
+  // `undefined` is the documented "consume() opted out" signal — no warn.
+  if (result === undefined) {
+    removeLoaderById(editor, loaderId)
+    return
+  }
+
+  // Anything else that isn't the expected `{ type, data }` shape is a plugin bug.
+  if (
+    result === null
+    || typeof result !== 'object'
+    || result.type !== produces
+    || result.data === undefined
+  ) {
+    console.warn(
+      `consume(): unexpected result for "${produces}"; discarding.`,
+      result
+    )
+    removeLoaderById(editor, loaderId)
+    return
+  }
+
+  // The numeric drop position may have shifted while we awaited; locate the loader by id instead.
+  const loaderPath = findTopLevelPathById(editor, loaderId)
+  if (!loaderPath) {
+    // The loader was removed externally (peer, manual edit, normalizer).
+    // Rather than placing the result at a stale numeric position that may
+    // now point at unrelated content, drop the result — the user can
+    // retry deterministically.
+    console.warn(
+      `Drop loader for "${produces}" was removed before consume() resolved; dropping the consumed result.`
+    )
+    return
+  }
+
+  // Replace the loader atomically — one normalize cycle, one yjs sync.
+  // Loader removal stays out of history; the real insert remains undoable.
+  const data = result.data
+  Editor.withoutNormalizing(editor, () => {
     HistoryEditor.withoutSaving(editor, () => {
-      Transforms.removeNodes(editor, { at: remainingLoaderPath })
+      Transforms.removeNodes(editor, { at: loaderPath })
+    })
+    Transforms.insertNodes(editor, data as Element, { at: loaderPath, select: false })
+  })
+}
+
+function removeLoaderById(editor: Editor, loaderId: string) {
+  const path = findTopLevelPathById(editor, loaderId)
+  if (path) {
+    HistoryEditor.withoutSaving(editor, () => {
+      Transforms.removeNodes(editor, { at: path })
     })
   }
 }
