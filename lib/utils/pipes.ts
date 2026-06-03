@@ -261,12 +261,7 @@ async function executePipe(pipe: AggregatedPipeItem, editor: Editor, plugins: Pl
 }
 
 async function executePipeItem(consume: ConsumeFunction, input: Resource | Resource[], produces: string | undefined, editor: Editor, position: number) {
-  // Track the loader by id, not by numeric position. Between `insertLoader`
-  // and the time `consume()` resolves, the editor can mutate: a sibling
-  // pipe item may insert before us, a peer's yjs sync may add/remove
-  // top-level blocks, the user can edit, or a normalizer can shift nodes.
-  // A stale numeric position can land the real node in the wrong slot or
-  // remove the wrong node when cleaning up.
+  // Track by id, not numeric position — the editor can mutate while `consume()` is awaiting.
   const loaderId = insertLoader(editor, position)
 
   let result: Resource | undefined
@@ -312,8 +307,8 @@ async function executePipeItem(consume: ConsumeFunction, input: Resource | Resou
     return
   }
 
-  // Replace the loader atomically — one normalize cycle, one yjs sync.
-  // Loader removal stays out of history; the real insert remains undoable.
+  // Batch so the swap hits one normalize cycle and one yjs sync. Loader
+  // removal stays out of history; the real insert remains undoable.
   const data = result.data
   Editor.withoutNormalizing(editor, () => {
     HistoryEditor.withoutSaving(editor, () => {

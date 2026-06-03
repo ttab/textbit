@@ -190,14 +190,8 @@ function createDragImage(el: HTMLDivElement, e: React.DragEvent<HTMLDivElement>,
 
 
 /**
- * Calculate the drop position above or below the target top-level node.
- *
- * Returns `null` when the target id is no longer present in
- * `editor.children`. The previous implementation set `position` via a
- * side-effect inside `Array.find`, so on a miss it returned
- * `[children.length, undefined]` — a silent "drop at end" fallback that
- * could relocate a drop to the wrong place when a peer's yjs sync removed
- * the target between dragover and drop. Callers should bail on `null`.
+ * Drop position above or below the target top-level node, or `null` when
+ * the target id is no longer in `editor.children` (callers should bail).
  *
  * TODO: Allow for nodes to receive and handle drops.
  */
@@ -211,7 +205,9 @@ function dropPosition(
   const idx = editor.children.findIndex(
     (el) => SlateElement.isElement(el) && el.id === id
   )
-  if (idx < 0) return null
+  if (idx < 0) {
+    return null
+  }
 
   const hints = dropHints(e, container, isDroppable)
   return [idx + (hints?.position?.[0] === 'above' ? 0 : 1), editor.children[idx]]
