@@ -261,22 +261,70 @@ async function executePipe(pipe: AggregatedPipeItem, editor: Editor, plugins: Pl
 }
 
 async function executePipeItem(consume: ConsumeFunction, input: Resource | Resource[], produces: string | undefined, editor: Editor, position: number) {
-  insertLoader(editor, position)
-  let offset = 0
+  // Track by id, not numeric position — the editor can mutate while `consume()` is awaiting.
+  const loaderId = insertLoader(editor, position)
 
+  let result: Resource | undefined
   try {
-    const result = await consume({ input, editor })
-    if (typeof result === 'object' && produces === result?.type) {
-      Transforms.insertNodes(
-        editor, result.data as Element, { at: [position], select: false }
-      )
-      offset++
-    }
+    result = await consume({ input, editor })
   } catch (ex) {
     console.warn((ex as Error).message)
+    removeLoaderById(editor, loaderId)
+    return
   }
 
-  removeLoader(editor, position + offset)
+  // `undefined` is the documented "consume() opted out" signal — no warn.
+  if (result === undefined) {
+    removeLoaderById(editor, loaderId)
+    return
+  }
+
+  // Anything else that isn't the expected `{ type, data }` shape is a plugin bug.
+  if (
+    result === null
+    || typeof result !== 'object'
+    || result.type !== produces
+    || result.data === undefined
+  ) {
+    console.warn(
+      `consume(): unexpected result for "${produces}"; discarding.`,
+      result
+    )
+    removeLoaderById(editor, loaderId)
+    return
+  }
+
+  // The numeric drop position may have shifted while we awaited; locate the loader by id instead.
+  const loaderPath = findTopLevelPathById(editor, loaderId)
+  if (!loaderPath) {
+    // The loader was removed externally (peer, manual edit, normalizer).
+    // Rather than placing the result at a stale numeric position that may
+    // now point at unrelated content, drop the result — the user can
+    // retry deterministically.
+    console.warn(
+      `Drop loader for "${produces}" was removed before consume() resolved; dropping the consumed result.`
+    )
+    return
+  }
+
+  // Batch so the swap hits one normalize cycle and one yjs sync. Loader
+  // removal stays out of history; the real insert remains undoable.
+  const data = result.data
+  Editor.withoutNormalizing(editor, () => {
+    HistoryEditor.withoutSaving(editor, () => {
+      Transforms.removeNodes(editor, { at: loaderPath })
+    })
+    Transforms.insertNodes(editor, data as Element, { at: loaderPath, select: false })
+  })
+}
+
+function removeLoaderById(editor: Editor, loaderId: string) {
+  const path = findTopLevelPathById(editor, loaderId)
+  if (path) {
+    HistoryEditor.withoutSaving(editor, () => {
+      Transforms.removeNodes(editor, { at: path })
+    })
+  }
 }
 
 function getDataItem(source: string, dt: DataTransfer, item: DataTransferItem) {
@@ -356,15 +404,20 @@ function insertLoader(editor: Editor, position: number) {
   return id
 }
 
-function removeLoader(editor: Editor, position: number) {
-  if (typeof position !== 'number') {
-    console.warn('Could not remove loader, identifier was neither number or string')
-    return
+/**
+ * Find the top-level path of an element by its id. Returns null when no
+ * top-level child carries that id. Used by the pipe machinery to locate
+ * loader placeholders after `await consume()` may have left numeric
+ * positions stale.
+ */
+export function findTopLevelPathById(editor: Editor, id: string): [number] | null {
+  for (let i = 0; i < editor.children.length; i++) {
+    const child = editor.children[i]
+    if (Element.isElement(child) && child.id === id) {
+      return [i]
+    }
   }
-
-  HistoryEditor.withoutSaving(editor, () => {
-    Transforms.removeNodes(editor, { at: [position] })
-  })
+  return null
 }
 
 
