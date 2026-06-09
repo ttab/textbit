@@ -200,7 +200,7 @@ function isSlateContainerYjsProps(
 function isSlateContainerCollaborationProps(
   props: SlateContainerProps
 ): props is SlateContainerCollaborationProps {
-  return props.value instanceof Y.XmlText && 'awareness' in props
+  return props.value instanceof Y.XmlText && 'awareness' in props && props.awareness != null
 }
 
 function isSlateContainerStringProps(
