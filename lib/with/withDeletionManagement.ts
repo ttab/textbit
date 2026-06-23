@@ -1,8 +1,9 @@
 import { Editor, Element, Node, Path, Range, Text, Transforms } from 'slate'
 import { TextbitElement } from '../utils/textbit-element'
+import { selectionStartsOutsideBlockEndsInside } from '../utils/blockBoundarySelection'
 
 export function withDeletionManagement(editor: Editor) {
-  const { deleteBackward, deleteForward } = editor
+  const { deleteBackward, deleteForward, deleteFragment } = editor
 
   editor.deleteBackward = (unit) => {
     const { selection } = editor
@@ -124,6 +125,20 @@ export function withDeletionManagement(editor: Editor) {
     }
 
     deleteForward(unit)
+  }
+
+  // A selection that starts outside any block element and ends inside one is
+  // left intact on purpose (withSelectionGuard only clamps the inverse, where
+  // the anchor sits in a block's text node). Deleting such a range would merge
+  // nodes that don't belong together, so we block the delete entirely. All
+  // expanded-selection deletes (Backspace, Delete, cut, drag) are routed
+  // through deleteFragment by slate-react, so this single override covers them.
+  editor.deleteFragment = (options) => {
+    if (selectionStartsOutsideBlockEndsInside(editor)) {
+      return
+    }
+
+    deleteFragment(options)
   }
 
   return editor
