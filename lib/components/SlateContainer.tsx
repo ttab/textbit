@@ -23,6 +23,7 @@ import { withUniqueIds } from '../with/withUniqueIds'
 import { withDeletionManagement } from '../with/withDeletionManagement'
 import { withInsertFragment } from '../with/withInsertFragment'
 import { withTrimWhitespace } from '../with/withTrimWhitespace'
+import { withBlockBoundaryGuard } from '../with/withBlockBoundaryGuard'
 import { withSelectionGuard } from '../with/withSelectionGuard'
 
 interface SlateContainerBaseProps {
@@ -112,6 +113,9 @@ export function SlateContainer(props: SlateContainerProps) {
     withInsertHtml(editor, components, plugins)
     withUniqueIds(editor)
     withDeletionManagement(editor)
+    // After the command plugins, so it wraps their final versions and its guard
+    // runs first; blocks editing a selection that crosses a block boundary.
+    withBlockBoundaryGuard(editor)
     // Last, so its after-apply check sees the final state of every inner plugin.
     withSelectionGuard(editor)
 
