@@ -115,5 +115,5 @@ export function TextbitRoot(props: TextbitRootProps) {
 function isTextbitRootCollaborationProps(
   props: TextbitRootProps
 ): props is TextbitRootCollaborationProps {
-  return props.value instanceof Y.XmlText && 'awareness' in props
+  return props.value instanceof Y.XmlText && 'awareness' in props && props.awareness != null
 }
