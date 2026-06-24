@@ -86,9 +86,10 @@ describe('withBlockBoundaryGuard - delete strips text, keeps structure', () => {
     expect(text(editor, [0, 0])).toBe('out')
     expect(text(editor, [1, 0, 0])).toBe('ion')
     expect(text(editor, [1, 1, 0])).toBe('second')
+    // Caret follows the focus, which ended inside the block.
     expect(editor.selection).toEqual({
-      anchor: { path: [0, 0], offset: 3 },
-      focus: { path: [0, 0], offset: 3 }
+      anchor: { path: [1, 0, 0], offset: 0 },
+      focus: { path: [1, 0, 0], offset: 0 }
     })
   })
 
@@ -104,7 +105,7 @@ describe('withBlockBoundaryGuard - delete strips text, keeps structure', () => {
     expect(editor.children).toHaveLength(3)
     expect(text(editor, [0, 0])).toBe('out')
     expect(text(editor, [1, 0, 0])).toBe('ion')
-    // Caret collapses to the document-order start (outside node).
+    // Caret follows the focus, which ended outside the block.
     expect(editor.selection && Range.isCollapsed(editor.selection)).toBe(true)
     expect(editor.selection?.anchor).toEqual({ path: [0, 0], offset: 3 })
   })
@@ -121,6 +122,8 @@ describe('withBlockBoundaryGuard - delete strips text, keeps structure', () => {
     expect(editor.children).toHaveLength(3)
     expect(text(editor, [1, 0, 0])).toBe('capt')
     expect(text(editor, [2, 0, 0])).toBe('ird')
+    // Caret follows the focus, which ended in the second block.
+    expect(editor.selection?.anchor).toEqual({ path: [2, 0, 0], offset: 0 })
   })
 })
 
