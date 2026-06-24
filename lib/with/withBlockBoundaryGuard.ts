@@ -83,12 +83,15 @@ export function withBlockBoundaryGuard<T extends Editor>(editor: T): T {
     if (selectionCrossesBlockBoundary(editor)) {
       const { selection } = editor
       if (selection) {
-        const startRef = Editor.pointRef(editor, Editor.start(editor, selection))
+        // Collapse to the selection focus so the caret lands where the
+        // selection ended up: inside the block when it ended inside, outside
+        // when it ended outside.
+        const focusRef = Editor.pointRef(editor, selection.focus)
         deleteSelectedTextWithinNodes(editor, selection)
-        const start = startRef.unref()
+        const focus = focusRef.unref()
 
-        if (start) {
-          Transforms.select(editor, start)
+        if (focus) {
+          Transforms.select(editor, focus)
         }
       }
 
