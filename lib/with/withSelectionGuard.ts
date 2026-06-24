@@ -1,4 +1,10 @@
-import { Editor, Element, type Descendant, type Path, Transforms } from 'slate'
+import {
+  Editor,
+  Element,
+  Path,
+  type Descendant,
+  Transforms
+} from 'slate'
 
 /**
  * Clear `editor.selection` when an op leaves it pointing at a path the
