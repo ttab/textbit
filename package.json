@@ -50,7 +50,7 @@
     "yjs": "^13.6.26"
   },
   "devDependencies": {
-    "@eslint/js": "^9.29.0",
+    "@eslint/js": "^10.0.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/is-hotkey": "^0.1.10",
