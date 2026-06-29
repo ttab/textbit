@@ -4,9 +4,10 @@ import { useSlateSelector } from 'slate-react'
 export interface SelectionStats {
   words: number
   characters: number
+  charactersNoSpaces: number
 }
 
-const EMPTY: SelectionStats = { words: 0, characters: 0 }
+const EMPTY: SelectionStats = { words: 0, characters: 0, charactersNoSpaces: 0 }
 
 /**
  * Word and character counts for the current selection. Returns zeros when
@@ -28,6 +29,7 @@ export const useSelectionStats = (): SelectionStats => {
     const [start, end] = Range.edges(selection)
     let words = 0
     let characters = 0
+    let charactersNoSpaces = 0
 
     for (const [node, path] of Editor.nodes(editor, {
       at: selection,
@@ -42,13 +44,17 @@ export const useSelectionStats = (): SelectionStats => {
         text = text.slice(start.offset)
       }
       characters += text.length
+      charactersNoSpaces += (text.match(/\S/gu) || []).length
       words += (text.match(/\p{L}+/gu) || []).length
     }
 
-    return { words, characters }
+    return { words, characters, charactersNoSpaces }
   }, statsEqual)
 }
 
 function statsEqual(a: SelectionStats | null, b: SelectionStats): boolean {
-  return a !== null && a.words === b.words && a.characters === b.characters
+  return a !== null
+    && a.words === b.words
+    && a.characters === b.characters
+    && a.charactersNoSpaces === b.charactersNoSpaces
 }

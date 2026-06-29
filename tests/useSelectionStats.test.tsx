@@ -67,7 +67,7 @@ function renderBoth() {
 describe('useSelectionStats', () => {
   test('returns zeros when there is no selection', () => {
     const { result } = renderBoth()
-    expect(result.current.stats).toEqual({ words: 0, characters: 0 })
+    expect(result.current.stats).toEqual({ words: 0, characters: 0, charactersNoSpaces: 0 })
   })
 
   test('returns zeros when the selection is collapsed', async () => {
@@ -80,13 +80,13 @@ describe('useSelectionStats', () => {
       })
     })
 
-    expect(result.current.stats).toEqual({ words: 0, characters: 0 })
+    expect(result.current.stats).toEqual({ words: 0, characters: 0, charactersNoSpaces: 0 })
   })
 
-  test('counts text and words for a selection inside a single text block', async () => {
+  test('counts text, words, and chars-no-spaces inside a single text block', async () => {
     const { result } = renderBoth()
 
-    // Select all 15 chars of 'first paragraph' (2 words).
+    // Select all 15 chars of 'first paragraph' (2 words, 14 non-space chars).
     await act(async () => {
       Transforms.select(result.current.editor, {
         anchor: { path: [0, 0], offset: 0 },
@@ -94,7 +94,7 @@ describe('useSelectionStats', () => {
       })
     })
 
-    expect(result.current.stats).toEqual({ words: 2, characters: 15 })
+    expect(result.current.stats).toEqual({ words: 2, characters: 15, charactersNoSpaces: 14 })
   })
 
   test('counts across a block element, including its caption and byline', async () => {
@@ -110,8 +110,8 @@ describe('useSelectionStats', () => {
       })
     })
 
-    // 'first paragraph' (15) + 'hello caption' (13) + 'by author' (9) +
-    // 'second paragraph' (16) = 53 characters. 8 words.
-    expect(result.current.stats).toEqual({ words: 8, characters: 53 })
+    // 'first paragraph' (15, 14 non-space) + 'hello caption' (13, 12) +
+    // 'by author' (9, 8) + 'second paragraph' (16, 15) = 53 / 49. 8 words.
+    expect(result.current.stats).toEqual({ words: 8, characters: 53, charactersNoSpaces: 49 })
   })
 })
