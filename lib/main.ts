@@ -84,6 +84,7 @@ export { useContextMenuHints } from './components/ContextMenu/useContextMenuHint
 export { useSelectionBounds } from './hooks/useSelectionBounds'
 export { useEditor } from './hooks/useEditor'
 export { useBlockSelection } from './hooks/useBlockSelection'
+export { useSelectionStats, type SelectionStats } from './hooks/useSelectionStats'
 
 export {
   pipeFromDrop as consumeFileDropEvent,
