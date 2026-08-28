@@ -5,7 +5,6 @@ import {
   Underline
 } from './Leafs'
 import { Navigation } from './Navigation'
-import { Loader } from './Loader'
 
 
 export const StandardPlugins = [
@@ -16,6 +15,5 @@ export const StandardPlugins = [
 ]
 
 export const basePlugins = [
-  Navigation,
-  Loader
+  Navigation
 ]

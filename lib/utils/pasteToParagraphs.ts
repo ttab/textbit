@@ -2,6 +2,7 @@ import { Editor, Transforms, Range, Path, Element, Node } from 'slate'
 import { componentConstraints } from './componentConstraints'
 import { TextbitEditor } from './textbit-editor'
 import { normalizeWhitespace } from './normalizeWhitespace'
+import { normalizeLineEndings } from './normalizeLineEndings'
 import type { PluginRegistryComponent } from '../contexts/PluginRegistry/lib/types'
 
 
@@ -41,8 +42,8 @@ export function pasteToParagraphs(
   if (!allowBreak) {
     paragraphs = [normalizeWhitespace(text)]
   } else {
-    // Split text into paragraphs based on newlines or carriage returns
-    const paragraphedText = text.replace(/[\r\n]{2,}/g, '\n').trim()
+    // Split text into paragraphs, collapsing runs of blank lines into one break
+    const paragraphedText = normalizeLineEndings(text).replace(/\n{2,}/g, '\n').trim()
     paragraphs = paragraphedText.split('\n').map((t) => t.trim())
   }
 

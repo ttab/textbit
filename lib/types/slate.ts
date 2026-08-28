@@ -2,6 +2,7 @@ import type { BaseEditor, BaseElement, BaseRange, BaseText, Element } from 'slat
 import type { ReactEditor } from 'slate-react'
 import type { HistoryEditor } from 'slate-history'
 import { DebounceFunction } from '../utils/debounce'
+import type { PendingDropsController } from '../contexts/PendingDropsContext'
 
 export type SpellingError = {
   id: string
@@ -37,6 +38,12 @@ export type TextbitEditor = BaseEditor & ReactEditor & HistoryEditor & {
   isTextBlock: (value: unknown) => value is Element
   isOfType: <T extends Element>(value: unknown, type: string) => value is T
   allowEdgeWhitespace?: boolean
+  /**
+   * Ephemeral pending-drop controller attached by `PendingDropsProvider`.
+   * Optional because it only exists while a provider is mounted; `pipes.ts`
+   * calls it opportunistically (`editor.pendingDrops?.start(...)`).
+   */
+  pendingDrops?: PendingDropsController
 }
 
 type BaseTextbitElement = BaseElement & {
@@ -75,6 +82,8 @@ export type TextbitText = BaseText & {
 export type TextbitRange = BaseRange & {
   placeholder?: React.ReactNode
   spellingError?: SpellingError
+  newline?: boolean
+  nonBreakingSpace?: boolean
 }
 
 // Declare module augmentation

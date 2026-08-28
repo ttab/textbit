@@ -36,6 +36,7 @@ import { TextbitRoot } from './components/TextbitRoot'
 import { TextbitEditable } from './components/TextbitEditable/TextbitEditable'
 import { Gutter as Gutter$1 } from './components/GutterProvider'
 import { DropMarker } from './components/DropMarker'
+import { UploadMarker } from './components/UploadMarker'
 import { StandardPlugins } from './components/core'
 import { ContextTools } from './components/ContextTools'
 import { ContentTools } from './components/ContentTools'
@@ -47,6 +48,7 @@ export const Textbit = {
   Editable: TextbitEditable,
   Gutter: Gutter$1.Content,
   DropMarker,
+  UploadMarker,
   Plugins: StandardPlugins,
   ContextMenu
 }
@@ -72,6 +74,7 @@ export const Toolbar = {
 export { TextbitRoot as Root }
 export { TextbitEditable as Editable }
 export { DropMarker }
+export { UploadMarker }
 export { StandardPlugins as Plugins }
 export const Gutter = Gutter$1.Content
 export { ContextMenu }
@@ -84,6 +87,9 @@ export { useContextMenuHints } from './components/ContextMenu/useContextMenuHint
 export { useSelectionBounds } from './hooks/useSelectionBounds'
 export { useEditor } from './hooks/useEditor'
 export { useBlockSelection } from './hooks/useBlockSelection'
+export { useSelectionStats, type SelectionStats } from './hooks/useSelectionStats'
+export { usePendingDrops } from './hooks/usePendingDrops'
+export { PendingDropsContext, type PendingDrop } from './contexts/PendingDropsContext'
 
 export {
   pipeFromDrop as consumeFileDropEvent,

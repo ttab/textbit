@@ -6,6 +6,19 @@ import dts from 'vite-plugin-dts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+// Subpaths count too: a bundled react/jsx-runtime leaves a require('react') in
+// the ESM output that throws under Node.
+const externalDeps = [
+  '@slate-yjs/core',
+  '@slate-yjs/react',
+  'react',
+  'react-dom',
+  'slate',
+  'slate-react',
+  'slate-history',
+  'yjs'
+]
+
 export default defineConfig({
   plugins: [
     react(),
@@ -37,10 +50,13 @@ export default defineConfig({
       fileName: (format) => `index.${format}.js`
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'slate', 'slate-react', 'slate-history', 'yjs'],
+      external: (id) => externalDeps.some((dep) => id === dep || id.startsWith(`${dep}/`)),
       output: {
         globals: {
+          '@slate-yjs/core': 'SlateYjs',
+          '@slate-yjs/react': 'SlateYjsReact',
           'react': 'React',
+          'react/jsx-runtime': 'jsxRuntime',
           'react-dom': 'ReactDOM',
           'slate': 'Slate',
           'slate-react': 'SlateReact',

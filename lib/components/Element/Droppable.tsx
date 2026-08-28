@@ -128,11 +128,16 @@ export function Droppable({ children, element }: {
     }
   }, [readOnly, ctx])
 
+  /*
+   * Dragging is never possible in read only mode as all handlers above bail out.
+   * A draggable ancestor would then only make the browser start a native drag
+   * instead of letting the user select text inside the block.
+   */
   return (
     <div
       data-id={element?.id || ''}
       ref={ref}
-      draggable={['block', 'void'].includes(element?.class || '') ? 'true' : 'false'}
+      draggable={!readOnly && ['block', 'void'].includes(element?.class || '') ? 'true' : 'false'}
       onDragStartCapture={onDragStartCapture}
       onDragEnterCapture={onDragEnterCapture}
       onDragLeaveCapture={onDragLeaveCapture}

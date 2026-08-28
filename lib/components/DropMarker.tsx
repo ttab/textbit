@@ -7,23 +7,22 @@ export function DropMarker({ className, style = {} }: {
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const { offset, dragOver } = useContext(DragstateContext)
-  const [editableRect, setEditableRect] = useState<DOMRect | null>(null)
+  // The marker is absolutely positioned, so its coordinates must be relative to
+  // its offset parent (the nearest positioned ancestor), NOT the editable. When
+  // the editable is inset from that ancestor (e.g. a left gutter margin) the two
+  // differ, and measuring the editable would push the marker into the gutter.
+  const [originRect, setOriginRect] = useState<DOMRect | null>(null)
 
-  // Get the editable container dimensions
+  // Measure the offset parent the marker is positioned against.
   useLayoutEffect(() => {
     if (!ref.current || !dragOver) return
 
-    // Find the contenteditable element (the actual Slate editable area)
     const container = ref.current.parentElement
+    if (!container) return
 
-    if (container) {
-      const editable = Array.from(container.children).find(
-        child => child.getAttribute('role') === 'textbox'
-      ) as HTMLElement
-
-      if (editable) {
-        setEditableRect(editable.getBoundingClientRect())
-      }
+    const origin = nearestPositionedAncestor(container)
+    if (origin) {
+      setOriginRect(origin.getBoundingClientRect())
     }
   }, [dragOver, offset])
 
@@ -37,17 +36,18 @@ export function DropMarker({ className, style = {} }: {
     display: 'none'
   }
 
-  if (dragOver && offset && editableRect) {
+  if (dragOver && offset && originRect) {
     const { bbox, position } = offset
 
     if (!bbox) {
       return null
     }
 
-    // Calculate position relative to the editable element
-    // bbox is already the bounding rect of the Slate element node
-    const relativeLeft = bbox.left - editableRect.left
-    const relativeTop = bbox.top - editableRect.top
+    // Calculate position relative to the offset parent (the positioned
+    // ancestor the marker is absolutely positioned within). bbox is already
+    // the bounding rect of the Slate element node.
+    const relativeLeft = bbox.left - originRect.left
+    const relativeTop = bbox.top - originRect.top
 
     pos.display = 'block'
     pos.left = relativeLeft
@@ -85,4 +85,18 @@ export function DropMarker({ className, style = {} }: {
       }}
     />
   )
+}
+
+/**
+ * Nearest ancestor (including `el` itself) with a non-static `position`, i.e.
+ * the offset parent that an absolutely-positioned descendant is placed
+ * against. Returns null if none is found (no positioned ancestor in the tree).
+ */
+function nearestPositionedAncestor(el: HTMLElement): HTMLElement | null {
+  let node: HTMLElement | null = el
+  while (node) {
+    if (getComputedStyle(node).position !== 'static') return node
+    node = node.parentElement
+  }
+  return null
 }

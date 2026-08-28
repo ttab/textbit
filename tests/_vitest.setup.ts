@@ -16,6 +16,17 @@ if (!globalThis.crypto) {
   globalThis.crypto = webcrypto as Crypto
 }
 
+// Polyfill ResizeObserver — jsdom doesn't ship one. Components that rely on
+// it (e.g. UploadMarker's position tracking) instantiate it during effects,
+// so the class must exist even if we never fire observations in tests.
+if (!globalThis.ResizeObserver) {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver
+}
+
 // Mock structuredClone globally for all tests
 beforeAll(() => {
   if (!globalThis.structuredClone) {

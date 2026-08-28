@@ -87,3 +87,61 @@ describe("getDecorationRanges — 'single' placeholder", () => {
     expect(ranges).toHaveLength(0)
   })
 })
+
+describe('getDecorationRanges — soft breaks', () => {
+  function newlineRanges(text: string) {
+    const editor = makeEditor([
+      { type: 'core/text', class: 'text', id: 'b', properties: {}, children: [{ text }] }
+    ])
+    const node = Node.get(editor, [0, 0])
+    return getDecorationRanges(editor, emptySpellcheck, [node, [0, 0]], emptyComponents)
+      .filter((r) => 'newline' in r)
+  }
+
+  test('marks a single newline at its offset', () => {
+    const ranges = newlineRanges('a\nb')
+    expect(ranges).toHaveLength(1)
+    expect(ranges[0].anchor.offset).toBe(1)
+    expect(ranges[0].focus.offset).toBe(2)
+    expect(ranges[0].newline).toBe(true)
+  })
+
+  test('marks each newline when there are several', () => {
+    const ranges = newlineRanges('\na\n')
+    expect(ranges.map((r) => r.anchor.offset)).toEqual([0, 2])
+  })
+
+  test('emits nothing when there is no newline', () => {
+    expect(newlineRanges('a b c')).toHaveLength(0)
+  })
+})
+
+describe('getDecorationRanges — non-breaking spaces', () => {
+  const NBSP = String.fromCharCode(0xa0)
+
+  function nbspRanges(text: string) {
+    const editor = makeEditor([
+      { type: 'core/text', class: 'text', id: 'b', properties: {}, children: [{ text }] }
+    ])
+    const node = Node.get(editor, [0, 0])
+    return getDecorationRanges(editor, emptySpellcheck, [node, [0, 0]], emptyComponents)
+      .filter((r) => 'nonBreakingSpace' in r)
+  }
+
+  test('marks a single non-breaking space at its offset', () => {
+    const ranges = nbspRanges(`1${NBSP}000`)
+    expect(ranges).toHaveLength(1)
+    expect(ranges[0].anchor.offset).toBe(1)
+    expect(ranges[0].focus.offset).toBe(2)
+    expect(ranges[0].nonBreakingSpace).toBe(true)
+  })
+
+  test('marks each non-breaking space when there are several', () => {
+    const ranges = nbspRanges(`${NBSP}a${NBSP}`)
+    expect(ranges.map((r) => r.anchor.offset)).toEqual([0, 2])
+  })
+
+  test('emits nothing for regular spaces only', () => {
+    expect(nbspRanges('a b  c')).toHaveLength(0)
+  })
+})

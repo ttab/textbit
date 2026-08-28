@@ -9,6 +9,7 @@ import { useTextbit } from '../../hooks/useTextbit'
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { useSlateStatic } from 'slate-react'
 import { DragStateProvider } from '../../contexts/DragStateProvider'
+import { PendingDropsProvider } from '../../contexts/PendingDropsProvider'
 import { PresenceOverlay } from '../PresenceOverlay'
 import type { SpellcheckLookupTable } from '../../types'
 import { SelectionBoundsDetails } from '../SelectionBoundsDetails'
@@ -91,31 +92,12 @@ export function TextbitEditable(props: TextbitEditableProps) {
 
     editor.onSpellcheckComplete((newLookupTable) => {
       if (!isMountedRef.current) {
-        console.log('Unmounted!')
         return
       }
 
       setSpellingLookupTable(newLookupTable)
-
-      // The DOM Selection is a single document-wide object, so deselecting
-      // here would clear whatever caret another editor on the page currently
-      // owns. Skip the repaint hack unless this editor is the focused one;
-      // decorations will repaint naturally when focus returns here.
-      if (!ReactEditor.isFocused(editor)) {
-        return
-      }
-
-      // HACK: Deselect and select the editor to ensure the dom selection is correctly updated.
-      // FIXME: When https://github.com/ianstormtaylor/slate/issues/5987
-      const selection = editor.selection
-      ReactEditor.deselect(editor)
-      setTimeout(() => {
-        if (selection) {
-          Transforms.select(editor, selection)
-        }
-      }, 10)
     })
-  }, [editor, isFocused])
+  }, [editor])
 
   // Render element callback
   const renderElement = useCallback((props: RenderElementProps) => {
@@ -286,29 +268,31 @@ export function TextbitEditable(props: TextbitEditableProps) {
         <AdjacentBlockProvider value={adjacentBlock}>
           <DragStateProvider>
             <PresenceOverlay isCollaborative={collaborative}>
-              <Editable
-                autoFocus={!!autoFocus}
-                data-state={isFocused ? 'focused' : ''}
-                readOnly={readOnly}
-                renderElement={renderElement}
-                renderLeaf={renderLeaf}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                onKeyDown={onKeyDown}
-                onPaste={onPaste}
-                decorate={decorate}
-                className={props.className}
-                style={adjacentBlock || blockSelection
-                  ? { ...props.style, caretColor: 'transparent' }
-                  : props.style
-                }
-                spellCheck={false}
-                dir={dir}
-                onContextMenu={handleContextMenu}
-                onMouseDown={onMouseDown}
-                aria-label={props['aria-label']}
-              />
-              {props.children}
+              <PendingDropsProvider editor={editor}>
+                <Editable
+                  autoFocus={!!autoFocus}
+                  data-state={isFocused ? 'focused' : ''}
+                  readOnly={readOnly}
+                  renderElement={renderElement}
+                  renderLeaf={renderLeaf}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  onKeyDown={onKeyDown}
+                  onPaste={onPaste}
+                  decorate={decorate}
+                  className={props.className}
+                  style={adjacentBlock || blockSelection
+                    ? { ...props.style, caretColor: 'transparent' }
+                    : props.style
+                  }
+                  spellCheck={false}
+                  dir={dir}
+                  onContextMenu={handleContextMenu}
+                  onMouseDown={onMouseDown}
+                  aria-label={props['aria-label']}
+                />
+                {props.children}
+              </PendingDropsProvider>
             </PresenceOverlay>
           </DragStateProvider>
         </AdjacentBlockProvider>

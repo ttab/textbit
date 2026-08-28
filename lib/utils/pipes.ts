@@ -1,6 +1,5 @@
 import { type ChangeEvent } from 'react'
 import { Editor, Transforms, Element } from 'slate'
-import { HistoryEditor } from 'slate-history'
 import { getSelectedNodeEntries } from './utils'
 import type { PluginDefinition, Resource, ElementDefinition, ConsumeFunction } from '../types'
 import { TextbitPlugin } from './textbit-plugin'
@@ -261,21 +260,35 @@ async function executePipe(pipe: AggregatedPipeItem, editor: Editor, plugins: Pl
 }
 
 async function executePipeItem(consume: ConsumeFunction, input: Resource | Resource[], produces: string | undefined, editor: Editor, position: number) {
-  // Track by id, not numeric position — the editor can mutate while `consume()` is awaiting.
-  const loaderId = insertLoader(editor, position)
+  // Track the drop position via a PathRef — Slate auto-updates it as ops
+  // fire above/below, so if the local user or a peer edits while
+  // `await consume()` is running the eventual insert lands correctly.
+  //
+  // The visual loader lives in a local React store (attached to the editor
+  // by PendingDropsProvider), NOT in the shared document. That's how we
+  // guarantee zero placeholder pollution of Y.XmlText: if this session
+  // unmounts, crashes, or the tab closes mid-await, no shared state was
+  // ever touched.
+  const pathRef = Editor.pathRef(editor, [position])
+  const dropId = editor.pendingDrops?.start({ pathRef, kind: produces })
+
+  const finish = () => {
+    if (dropId) editor.pendingDrops?.end(dropId)
+    pathRef.unref()
+  }
 
   let result: Resource | undefined
   try {
     result = await consume({ input, editor })
   } catch (ex) {
     console.warn((ex as Error).message)
-    removeLoaderById(editor, loaderId)
+    finish()
     return
   }
 
   // `undefined` is the documented "consume() opted out" signal — no warn.
   if (result === undefined) {
-    removeLoaderById(editor, loaderId)
+    finish()
     return
   }
 
@@ -290,41 +303,25 @@ async function executePipeItem(consume: ConsumeFunction, input: Resource | Resou
       `consume(): unexpected result for "${produces}"; discarding.`,
       result
     )
-    removeLoaderById(editor, loaderId)
+    finish()
     return
   }
 
-  // The numeric drop position may have shifted while we awaited; locate the loader by id instead.
-  const loaderPath = findTopLevelPathById(editor, loaderId)
-  if (!loaderPath) {
-    // The loader was removed externally (peer, manual edit, normalizer).
-    // Rather than placing the result at a stale numeric position that may
-    // now point at unrelated content, drop the result — the user can
-    // retry deterministically.
+  // The PathRef auto-updated across concurrent ops. `null` means the
+  // enclosing position is no longer reachable (e.g. the containing block
+  // was removed) — drop the result rather than inserting somewhere stale.
+  const path = pathRef.current
+  if (!path) {
     console.warn(
-      `Drop loader for "${produces}" was removed before consume() resolved; dropping the consumed result.`
+      `Drop position for "${produces}" was removed before consume() resolved; dropping the consumed result.`
     )
+    finish()
     return
   }
 
-  // Batch so the swap hits one normalize cycle and one yjs sync. Loader
-  // removal stays out of history; the real insert remains undoable.
   const data = result.data
-  Editor.withoutNormalizing(editor, () => {
-    HistoryEditor.withoutSaving(editor, () => {
-      Transforms.removeNodes(editor, { at: loaderPath })
-    })
-    Transforms.insertNodes(editor, data as Element, { at: loaderPath, select: false })
-  })
-}
-
-function removeLoaderById(editor: Editor, loaderId: string) {
-  const path = findTopLevelPathById(editor, loaderId)
-  if (path) {
-    HistoryEditor.withoutSaving(editor, () => {
-      Transforms.removeNodes(editor, { at: path })
-    })
-  }
+  Transforms.insertNodes(editor, data as Element, { at: path, select: false })
+  finish()
 }
 
 function getDataItem(source: string, dt: DataTransfer, item: DataTransferItem) {
@@ -381,44 +378,6 @@ function geUriListItems(source: string, dt: DataTransfer, item: DataTransferItem
   return items
 }
 
-function insertLoader(editor: Editor, position: number) {
-  const id = crypto.randomUUID()
-
-  HistoryEditor.withoutSaving(editor, () => {
-    Transforms.insertNodes(
-      editor,
-      [{
-        id,
-        class: 'void',
-        type: 'core/loader',
-        properties: {},
-        children: [{ text: '' }]
-      }],
-      {
-        at: [position],
-        select: false
-      }
-    )
-  })
-
-  return id
-}
-
-/**
- * Find the top-level path of an element by its id. Returns null when no
- * top-level child carries that id. Used by the pipe machinery to locate
- * loader placeholders after `await consume()` may have left numeric
- * positions stale.
- */
-export function findTopLevelPathById(editor: Editor, id: string): [number] | null {
-  for (let i = 0; i < editor.children.length; i++) {
-    const child = editor.children[i]
-    if (Element.isElement(child) && child.id === id) {
-      return [i]
-    }
-  }
-  return null
-}
 
 
 function moveNode(editor: Editor, id: string, to: number) {

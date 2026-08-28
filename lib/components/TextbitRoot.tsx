@@ -2,7 +2,7 @@ import type { PlaceholdersVisibility } from '../contexts/TextbitContext'
 import { TextbitProvider } from '../contexts/TextbitProvider'
 import { PluginRegistryProvider } from '../contexts/PluginRegistry/PluginRegistryProvider'
 import type { PluginDefinition, SpellingError } from '../types'
-import { Awareness } from 'y-protocols/awareness'
+import type { Awareness } from 'y-protocols/awareness'
 
 import { basePlugins, StandardPlugins } from './core'
 import { ContextMenuHintsProvider } from './ContextMenu/ContextMenuHintsProvider'

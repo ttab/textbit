@@ -52,9 +52,54 @@ export function LeafElement(props: RenderLeafProps) {
     return <MisspelledLeaf {...props} className={className} style={style} />
   } else if (leaf.placeholder) {
     return <EmptyLeaf {...props} className={className} style={style} />
+  } else if (leaf.newline) {
+    return <NewlineLeaf {...props} className={className} style={style} />
+  } else if (leaf.nonBreakingSpace) {
+    return <NonBreakingSpaceLeaf {...props} className={className} style={style} />
   } else {
     return <OrdinaryLeaf {...props} className={className} style={style} />
   }
+}
+
+function NewlineLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }) {
+  const { attributes, style, className } = props
+
+  // The chip look lives in injectStyles (tb-newline), so it stays theme-agnostic
+  // and host-overridable via CSS custom properties.
+  return (
+    <span
+      style={style}
+      className={`${className} tb-newline`}
+      data-newline={true}
+      {...attributes}
+    >
+      {props.children}
+    </span>
+  )
+}
+
+function NonBreakingSpaceLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }) {
+  const { attributes, style, className } = props
+
+  // Derive the marker from currentColor (the field's own text color) so it is
+  // visible on any field background, light or dark, and adapts to dark mode
+  // without extra rules. A filled tint plus a crisp inset ring keeps it legible
+  // even where the tint blends into the background.
+  return (
+    <span
+      style={{
+        ...style,
+        backgroundColor: 'color-mix(in srgb, currentColor 24%, transparent)',
+        boxShadow: 'inset 0 0 0 1px color-mix(in srgb, currentColor 55%, transparent)',
+        borderRadius: '2px'
+      }}
+      className={`${className} textbit-nbsp`}
+      data-nbsp={true}
+      {...attributes}
+    >
+      {props.children}
+    </span>
+  )
 }
 
 function OrdinaryLeaf(props: RenderLeafProps & { className: string, style: CSSProperties }) {

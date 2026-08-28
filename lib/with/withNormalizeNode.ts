@@ -1,12 +1,13 @@
 import { Editor, Element, Transforms, type NodeEntry, type Descendant } from 'slate'
 import type { PluginDefinition, ChildComponentEntry } from '../types/textbit'
 import type { PluginRegistryComponent } from '../contexts/PluginRegistry/lib/types'
+import { TextbitElement } from '../utils/textbit-element'
 
 export function withNormalizeNode(editor: Editor, _: PluginDefinition[], components: Map<string, PluginRegistryComponent>) {
   const { normalizeNode } = editor
 
   editor.normalizeNode = (nodeEntry) => {
-    const [node] = nodeEntry
+    const [node, path] = nodeEntry
 
     // Declarative constraints only apply to Elements
     if (!Element.isElement(node)) {
@@ -15,6 +16,29 @@ export function withNormalizeNode(editor: Editor, _: PluginDefinition[], compone
 
     const item = components.get(node.type)
     if (!item) {
+      // Repair a top-level element that has lost its type (type === undefined
+      // or empty). Such a node can be produced by Slate's built-in transforms
+      // (delete/merge or stray-text wrapping at the document root) or read back
+      // from a Y.XmlText block that carries no `type` attribute. It renders as
+      // "UNKNOWN OBJECT" and makes the document unsaveable. Coerce it to
+      // core/text — but only when it holds no block-level children (inline
+      // nodes and text are fine); a node containing blocks is a container we
+      // must not flatten. A node with an unknown *named* type is left untouched
+      // so we never destroy content whose plugin merely isn't registered.
+      if (
+        path.length === 1
+        && !node.type
+        && components.has('core/text')
+        && hasNoBlockChildren(node)
+      ) {
+        Transforms.setNodes(
+          editor,
+          { type: 'core/text', class: 'text', properties: {} },
+          { at: path }
+        )
+        return
+      }
+
       return normalizeNode(nodeEntry)
     }
 
@@ -164,6 +188,18 @@ function rankForChildNode(fullChildType: string, childDefs: ChildComponentEntry[
     if (def.type && fullChildType.endsWith(`/${def.type}`)) return i
   }
   return Infinity
+}
+
+/**
+ * True when none of the element's children is a block-level node — i.e. every
+ * child is a text leaf or an inline element. Such content is safe to host
+ * inside a core/text paragraph, so a typeless node holding only this can be
+ * repaired to core/text without flattening any nested block structure.
+ */
+function hasNoBlockChildren(node: Element): boolean {
+  return node.children.every(
+    (child) => !Element.isElement(child) || TextbitElement.isInline(child)
+  )
 }
 
 function placeholderForChild(def: ChildComponentEntry, fullType: string): Descendant {

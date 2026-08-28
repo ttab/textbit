@@ -8,7 +8,9 @@ export const debounce = <T extends (...args: never[]) => void>(
   func: T,
   delay: number
 ): DebounceFunction<T> => {
-  let timeoutId: NodeJS.Timeout | undefined
+  // ReturnType<typeof setTimeout> rather than NodeJS.Timeout: this is a browser
+  // library and must not depend on @types/node.
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
 
   const debouncedFn = (...args: Parameters<T>) => {
     clearTimeout(timeoutId)

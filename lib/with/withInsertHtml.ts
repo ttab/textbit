@@ -1,5 +1,6 @@
 import { Editor, Element, Range } from 'slate'
 import { pasteToParagraphs } from '../utils/pasteToParagraphs'
+import { normalizeLineEndings } from '../utils/normalizeLineEndings'
 import type { ElementDefinition, ConsumesFunction, ConsumeFunction, PluginDefinition } from '../types/textbit'
 import { pasteToConsumers } from '../utils/pasteToConsumer'
 import type { PluginRegistryComponent } from '../contexts/PluginRegistry/lib/types'
@@ -70,10 +71,16 @@ export function withInsertHtml(
     // If we don't, Slate will hand it over to insertText(), but when we
     // can handle it we actually do this better than insertText() of Slate
     // which often produces excessive amounts of newlines.
-    if (types.includes('text/plain') && (!allowBreaks || types.includes('text/html'))) {
+    if (types.includes('text/plain')) {
       const text = data.getData('text/plain')
-      if (text && pasteToParagraphs(editor, components, text)) {
-        return
+      // Normalize line endings first, otherwise a single Windows CRLF break
+      // would read as two stacked newlines and be mistaken for a blank line.
+      const hasStackedBreaks = /\n{2,}/.test(normalizeLineEndings(text))
+
+      if (text && (!allowBreaks || types.includes('text/html') || hasStackedBreaks)) {
+        if (pasteToParagraphs(editor, components, text)) {
+          return
+        }
       }
     }
 

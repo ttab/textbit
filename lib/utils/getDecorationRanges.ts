@@ -3,6 +3,10 @@ import { PluginRegistryComponent } from '../contexts/PluginRegistry/lib/types'
 import { PlaceholdersVisibility } from '../contexts/TextbitContext'
 import { SpellcheckLookupTable } from '../types'
 
+// Non-breaking space (U+00A0). Built from its char code so the source stays
+// ASCII and cannot be confused with a regular space.
+const NBSP = String.fromCharCode(0xa0)
+
 /**
  * Escape special regex characters
  */
@@ -58,6 +62,20 @@ export function getDecorationRanges(
             }
           })
         })
+      }
+    }
+  }
+
+  // Soft breaks and non-breaking spaces — one range per newline or U+00A0 so
+  // the leaf can be marked and rendered with a visible chip, letting authors
+  // see where these otherwise-invisible characters are.
+  if (Text.isText(node)) {
+    for (let offset = 0; offset < node.text.length; offset++) {
+      const char = node.text[offset]
+      if (char === '\n') {
+        ranges.push({ anchor: { path, offset }, focus: { path, offset: offset + 1 }, newline: true })
+      } else if (char === NBSP) {
+        ranges.push({ anchor: { path, offset }, focus: { path, offset: offset + 1 }, nonBreakingSpace: true })
       }
     }
   }
