@@ -7,7 +7,7 @@ export default defineConfig({
   test: {
     globals: false,
     environment: 'jsdom',
-    setupFiles: './tests/_vitest.setup.ts',
+    setupFiles: './__tests__/_vitest.setup.ts',
     css: true,
   },
   resolve: {

@@ -1,5 +1,11 @@
 # @ttab/textbit
 
+## 1.7.0-beta.2
+
+### Patch Changes
+
+- Moves the package's repository link on GitHub Packages to the monorepo. The manifest already names it; a publish is what makes the registry act on it, and publish permission follows that link.
+
 ## 1.7.0-beta.0
 
 ### Minor Changes
