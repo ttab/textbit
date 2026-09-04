@@ -1,5 +1,13 @@
 # @ttab/textbit
 
+## 1.7.0-beta.3
+
+### Patch Changes
+
+- dependencies updates:
+    - Updated dependency [`slate@^0.126.2` ↗︎](https://www.npmjs.com/package/slate/v/0.126.2) (from `^0.124.1`, in `peerDependencies`)
+    - Updated dependency [`slate-react@^0.126.4` ↗︎](https://www.npmjs.com/package/slate-react/v/0.126.4) (from `^0.125.1`, in `peerDependencies`)
+
 ## 1.7.0-beta.2
 
 ### Patch Changes
