@@ -48,7 +48,7 @@ describe('Arrow keys — entering a non-text block', () => {
 
     const setAdjacentBlock = vi.fn()
     const event = makeEvent('ArrowRight')
-    handleOnKeyDown(editor, [], event, null, setAdjacentBlock)
+    handleOnKeyDown(editor, [], event, null, setAdjacentBlock, null, vi.fn())
 
     expect(event.preventDefault).toHaveBeenCalled()
     expect(setAdjacentBlock).toHaveBeenCalledWith({
@@ -67,7 +67,7 @@ describe('Arrow keys — entering a non-text block', () => {
 
     const setAdjacentBlock = vi.fn()
     const event = makeEvent('ArrowLeft')
-    handleOnKeyDown(editor, [], event, null, setAdjacentBlock)
+    handleOnKeyDown(editor, [], event, null, setAdjacentBlock, null, vi.fn())
 
     expect(event.preventDefault).toHaveBeenCalled()
     expect(setAdjacentBlock).toHaveBeenCalledWith({
@@ -90,7 +90,7 @@ describe('Arrow keys — exiting a non-text block', () => {
 
     const setAdjacentBlock = vi.fn()
     const event = makeEvent('ArrowRight')
-    handleOnKeyDown(editor, [], event, null, setAdjacentBlock)
+    handleOnKeyDown(editor, [], event, null, setAdjacentBlock, null, vi.fn())
 
     expect(event.preventDefault).toHaveBeenCalled()
     expect(setAdjacentBlock).toHaveBeenCalledWith({
@@ -109,7 +109,7 @@ describe('Arrow keys — exiting a non-text block', () => {
 
     const setAdjacentBlock = vi.fn()
     const event = makeEvent('ArrowLeft')
-    handleOnKeyDown(editor, [], event, null, setAdjacentBlock)
+    handleOnKeyDown(editor, [], event, null, setAdjacentBlock, null, vi.fn())
 
     expect(event.preventDefault).toHaveBeenCalled()
     expect(setAdjacentBlock).toHaveBeenCalledWith({
@@ -127,7 +127,7 @@ describe('Enter with adjacent block state', () => {
     const adjacentBlock: AdjacentBlockState = { blockId: 'non-text-block', direction: 'before' }
     const setAdjacentBlock = vi.fn()
 
-    handleOnKeyDown(editor, [], makeEvent('Enter'), adjacentBlock, setAdjacentBlock)
+    handleOnKeyDown(editor, [], makeEvent('Enter'), adjacentBlock, setAdjacentBlock, null, vi.fn())
 
     expect(editor.children).toHaveLength(4)
     // New text node pushed in at index 1; non-text block moves to index 2
@@ -141,7 +141,7 @@ describe('Enter with adjacent block state', () => {
     const adjacentBlock: AdjacentBlockState = { blockId: 'non-text-block', direction: 'after' }
     const setAdjacentBlock = vi.fn()
 
-    handleOnKeyDown(editor, [], makeEvent('Enter'), adjacentBlock, setAdjacentBlock)
+    handleOnKeyDown(editor, [], makeEvent('Enter'), adjacentBlock, setAdjacentBlock, null, vi.fn())
 
     expect(editor.children).toHaveLength(4)
     // Non-text block stays at index 1; new text node at index 2
@@ -165,7 +165,7 @@ describe('Backspace/Delete with adjacent block state', () => {
     const setAdjacentBlock = vi.fn()
     const event = makeEvent('Backspace')
 
-    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock)
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock, null, vi.fn())
 
     expect(event.preventDefault).toHaveBeenCalled()
     expect(editor.children).toHaveLength(2)
@@ -181,7 +181,7 @@ describe('Backspace/Delete with adjacent block state', () => {
     const setAdjacentBlock = vi.fn()
     const event = makeEvent('Delete')
 
-    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock)
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock, null, vi.fn())
 
     expect(event.preventDefault).toHaveBeenCalled()
     expect(editor.children).toHaveLength(2)
@@ -220,7 +220,7 @@ describe('Delete with direction=before on consecutive blocks', () => {
     const setAdjacentBlock = vi.fn()
     const event = makeEvent('Delete')
 
-    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock)
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock, null, vi.fn())
 
     expect(event.preventDefault).toHaveBeenCalled()
     expect(editor.children).toHaveLength(3)
@@ -242,7 +242,7 @@ describe('Delete with direction=before on consecutive blocks', () => {
     const setAdjacentBlock = vi.fn()
     const event = makeEvent('Delete')
 
-    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock)
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock, null, vi.fn())
 
     expect(event.preventDefault).toHaveBeenCalled()
     expect(editor.children).toHaveLength(3)
@@ -264,7 +264,7 @@ describe('Delete with direction=before on consecutive blocks', () => {
     const setAdjacentBlock = vi.fn()
     const event = makeEvent('Delete')
 
-    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock)
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock, null, vi.fn())
 
     expect(event.preventDefault).toHaveBeenCalled()
     expect(editor.children).toHaveLength(2)
@@ -288,7 +288,7 @@ describe('Backspace with direction=before on consecutive blocks', () => {
     const setAdjacentBlock = vi.fn()
     const event = makeEvent('Backspace')
 
-    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock)
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock, null, vi.fn())
 
     expect(event.preventDefault).toHaveBeenCalled()
     expect(editor.children).toHaveLength(3)
@@ -311,9 +311,37 @@ describe('Modifier keys do not clear adjacent state', () => {
       const adjacentBlock: AdjacentBlockState = { blockId: 'non-text-block', direction: 'before' }
       const setAdjacentBlock = vi.fn()
 
-      handleOnKeyDown(editor, [], makeEvent(key), adjacentBlock, setAdjacentBlock)
+      handleOnKeyDown(editor, [], makeEvent(key), adjacentBlock, setAdjacentBlock, null, vi.fn())
 
       expect(setAdjacentBlock).not.toHaveBeenCalled()
     }
   )
+})
+
+describe('Paste shortcut with adjacent block state keeps it for the paste', () => {
+  test.each([
+    ['Ctrl+V', 'v', { ctrlKey: true }],
+    ['Cmd+V', 'v', { metaKey: true }],
+    ['Ctrl+V with Caps Lock', 'V', { ctrlKey: true }],
+    ['Ctrl+Shift+V', 'V', { ctrlKey: true, shiftKey: true }]
+  ])('%s', (_name, key, mods) => {
+    const editor = makeEditor()
+    Transforms.select(editor, Editor.start(editor, [1]))
+    const setAdjacentBlock = vi.fn()
+    const event = {
+      key,
+      ctrlKey: false,
+      metaKey: false,
+      shiftKey: false,
+      altKey: false,
+      ...mods,
+      preventDefault: vi.fn()
+    } as unknown as React.KeyboardEvent<HTMLDivElement>
+    const adjacentBlock: AdjacentBlockState = { blockId: 'non-text-block', direction: 'before' }
+
+    handleOnKeyDown(editor, [], event, adjacentBlock, setAdjacentBlock, null, vi.fn())
+
+    expect(setAdjacentBlock).not.toHaveBeenCalled()
+    expect(event.preventDefault).not.toHaveBeenCalled()
+  })
 })

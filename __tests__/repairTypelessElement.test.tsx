@@ -6,7 +6,7 @@ import type { Descendant, Editor, Element } from 'slate'
 import { Editor as SlateEditor } from 'slate'
 import { TextbitRoot } from '../lib/components/TextbitRoot'
 import { TextbitEditable } from '../lib/components/TextbitEditable/TextbitEditable'
-import type { PluginDefinition } from '../lib/types'
+import type { PluginDefinition, ComponentProps } from '../lib/types'
 
 // Minimal plugin set: a core/text paragraph (the repair target) and a core/link
 // inline element (to prove inline children don't block the repair).
@@ -15,7 +15,7 @@ const testTextPlugin: PluginDefinition = {
   name: 'core/text',
   componentEntry: {
     class: 'text',
-    component: ({ children, attributes }) => <p {...attributes}>{children}</p>
+    component: ({ children }: ComponentProps) => <p>{children}</p>
   }
 }
 
@@ -24,7 +24,7 @@ const testLinkPlugin: PluginDefinition = {
   name: 'core/link',
   componentEntry: {
     class: 'inline',
-    component: ({ children, attributes }) => <a {...attributes}>{children}</a>
+    component: ({ children }: ComponentProps) => <a>{children}</a>
   }
 }
 

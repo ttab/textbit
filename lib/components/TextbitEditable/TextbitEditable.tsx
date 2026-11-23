@@ -171,6 +171,35 @@ export function TextbitEditable(props: TextbitEditableProps) {
     handleOnKeyDown(editor, actions, event, adjacentBlock, setAdjacentBlock, blockSelection, setBlockSelection)
   }, [editor, actions, adjacentBlock, setAdjacentBlock, blockSelection, setBlockSelection])
 
+  // A DOM selection with no Slate range, as one running out of the editor, would have
+  // slate-react write a stale editor.selection. True makes it skip a copy; a cut is cancelled.
+  const hasNoSlateRange = useCallback((event: React.ClipboardEvent<HTMLDivElement>) => {
+    const { target } = event
+    const isInput = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement
+    // Block selection set editor.selection on keydown
+    if (blockSelection || isInput) {
+      return false
+    }
+
+    const domSelection = ReactEditor.getWindow(editor).getSelection()
+    const touchesEditor = [domSelection?.anchorNode, domSelection?.focusNode]
+      .some((node) => node && ReactEditor.hasDOMNode(editor, node))
+    if (!domSelection || !touchesEditor) {
+      return false
+    }
+
+    return !ReactEditor.toSlateRange(editor, domSelection, {
+      exactMatch: false,
+      suppressThrow: true
+    })
+  }, [editor, blockSelection])
+
+  const onCut = useCallback((event: React.ClipboardEvent<HTMLDivElement>) => {
+    if (hasNoSlateRange(event)) {
+      event.preventDefault()
+    }
+  }, [hasNoSlateRange])
+
   /**
    * Redirect paste when block caret or block selection is active so the
    * clipboard content lands adjacent to (or replaces) the affected
@@ -297,6 +326,8 @@ export function TextbitEditable(props: TextbitEditableProps) {
                   onBlur={handleBlur}
                   onKeyDown={onKeyDown}
                   onPaste={onPaste}
+                  onCopy={hasNoSlateRange}
+                  onCut={onCut}
                   decorate={decorate}
                   className={props.className}
                   style={adjacentBlock || blockSelection

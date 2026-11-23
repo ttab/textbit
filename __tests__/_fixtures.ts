@@ -223,6 +223,7 @@ export const consecutiveBlocksContent: Descendant[] = [
     class: 'block',
     children: [
       {
+        id: 'block-1-image',
         type: 'core/image/image',
         class: 'void',
         children: [{ text: '' }]
@@ -242,6 +243,7 @@ export const consecutiveBlocksContent: Descendant[] = [
     class: 'block',
     children: [
       {
+        id: 'block-2-image',
         type: 'core/image/image',
         class: 'void',
         children: [{ text: '' }]

@@ -5,7 +5,7 @@ import { type PropsWithChildren } from 'react'
 import { Node, type Descendant, type Editor } from 'slate'
 import { TextbitRoot } from '../lib/components/TextbitRoot'
 import { TextbitEditable } from '../lib/components/TextbitEditable/TextbitEditable'
-import type { PluginDefinition } from '../lib/types'
+import type { PluginDefinition, ComponentProps } from '../lib/types'
 
 function textPlugin(allowSoftBreak?: boolean): PluginDefinition {
   return {
@@ -13,7 +13,7 @@ function textPlugin(allowSoftBreak?: boolean): PluginDefinition {
     name: 'core/text',
     componentEntry: {
       class: 'text',
-      component: ({ children, attributes }) => <p {...attributes}>{children}</p>,
+      component: ({ children }: ComponentProps) => <p>{children}</p>,
       ...(allowSoftBreak === undefined ? {} : { constraints: { allowSoftBreak } })
     }
   }

@@ -6,7 +6,12 @@ import type { Descendant, Editor, Element } from 'slate'
 import { Transforms, Editor as SlateEditor } from 'slate'
 import { TextbitRoot } from '../lib/components/TextbitRoot'
 import { TextbitEditable } from '../lib/components/TextbitEditable/TextbitEditable'
-import type { PluginDefinition, ComponentEntry, ChildComponentEntry } from '../lib/types'
+import type {
+  PluginDefinition,
+  ComponentEntry,
+  ChildComponentEntry,
+  ComponentProps
+} from '../lib/types'
 
 // ---------------------------------------------------------------------------
 // A test-only "image" plugin with declarative child constraints matching the
@@ -20,7 +25,7 @@ const testImagePlugin: PluginDefinition = {
   name: 'test/image',
   componentEntry: {
     class: 'block',
-    component: ({ children, attributes }) => <figure {...attributes}>{children}</figure>,
+    component: ({ children }: ComponentProps) => <figure>{children}</figure>,
     children: [
       {
         type: 'content',
@@ -46,7 +51,7 @@ const testMultiBodyPlugin: PluginDefinition = {
   name: 'test/multi',
   componentEntry: {
     class: 'block',
-    component: ({ children, attributes }) => <div {...attributes}>{children}</div>,
+    component: ({ children }: ComponentProps) => <div>{children}</div>,
     children: [
       {
         type: 'body',
@@ -64,7 +69,7 @@ const testMinTwoPlugin: PluginDefinition = {
   name: 'test/mintwo',
   componentEntry: {
     class: 'block',
-    component: ({ children, attributes }) => <div {...attributes}>{children}</div>,
+    component: ({ children }: ComponentProps) => <div>{children}</div>,
     children: [
       {
         type: 'body',
@@ -83,7 +88,7 @@ const testMaxOnlyPlugin: PluginDefinition = {
   name: 'test/maxonly',
   componentEntry: {
     class: 'block',
-    component: ({ children, attributes }) => <div {...attributes}>{children}</div>,
+    component: ({ children }: ComponentProps) => <div>{children}</div>,
     children: [
       {
         type: 'slot',
@@ -104,7 +109,7 @@ function makeImageWithSpyPlugin(spy: () => void): PluginDefinition {
     name: 'test/spyimage',
     componentEntry: {
       class: 'block',
-      component: ({ children, attributes }) => <figure {...attributes}>{children}</figure>,
+      component: ({ children }: ComponentProps) => <figure>{children}</figure>,
       constraints: {
         normalizeNode: () => {
           spy()

@@ -133,8 +133,9 @@ export function handleNonArrowWithAdjacentBlock(
 
   // Cmd/Ctrl+V — let the paste event propagate to the onPaste handler,
   // which is responsible for redirecting insertion to the correct path
-  // and clearing the adjacent state. Do not preventDefault here.
-  if ((event.metaKey || event.ctrlKey) && event.key === 'v') {
+  // and clearing the adjacent state. Do not preventDefault here. Caps Lock or Shift
+  // (paste as plain text) upper-cases the key.
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'v') {
     return true
   }
 

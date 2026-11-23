@@ -6,7 +6,7 @@ import type { Descendant, Editor, Element } from 'slate'
 import { Transforms, Editor as SlateEditor } from 'slate'
 import { TextbitRoot } from '../lib/components/TextbitRoot'
 import { TextbitEditable } from '../lib/components/TextbitEditable/TextbitEditable'
-import type { PluginDefinition } from '../lib/types'
+import type { PluginDefinition, ComponentProps } from '../lib/types'
 import { consecutiveBlocksContent } from './_fixtures'
 
 // ---------------------------------------------------------------------------
@@ -36,6 +36,7 @@ function imageBlock(id: string, caption: string): Descendant {
     class: 'block',
     children: [
       {
+        id: `${id}-image`,
         type: 'core/image/image',
         class: 'void',
         children: [{ text: '' }]
@@ -48,7 +49,7 @@ function imageBlock(id: string, caption: string): Descendant {
         children: [{ text: caption }]
       }
     ]
-  } as Descendant
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -394,7 +395,7 @@ const imageWithCaptionPlugin: PluginDefinition = {
   name: 'core/image',
   componentEntry: {
     class: 'block',
-    component: ({ children, attributes }) => <figure {...attributes}>{children}</figure>,
+    component: ({ children }: ComponentProps) => <figure>{children}</figure>,
     children: [
       {
         type: 'image',

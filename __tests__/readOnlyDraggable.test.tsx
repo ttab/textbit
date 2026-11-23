@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 import type { Descendant } from 'slate'
 import { TextbitRoot } from '../lib/components/TextbitRoot'
 import { TextbitEditable } from '../lib/components/TextbitEditable/TextbitEditable'
-import type { PluginDefinition } from '../lib/types'
+import type { PluginDefinition, ComponentProps } from '../lib/types'
 
 function renderEditor(value: Descendant[], options?: { readOnly?: boolean }) {
   return render(
@@ -27,7 +27,7 @@ const captionBlockPlugin: PluginDefinition = {
   name: 'test/caption-block',
   componentEntry: {
     class: 'block',
-    component: ({ children }) => <div>{children}</div>,
+    component: ({ children }: ComponentProps) => <div>{children}</div>,
     children: [
       {
         type: 'caption',

@@ -1,5 +1,30 @@
 # @ttab/textbit
 
+## 1.9.0
+
+### Minor Changes
+
+- Requires slate-react 0.147.6, which brings the selection up to date before a copy or cut. Textbit
+  no longer does that itself, and only steps in when the DOM selection has no Slate range, as when
+  it runs out of the editor: the browser copies it, and a cut is cancelled.
+
+### Patch Changes
+
+- dependencies updates:
+    - Updated dependency [`slate-history@^0.144.0` ↗︎](https://www.npmjs.com/package/slate-history/v/0.144.0) (from `^0.113.1`, in `dependencies`)
+    - Updated dependency [`slate@^0.147.4` ↗︎](https://www.npmjs.com/package/slate/v/0.147.4) (from `^0.126.2`, in `peerDependencies`)
+    - Updated dependency [`slate-react@^0.147.3` ↗︎](https://www.npmjs.com/package/slate-react/v/0.147.3) (from `^0.126.4`, in `peerDependencies`)
+
+- dependencies updates:
+    - Updated dependency [`yjs@^13.6.33` ↗︎](https://www.npmjs.com/package/yjs/v/13.6.33) (from `^13.6.26`, in `peerDependencies`)
+
+- Copy and cut take the selection from the DOM before writing the clipboard. A copy that arrived
+  before slate-react had caught up with the selection wrote nothing and left the clipboard as it
+  was, or wrote the previous selection. A selection running out of the editor, as one dragged
+  past a read-only editor's end, is copied by the browser, and cutting it does nothing. With whole
+  blocks selected, Ctrl/Cmd+C, X and V now work with Caps Lock on. With the caret beside a block,
+  Ctrl/Cmd+V with Caps Lock or Shift pastes beside it rather than into the block.
+
 ## 1.8.0
 
 ### Minor Changes
